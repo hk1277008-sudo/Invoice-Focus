@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Invoice Focus"
+version = "1.0.0"
+id = "artifacts/invoice-focus"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18994
+
+[services.development]
+run = "pnpm --filter @workspace/invoice-focus run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/invoice-focus", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/invoice-focus/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18994"
+BASE_PATH = "/"
