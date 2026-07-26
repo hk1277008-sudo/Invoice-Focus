@@ -1,3 +1,3 @@
 export function Hero() {
-  return <section />
+  return <section>Hero</section>
 }

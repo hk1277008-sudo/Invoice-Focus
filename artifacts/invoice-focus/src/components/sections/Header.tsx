@@ -1,3 +1,3 @@
 export function Header() {
-  return <header />
+  return <header>Header</header>
 }

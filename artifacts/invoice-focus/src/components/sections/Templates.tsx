@@ -1,3 +1,3 @@
 export function Templates() {
-  return <section />
+  return <section>Templates</section>
 }

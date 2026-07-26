@@ -1,3 +1,3 @@
 export function Features() {
-  return <section />
+  return <section>Features</section>
 }

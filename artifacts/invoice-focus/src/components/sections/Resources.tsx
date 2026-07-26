@@ -1,3 +1,3 @@
 export function Resources() {
-  return <section />
+  return <section>Resources</section>
 }

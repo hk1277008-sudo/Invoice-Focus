@@ -1,3 +1,3 @@
 export function FAQ() {
-  return <section />
+  return <section>FAQ</section>
 }
