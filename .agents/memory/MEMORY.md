@@ -1,0 +1,2 @@
+- [Invoice Focus build env vars](invoice-focus-build-env-vars.md) — `vite.config.ts` requires `PORT` and `BASE_PATH` at config-load time; set them when running `pnpm run build` manually.
+- [Cloning as design inspiration](cloning-design-inspiration.md) — For third-party site inspiration, extract structure/copy, then adapt to the existing design system and replace all branding.

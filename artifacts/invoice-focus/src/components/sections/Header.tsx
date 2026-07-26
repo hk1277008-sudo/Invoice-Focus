@@ -1,14 +1,15 @@
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/shared/Logo'
 
-const NAV_ITEMS = ['Features', 'Templates', 'Resources', 'Blog', 'FAQ', 'About', 'Contact']
+const NAV_ITEMS = ['Features', 'Templates', 'Resources', 'FAQ']
 
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
         {/* Logo */}
-        <a href="/" className="font-display text-lg font-medium tracking-tight text-foreground">
-          InvoiceFocus
+        <a href="/" aria-label="Invoice Focus home">
+          <Logo size="md" />
         </a>
 
         {/* Desktop navigation */}
