@@ -12,9 +12,6 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
             <Logo size="sm" />
           </Link>
           <nav className="flex items-center gap-3">
-            <Button size="sm" variant="outline" asChild>
-              <Link href="/sign-in">Sign in</Link>
-            </Button>
             <Button size="sm" asChild>
               <Link href="/sign-up">Request access</Link>
             </Button>
