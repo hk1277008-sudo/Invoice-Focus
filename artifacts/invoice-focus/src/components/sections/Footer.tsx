@@ -48,7 +48,7 @@ export function Footer() {
             <a href="/" aria-label="InvoiceFocus home">
               <Logo size="md" />
             </a>
-            <p className="mt-4 max-w-xs text-sm text-muted-foreground">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Professional invoicing made simple for freelancers, agencies, and growing businesses.
             </p>
           </div>

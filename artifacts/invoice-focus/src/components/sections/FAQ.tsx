@@ -7,9 +7,9 @@ import {
 
 const FAQS = [
   {
-    question: 'Is InvoiceFocus free to use?',
+    question: 'What plans does InvoiceFocus offer?',
     answer:
-      'Yes. You can create, customize, and download invoices without paying anything. Advanced features like saved clients, recurring invoices, and team collaboration are available on paid plans.',
+      'InvoiceFocus offers a simple plan structure designed for freelancers, agencies, and growing businesses. Start with core invoicing tools, then upgrade for advanced features like saved clients, recurring invoices, and team collaboration.',
   },
   {
     question: 'Do I need to install anything?',

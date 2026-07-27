@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 
 function TemplateMiniPreview({ accent }: { accent: string }) {
   return (
-    <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-white p-3 shadow-sm">
+    <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-border/60 bg-white p-3 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
         <div className={`h-2 w-10 rounded ${accent}`} />
         <div className="h-2 w-8 rounded bg-gray-100" />
@@ -81,14 +81,14 @@ export function Templates() {
             <a
               key={title}
               href="/sign-up"
-              className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+              className="group flex h-full flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               <TemplateMiniPreview accent={accent} />
               <div className="mt-5">
-                <h3 className="font-display text-lg font-semibold text-foreground">{title}</h3>
+                <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">{title}</h3>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
               </div>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
+              <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
                 Use template
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </span>

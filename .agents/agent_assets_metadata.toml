@@ -24,3 +24,9 @@ id = "QPBK3XNjeaPOIOv8ywIhb"
 uri = "file://screenshots/invoice-focus-landing-page.jpg"
 type = "image"
 title = "InvoiceFocus landing page"
+
+[[outputs]]
+id = "WFtclxJM3DxgLSQLtcJtv"
+uri = "file://screenshots/invoice-focus-desktop-1280.jpg"
+type = "image"
+title = "InvoiceFocus desktop preview"

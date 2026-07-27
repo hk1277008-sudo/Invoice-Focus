@@ -14,10 +14,10 @@ export function CTA() {
           </div>
 
           <div className="relative mx-auto max-w-2xl">
-            <h2 className="font-display text-3xl font-semibold tracking-tight text-primary-foreground md:text-4xl">
+            <h2 className="font-display text-balance text-3xl font-semibold tracking-tight text-primary-foreground md:text-4xl">
               Start Creating Professional Invoices Today
             </h2>
-            <p className="mt-4 text-lg text-primary-foreground/80">
+            <p className="mt-4 text-balance text-lg leading-relaxed text-primary-foreground/80">
               Join freelancers, agencies, and startups who use InvoiceFocus to simplify billing and get paid faster.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -30,7 +30,7 @@ export function CTA() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground/20 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
+                className="border-primary-foreground/20 bg-transparent text-primary-foreground shadow-none hover:bg-primary-foreground/10"
                 asChild
               >
                 <a href="/sign-in">Sign In</a>

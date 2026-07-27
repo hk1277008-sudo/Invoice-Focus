@@ -40,14 +40,14 @@ export function HowItWorks() {
 
         <div className="mt-14 grid gap-8 md:grid-cols-3">
           {STEPS.map(({ icon: Icon, step, title, description }) => (
-            <div key={title} className="relative flex flex-col items-center text-center">
-              <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <div key={title} className="relative flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1">
+              <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors hover:bg-primary/15">
                 <Icon className="h-6 w-6" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-primary">
                 Step {step}
               </span>
-              <h3 className="mt-2 font-display text-xl font-semibold text-foreground">{title}</h3>
+              <h3 className="mt-2 font-display text-xl font-semibold tracking-tight text-foreground">{title}</h3>
               <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
                 {description}
               </p>
