@@ -1,10 +1,11 @@
+import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 
 function TemplateMiniPreview({ accent }: { accent: string }) {
   return (
-    <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-border/60 bg-white p-3 shadow-sm">
+    <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-border/60 bg-white p-3 shadow-sm transition-shadow duration-300 group-hover:shadow-md">
       <div className="mb-2 flex items-center justify-between">
-        <div className={`h-2 w-10 rounded ${accent}`} />
+        <div className={`h-2.5 w-10 rounded ${accent}`} />
         <div className="h-2 w-8 rounded bg-gray-100" />
       </div>
       <div className="space-y-1.5">
@@ -62,6 +63,19 @@ const TEMPLATES = [
   },
 ]
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+}
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
+}
+
 export function Templates() {
   return (
     <section id="templates" className="bg-muted/30">
@@ -76,12 +90,19 @@ export function Templates() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+        >
           {TEMPLATES.map(({ title, description, accent }) => (
-            <a
+            <motion.a
               key={title}
               href="/sign-up"
-              className="group flex h-full flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+              variants={item}
+              className="group flex h-full flex-col rounded-2xl bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg gradient-border"
             >
               <TemplateMiniPreview accent={accent} />
               <div className="mt-5">
@@ -90,11 +111,11 @@ export function Templates() {
               </div>
               <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
                 Use template
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
-            </a>
+            </motion.a>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

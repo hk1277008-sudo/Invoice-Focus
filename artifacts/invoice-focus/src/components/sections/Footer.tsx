@@ -1,4 +1,5 @@
 import { Logo } from '@/components/shared/Logo'
+import { Github, Twitter, Linkedin } from 'lucide-react'
 
 const FOOTER_GROUPS = [
   {
@@ -11,12 +12,12 @@ const FOOTER_GROUPS = [
     ],
   },
   {
-    title: 'Company',
+    title: 'Templates',
     links: [
-      { text: 'About', href: '/about' },
-      { text: 'Blog', href: '/blog' },
-      { text: 'Careers', href: '/careers' },
-      { text: 'Contact', href: '/contact' },
+      { text: 'Invoice', href: '#templates' },
+      { text: 'Quote', href: '#templates' },
+      { text: 'Estimate', href: '#templates' },
+      { text: 'Receipt', href: '#templates' },
     ],
   },
   {
@@ -29,6 +30,15 @@ const FOOTER_GROUPS = [
     ],
   },
   {
+    title: 'Company',
+    links: [
+      { text: 'About', href: '/about' },
+      { text: 'Blog', href: '/blog' },
+      { text: 'Careers', href: '/careers' },
+      { text: 'Contact', href: '/contact' },
+    ],
+  },
+  {
     title: 'Legal',
     links: [
       { text: 'Privacy Policy', href: '/privacy' },
@@ -38,11 +48,17 @@ const FOOTER_GROUPS = [
   },
 ]
 
+const SOCIAL_LINKS = [
+  { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
+  { icon: Github, href: 'https://github.com', label: 'GitHub' },
+  { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+]
+
 export function Footer() {
   return (
     <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="grid gap-12 lg:grid-cols-6">
           {/* Brand column */}
           <div className="lg:col-span-2">
             <a href="/" aria-label="InvoiceFocus home">
@@ -51,6 +67,18 @@ export function Footer() {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Professional invoicing made simple for freelancers, agencies, and businesses.
             </p>
+            <div className="mt-6 flex items-center gap-4">
+              {SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Link groups */}

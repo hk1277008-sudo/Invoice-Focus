@@ -4,18 +4,18 @@ import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover-elevate active-elevate-2 hover:-translate-y-px active:translate-y-0 active:scale-[0.99]',
+  'group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:translate-y-0 active:scale-[0.99]',
   {
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground border border-primary-border shadow-sm hover:shadow-md',
+          'bg-gradient-to-br from-primary to-primary-600 text-primary-foreground shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5',
         destructive:
-          'bg-destructive text-destructive-foreground shadow-sm border-destructive-border hover:shadow-md',
+          'bg-destructive text-destructive-foreground shadow-sm border border-destructive-border hover:shadow-md',
         outline:
-          'border border-[var(--button-outline)] bg-background text-foreground shadow-sm hover:bg-muted/50 hover:shadow-md',
+          'border border-border/80 bg-white text-foreground shadow-sm hover:bg-muted/50 hover:shadow-md hover:-translate-y-0.5',
         secondary:
-          'bg-secondary text-secondary-foreground border border-secondary-border shadow-sm hover:shadow-md',
+          'bg-white text-foreground border border-border/80 shadow-sm hover:shadow-md hover:-translate-y-0.5',
         ghost: 'border border-transparent hover:bg-muted/50',
         link: 'text-primary underline-offset-4 hover:underline',
       },

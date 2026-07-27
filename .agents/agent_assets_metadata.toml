@@ -36,3 +36,9 @@ id = "ZYaWEp4_IyKomlmxGZB93"
 uri = "file://screenshots/invoice-focus-desktop-1280-final.jpg"
 type = "image"
 title = "InvoiceFocus final desktop preview"
+
+[[outputs]]
+id = "s8JmzSeNCxiU9QczRyxeX"
+uri = "file://screenshots/invoice-focus-1920.jpg"
+type = "image"
+title = "InvoiceFocus premium landing page"

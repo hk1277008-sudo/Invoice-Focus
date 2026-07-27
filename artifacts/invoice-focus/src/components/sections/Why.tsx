@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import {
   Zap,
   Shield,
@@ -40,6 +41,19 @@ const BENEFITS = [
   },
 ]
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+}
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
+}
+
 export function Why() {
   return (
     <section id="why" className="bg-muted/30">
@@ -54,20 +68,27 @@ export function Why() {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+        >
           {BENEFITS.map(({ icon: Icon, title, description }) => (
-            <div
+            <motion.div
               key={title}
-              className="group flex h-full flex-col rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+              variants={item}
+              className="group relative flex h-full flex-col rounded-2xl bg-card p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg gradient-border"
             >
-              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                <Icon className="h-5 w-5" />
+              <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary shadow-sm transition-all duration-300 group-hover:from-primary/15 group-hover:to-primary/10 group-hover:shadow-md">
+                <Icon className="h-6 w-6" />
               </div>
               <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

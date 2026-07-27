@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 
@@ -5,7 +6,13 @@ export function CTA() {
   return (
     <section id="cta" className="bg-background">
       <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
-        <div className="relative overflow-hidden rounded-2xl bg-primary px-6 py-16 text-center sm:px-12 lg:px-20">
+        <motion.div
+          className="relative overflow-hidden rounded-2xl bg-primary px-6 py-16 text-center sm:px-12 lg:px-20"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
           <div
             className="pointer-events-none absolute -inset-px opacity-10"
             aria-hidden="true"
@@ -24,20 +31,20 @@ export function CTA() {
               <Button size="lg" variant="secondary" asChild>
                 <a href="/sign-up">
                   Get Started
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </a>
               </Button>
               <Button
                 size="lg"
-                variant="outline"
-                className="border-primary-foreground/20 bg-transparent text-primary-foreground shadow-none hover:bg-primary-foreground/10"
+                variant="ghost"
+                className="border-primary-foreground/20 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
                 asChild
               >
                 <a href="/sign-in">Sign In</a>
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )
