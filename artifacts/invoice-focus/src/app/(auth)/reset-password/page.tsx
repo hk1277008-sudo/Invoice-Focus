@@ -1,28 +1,33 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'wouter'
+import { useState, useEffect } from 'react'
+import { Link, useLocation, useSearch } from 'wouter'
 import { AuthLayout } from '../layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { getApiBaseUrl } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 
-export default function SignUpPage() {
+export default function ResetPasswordPage() {
+  const search = useSearch()
   const [, navigate] = useLocation()
   const { toast } = useToast()
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSuccess, setIsSuccess] = useState(false)
+  const [token, setToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(search)
+    const tokenValue = params.get('token')
+    if (tokenValue) {
+      setToken(tokenValue)
+    }
+  }, [search])
 
   const validate = () => {
     const nextErrors: Record<string, string> = {}
-    if (!fullName.trim()) nextErrors.fullName = 'Full name is required'
-    if (!email.trim()) nextErrors.email = 'Email is required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) nextErrors.email = 'Enter a valid email'
     if (!password) nextErrors.password = 'Password is required'
     else if (password.length < 8) nextErrors.password = 'Password must be at least 8 characters'
     if (password !== confirmPassword) nextErrors.confirmPassword = 'Passwords do not match'
@@ -37,22 +42,32 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, fullName }),
+      if (!token) {
+        setErrors({ password: 'Invalid or expired reset link. Please request a new one.' })
+        return
+      }
+
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: 'recovery',
       })
 
-      const data = await response.json().catch(() => ({ error: 'Something went wrong' }))
+      if (verifyError) {
+        setErrors({ password: verifyError.message || 'Invalid or expired reset link.' })
+        toast({ title: 'Reset failed', description: verifyError.message, variant: 'destructive' })
+        return
+      }
 
-      if (!response.ok) {
-        setErrors({ email: data.error || 'Sign up failed' })
-        toast({ title: 'Sign up failed', description: data.error, variant: 'destructive' })
+      const { error: updateError } = await supabase.auth.updateUser({ password })
+
+      if (updateError) {
+        setErrors({ password: updateError.message || 'Failed to update password.' })
+        toast({ title: 'Reset failed', description: updateError.message, variant: 'destructive' })
         return
       }
 
       setIsSuccess(true)
-      toast({ title: 'Account created', description: 'Check your email to verify your account.' })
+      toast({ title: 'Password updated', description: 'You can now sign in with your new password.' })
     } finally {
       setIsLoading(false)
     }
@@ -63,19 +78,17 @@ export default function SignUpPage() {
       <AuthLayout>
         <div className="rounded-xl border border-border bg-card px-8 py-10 shadow-sm text-center">
           <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-            Verify your email
+            Password updated
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            We sent a verification link to <strong>{email}</strong>. Please click it to activate your account.
+            Your password has been reset successfully.
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            className="mt-6"
-            onClick={() => navigate('/sign-in')}
+          <Link
+            href="/sign-in"
+            className="mt-6 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
-            Go to Sign In
-          </Button>
+            Sign in
+          </Link>
         </div>
       </AuthLayout>
     )
@@ -86,45 +99,16 @@ export default function SignUpPage() {
       <div className="rounded-xl border border-border bg-card px-8 py-10 shadow-sm">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-            Create your account
+            Choose a new password
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Start sending professional invoices today.
+            Enter your new password below.
           </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit} noValidate>
           <div className="space-y-1.5">
-            <Label htmlFor="full-name">Full name</Label>
-            <Input
-              id="full-name"
-              placeholder="Alex Kim"
-              autoComplete="name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              aria-invalid={!!errors.fullName}
-              disabled={isLoading}
-            />
-            {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Work email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@studio.com"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              aria-invalid={!!errors.email}
-              disabled={isLoading}
-            />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">New password</Label>
             <Input
               id="password"
               type="password"
@@ -139,7 +123,7 @@ export default function SignUpPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="confirm-password">Confirm password</Label>
+            <Label htmlFor="confirm-password">Confirm new password</Label>
             <Input
               id="confirm-password"
               type="password"
@@ -155,20 +139,10 @@ export default function SignUpPage() {
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Creating account...' : 'Create account'}
+          <Button type="submit" className="w-full" disabled={isLoading || !token}>
+            {isLoading ? 'Updating...' : 'Reset password'}
           </Button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
-          <Link
-            href="/sign-in"
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Sign in
-          </Link>
-        </p>
       </div>
     </AuthLayout>
   )

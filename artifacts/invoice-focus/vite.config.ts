@@ -63,6 +63,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist/public'),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('@supabase')) return 'supabase';
+          if (id.includes('/app/(auth)/')) return 'auth';
+          if (id.includes('/app/(dashboard)/')) return 'dashboard';
+          if (id.includes('node_modules')) return 'vendor';
+          return undefined;
+        },
+      },
+    },
   },
   server: {
     port,

@@ -138,3 +138,51 @@ id = "v9btppJ7Vtdc0ZcA_fjRv"
 uri = "file://screenshots/invoice-focus-home-phase5.jpg"
 type = "image"
 title = "Home page unchanged"
+
+[[outputs]]
+id = "M79Tdzasy_7xFl0_I1E4V"
+uri = "file://screenshots/sign-in-phase6.jpg"
+type = "image"
+title = "Sign In page with Remember Me"
+
+[[outputs]]
+id = "ZiGTK6TNB1tM_g-GY4Bw5"
+uri = "file://screenshots/sign-up-phase6.jpg"
+type = "image"
+title = "Sign Up page with validation"
+
+[[outputs]]
+id = "37JC43xF2kj5naBfjJuvl"
+uri = "file://screenshots/forgot-password-phase6.jpg"
+type = "image"
+title = "Forgot Password page"
+
+[[outputs]]
+id = "CU5-6S_BHaU0gzgfnv7m5"
+uri = "file://screenshots/dashboard-protected-final-phase6.jpg"
+type = "image"
+title = "Dashboard redirects unauthenticated users"
+
+[[outputs]]
+id = "7UyLaLWkCTMsRAzHOuT8K"
+uri = "file://screenshots/privacy-page-phase6.jpg"
+type = "image"
+title = "Privacy Policy page"
+
+[[outputs]]
+id = "xpV8U6Anox_0CYVxvbhjU"
+uri = "file://screenshots/terms-page-phase6.jpg"
+type = "image"
+title = "Terms of Service page"
+
+[[outputs]]
+id = "Z7DqoD2JWAknPNg46S5qd"
+uri = "file://screenshots/help-page-phase6.jpg"
+type = "image"
+title = "Help Center page"
+
+[[outputs]]
+id = "tu0_VFsbr58NWUJgEZL1C"
+uri = "file://screenshots/invoice-generator-phase6.jpg"
+type = "image"
+title = "Invoice Generator unchanged"

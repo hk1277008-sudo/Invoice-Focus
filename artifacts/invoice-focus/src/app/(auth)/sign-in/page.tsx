@@ -1,10 +1,60 @@
-import { Link } from 'wouter'
+import { useState } from 'react'
+import { Link, useLocation } from 'wouter'
 import { AuthLayout } from '../layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
+import { supabase, setRememberMe } from '@/lib/supabase'
+import { useToast } from '@/hooks/use-toast'
 
 export default function SignInPage() {
+  const [, navigate] = useLocation()
+  const { toast } = useToast()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMeState] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const validate = () => {
+    const nextErrors: Record<string, string> = {}
+    if (!email.trim()) nextErrors.email = 'Email is required'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) nextErrors.email = 'Enter a valid email'
+    if (!password) nextErrors.password = 'Password is required'
+    setErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!validate()) return
+
+    setIsLoading(true)
+    setRememberMe(rememberMe)
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (error) {
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          setErrors({ email: 'Please verify your email before signing in.' })
+        } else {
+          setErrors({ password: error.message })
+        }
+        toast({ title: 'Sign in failed', description: error.message, variant: 'destructive' })
+        return
+      }
+
+      if (data.session) {
+        toast({ title: 'Signed in', description: 'Welcome back.' })
+        navigate('/dashboard')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <AuthLayout>
       <div className="rounded-xl border border-border bg-card px-8 py-10 shadow-sm">
@@ -17,10 +67,20 @@ export default function SignInPage() {
           </p>
         </div>
 
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
           <div className="space-y-1.5">
             <Label htmlFor="email">Work email</Label>
-            <Input id="email" type="email" placeholder="you@studio.com" autoComplete="email" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@studio.com"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={!!errors.email}
+              disabled={isLoading}
+            />
+            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -38,11 +98,28 @@ export default function SignInPage() {
               type="password"
               placeholder="••••••••"
               autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={!!errors.password}
+              disabled={isLoading}
             />
+            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
           </div>
 
-          <Button type="submit" className="w-full">
-            Sign in
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="remember-me"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMeState(checked === true)}
+              disabled={isLoading}
+            />
+            <Label htmlFor="remember-me" className="text-sm font-normal">
+              Remember me
+            </Label>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
 
@@ -52,7 +129,7 @@ export default function SignInPage() {
             href="/sign-up"
             className="font-medium text-primary underline-offset-4 hover:underline"
           >
-            Request access
+            Create account
           </Link>
         </p>
       </div>
