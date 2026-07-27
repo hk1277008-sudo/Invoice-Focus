@@ -1,29 +1,64 @@
-import { FileText, FileMinus, FileType, FileSpreadsheet, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+
+function TemplateMiniPreview({ accent }: { accent: string }) {
+  return (
+    <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-white p-3 shadow-sm">
+      <div className="mb-2 flex items-center justify-between">
+        <div className={`h-2 w-10 rounded ${accent}`} />
+        <div className="h-2 w-8 rounded bg-gray-100" />
+      </div>
+      <div className="space-y-1.5">
+        <div className="h-1.5 w-3/4 rounded bg-gray-100" />
+        <div className="h-1.5 w-1/2 rounded bg-gray-100" />
+      </div>
+      <div className="mt-3 space-y-1">
+        <div className="flex justify-between">
+          <div className="h-1.5 w-16 rounded bg-gray-100" />
+          <div className="h-1.5 w-10 rounded bg-gray-100" />
+        </div>
+        <div className="flex justify-between">
+          <div className="h-1.5 w-14 rounded bg-gray-100" />
+          <div className="h-1.5 w-10 rounded bg-gray-100" />
+        </div>
+      </div>
+      <div className="mt-3 flex justify-between border-t border-gray-100 pt-2">
+        <div className={`h-2 w-8 rounded ${accent}`} />
+        <div className={`h-2 w-10 rounded ${accent}`} />
+      </div>
+    </div>
+  )
+}
 
 const TEMPLATES = [
   {
-    icon: FileText,
-    title: 'Invoice Template',
-    description: 'The standard professional invoice with itemized lines, totals, and payment details.',
-    href: '/sign-up',
+    title: 'Classic Invoice',
+    description: 'Clean, timeless layout with detailed line items and totals.',
+    accent: 'bg-blue-500',
   },
   {
-    icon: FileMinus,
-    title: 'Credit Note Template',
-    description: 'Issue refunds and credit memos with a clean, easy-to-read format.',
-    href: '/sign-up',
+    title: 'Minimal Invoice',
+    description: 'Whitespace-forward design for a modern, boutique feel.',
+    accent: 'bg-slate-700',
   },
   {
-    icon: FileType,
-    title: 'Quote Template',
-    description: 'Send estimates and quotes that convert into invoices with one click.',
-    href: '/sign-up',
+    title: 'Bold Invoice',
+    description: 'Strong typography and high-contrast sections for impact.',
+    accent: 'bg-indigo-600',
   },
   {
-    icon: FileSpreadsheet,
-    title: 'Purchase Order Template',
-    description: 'Track orders and approvals before you bill with a structured PO layout.',
-    href: '/sign-up',
+    title: 'Professional Quote',
+    description: 'Convert-ready quote format with approval summary.',
+    accent: 'bg-emerald-500',
+  },
+  {
+    title: 'Project Estimate',
+    description: 'Phase-based estimate ideal for agencies and retainers.',
+    accent: 'bg-amber-500',
+  },
+  {
+    title: 'Freelancer Invoice',
+    description: 'Compact format perfect for solo professionals and consultants.',
+    accent: 'bg-rose-500',
   },
 ]
 
@@ -34,25 +69,25 @@ export function Templates() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Templates</span>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-            Start with a ready-made template
+            Start with a professionally designed template
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Pick the document you need, customize it in minutes, and send it to your client.
+            Choose a layout, add your branding, and send your first invoice in minutes.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {TEMPLATES.map(({ icon: Icon, title, description, href }) => (
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {TEMPLATES.map(({ title, description, accent }) => (
             <a
               key={title}
-              href={href}
-              className="group flex flex-col rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+              href="/sign-up"
+              className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
             >
-              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
-                <Icon className="h-5 w-5" />
+              <TemplateMiniPreview accent={accent} />
+              <div className="mt-5">
+                <h3 className="font-display text-lg font-semibold text-foreground">{title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
               </div>
-              <h3 className="font-display text-lg font-medium text-foreground">{title}</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
               <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
                 Use template
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

@@ -7,40 +7,50 @@ import {
 
 const FAQS = [
   {
-    question: 'Is Invoice Focus free to use?',
+    question: 'Is InvoiceFocus free to use?',
     answer:
-      'Yes. You can create and download unlimited invoices without an account. Advanced features like client management, recurring invoices, and online payments require a free account.',
+      'Yes. You can create, customize, and download invoices without paying anything. Advanced features like saved clients, recurring invoices, and team collaboration are available on paid plans.',
   },
   {
-    question: 'Can I send invoices directly to my clients?',
+    question: 'Do I need to install anything?',
     answer:
-      'Yes. Every invoice can be emailed to your client directly from Invoice Focus, or you can copy a secure link and share it however you prefer.',
+      'No. InvoiceFocus runs entirely in your browser. Just sign up and start creating invoices from any device with an internet connection.',
   },
   {
-    question: 'What file formats can I download?',
+    question: 'Can I export invoices as PDFs?',
     answer:
-      'Invoices download as polished, print-ready PDFs. You can also preview them in your browser before downloading.',
+      'Yes. Every invoice, quote, and estimate can be exported as a polished, print-ready PDF with one click.',
   },
   {
-    question: 'Does Invoice Focus support taxes and discounts?',
+    question: 'Does InvoiceFocus support multiple currencies?',
     answer:
-      'Yes. Add line-item and invoice-level taxes, discounts, and shipping costs. Totals are calculated automatically.',
+      'Yes. You can choose from a wide range of currencies and formats, making it easy to bill clients anywhere in the world.',
   },
   {
-    question: 'Can my clients pay online?',
+    question: 'Can I add my own logo and branding?',
     answer:
-      'Yes. Connect a payment provider and your clients can pay by card or bank transfer directly from the invoice.',
+      'Yes. Upload your logo, set your brand colors, and customize the business details that appear on every invoice.',
   },
   {
     question: 'Is my data secure?',
     answer:
-      'We use industry-standard encryption, secure hosting, and never sell your data. Invoices are private to your account.',
+      'We use industry-standard security practices, including encryption and secure hosting, to keep your invoices and client data safe.',
+  },
+  {
+    question: 'Can I send invoices directly to clients?',
+    answer:
+      'Yes. You can email invoices directly from InvoiceFocus, copy a secure share link, or download the PDF and send it yourself.',
+  },
+  {
+    question: 'What happens if I cancel my account?',
+    answer:
+      'You can export your data at any time. If you cancel, your account and data will be removed according to our privacy policy.',
   },
 ]
 
 export function FAQ() {
   return (
-    <section id="faq" className="bg-muted/30">
+    <section id="faq" className="bg-background">
       <div className="mx-auto max-w-3xl px-6 py-20 lg:py-28">
         <div className="text-center">
           <span className="label-caps">FAQ</span>
@@ -48,7 +58,7 @@ export function FAQ() {
             Frequently asked questions
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Quick answers to the most common questions about Invoice Focus.
+            Everything you need to know before getting started.
           </p>
         </div>
 

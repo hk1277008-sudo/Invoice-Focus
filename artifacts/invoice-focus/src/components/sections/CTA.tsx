@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 export function CTA() {
   return (
@@ -14,20 +14,16 @@ export function CTA() {
           </div>
 
           <div className="relative mx-auto max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-medium text-primary-foreground">
-              <Sparkles className="h-3.5 w-3.5" />
-              Start for free
-            </span>
-            <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-primary-foreground md:text-4xl">
-              Ready to get paid faster?
+            <h2 className="font-display text-3xl font-semibold tracking-tight text-primary-foreground md:text-4xl">
+              Start Creating Professional Invoices Today
             </h2>
             <p className="mt-4 text-lg text-primary-foreground/80">
-              Create your first professional invoice in under a minute. No credit card required.
+              Join freelancers, agencies, and startups who use InvoiceFocus to simplify billing and get paid faster.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="secondary" asChild>
                 <a href="/sign-up">
-                  Create your first invoice
+                  Get Started
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>

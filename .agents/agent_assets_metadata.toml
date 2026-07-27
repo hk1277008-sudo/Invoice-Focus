@@ -18,3 +18,9 @@ id = "MjIDPFa5j2MRNBf_w_vKE"
 uri = "file://screenshots/invoice-focus-mobile-header.jpg"
 type = "image"
 title = "Invoice Focus — mobile menu header"
+
+[[outputs]]
+id = "QPBK3XNjeaPOIOv8ywIhb"
+uri = "file://screenshots/invoice-focus-landing-page.jpg"
+type = "image"
+title = "InvoiceFocus landing page"
