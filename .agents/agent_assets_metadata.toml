@@ -6,3 +6,9 @@ id = "pdZzEAnEUbOZ8WKDhHNe5"
 uri = "file://screenshots/invoice-focus-homepage.jpg"
 type = "image"
 title = "Invoice Focus homepage — cloned from invoice-generator.com"
+
+[[outputs]]
+id = "rZbYNIQnYGqMKJ_gNb3WX"
+uri = "file://screenshots/invoice-focus-header.jpg"
+type = "image"
+title = "Invoice Focus — premium SaaS header"
