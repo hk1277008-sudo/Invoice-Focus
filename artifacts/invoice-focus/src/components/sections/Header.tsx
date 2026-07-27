@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/shared/Logo'
-import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = ['Features', 'Templates', 'Resources', 'Blog', 'FAQ']
 
@@ -85,38 +84,21 @@ export function Header() {
       </div>
 
       {/* Mobile menu */}
-      <div
-        className={cn(
-          'fixed left-0 right-0 top-[72px] bottom-0 z-[60] flex flex-col bg-white md:hidden',
-          'transition-transform duration-300 ease-out',
-          menuOpen ? 'translate-x-0' : 'translate-x-full'
-        )}
-        aria-hidden={!menuOpen}
-        inert={!menuOpen}
-      >
-        {/* Logo + subtitle */}
-        <div className="border-b border-[#E5E7EB] px-6 py-5">
-          <Logo size="md" />
-          <p className="mt-1.5 text-sm text-gray-500">Professional Invoicing Made Simple</p>
-        </div>
-
-        {/* Navigation — vertically centered */}
-        <nav className="flex flex-1 flex-col justify-center gap-0 px-6">
-          {NAV_ITEMS.map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              onClick={() => setMenuOpen(false)}
-              className="py-2.5 text-center text-lg font-medium text-gray-700 transition-colors hover:text-gray-900"
-            >
-              {item}
-            </a>
-          ))}
-        </nav>
-
-        {/* Bottom actions */}
-        <div className="border-t border-[#E5E7EB] px-6 py-5">
-          <div className="flex flex-col gap-3">
+      {menuOpen && (
+        <div className="absolute inset-x-0 top-[72px] z-50 border-b border-[#E5E7EB] bg-white px-6 py-5 shadow-lg md:hidden">
+          <nav className="flex flex-col gap-1">
+            {NAV_ITEMS.map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-md px-3 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
+              >
+                {item}
+              </a>
+            ))}
+          </nav>
+          <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4">
             <Button variant="ghost" size="default" asChild className="w-full justify-center">
               <a href="/sign-in" onClick={() => setMenuOpen(false)}>
                 Sign In
@@ -129,7 +111,7 @@ export function Header() {
             </Button>
           </div>
         </div>
-      </div>
+      )}
     </header>
   )
 }
