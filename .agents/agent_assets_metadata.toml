@@ -42,3 +42,21 @@ id = "s8JmzSeNCxiU9QczRyxeX"
 uri = "file://screenshots/invoice-focus-1920.jpg"
 type = "image"
 title = "InvoiceFocus premium landing page"
+
+[[outputs]]
+id = "nQ5qQyS8-38xoXjyuFHb0"
+uri = "file://screenshots/invoice-focus-cta-1920.jpg"
+type = "image"
+title = "CTA buttons desktop"
+
+[[outputs]]
+id = "Zm4RDAVZTF2uCKcfIjfbU"
+uri = "file://screenshots/invoice-focus-cta-390.jpg"
+type = "image"
+title = "CTA buttons mobile"
+
+[[outputs]]
+id = "qQuENmROq-uSlnbd0fJgD"
+uri = "file://screenshots/invoice-focus-footer-1920.jpg"
+type = "image"
+title = "Footer desktop"

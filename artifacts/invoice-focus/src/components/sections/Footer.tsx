@@ -1,5 +1,4 @@
 import { Logo } from '@/components/shared/Logo'
-import { Github, Twitter, Linkedin } from 'lucide-react'
 
 const FOOTER_GROUPS = [
   {
@@ -48,12 +47,6 @@ const FOOTER_GROUPS = [
   },
 ]
 
-const SOCIAL_LINKS = [
-  { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-  { icon: Github, href: 'https://github.com', label: 'GitHub' },
-  { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-]
-
 export function Footer() {
   return (
     <footer className="border-t border-border bg-background">
@@ -67,18 +60,6 @@ export function Footer() {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Professional invoicing made simple for freelancers, agencies, and businesses.
             </p>
-            <div className="mt-6 flex items-center gap-4">
-              {SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Link groups */}
@@ -105,7 +86,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 sm:flex-row sm:items-center">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} InvoiceFocus. Professional Invoicing Made Simple.
+            © InvoiceFocus. All Rights Reserved.
           </p>
           <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <a href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">
