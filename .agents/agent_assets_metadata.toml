@@ -84,3 +84,33 @@ id = "4i2oYgFv6CxlejjABb7b2"
 uri = "file://screenshots/invoice-focus-home-1920.jpg"
 type = "image"
 title = "Home page unchanged"
+
+[[outputs]]
+id = "PLXhV65m5z9roHnD3lmNd"
+uri = "file://screenshots/invoice-focus-hero-no-preview.jpg"
+type = "image"
+title = "Hero without duplicate invoice preview"
+
+[[outputs]]
+id = "gxPk60E1XIsLFiX6x124k"
+uri = "file://screenshots/invoice-focus-product-preview-kept.jpg"
+type = "image"
+title = "Interactive invoice preview kept"
+
+[[outputs]]
+id = "-A_j9CaGYXEplWo8mkJ6A"
+uri = "file://screenshots/invoice-focus-footer-2026.jpg"
+type = "image"
+title = "Footer copyright updated"
+
+[[outputs]]
+id = "9md3TBu870709SCEitaOM"
+uri = "file://screenshots/invoice-focus-invoice-page.jpg"
+type = "image"
+title = "Invoice Generator page"
+
+[[outputs]]
+id = "bgI-8ydJZ991JIg3XpGSN"
+uri = "file://screenshots/invoice-focus-home-mobile-390.jpg"
+type = "image"
+title = "Home page mobile view"

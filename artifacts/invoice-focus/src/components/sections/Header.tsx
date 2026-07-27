@@ -51,7 +51,7 @@ export function Header() {
             <a href="/sign-in">Sign In</a>
           </Button>
           <Button size="sm" asChild>
-            <a href="/sign-up">Get Started</a>
+            <a href="/invoice">Get Started</a>
           </Button>
         </div>
 
@@ -129,7 +129,7 @@ export function Header() {
                 </a>
               </Button>
               <Button size="default" asChild className="w-full justify-center">
-                <a href="/sign-up" onClick={() => setMenuOpen(false)}>
+                <a href="/invoice" onClick={() => setMenuOpen(false)}>
                   Get Started
                 </a>
               </Button>

@@ -29,7 +29,7 @@ export function CTA() {
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="secondary" asChild>
-                <a href="/sign-up">
+                <a href="/invoice">
                   Get Started
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </a>

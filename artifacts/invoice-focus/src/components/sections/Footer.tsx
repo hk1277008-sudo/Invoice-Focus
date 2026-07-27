@@ -86,7 +86,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 sm:flex-row sm:items-center">
           <p className="text-xs text-muted-foreground">
-            © InvoiceFocus. All Rights Reserved.
+            © 2026 InvoiceFocus. All Rights Reserved.
           </p>
           <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <a href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">
