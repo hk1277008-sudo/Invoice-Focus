@@ -114,3 +114,27 @@ id = "bgI-8ydJZ991JIg3XpGSN"
 uri = "file://screenshots/invoice-focus-home-mobile-390.jpg"
 type = "image"
 title = "Home page mobile view"
+
+[[outputs]]
+id = "kgd90AW0tpfurQh4Uo7zc"
+uri = "file://screenshots/invoice-generator-phase5-1920.jpg"
+type = "image"
+title = "Invoice Generator - Phase 5 (desktop)"
+
+[[outputs]]
+id = "KCeuAQZRf_NcO6lcJHfMt"
+uri = "file://screenshots/invoice-generator-phase5-768.jpg"
+type = "image"
+title = "Invoice Generator - Phase 5 (tablet)"
+
+[[outputs]]
+id = "sfy_JkOaRzfj6L877ymWn"
+uri = "file://screenshots/invoice-generator-phase5-390.jpg"
+type = "image"
+title = "Invoice Generator - Phase 5 (mobile)"
+
+[[outputs]]
+id = "v9btppJ7Vtdc0ZcA_fjRv"
+uri = "file://screenshots/invoice-focus-home-phase5.jpg"
+type = "image"
+title = "Home page unchanged"

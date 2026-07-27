@@ -29,12 +29,21 @@ export function getCurrencyByCode(code: CurrencyCode): Currency {
   return CURRENCY_MAP[code] ?? CURRENCY_MAP[DEFAULT_CURRENCY]
 }
 
+export function getCurrencyDecimals(code: CurrencyCode): number {
+  // JPY and CNY do not commonly use fractional units in invoices.
+  if (code === 'JPY' || code === 'CNY') return 0
+  return 2
+}
+
 export function formatCurrency(amount: number, currency: Currency): string {
+  const decimals = getCurrencyDecimals(currency.code)
+  const formatted = amount.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })
+
   if (currency.code === 'AED' || currency.code === 'SAR') {
-    return `${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency.symbol}`
+    return `${formatted} ${currency.symbol}`
   }
-  if (currency.code === 'PKR' || currency.code === 'INR') {
-    return `${currency.symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-  }
-  return `${currency.symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return `${currency.symbol}${formatted}`
 }

@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -7,9 +8,18 @@ import HomePage from '@/app/(marketing)/page'
 import SignInPage from '@/app/(auth)/sign-in/page'
 import SignUpPage from '@/app/(auth)/sign-up/page'
 import DashboardPage from '@/app/(dashboard)/dashboard/page'
-import InvoicePage from '@/app/(invoice)/invoice/page'
+
+const InvoicePage = lazy(() => import('@/app/(invoice)/invoice/page'))
 
 const queryClient = new QueryClient()
+
+function InvoicePageFallback() {
+  return (
+    <div className="flex min-h-svh items-center justify-center bg-background">
+      <div className="text-sm text-muted-foreground">Loading invoice generator...</div>
+    </div>
+  )
+}
 
 function Router() {
   return (
@@ -19,7 +29,11 @@ function Router() {
       <Route path="/sign-up" component={SignUpPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/dashboard/:rest*" component={DashboardPage} />
-      <Route path="/invoice" component={InvoicePage} />
+      <Route path="/invoice">
+        <Suspense fallback={<InvoicePageFallback />}>
+          <InvoicePage />
+        </Suspense>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   )

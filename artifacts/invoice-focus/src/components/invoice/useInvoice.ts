@@ -1,6 +1,8 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import type { InvoiceData, InvoiceItem, InvoiceCalculations, CurrencyCode } from './types'
 import { DEFAULT_CURRENCY, getCurrencyByCode } from './currencies'
+import { calculateInvoiceTotals, parseNumber } from './utils'
+import { loadDraft } from './useInvoiceDraft'
 
 function generateInvoiceNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
@@ -56,27 +58,18 @@ export function createEmptyInvoice(): InvoiceData {
   }
 }
 
-function parseNumber(value: string): number {
-  const parsed = Number.parseFloat(value)
-  return Number.isNaN(parsed) ? 0 : parsed
-}
-
-export function calculateItemTotal(item: InvoiceItem): number {
-  const quantity = parseNumber(item.quantity)
-  const unitPrice = parseNumber(item.unitPrice)
-  const taxPercent = parseNumber(item.taxPercent)
-  const discountPercent = parseNumber(item.discountPercent)
-
-  const base = quantity * unitPrice
-  const discount = base * (discountPercent / 100)
-  const taxable = base - discount
-  const tax = taxable * (taxPercent / 100)
-
-  return taxable + tax
-}
-
 export function useInvoice() {
-  const [invoice, setInvoice] = useState<InvoiceData>(createEmptyInvoice())
+  const [invoice, setInvoice] = useState<InvoiceData>(() => {
+    const draft = loadDraft()
+    return draft ?? createEmptyInvoice()
+  })
+
+  useEffect(() => {
+    const saved = loadDraft()
+    if (saved) {
+      setInvoice(saved)
+    }
+  }, [])
 
   const updateBusiness = useCallback((field: keyof InvoiceData['business'], value: string) => {
     setInvoice((prev) => ({ ...prev, business: { ...prev.business, [field]: value } }))
@@ -120,39 +113,16 @@ export function useInvoice() {
     setInvoice((prev) => ({ ...prev, business: { ...prev.business, logo } }))
   }, [])
 
+  const loadFromData = useCallback((data: InvoiceData) => {
+    setInvoice(data)
+  }, [])
+
   const reset = useCallback(() => {
     setInvoice(createEmptyInvoice())
   }, [])
 
   const calculations = useMemo<InvoiceCalculations>(() => {
-    let subtotal = 0
-    let totalTax = 0
-    let totalDiscount = 0
-
-    for (const item of invoice.items) {
-      const quantity = parseNumber(item.quantity)
-      const unitPrice = parseNumber(item.unitPrice)
-      const taxPercent = parseNumber(item.taxPercent)
-      const discountPercent = parseNumber(item.discountPercent)
-
-      const base = quantity * unitPrice
-      const discount = base * (discountPercent / 100)
-      const taxable = base - discount
-      const tax = taxable * (taxPercent / 100)
-
-      subtotal += base
-      totalDiscount += discount
-      totalTax += tax
-    }
-
-    const grandTotal = subtotal - totalDiscount + totalTax
-
-    return {
-      subtotal,
-      tax: totalTax,
-      discount: totalDiscount,
-      grandTotal,
-    }
+    return calculateInvoiceTotals(invoice.items)
   }, [invoice.items])
 
   const currency = useMemo(() => getCurrencyByCode(invoice.details.currency), [invoice.details.currency])
@@ -205,6 +175,9 @@ export function useInvoice() {
     addItem,
     removeItem,
     setLogo,
+    loadFromData,
     reset,
   }
 }
+
+export { parseNumber }

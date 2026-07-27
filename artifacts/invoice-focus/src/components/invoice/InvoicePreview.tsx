@@ -1,6 +1,8 @@
+import { memo } from 'react'
 import { FileText } from 'lucide-react'
 import type { InvoiceData, InvoiceCalculations, Currency } from './types'
-import { formatCurrency } from './currencies'
+import { formatCurrency, getCurrencyDecimals } from './currencies'
+import { calculateItemValues } from './utils'
 
 interface InvoicePreviewProps {
   invoice: InvoiceData
@@ -9,7 +11,12 @@ interface InvoicePreviewProps {
   hasAnyData: boolean
 }
 
-export function InvoicePreview({ invoice, currency, calculations, hasAnyData }: InvoicePreviewProps) {
+export const InvoicePreview = memo(function InvoicePreview({
+  invoice,
+  currency,
+  calculations,
+  hasAnyData,
+}: InvoicePreviewProps) {
   if (!hasAnyData) {
     return (
       <div className="flex h-full min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card p-8 text-center">
@@ -23,8 +30,10 @@ export function InvoicePreview({ invoice, currency, calculations, hasAnyData }: 
     )
   }
 
+  const decimals = getCurrencyDecimals(currency.code)
+
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+    <div className="invoice-preview-container overflow-hidden rounded-xl border border-border bg-white shadow-sm print:rounded-none print:border-0 print:shadow-none">
       <div className="p-8 sm:p-10">
         {/* Header */}
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
@@ -125,7 +134,7 @@ export function InvoicePreview({ invoice, currency, calculations, hasAnyData }: 
 
         {/* Items Table */}
         <div className="mt-10">
-          <table className="w-full text-left">
+          <table className="w-full text-left" aria-label="Invoice items">
             <thead>
               <tr className="border-b border-border">
                 <th className="py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</th>
@@ -138,16 +147,8 @@ export function InvoicePreview({ invoice, currency, calculations, hasAnyData }: 
             </thead>
             <tbody className="divide-y divide-border">
               {invoice.items.map((item) => {
-                const quantity = Number.parseFloat(item.quantity) || 0
-                const unitPrice = Number.parseFloat(item.unitPrice) || 0
-                const taxPercent = Number.parseFloat(item.taxPercent) || 0
-                const discountPercent = Number.parseFloat(item.discountPercent) || 0
-                const base = quantity * unitPrice
-                const discount = base * (discountPercent / 100)
-                const taxable = base - discount
-                const tax = taxable * (taxPercent / 100)
-                const lineTotal = taxable + tax
-                const showItem = item.name || item.description || quantity > 0 || unitPrice > 0
+                const values = calculateItemValues(item)
+                const showItem = item.name || item.description || values.quantity > 0 || values.unitPrice > 0
 
                 if (!showItem) return null
 
@@ -157,18 +158,18 @@ export function InvoicePreview({ invoice, currency, calculations, hasAnyData }: 
                       <p className="font-medium text-foreground">{item.name || 'Item'}</p>
                       {item.description && <p className="text-sm text-muted-foreground">{item.description}</p>}
                     </td>
-                    <td className="py-3 text-right text-sm tabular-nums text-foreground">{quantity}</td>
+                    <td className="py-3 text-right text-sm tabular-nums text-foreground">{values.quantity}</td>
                     <td className="py-3 text-right text-sm tabular-nums text-foreground">
-                      {formatCurrency(unitPrice, currency)}
+                      {formatCurrency(values.unitPrice, currency)}
                     </td>
                     <td className="py-3 text-right text-sm tabular-nums text-foreground">
-                      {taxPercent > 0 ? `${taxPercent}%` : '—'}
+                      {values.taxPercent > 0 ? `${values.taxPercent}%` : '—'}
                     </td>
                     <td className="py-3 text-right text-sm tabular-nums text-foreground">
-                      {discountPercent > 0 ? `${discountPercent}%` : '—'}
+                      {values.discountPercent > 0 ? `${values.discountPercent}%` : '—'}
                     </td>
                     <td className="py-3 text-right text-sm font-medium tabular-nums text-foreground">
-                      {formatCurrency(lineTotal, currency)}
+                      {formatCurrency(values.lineTotal, currency)}
                     </td>
                   </tr>
                 )
@@ -229,4 +230,4 @@ export function InvoicePreview({ invoice, currency, calculations, hasAnyData }: 
       </div>
     </div>
   )
-}
+})

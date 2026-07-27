@@ -6,9 +6,11 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { CurrencySelector } from './CurrencySelector'
 import type { InvoiceData, InvoiceItem } from './types'
+import { calculateItemValues } from './utils'
 
 interface InvoiceEditorProps {
   invoice: InvoiceData
+  errors?: Record<string, string>
   onUpdateBusiness: (field: keyof InvoiceData['business'], value: string) => void
   onUpdateClient: (field: keyof InvoiceData['client'], value: string) => void
   onUpdateDetails: (field: keyof InvoiceData['details'], value: string) => void
@@ -22,6 +24,7 @@ interface InvoiceEditorProps {
 
 export function InvoiceEditor({
   invoice,
+  errors = {},
   onUpdateBusiness,
   onUpdateClient,
   onUpdateDetails,
@@ -51,67 +54,59 @@ export function InvoiceEditor({
           <CardDescription>Enter the invoice number, dates, and terms.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="invoice-number">Invoice Number</Label>
+          <FormField label="Invoice Number" htmlFor="invoice-number" error={errors['invoice-number']}>
             <Input
               id="invoice-number"
               value={invoice.details.number}
               onChange={(e) => onUpdateDetails('number', e.target.value)}
               placeholder="INV-001"
+              aria-invalid={!!errors['invoice-number']}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
-            <CurrencySelector
-              value={invoice.details.currency}
-              onChange={onUpdateCurrency}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="issue-date">Issue Date</Label>
+          </FormField>
+          <FormField label="Currency" htmlFor="currency" error={errors['currency']}>
+            <CurrencySelector value={invoice.details.currency} onChange={onUpdateCurrency} />
+          </FormField>
+          <FormField label="Issue Date" htmlFor="issue-date">
             <Input
               id="issue-date"
               type="date"
               value={invoice.details.issueDate}
               onChange={(e) => onUpdateDetails('issueDate', e.target.value)}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="due-date">Due Date</Label>
+          </FormField>
+          <FormField label="Due Date" htmlFor="due-date" error={errors['due-date']}>
             <Input
               id="due-date"
               type="date"
               value={invoice.details.dueDate}
               onChange={(e) => onUpdateDetails('dueDate', e.target.value)}
+              aria-invalid={!!errors['due-date']}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="payment-terms">Payment Terms</Label>
+          </FormField>
+          <FormField label="Payment Terms" htmlFor="payment-terms">
             <Input
               id="payment-terms"
               value={invoice.details.paymentTerms}
               onChange={(e) => onUpdateDetails('paymentTerms', e.target.value)}
               placeholder="Net 30"
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="status">Invoice Status</Label>
+          </FormField>
+          <FormField label="Invoice Status" htmlFor="status">
             <Input
               id="status"
               value={invoice.details.status}
               onChange={(e) => onUpdateDetails('status', e.target.value)}
               placeholder="Draft"
             />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="po-number">Purchase Order Number (optional)</Label>
+          </FormField>
+          <FormField label="Purchase Order Number (optional)" htmlFor="po-number" className="sm:col-span-2">
             <Input
               id="po-number"
               value={invoice.details.poNumber}
               onChange={(e) => onUpdateDetails('poNumber', e.target.value)}
               placeholder="PO-12345"
             />
-          </div>
+          </FormField>
         </CardContent>
       </Card>
 
@@ -167,36 +162,34 @@ export function InvoiceEditor({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="business-name">Business Name</Label>
+            <FormField label="Business Name" htmlFor="business-name" error={errors['business-name']}>
               <Input
                 id="business-name"
                 value={invoice.business.name}
                 onChange={(e) => onUpdateBusiness('name', e.target.value)}
                 placeholder="Business Name"
+                aria-invalid={!!errors['business-name']}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="contact-person">Contact Person</Label>
+            </FormField>
+            <FormField label="Contact Person" htmlFor="contact-person">
               <Input
                 id="contact-person"
                 value={invoice.business.contactPerson}
                 onChange={(e) => onUpdateBusiness('contactPerson', e.target.value)}
                 placeholder="Contact Person"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="business-email">Email</Label>
+            </FormField>
+            <FormField label="Email" htmlFor="business-email" error={errors['business-email']}>
               <Input
                 id="business-email"
                 type="email"
                 value={invoice.business.email}
                 onChange={(e) => onUpdateBusiness('email', e.target.value)}
                 placeholder="Email Address"
+                aria-invalid={!!errors['business-email']}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="business-phone">Phone</Label>
+            </FormField>
+            <FormField label="Phone" htmlFor="business-phone">
               <Input
                 id="business-phone"
                 type="tel"
@@ -204,9 +197,8 @@ export function InvoiceEditor({
                 onChange={(e) => onUpdateBusiness('phone', e.target.value)}
                 placeholder="Phone Number"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="business-website">Website (optional)</Label>
+            </FormField>
+            <FormField label="Website (optional)" htmlFor="business-website">
               <Input
                 id="business-website"
                 type="url"
@@ -214,18 +206,16 @@ export function InvoiceEditor({
                 onChange={(e) => onUpdateBusiness('website', e.target.value)}
                 placeholder="https://example.com"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tax-id">Tax ID / VAT ID (optional)</Label>
+            </FormField>
+            <FormField label="Tax ID / VAT ID (optional)" htmlFor="tax-id">
               <Input
                 id="tax-id"
                 value={invoice.business.taxId}
                 onChange={(e) => onUpdateBusiness('taxId', e.target.value)}
                 placeholder="Tax ID / VAT ID"
               />
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="business-address">Address</Label>
+            </FormField>
+            <FormField label="Address" htmlFor="business-address" className="sm:col-span-2">
               <Textarea
                 id="business-address"
                 value={invoice.business.address}
@@ -233,7 +223,7 @@ export function InvoiceEditor({
                 placeholder="Street Address"
                 rows={3}
               />
-            </div>
+            </FormField>
           </div>
         </CardContent>
       </Card>
@@ -245,36 +235,34 @@ export function InvoiceEditor({
           <CardDescription>Who is this invoice for?</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="client-name">Client Name</Label>
+          <FormField label="Client Name" htmlFor="client-name" error={errors['client-name']}>
             <Input
               id="client-name"
               value={invoice.client.name}
               onChange={(e) => onUpdateClient('name', e.target.value)}
               placeholder="Client Name"
+              aria-invalid={!!errors['client-name']}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="client-company">Company Name</Label>
+          </FormField>
+          <FormField label="Company Name" htmlFor="client-company">
             <Input
               id="client-company"
               value={invoice.client.companyName}
               onChange={(e) => onUpdateClient('companyName', e.target.value)}
               placeholder="Company Name"
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="client-email">Email</Label>
+          </FormField>
+          <FormField label="Email" htmlFor="client-email" error={errors['client-email']}>
             <Input
               id="client-email"
               type="email"
               value={invoice.client.email}
               onChange={(e) => onUpdateClient('email', e.target.value)}
               placeholder="Email Address"
+              aria-invalid={!!errors['client-email']}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="client-phone">Phone</Label>
+          </FormField>
+          <FormField label="Phone" htmlFor="client-phone">
             <Input
               id="client-phone"
               type="tel"
@@ -282,9 +270,8 @@ export function InvoiceEditor({
               onChange={(e) => onUpdateClient('phone', e.target.value)}
               placeholder="Phone Number"
             />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="client-address">Billing Address</Label>
+          </FormField>
+          <FormField label="Billing Address" htmlFor="client-address" className="sm:col-span-2">
             <Textarea
               id="client-address"
               value={invoice.client.billingAddress}
@@ -292,7 +279,7 @@ export function InvoiceEditor({
               placeholder="Street Address"
               rows={3}
             />
-          </div>
+          </FormField>
         </CardContent>
       </Card>
 
@@ -314,10 +301,12 @@ export function InvoiceEditor({
               <div className="col-span-1 sm:col-span-2"></div>
             </div>
             <div className="divide-y divide-border">
-              {invoice.items.map((item) => (
+              {invoice.items.map((item, index) => (
                 <InvoiceItemRow
                   key={item.id}
+                  index={index}
                   item={item}
+                  errors={errors}
                   onUpdate={onUpdateItem}
                   onRemove={onRemoveItem}
                   canRemove={invoice.items.length > 1}
@@ -339,8 +328,7 @@ export function InvoiceEditor({
           <CardDescription>Notes, payment instructions, and terms.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+          <FormField label="Notes" htmlFor="notes">
             <Textarea
               id="notes"
               value={invoice.additional.notes}
@@ -348,9 +336,8 @@ export function InvoiceEditor({
               placeholder="Add a note to your client"
               rows={3}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="payment-instructions">Payment Instructions</Label>
+          </FormField>
+          <FormField label="Payment Instructions" htmlFor="payment-instructions">
             <Textarea
               id="payment-instructions"
               value={invoice.additional.paymentInstructions}
@@ -358,9 +345,8 @@ export function InvoiceEditor({
               placeholder="Bank transfer details, payment link, etc."
               rows={3}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="terms">Terms & Conditions</Label>
+          </FormField>
+          <FormField label="Terms & Conditions" htmlFor="terms">
             <Textarea
               id="terms"
               value={invoice.additional.terms}
@@ -368,33 +354,56 @@ export function InvoiceEditor({
               placeholder="Terms & Conditions"
               rows={3}
             />
-          </div>
+          </FormField>
         </CardContent>
       </Card>
     </div>
   )
 }
 
+function FormField({
+  label,
+  htmlFor,
+  error,
+  children,
+  className,
+}: {
+  label: string
+  htmlFor: string
+  error?: string
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={className}>
+      <Label htmlFor={htmlFor} aria-invalid={!!error}>
+        {label}
+      </Label>
+      <div className="mt-1.5">{children}</div>
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+    </div>
+  )
+}
+
 function InvoiceItemRow({
+  index,
   item,
+  errors,
   onUpdate,
   onRemove,
   canRemove,
 }: {
+  index: number
   item: InvoiceItem
+  errors: Record<string, string>
   onUpdate: (id: string, field: keyof InvoiceItem, value: string) => void
   onRemove: (id: string) => void
   canRemove: boolean
 }) {
-  const quantity = Number.parseFloat(item.quantity) || 0
-  const unitPrice = Number.parseFloat(item.unitPrice) || 0
-  const taxPercent = Number.parseFloat(item.taxPercent) || 0
-  const discountPercent = Number.parseFloat(item.discountPercent) || 0
-  const base = quantity * unitPrice
-  const discount = base * (discountPercent / 100)
-  const taxable = base - discount
-  const tax = taxable * (taxPercent / 100)
-  const lineTotal = taxable + tax
+  const { lineTotal } = calculateItemValues(item)
+  const nameError = errors[`item-${index}-name`]
+  const qtyError = errors[`item-${index}-quantity`]
+  const priceError = errors[`item-${index}-price`]
 
   return (
     <div className="grid grid-cols-12 gap-2 p-3">
@@ -404,6 +413,8 @@ function InvoiceItemRow({
           onChange={(e) => onUpdate(item.id, 'name', e.target.value)}
           placeholder="Item Name"
           className="h-8"
+          aria-invalid={!!nameError}
+          aria-describedby={nameError ? `item-${index}-name-error` : undefined}
         />
         <Input
           value={item.description}
@@ -411,6 +422,11 @@ function InvoiceItemRow({
           placeholder="Description"
           className="h-8"
         />
+        {nameError && (
+          <p id={`item-${index}-name-error`} className="text-xs text-destructive">
+            {nameError}
+          </p>
+        )}
       </div>
       <div className="col-span-3 sm:col-span-1">
         <Input
@@ -421,7 +437,9 @@ function InvoiceItemRow({
           onChange={(e) => onUpdate(item.id, 'quantity', e.target.value)}
           placeholder="Qty"
           className="h-8"
+          aria-invalid={!!qtyError}
         />
+        {qtyError && <p className="text-xs text-destructive">{qtyError}</p>}
       </div>
       <div className="col-span-4 sm:col-span-2">
         <Input
@@ -432,7 +450,9 @@ function InvoiceItemRow({
           onChange={(e) => onUpdate(item.id, 'unitPrice', e.target.value)}
           placeholder="Price"
           className="h-8"
+          aria-invalid={!!priceError}
         />
+        {priceError && <p className="text-xs text-destructive">{priceError}</p>}
       </div>
       <div className="col-span-2 sm:col-span-1">
         <Input
@@ -466,6 +486,7 @@ function InvoiceItemRow({
           size="icon"
           onClick={() => onRemove(item.id)}
           disabled={!canRemove}
+          aria-label="Remove item"
           className="h-8 w-8 text-muted-foreground hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />

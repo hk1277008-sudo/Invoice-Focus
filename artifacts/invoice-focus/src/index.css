@@ -378,4 +378,63 @@
   .gradient-border:hover {
     background-position: 0 0, 100% 100%;
   }
+
+  /* Print styles for invoice generator */
+  @media print {
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    body {
+      background: white !important;
+      color: #111827 !important;
+    }
+
+    /* Hide the site header, action bar, editor, and other non-invoice UI */
+    header,
+    .print\:hidden,
+    nav,
+    .toast-viewport,
+    [role="alert"] {
+      display: none !important;
+    }
+
+    /* Show only the invoice preview area */
+    main,
+    .mx-auto.max-w-7xl,
+    .grid > .order-1,
+    .invoice-preview-container {
+      display: block !important;
+      width: 100% !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .invoice-preview-container {
+      box-shadow: none !important;
+      border: none !important;
+      border-radius: 0 !important;
+    }
+
+    .invoice-preview-container > div {
+      padding: 0 !important;
+    }
+
+    /* Avoid breaking important elements across pages */
+    table,
+    .totals,
+    .additional-block {
+      break-inside: avoid;
+    }
+
+    tr {
+      break-inside: avoid;
+    }
+
+    img {
+      max-height: 60px;
+    }
+  }
 }
