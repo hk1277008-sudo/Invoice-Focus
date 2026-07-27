@@ -12,3 +12,9 @@ id = "rZbYNIQnYGqMKJ_gNb3WX"
 uri = "file://screenshots/invoice-focus-header.jpg"
 type = "image"
 title = "Invoice Focus — premium SaaS header"
+
+[[outputs]]
+id = "MjIDPFa5j2MRNBf_w_vKE"
+uri = "file://screenshots/invoice-focus-mobile-header.jpg"
+type = "image"
+title = "Invoice Focus — mobile menu header"
