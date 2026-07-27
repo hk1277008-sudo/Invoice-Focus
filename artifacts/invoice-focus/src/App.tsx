@@ -7,6 +7,7 @@ import HomePage from '@/app/(marketing)/page'
 import SignInPage from '@/app/(auth)/sign-in/page'
 import SignUpPage from '@/app/(auth)/sign-up/page'
 import DashboardPage from '@/app/(dashboard)/dashboard/page'
+import InvoicePage from '@/app/(invoice)/invoice/page'
 
 const queryClient = new QueryClient()
 
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/sign-up" component={SignUpPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/dashboard/:rest*" component={DashboardPage} />
+      <Route path="/invoice" component={InvoicePage} />
       <Route component={NotFound} />
     </Switch>
   )
