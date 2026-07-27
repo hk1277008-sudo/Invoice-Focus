@@ -65,23 +65,23 @@ const TEMPLATES = [
 export function Templates() {
   return (
     <section id="templates" className="bg-muted/30">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Templates</span>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+          <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             Start with a professionally designed template
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Choose a layout, add your branding, and send your first invoice in minutes.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {TEMPLATES.map(({ title, description, accent }) => (
             <a
               key={title}
               href="/sign-up"
-              className="group flex h-full flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="group flex h-full flex-col rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
             >
               <TemplateMiniPreview accent={accent} />
               <div className="mt-5">

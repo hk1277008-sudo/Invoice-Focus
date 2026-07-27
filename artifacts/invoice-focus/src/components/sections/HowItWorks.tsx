@@ -27,20 +27,20 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <section id="how-it-works" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">How It Works</span>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+          <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             From draft to delivery in three steps
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            No complicated setup. Just create, customize, and send.
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            No complicated setup. Create, customize, and send in moments.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-8 md:grid-cols-3">
+        <div className="mt-16 grid gap-8 md:grid-cols-3">
           {STEPS.map(({ icon: Icon, step, title, description }) => (
-            <div key={title} className="relative flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1">
+            <div key={title} className="relative flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-0.5">
               <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors hover:bg-primary/15">
                 <Icon className="h-6 w-6" />
               </div>

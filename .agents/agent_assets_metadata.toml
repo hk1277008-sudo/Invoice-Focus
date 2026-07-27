@@ -30,3 +30,9 @@ id = "WFtclxJM3DxgLSQLtcJtv"
 uri = "file://screenshots/invoice-focus-desktop-1280.jpg"
 type = "image"
 title = "InvoiceFocus desktop preview"
+
+[[outputs]]
+id = "ZYaWEp4_IyKomlmxGZB93"
+uri = "file://screenshots/invoice-focus-desktop-1280-final.jpg"
+type = "image"
+title = "InvoiceFocus final desktop preview"

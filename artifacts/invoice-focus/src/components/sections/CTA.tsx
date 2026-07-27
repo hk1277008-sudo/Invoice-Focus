@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 export function CTA() {
   return (
     <section id="cta" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
         <div className="relative overflow-hidden rounded-2xl bg-primary px-6 py-16 text-center sm:px-12 lg:px-20">
           <div
             className="pointer-events-none absolute -inset-px opacity-10"
@@ -14,11 +14,11 @@ export function CTA() {
           </div>
 
           <div className="relative mx-auto max-w-2xl">
-            <h2 className="font-display text-balance text-3xl font-semibold tracking-tight text-primary-foreground md:text-4xl">
+            <h2 className="font-display text-balance text-3xl font-semibold leading-tight tracking-tight text-primary-foreground md:text-4xl">
               Start Creating Professional Invoices Today
             </h2>
             <p className="mt-4 text-balance text-lg leading-relaxed text-primary-foreground/80">
-              Join freelancers, agencies, and startups who use InvoiceFocus to simplify billing and get paid faster.
+              Join professionals who use InvoiceFocus to streamline billing and get paid on time.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="secondary" asChild>

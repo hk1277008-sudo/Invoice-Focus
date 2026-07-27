@@ -41,7 +41,7 @@ const FOOTER_GROUPS = [
 export function Footer() {
   return (
     <footer className="border-t border-border bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-12 lg:py-16">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
           {/* Brand column */}
           <div className="lg:col-span-2">
@@ -49,7 +49,7 @@ export function Footer() {
               <Logo size="md" />
             </a>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Professional invoicing made simple for freelancers, agencies, and growing businesses.
+              Professional invoicing made simple for freelancers, agencies, and businesses.
             </p>
           </div>
 

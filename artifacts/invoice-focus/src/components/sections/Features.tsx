@@ -49,22 +49,22 @@ const FEATURES = [
 export function Features() {
   return (
     <section id="features" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Features</span>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-            Everything you need to send invoices faster
+          <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
+            A complete toolkit for polished invoices, quotes, and estimates
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            A focused toolkit for creating, customizing, and sharing professional invoices, quotes, and estimates.
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            A focused toolkit for creating, customizing, and sharing professional documents.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map(({ icon: Icon, title, description }) => (
             <div
               key={title}
-              className="group flex h-full flex-col rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="group flex h-full flex-col rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
                 <Icon className="h-5 w-5" />

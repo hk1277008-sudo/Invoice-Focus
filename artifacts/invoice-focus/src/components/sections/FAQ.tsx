@@ -9,12 +9,12 @@ const FAQS = [
   {
     question: 'What plans does InvoiceFocus offer?',
     answer:
-      'InvoiceFocus offers a simple plan structure designed for freelancers, agencies, and growing businesses. Start with core invoicing tools, then upgrade for advanced features like saved clients, recurring invoices, and team collaboration.',
+      'InvoiceFocus offers a straightforward plan structure designed for freelancers, agencies, and businesses. Start with core invoicing tools, then upgrade for advanced features like saved clients, recurring invoices, and team collaboration.',
   },
   {
     question: 'Do I need to install anything?',
     answer:
-      'No. InvoiceFocus runs entirely in your browser. Just sign up and start creating invoices from any device with an internet connection.',
+      'InvoiceFocus runs entirely in your browser. Sign up and start creating invoices from any device with an internet connection.'
   },
   {
     question: 'Can I export invoices as PDFs?',
@@ -51,18 +51,18 @@ const FAQS = [
 export function FAQ() {
   return (
     <section id="faq" className="bg-background">
-      <div className="mx-auto max-w-3xl px-6 py-20 lg:py-28">
+      <div className="mx-auto max-w-3xl px-6 py-24 lg:py-32">
         <div className="text-center">
           <span className="label-caps">FAQ</span>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+          <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             Frequently asked questions
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Everything you need to know before getting started.
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            Common questions about InvoiceFocus.
           </p>
         </div>
 
-        <Accordion type="single" collapsible className="mt-12">
+        <Accordion type="single" collapsible className="mt-16">
           {FAQS.map(({ question, answer }, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
               <AccordionTrigger className="text-base font-medium text-foreground">
