@@ -84,15 +84,7 @@ export default function SignInPage() {
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                href="/forgot-password"
-                className="text-xs text-primary underline-offset-4 hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
@@ -104,6 +96,14 @@ export default function SignInPage() {
               disabled={isLoading}
             />
             {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+            <div className="mt-3 flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-primary underline-offset-4 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <div className="flex items-center space-x-2">
