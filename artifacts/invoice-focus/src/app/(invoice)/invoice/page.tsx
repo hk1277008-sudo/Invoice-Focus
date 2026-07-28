@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useToast } from '@/hooks/use-toast'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export default function InvoicePage() {
   const {
@@ -172,26 +173,60 @@ export default function InvoicePage() {
               </AlertDialogContent>
             </AlertDialog>
 
-            <Button type="button" variant="outline" onClick={handlePrint} className="gap-2">
-              <Printer className="h-4 w-4" />
-              Print
-            </Button>
+             <TooltipProvider>
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <span
+                     tabIndex={isValid ? undefined : 0}
+                     className={isValid ? 'inline-flex' : 'inline-flex cursor-not-allowed'}
+                   >
+                     <Button
+                       type="button"
+                       variant="outline"
+                       onClick={handlePrint}
+                       disabled={!isValid}
+                       className="gap-2"
+                     >
+                       <Printer className="h-4 w-4" />
+                       Print
+                     </Button>
+                   </span>
+                 </TooltipTrigger>
+                 {!isValid && (
+                   <TooltipContent>
+                     Complete the required fields to enable this action.
+                   </TooltipContent>
+                 )}
+               </Tooltip>
+             </TooltipProvider>
 
-            <Button type="button" onClick={handleDownloadPDF} className="gap-2">
-              <Download className="h-4 w-4" />
-              Download PDF
-            </Button>
+             <TooltipProvider>
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <span
+                     tabIndex={isValid ? undefined : 0}
+                     className={isValid ? 'inline-flex' : 'inline-flex cursor-not-allowed'}
+                   >
+                     <Button
+                       type="button"
+                       onClick={handleDownloadPDF}
+                       disabled={!isValid}
+                       className="gap-2"
+                     >
+                       <Download className="h-4 w-4" />
+                       Download PDF
+                     </Button>
+                   </span>
+                 </TooltipTrigger>
+                 {!isValid && (
+                   <TooltipContent>
+                     Complete the required fields to enable this action.
+                   </TooltipContent>
+                 )}
+               </Tooltip>
+             </TooltipProvider>
           </div>
         </div>
-
-        {!isValid && hasAnyData && (
-          <div
-            className="mb-6 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive print:hidden"
-            role="alert"
-          >
-            Please fix the highlighted errors before exporting or printing.
-          </div>
-        )}
 
         {/* Editor + Preview */}
         <div className="grid gap-8 lg:grid-cols-2 print:block">
