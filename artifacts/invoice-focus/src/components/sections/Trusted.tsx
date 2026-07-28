@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion'
 
 const TRUST_ITEMS = [
-  'Built for freelancers',
-  'Built for agencies',
-  'Built for startups',
-  'Built for growing businesses',
+  'For freelancers',
+  'For agencies',
+  'For startups',
+  'For growing businesses',
 ]
 
 export function Trusted() {

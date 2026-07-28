@@ -30,7 +30,7 @@ const RESOURCES = [
 export function Resources() {
   return (
     <section id="resources" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Resources</span>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">

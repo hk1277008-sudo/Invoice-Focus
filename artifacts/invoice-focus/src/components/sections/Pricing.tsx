@@ -102,7 +102,7 @@ const cardMotion = {
 export function Pricing() {
   return (
     <section id="pricing" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Plans that grow with you</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
@@ -114,7 +114,7 @@ export function Pricing() {
         </div>
 
         <motion.div
-          className="mx-auto mt-16 grid max-w-6xl items-stretch gap-6 lg:grid-cols-3"
+          className="mx-auto mt-12 grid max-w-6xl items-stretch gap-6 lg:grid-cols-3"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: '-80px' }}

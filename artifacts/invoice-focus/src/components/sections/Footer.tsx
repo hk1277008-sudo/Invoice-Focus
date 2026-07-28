@@ -49,7 +49,7 @@ const FOOTER_GROUPS = [
 export function Footer() {
   return (
     <footer className="border-t border-border bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-6 py-12 lg:py-16">
         <div className="grid gap-12 lg:grid-cols-6">
           {/* Brand column */}
           <div className="lg:col-span-2">

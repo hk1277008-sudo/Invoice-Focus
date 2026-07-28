@@ -4,14 +4,14 @@ import { ArrowRight, Check } from 'lucide-react'
 
 const TRUST_POINTS = [
   'Professional Invoicing Made Simple',
-  'Built For Freelancers, Agencies And Businesses',
+  'For freelancers, agencies, and growing businesses',
   'Simple. Fast. Reliable.',
 ]
 
 export function Hero() {
   return (
     <section id="hero" className="relative overflow-hidden bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
         <motion.div
           className="mx-auto flex max-w-3xl flex-col items-center gap-8 text-center"
           initial={{ opacity: 0, y: 24 }}

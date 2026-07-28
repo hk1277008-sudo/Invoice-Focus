@@ -136,7 +136,7 @@ export function ProductPreview() {
 
   return (
     <section id="preview" className="bg-muted/30">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
         <motion.div
           className="mx-auto max-w-2xl text-center"
           initial={{ opacity: 0, y: 24 }}
@@ -154,7 +154,7 @@ export function ProductPreview() {
         </motion.div>
 
         <motion.div
-          className="mt-16"
+          className="mt-12"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
@@ -200,7 +200,7 @@ export function ProductPreview() {
             </div>
 
             {/* App layout */}
-             <div className="flex min-h-[660px] sm:min-h-[680px] md:min-h-[700px]">
+             <div className="flex">
               {/* Sidebar */}
               <div className="hidden w-14 flex-col items-center gap-4 border-r border-border/60 bg-card py-4 sm:flex lg:w-16">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">

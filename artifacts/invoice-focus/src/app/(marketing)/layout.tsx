@@ -29,7 +29,7 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
             © {new Date().getFullYear()} InvoiceFocus
           </p>
           <p className="text-xs text-muted-foreground">
-            Built for independent professionals &amp; studios
+            Simple tools for clearer client communication
           </p>
         </div>
       </footer>

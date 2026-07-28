@@ -52,7 +52,7 @@ const FAQS = [
 export function FAQ() {
   return (
     <section id="faq" className="bg-background">
-      <div className="mx-auto max-w-3xl px-6 py-20 lg:py-24">
+      <div className="mx-auto max-w-3xl px-6 py-16 lg:py-20">
         <motion.div
           className="text-center"
           initial={{ opacity: 0, y: 24 }}
@@ -75,7 +75,7 @@ export function FAQ() {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Accordion type="single" collapsible className="mt-16">
+           <Accordion type="single" collapsible className="mt-12">
             {FAQS.map(({ question, answer }, index) => (
               <AccordionItem key={index} value={`item-${index}`} className="border-border/60">
                 <AccordionTrigger className="py-5 text-left text-base font-semibold text-foreground hover:no-underline">

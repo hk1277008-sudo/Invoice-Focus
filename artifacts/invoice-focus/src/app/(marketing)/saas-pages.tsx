@@ -62,7 +62,6 @@ export function AboutPage() {
           {['Clear by default', 'Respectful design', 'Useful simplicity'].map((value) => <span key={value} className="rounded-full bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">{value}</span>)}
         </div>
       </div>
-      <div className="mt-8 text-center"><Button asChild><Link href="/invoice">Create your first invoice <ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div>
     </PageShell>
   )
 }

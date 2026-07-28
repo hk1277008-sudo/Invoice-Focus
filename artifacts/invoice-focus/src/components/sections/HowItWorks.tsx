@@ -81,7 +81,7 @@ export function HowItWorks() {
 
   return (
     <section id="how-it-works" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
         <motion.div
           ref={ref}
           className="mx-auto max-w-2xl text-center"

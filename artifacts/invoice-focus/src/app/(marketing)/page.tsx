@@ -1,6 +1,5 @@
 import { Header } from '@/components/sections/Header'
 import { Hero } from '@/components/sections/Hero'
-import { Trusted } from '@/components/sections/Trusted'
 import { Features } from '@/components/sections/Features'
 import { Templates } from '@/components/sections/Templates'
 import { HowItWorks } from '@/components/sections/HowItWorks'
@@ -17,7 +16,6 @@ export default function HomePage() {
       <Header />
       <main>
         <Hero />
-        <Trusted />
         <Features />
         <Templates />
         <HowItWorks />

@@ -63,7 +63,7 @@ const item = {
 export function Features() {
   return (
     <section id="features" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Features</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
@@ -75,7 +75,7 @@ export function Features() {
         </div>
 
         <motion.div
-          className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -87,8 +87,8 @@ export function Features() {
               variants={item}
               className="group relative flex h-full flex-col rounded-2xl bg-card p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg gradient-border"
             >
-              <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary shadow-sm transition-all duration-300 group-hover:from-primary/15 group-hover:to-primary/10 group-hover:shadow-md">
-                <Icon className="h-6 w-6" />
+               <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary shadow-sm transition-all duration-300 group-hover:-translate-y-0.5 group-hover:from-primary/15 group-hover:to-primary/10 group-hover:shadow-md">
+                 <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-105" />
               </div>
               <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
