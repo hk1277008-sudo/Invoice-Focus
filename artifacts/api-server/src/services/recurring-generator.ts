@@ -13,6 +13,8 @@ type RecurringRow = {
   next_run_date: string;
   due_date_offset: number;
   auto_invoice_number: boolean;
+  auto_generation: boolean;
+  invoice_status: 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled';
   status: 'active' | 'paused' | 'completed' | 'cancelled';
   template_data: Record<string, any>;
   generated_invoice_count: number;
@@ -39,6 +41,9 @@ function addFrequency(dateValue: string, frequency: Frequency, interval: number)
 function dateOnly(date: Date) {
   return date.toISOString().slice(0, 10);
 }
+function localDateInTimezone(timezone: string) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+}
 
 function invoiceNumber(row: RecurringRow, issueDate: string, attempt: number) {
   const templateNumber = row.template_data?.details?.number;
@@ -54,22 +59,25 @@ function dueDate(issueDate: string, offset: number) {
   return dateOnly(date);
 }
 
-export async function generateDueRecurringInvoices(asOf = dateOnly(new Date())) {
+export async function generateDueRecurringInvoices(asOf?: string) {
+  const hasExplicitAsOf = asOf !== undefined;
   const { data, error } = await supabaseAdmin
     .from('recurring_invoices')
     .select('*')
     .eq('status', 'active')
-    .lte('next_run_date', asOf)
     .order('next_run_date', { ascending: true })
     .limit(100);
   if (error) throw error;
 
   const generated: Array<{ recurringInvoiceId: string; invoiceId: string }> = [];
   for (const row of (data ?? []) as RecurringRow[]) {
+    if ((row as Partial<RecurringRow>).auto_generation === false) continue;
+    const effectiveAsOf = hasExplicitAsOf ? asOf! : localDateInTimezone((row as any).timezone || 'UTC');
+    if (row.next_run_date > effectiveAsOf) continue;
     let nextRun = row.next_run_date;
     let count = row.generated_invoice_count;
     let lastGeneratedAt = new Date().toISOString();
-    while (nextRun <= asOf && (!row.end_date || nextRun <= row.end_date)) {
+    while (nextRun <= effectiveAsOf && (!row.end_date || nextRun <= row.end_date)) {
       const template = row.template_data ?? {};
       const details = template.details ?? {};
       const client = template.client ?? {};
@@ -90,7 +98,7 @@ export async function generateDueRecurringInvoices(asOf = dateOnly(new Date())) 
         user_id: row.user_id,
         recurring_invoice_id: row.id,
         invoice_number: number,
-        status: 'Draft',
+        status: row.invoice_status || 'Draft',
         issue_date: nextRun,
         due_date: dueDate(nextRun, row.due_date_offset),
         client: client.name || row.template_data.client_name || row.template_data.clientName || row.client_name,
@@ -113,6 +121,19 @@ export async function generateDueRecurringInvoices(asOf = dateOnly(new Date())) 
       }
       if (inserted.error || !inserted.data) throw inserted.error ?? new Error('Generated invoice was not returned');
       generated.push({ recurringInvoiceId: row.id, invoiceId: inserted.data.id });
+      // Notification persistence is additive. Never make invoice generation fail
+      // just because the optional notification migration has not been deployed yet.
+      try {
+        await supabaseAdmin.from('notifications').insert({
+          user_id: row.user_id,
+          type: 'recurring_invoice_generated',
+          title: 'Recurring invoice generated',
+          message: `A new invoice was generated for ${invoiceInsert.client}.`,
+          data: { recurringInvoiceId: row.id, invoiceId: inserted.data.id },
+        });
+      } catch {
+        // Notifications are optional until migration 007 is deployed.
+      }
       count += 1;
       lastGeneratedAt = new Date().toISOString();
       nextRun = dateOnly(addFrequency(nextRun, row.frequency, row.interval_count));

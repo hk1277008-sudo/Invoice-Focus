@@ -31,6 +31,11 @@ export interface UserSettings {
   securityAlerts: boolean
   marketingEmails: boolean
   theme: ThemeMode
+  recurringDefaultTimezone: string
+  recurringDefaultFrequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom'
+  recurringDefaultDueDateOffset: number
+  recurringDefaultInvoiceStatus: 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled'
+  recurringDefaultAutoGeneration: boolean
 }
 
 export const defaultSettings: UserSettings = {
@@ -40,6 +45,8 @@ export const defaultSettings: UserSettings = {
   defaultDueDays: 30, invoiceNumberFormat: 'INV-{number}', invoicePrefix: 'INV',
   startingInvoiceNumber: 1, defaultNotes: '', defaultTerms: '', invoiceSentEmails: true,
   paymentReminderEmails: true, productUpdates: true, securityAlerts: true, marketingEmails: false, theme: 'system',
+  recurringDefaultTimezone: 'UTC', recurringDefaultFrequency: 'monthly', recurringDefaultDueDateOffset: 14,
+  recurringDefaultInvoiceStatus: 'Draft', recurringDefaultAutoGeneration: true,
 }
 
 async function request<T>(path: string, init: RequestInit = {}) {

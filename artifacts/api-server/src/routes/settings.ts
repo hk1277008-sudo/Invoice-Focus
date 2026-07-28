@@ -33,6 +33,11 @@ const settingsSchema = z.object({
   securityAlerts: z.boolean().default(true),
   marketingEmails: z.boolean().default(false),
   theme: z.enum(['system', 'light', 'dark']).default('system'),
+  recurringDefaultTimezone: z.string().trim().min(1).max(100).default('UTC'),
+  recurringDefaultFrequency: z.enum(['daily', 'weekly', 'monthly', 'quarterly', 'yearly', 'custom']).default('monthly'),
+  recurringDefaultDueDateOffset: z.coerce.number().int().min(0).max(3650).default(14),
+  recurringDefaultInvoiceStatus: z.enum(['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled']).default('Draft'),
+  recurringDefaultAutoGeneration: z.boolean().default(true),
 });
 
 const columns: Record<keyof z.infer<typeof settingsSchema>, string> = {
@@ -44,6 +49,11 @@ const columns: Record<keyof z.infer<typeof settingsSchema>, string> = {
   invoicePrefix: 'invoice_prefix', startingInvoiceNumber: 'starting_invoice_number', defaultNotes: 'default_notes',
   defaultTerms: 'default_terms', invoiceSentEmails: 'invoice_sent_emails', paymentReminderEmails: 'payment_reminder_emails',
   productUpdates: 'product_updates', securityAlerts: 'security_alerts', marketingEmails: 'marketing_emails', theme: 'theme',
+  recurringDefaultTimezone: 'recurring_default_timezone',
+  recurringDefaultFrequency: 'recurring_default_frequency',
+  recurringDefaultDueDateOffset: 'recurring_default_due_date_offset',
+  recurringDefaultInvoiceStatus: 'recurring_default_invoice_status',
+  recurringDefaultAutoGeneration: 'recurring_default_auto_generation',
 };
 
 function token(req: Request) {

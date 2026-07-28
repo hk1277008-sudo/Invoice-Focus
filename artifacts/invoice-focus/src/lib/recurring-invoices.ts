@@ -18,6 +18,8 @@ export interface RecurringInvoice {
   timezone: string
   due_date_offset: number
   auto_invoice_number: boolean
+  auto_generation: boolean
+  invoice_status: 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled'
   status: RecurringStatus
   template_data: InvoiceData
   generated_invoice_count: number
@@ -45,6 +47,8 @@ export type RecurringInvoiceInput = Partial<
   timezone: string
   due_date_offset: number
   auto_invoice_number: boolean
+  auto_generation?: boolean
+  invoice_status?: 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled'
   template_data: InvoiceData
 }
 

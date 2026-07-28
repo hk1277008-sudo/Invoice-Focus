@@ -22,6 +22,7 @@ import { useInvoiceValidation } from '@/components/invoice/useInvoiceValidation'
 import { useSubscription } from '@/providers/SubscriptionProvider'
 import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
 import { format } from 'date-fns'
+import { getSettings, type UserSettings } from '@/lib/settings'
 
 interface Props {
   initialData?: RecurringInvoice | null
@@ -65,12 +66,25 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
   const [timezone, setTimezone] = useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone)
   const [dueDateOffset, setDueDateOffset] = useState<number>(14)
   const [autoInvoiceNumber, setAutoInvoiceNumber] = useState<boolean>(true)
+  const [autoGeneration, setAutoGeneration] = useState<boolean>(true)
+  const [invoiceStatus, setInvoiceStatus] = useState<'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled'>('Draft')
 
   useEffect(() => {
     listClients({ sort: 'name', direction: 'asc' })
       .then(({ clients: savedClients }) => setClients(savedClients))
       .catch(() => setClients([]))
   }, [])
+
+  useEffect(() => {
+    if (!isNew || initialData) return
+    getSettings().then((settings: UserSettings) => {
+      setFrequency(settings.recurringDefaultFrequency)
+      setTimezone(settings.recurringDefaultTimezone)
+      setDueDateOffset(settings.recurringDefaultDueDateOffset)
+      setAutoGeneration(settings.recurringDefaultAutoGeneration)
+      setInvoiceStatus(settings.recurringDefaultInvoiceStatus)
+    }).catch(() => undefined)
+  }, [initialData, isNew])
 
   useEffect(() => {
     if (initialData) {
@@ -87,6 +101,8 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
       setTimezone(initialData.timezone)
       setDueDateOffset(initialData.due_date_offset)
       setAutoInvoiceNumber(initialData.auto_invoice_number)
+      setAutoGeneration(initialData.auto_generation)
+      setInvoiceStatus(initialData.invoice_status)
       
       if (initialData.template_data) {
         loadFromData(initialData.template_data)
@@ -142,6 +158,8 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
         timezone,
         due_date_offset: dueDateOffset,
         auto_invoice_number: autoInvoiceNumber,
+         auto_generation: autoGeneration,
+         invoice_status: invoiceStatus,
         template_data: invoice,
       }
 
@@ -303,6 +321,18 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
                   <p className="mt-1.5 text-sm text-muted-foreground pl-11">
                     When enabled, generated invoices will use your business's next sequential invoice number. When disabled, the template's invoice number will be used exactly.
                   </p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label>Generated Invoice Status</Label>
+                    <select value={invoiceStatus} onChange={(e) => setInvoiceStatus(e.target.value as typeof invoiceStatus)} className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+                      {['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled'].map((value) => <option key={value}>{value}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 pt-7">
+                    <Switch id="auto-generation" checked={autoGeneration} onCheckedChange={setAutoGeneration} />
+                    <Label htmlFor="auto-generation">Automatic generation enabled</Label>
+                  </div>
                 </div>
               </CardContent>
             </Card>

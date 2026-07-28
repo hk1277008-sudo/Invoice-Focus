@@ -27,6 +27,8 @@ const inputBaseSchema = z.object({
   timezone: z.string().trim().min(1).max(100),
   due_date_offset: z.coerce.number().int().min(0).max(3650),
   auto_invoice_number: z.boolean(),
+  auto_generation: z.boolean().default(true),
+  invoice_status: z.enum(['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled']).default('Draft'),
   template_data: templateSchema,
 });
 const inputSchema = inputBaseSchema.superRefine((value, ctx) => {
@@ -80,6 +82,7 @@ function shape(input: z.infer<typeof inputSchema>, userId: string) {
     frequency: input.frequency, interval_count: input.interval_count, start_date: input.start_date,
     end_date: input.end_date ?? null, next_run_date: input.next_run_date ?? input.start_date,
     timezone: input.timezone, due_date_offset: input.due_date_offset, auto_invoice_number: input.auto_invoice_number,
+    auto_generation: input.auto_generation, invoice_status: input.invoice_status,
     template_data: input.template_data,
   };
 }
@@ -165,7 +168,7 @@ router.patch('/recurring-invoices/:id', async (req, res) => {
     }
   }
   const updates: Record<string, unknown> = {};
-  for (const key of ['client_id', 'client_name', 'frequency', 'interval_count', 'start_date', 'end_date', 'next_run_date', 'timezone', 'due_date_offset', 'auto_invoice_number', 'template_data']) {
+  for (const key of ['client_id', 'client_name', 'frequency', 'interval_count', 'start_date', 'end_date', 'next_run_date', 'timezone', 'due_date_offset', 'auto_invoice_number', 'auto_generation', 'invoice_status', 'template_data']) {
     if (input[key as keyof typeof input] !== undefined) updates[key] = input[key as keyof typeof input];
   }
   const { data, error } = await supabaseAdmin.from('recurring_invoices').update(updates).eq('id', id).eq('user_id', user.id).select('*').maybeSingle();

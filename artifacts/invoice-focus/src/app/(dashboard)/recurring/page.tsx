@@ -42,6 +42,15 @@ function money(value: number, currency = 'USD') {
   return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value)
 }
 
+function formatScheduleDate(value: string | null, timezone: string, withTime = false) {
+  if (!value) return 'N/A'
+  return new Intl.DateTimeFormat(undefined, {
+    timeZone: timezone || 'UTC',
+    dateStyle: 'medium',
+    ...(withTime ? { timeStyle: 'short' as const } : {}),
+  }).format(new Date(withTime ? value : `${value.slice(0, 10)}T12:00:00Z`))
+}
+
 function StatusBadge({ status }: { status: RecurringInvoice['status'] }) {
   switch (status) {
     case 'active':
@@ -311,12 +320,12 @@ export default function RecurringInvoicesPage() {
                         </p>
                         <p className="flex items-center gap-2">
                           <Calendar className="h-3.5 w-3.5 shrink-0" />
-                          Next run: {inv.next_run_date ? format(parseISO(inv.next_run_date), 'MMM d, yyyy') : 'N/A'}
+                          Next run: {formatScheduleDate(inv.next_run_date, inv.timezone)}
                         </p>
                         {inv.last_generated_at && (
                           <p className="flex items-center gap-2">
                             <Clock className="h-3.5 w-3.5 shrink-0" />
-                            Last generated: {format(parseISO(inv.last_generated_at), 'MMM d, yyyy')}
+                            Last generated: {formatScheduleDate(inv.last_generated_at, inv.timezone, true)}
                           </p>
                         )}
                         <p className="mt-2 text-xs">Generated {inv.generated_invoice_count} invoice{inv.generated_invoice_count !== 1 ? 's' : ''} total.</p>

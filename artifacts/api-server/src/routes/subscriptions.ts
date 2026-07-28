@@ -54,6 +54,11 @@ router.get('/subscriptions/catalog', (_req, res) => res.json({ plans: PLAN_CATAL
 
 router.get('/subscriptions/me', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
+  const devPlan = process.env.NODE_ENV !== 'production' ? process.env.INVOICEFOCUS_DEV_PLAN : undefined;
+  if (devPlan && PLAN_CATALOG[devPlan as keyof typeof PLAN_CATALOG]) {
+    res.json({ subscription: normalize({ plan: devPlan, status: 'active', feature_permissions: {} }) });
+    return;
+  }
   const { data, error } = await supabaseAdmin.from('subscriptions').select('*').eq('user_id', user.id).maybeSingle();
   if (error) { res.status(500).json({ error: 'Failed to load subscription' }); return; }
   res.json({ subscription: normalize(data) });
@@ -77,6 +82,10 @@ export async function releaseInvoice(userId: string) {
 }
 
 export async function hasSubscriptionFeature(userId: string, feature: string) {
+  const devPlan = process.env.NODE_ENV !== 'production' ? process.env.INVOICEFOCUS_DEV_PLAN : undefined;
+  if (devPlan && PLAN_CATALOG[devPlan as keyof typeof PLAN_CATALOG]) {
+    return devPlan !== 'free' || feature !== 'recurringInvoices';
+  }
   const { data, error } = await supabaseAdmin
     .from('subscriptions')
     .select('plan, feature_permissions')
