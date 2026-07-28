@@ -20,6 +20,9 @@ import VerifyEmailPage from '@/app/(auth)/verify-email/page'
 import DashboardPage from '@/app/(dashboard)/dashboard/page'
 import ProfilePage from '@/app/(dashboard)/profile/page'
 import ClientsPage from '@/app/(dashboard)/clients/page'
+import RecurringInvoicesPage from '@/app/(dashboard)/recurring/page'
+import NewRecurringInvoicePage from '@/app/(dashboard)/recurring/new/page'
+import EditRecurringInvoicePage from '@/app/(dashboard)/recurring/[id]/page'
 import SettingsPage from '@/app/(dashboard)/settings/page'
 import UpgradePage from '@/app/(dashboard)/upgrade/page'
 import { SubscriptionProvider } from '@/providers/SubscriptionProvider'
@@ -66,6 +69,21 @@ function Router() {
       <Route path="/dashboard/clients">
         <ProtectedRoute>
           <ClientsPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/recurring">
+        <ProtectedRoute>
+          <RecurringInvoicesPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/recurring/new">
+        <ProtectedRoute>
+          <NewRecurringInvoicePage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/recurring/:id">
+        <ProtectedRoute>
+          <EditRecurringInvoicePage />
         </ProtectedRoute>
       </Route>
       <Route path="/dashboard/settings">

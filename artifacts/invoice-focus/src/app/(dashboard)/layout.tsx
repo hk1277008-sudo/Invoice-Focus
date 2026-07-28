@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter'
-import { FileText, Users, BarChart2, Settings, PlusCircle, LogOut, User } from 'lucide-react'
+import { FileText, Users, BarChart2, Settings, PlusCircle, LogOut, User, Repeat } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -16,6 +16,7 @@ import { UsageIndicator } from '@/components/subscription/UsageIndicator'
 
 const NAV_ITEMS = [
   { label: 'Invoices', href: '/dashboard', icon: FileText },
+  { label: 'Recurring', href: '/dashboard/recurring', icon: Repeat },
   { label: 'Clients', href: '/dashboard/clients', icon: Users },
   { label: 'Reports', href: '/dashboard/reports', icon: BarChart2 },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Download, FileJson, Printer, RotateCcw, Save, Upload } from 'lucide-react'
+import { Download, FileJson, Printer, RotateCcw, Save, Upload, Repeat } from 'lucide-react'
 import { useLocation, useSearch } from 'wouter'
 import { Button } from '@/components/ui/button'
 import { InvoiceLayout } from '../layout'
@@ -208,6 +208,11 @@ export default function InvoicePage() {
     void persistInvoice()
   }
 
+  const handleMakeRecurring = () => {
+    sessionStorage.setItem('recurring_handoff', JSON.stringify(invoice))
+    navigate('/dashboard/recurring/new')
+  }
+
   return (
     <InvoiceLayout>
       <UpgradeDialog
@@ -297,6 +302,12 @@ export default function InvoicePage() {
                 <Save className="h-4 w-4" />
                 Save Invoice
               </Button>
+              {hasAnyData && (
+                <Button type="button" variant="secondary" onClick={handleMakeRecurring} className="gap-2">
+                  <Repeat className="h-4 w-4" />
+                  Make Recurring
+                </Button>
+              )}
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import clientsRouter from "./clients";
 import dashboardRouter from "./dashboard";
 import settingsRouter from "./settings";
 import subscriptionsRouter from "./subscriptions";
+import recurringInvoicesRouter from "./recurring-invoices";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(clientsRouter);
 router.use(dashboardRouter);
 router.use(settingsRouter);
 router.use(subscriptionsRouter);
+router.use(recurringInvoicesRouter);
 
 export default router;
