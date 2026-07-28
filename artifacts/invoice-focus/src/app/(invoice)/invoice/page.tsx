@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useToast } from '@/hooks/use-toast'
 import { createInvoice, getInvoice, invoiceInput, updateInvoice } from '@/lib/invoices'
+import { listClients, type ClientRecord } from '@/lib/clients'
 
 export default function InvoicePage() {
   const search = useSearch()
@@ -59,6 +60,27 @@ export default function InvoicePage() {
   const [recordId, setRecordId] = useState<string | null>(null)
   const [isLoadingRecord, setIsLoadingRecord] = useState(true)
   const [remoteStatus, setRemoteStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [clients, setClients] = useState<ClientRecord[]>([])
+
+  useEffect(() => {
+    listClients({ sort: 'name', direction: 'asc' })
+      .then(({ clients: savedClients }) => setClients(savedClients))
+      .catch(() => setClients([]))
+  }, [])
+
+  const selectClient = useCallback((client: ClientRecord | null) => {
+    if (!client) {
+      updateClient('clientId', '')
+      return
+    }
+    updateClient('clientId', client.id)
+    updateClient('name', client.full_name)
+    updateClient('companyName', client.company_name)
+    updateClient('email', client.email)
+    updateClient('phone', client.phone)
+    updateClient('billingAddress', [client.billing_address, client.city, client.state, client.postal_code, client.country].filter(Boolean).join(', '))
+    updateClient('taxId', client.tax_id)
+  }, [updateBusiness, updateClient])
 
   const persistInvoice = useCallback(async () => {
     if (!hasAnyData) return
@@ -282,6 +304,8 @@ export default function InvoicePage() {
               onAddItem={addItem}
               onRemoveItem={removeItem}
               onSetLogo={setLogo}
+              clients={clients}
+              onSelectClient={selectClient}
             />
           </div>
           <div className="order-1 lg:order-2 print:m-0 print:p-0">

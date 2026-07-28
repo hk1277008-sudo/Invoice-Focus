@@ -19,6 +19,7 @@ export interface InvoiceRecord {
 }
 
 export interface InvoiceInput {
+  clientId?: string | null
   invoiceNumber?: string
   status: InvoiceStatus
   issueDate: string
@@ -57,6 +58,7 @@ export function invoiceInput(invoice: InvoiceData, total: number): InvoiceInput 
   const today = new Date().toISOString().slice(0, 10)
   return {
     invoiceNumber: invoice.details.number,
+    clientId: invoice.client.clientId || null,
     status: status as InvoiceStatus,
     issueDate: invoice.details.issueDate || today,
     dueDate: invoice.details.dueDate || null,

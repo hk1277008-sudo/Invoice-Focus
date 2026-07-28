@@ -21,6 +21,7 @@ const invoiceInputSchema = z.object({
   dueDate: z.string().date().nullable().optional(),
   client: z.string().trim().max(240).default(''),
   company: z.string().trim().max(240).default(''),
+  clientId: z.string().uuid().nullable().optional(),
   total: z.coerce.number().finite().nonnegative().default(0),
   currency: z.string().trim().min(3).max(3).default('USD'),
   payload: invoicePayloadSchema.default({}),
@@ -134,6 +135,7 @@ router.post('/invoices', async (req, res) => {
       due_date: input.dueDate ?? null,
       client: input.client,
       company: input.company,
+      client_id: input.clientId ?? null,
       total: input.total,
       currency: input.currency.toUpperCase(),
       payload: input.payload,
@@ -163,6 +165,7 @@ router.patch('/invoices/:id', async (req, res) => {
   if (input.dueDate !== undefined) updates.due_date = input.dueDate;
   if (input.client !== undefined) updates.client = input.client;
   if (input.company !== undefined) updates.company = input.company;
+  if (input.clientId !== undefined) updates.client_id = input.clientId;
   if (input.total !== undefined) updates.total = input.total;
   if (input.currency !== undefined) updates.currency = input.currency.toUpperCase();
   if (input.payload !== undefined) updates.payload = input.payload;
@@ -207,6 +210,7 @@ router.post('/invoices/:id/duplicate', async (req, res) => {
       due_date: source.due_date,
       client: source.client,
       company: source.company,
+      client_id: source.client_id ?? null,
       total: source.total,
       currency: source.currency,
       payload: source.payload,

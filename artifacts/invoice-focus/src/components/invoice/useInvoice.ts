@@ -34,11 +34,13 @@ export function createEmptyInvoice(): InvoiceData {
       taxId: '',
     },
     client: {
+        clientId: '',
       name: '',
       companyName: '',
       email: '',
       phone: '',
       billingAddress: '',
+        taxId: '',
     },
     details: {
       number: generateInvoiceNumber(),

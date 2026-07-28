@@ -1,4 +1,5 @@
-import { Plus, Trash2, Upload, X } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Plus, Search, Trash2, Upload, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -6,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { CurrencySelector } from './CurrencySelector'
 import type { InvoiceData, InvoiceItem } from './types'
+import type { ClientRecord } from '@/lib/clients'
 import { calculateItemValues } from './utils'
 
 interface InvoiceEditorProps {
@@ -20,6 +22,8 @@ interface InvoiceEditorProps {
   onAddItem: () => void
   onRemoveItem: (id: string) => void
   onSetLogo: (logo: string | null) => void
+  clients?: ClientRecord[]
+  onSelectClient?: (client: ClientRecord | null) => void
 }
 
 export function InvoiceEditor({
@@ -34,7 +38,15 @@ export function InvoiceEditor({
   onAddItem,
   onRemoveItem,
   onSetLogo,
+  clients = [],
+  onSelectClient,
 }: InvoiceEditorProps) {
+  const [clientSearch, setClientSearch] = useState('')
+  const filteredClients = useMemo(() => {
+    const query = clientSearch.trim().toLowerCase()
+    if (!query) return clients
+    return clients.filter((client) => [client.full_name, client.company_name, client.email, client.phone].some((value) => value.toLowerCase().includes(query)))
+  }, [clientSearch, clients])
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -243,6 +255,33 @@ export function InvoiceEditor({
           <CardDescription>Who is this invoice for?</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
+          {onSelectClient && (
+            <FormField label="Select Saved Client" htmlFor="saved-client" className="sm:col-span-2">
+              <div className="relative mb-2">
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={clientSearch}
+                  onChange={(event) => setClientSearch(event.target.value)}
+                  placeholder="Search saved clients by name, company, email, or phone"
+                  className="pl-9"
+                  aria-label="Search saved clients"
+                />
+              </div>
+              <select
+                id="saved-client"
+                value={invoice.client.clientId || ''}
+                onChange={(event) => onSelectClient(clients.find((client) => client.id === event.target.value) || null)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="">Choose a client or enter details below</option>
+                {filteredClients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.full_name}{client.company_name ? ` — ${client.company_name}` : ''}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          )}
           <FormField label="Client Name" htmlFor="client-name" error={errors['client-name']}>
             <Input
               id="client-name"
@@ -277,6 +316,14 @@ export function InvoiceEditor({
               value={invoice.client.phone}
               onChange={(e) => onUpdateClient('phone', e.target.value)}
               placeholder="Phone Number"
+            />
+          </FormField>
+          <FormField label="Tax ID / VAT Number" htmlFor="client-tax-id">
+            <Input
+              id="client-tax-id"
+              value={invoice.client.taxId}
+              onChange={(e) => onUpdateClient('taxId', e.target.value)}
+              placeholder="Tax ID / VAT Number"
             />
           </FormField>
           <FormField label="Billing Address" htmlFor="client-address" className="sm:col-span-2">

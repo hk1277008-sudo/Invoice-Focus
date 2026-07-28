@@ -30,11 +30,13 @@ export interface InvoiceBusiness {
 }
 
 export interface InvoiceClient {
+  clientId?: string
   name: string
   companyName: string
   email: string
   phone: string
   billingAddress: string
+  taxId: string
 }
 
 export interface InvoiceDetails {

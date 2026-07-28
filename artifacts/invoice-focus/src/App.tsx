@@ -19,6 +19,7 @@ import ResetPasswordPage from '@/app/(auth)/reset-password/page'
 import VerifyEmailPage from '@/app/(auth)/verify-email/page'
 import DashboardPage from '@/app/(dashboard)/dashboard/page'
 import ProfilePage from '@/app/(dashboard)/profile/page'
+import ClientsPage from '@/app/(dashboard)/clients/page'
 
 const InvoicePage = lazy(() => import('@/app/(invoice)/invoice/page'))
 
@@ -57,6 +58,11 @@ function Router() {
       <Route path="/dashboard">
         <ProtectedRoute>
           <DashboardPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/clients">
+        <ProtectedRoute>
+          <ClientsPage />
         </ProtectedRoute>
       </Route>
       <Route path="/dashboard/:rest*">
