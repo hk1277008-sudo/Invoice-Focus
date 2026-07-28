@@ -27,6 +27,7 @@ const invoiceInputSchema = z.object({
   currency: z.string().trim().min(3).max(3).default('USD'),
   payload: invoicePayloadSchema.default({}),
 });
+const invoiceIdSchema = z.string().uuid();
 
 const listQuerySchema = z.object({
   search: z.string().trim().max(120).optional(),
@@ -100,6 +101,10 @@ router.get('/invoices', async (req, res) => {
 router.get('/invoices/:id', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  if (!invoiceIdSchema.safeParse(req.params.id).success) {
+    res.status(400).json({ error: 'Invalid invoice ID' });
+    return;
+  }
   const { data, error } = await supabaseAdmin
     .from('invoices')
     .select('*')
@@ -168,6 +173,10 @@ router.post('/invoices', async (req, res) => {
 router.patch('/invoices/:id', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  if (!invoiceIdSchema.safeParse(req.params.id).success) {
+    res.status(400).json({ error: 'Invalid invoice ID' });
+    return;
+  }
   const parsed = invoiceInputSchema.partial().safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid invoice data', details: parsed.error.flatten() });
@@ -206,6 +215,10 @@ router.patch('/invoices/:id', async (req, res) => {
 router.post('/invoices/:id/duplicate', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  if (!invoiceIdSchema.safeParse(req.params.id).success) {
+    res.status(400).json({ error: 'Invalid invoice ID' });
+    return;
+  }
   const { data: source, error: sourceError } = await supabaseAdmin
     .from('invoices')
     .select('*')
@@ -258,6 +271,10 @@ router.post('/invoices/:id/duplicate', async (req, res) => {
 router.delete('/invoices/:id', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  if (!invoiceIdSchema.safeParse(req.params.id).success) {
+    res.status(400).json({ error: 'Invalid invoice ID' });
+    return;
+  }
   const { count, error } = await supabaseAdmin
     .from('invoices')
     .delete({ count: 'exact' })

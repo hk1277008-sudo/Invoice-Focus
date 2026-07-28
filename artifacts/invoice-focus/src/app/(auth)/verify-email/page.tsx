@@ -47,11 +47,16 @@ export default function VerifyEmailPage() {
 
       if (data.user) {
         try {
+          const { data: sessionData } = await supabase.auth.getSession()
           await fetch(`${getApiBaseUrl()}/api/auth/welcome`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              ...(sessionData.session?.access_token
+                ? { Authorization: `Bearer ${sessionData.session.access_token}` }
+                : {}),
+            },
             body: JSON.stringify({
-              email: data.user.email,
               fullName: data.user.user_metadata?.full_name,
             }),
           })

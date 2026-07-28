@@ -41,10 +41,13 @@ export default function ProfilePage() {
     try {
       const formData = new FormData()
       formData.append('avatar', file)
-      formData.append('userId', user.id)
+      const { data: sessionData } = await supabase.auth.getSession()
 
       const response = await fetch(`${getApiBaseUrl()}/api/auth/avatar`, {
         method: 'POST',
+        headers: sessionData.session?.access_token
+          ? { Authorization: `Bearer ${sessionData.session.access_token}` }
+          : {},
         body: formData,
       })
 

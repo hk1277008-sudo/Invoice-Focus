@@ -55,6 +55,23 @@ function handleAuthError(error: unknown, res: Response, defaultStatus = 500) {
   res.status(defaultStatus).json({ error: message });
 }
 
+async function requireUser(req: Request, res: Response) {
+  const header = req.get('authorization');
+  const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) {
+    res.status(401).json({ error: 'Authentication required' });
+    return null;
+  }
+
+  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !data.user) {
+    res.status(401).json({ error: 'Invalid or expired session' });
+    return null;
+  }
+
+  return data.user;
+}
+
 function getRequestBaseUrl(req: Request) {
   const forwardedProto = req.get('x-forwarded-proto')?.split(',')[0]?.trim();
   const forwardedHost = req.get('x-forwarded-host')?.split(',')[0]?.trim();
@@ -229,13 +246,21 @@ router.post('/auth/forgot-password', async (req, res) => {
 });
 
 router.post('/auth/welcome', async (req, res) => {
+  const user = await requireUser(req, res);
+  if (!user) return;
+
   const parse = welcomeSchema.safeParse(req.body);
   if (!parse.success) {
     res.status(400).json({ error: 'Invalid data', details: parse.error.flatten() });
     return;
   }
 
-  const { email, fullName } = parse.data;
+  const { fullName } = parse.data;
+  const email = user.email;
+  if (!email) {
+    res.status(400).json({ error: 'Authenticated user email is required' });
+    return;
+  }
 
   try {
     await sendEmail({
@@ -256,12 +281,21 @@ router.post('/auth/avatar', upload.single('avatar'), async (req, res) => {
       return;
     }
 
-    const userId = req.body.userId;
-    if (!userId || typeof userId !== 'string') {
-      res.status(400).json({ error: 'userId is required' });
+    const token = req.get('authorization')?.startsWith('Bearer ')
+      ? req.get('authorization')!.slice(7)
+      : null;
+    if (!token) {
+      res.status(401).json({ error: 'Authentication required' });
       return;
     }
 
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    if (authError || !authData.user) {
+      res.status(401).json({ error: 'Invalid or expired session' });
+      return;
+    }
+
+    const userId = authData.user.id;
     const { url } = await uploadAvatar(userId, req.file);
     res.json({ url });
   } catch (error) {

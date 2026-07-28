@@ -23,6 +23,7 @@ const listSchema = z.object({
   sort: z.enum(['recent', 'name', 'company', 'updated']).default('recent'),
   direction: z.enum(['asc', 'desc']).default('desc'),
 });
+const clientIdSchema = z.string().uuid();
 
 function getToken(req: Request) {
   const header = req.get('authorization');
@@ -83,6 +84,10 @@ router.get('/clients', async (req, res) => {
 router.get('/clients/:id', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  if (!clientIdSchema.safeParse(req.params.id).success) {
+    res.status(400).json({ error: 'Invalid client ID' });
+    return;
+  }
   const { data: client, error: clientError } = await supabaseAdmin
     .from('clients')
     .select('*')
@@ -147,6 +152,10 @@ router.post('/clients', async (req, res) => {
 router.patch('/clients/:id', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  if (!clientIdSchema.safeParse(req.params.id).success) {
+    res.status(400).json({ error: 'Invalid client ID' });
+    return;
+  }
   const parsed = clientSchema.partial().safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: 'Please check the client details', details: parsed.error.flatten() });
@@ -183,6 +192,10 @@ router.patch('/clients/:id', async (req, res) => {
 router.delete('/clients/:id', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  if (!clientIdSchema.safeParse(req.params.id).success) {
+    res.status(400).json({ error: 'Invalid client ID' });
+    return;
+  }
   const { count, error } = await supabaseAdmin
     .from('clients')
     .delete({ count: 'exact' })
