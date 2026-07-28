@@ -41,11 +41,11 @@ export function Hero() {
 
           <ul className="flex w-full flex-col items-center justify-center gap-2.5 pt-2 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
             {TRUST_POINTS.map((point) => (
-              <li key={point} className="inline-flex w-full max-w-[19rem] items-center justify-center gap-2 text-center text-sm leading-5 text-muted-foreground sm:w-auto sm:max-w-none">
+              <li key={point} className="inline-flex w-full max-w-[19rem] flex-nowrap items-center justify-center gap-2 text-center text-sm leading-5 text-muted-foreground sm:w-auto sm:max-w-none">
                 <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Check className="h-3 w-3" />
                 </span>
-                <span>{point}</span>
+                <span className="whitespace-nowrap">{point}</span>
               </li>
             ))}
           </ul>
