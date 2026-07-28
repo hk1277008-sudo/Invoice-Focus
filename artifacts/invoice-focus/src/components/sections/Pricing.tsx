@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils'
 
 type PricingPlan = {
   name: string
-  eyebrow?: string
   description: string
   price: string
   billing?: string
@@ -20,7 +19,6 @@ type PricingPlan = {
 const PLANS: PricingPlan[] = [
   {
     name: 'Free',
-    eyebrow: 'Free Forever',
     description: 'Perfect for freelancers, students, and small businesses getting started.',
     price: '$0',
     billing: '/month',
@@ -41,8 +39,7 @@ const PLANS: PricingPlan[] = [
   },
   {
     name: 'Pro',
-    eyebrow: 'Built for Businesses Ready to Scale.',
-    description: 'Everything you need to automate and grow your business.',
+    description: 'Perfect for growing businesses ready to automate invoicing and serve more clients.',
     price: '$9',
     billing: '/month',
     annualPrice: '$89/year',
@@ -66,8 +63,7 @@ const PLANS: PricingPlan[] = [
   },
   {
     name: 'Premium',
-    eyebrow: 'Enterprise-Grade Tools for Growing Teams.',
-    description: 'Advanced tools for businesses managing multiple teams and operations.',
+    description: 'Perfect for teams and established businesses that need advanced collaboration and powerful business tools.',
     price: '$19',
     billing: '/month',
     annualPrice: '$189/year',
@@ -124,7 +120,7 @@ export function Pricing() {
               key={plan.name}
               variants={cardMotion}
               className={cn(
-                'relative flex h-full flex-col rounded-2xl border bg-card p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-8',
+                'relative flex h-full flex-col rounded-2xl border bg-card p-7 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-8',
                 plan.popular
                   ? 'border-primary/60 shadow-lg shadow-primary/10 lg:scale-[1.025] lg:hover:scale-[1.035]'
                   : 'border-border/80 hover:border-primary/25',
@@ -136,8 +132,8 @@ export function Pricing() {
                 </div>
               )}
 
-              <div>
-                <div className="flex items-center justify-between gap-3">
+              <div className="w-full">
+                <div className="flex min-h-8 items-center justify-center gap-3">
                   <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
                     {plan.name}
                   </h3>
@@ -147,30 +143,25 @@ export function Pricing() {
                     </span>
                   )}
                 </div>
-                {plan.eyebrow && plan.name !== 'Free' && (
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-                    {plan.eyebrow}
-                  </p>
-                )}
-                <p className="mt-4 min-h-[3.5rem] text-sm leading-relaxed text-muted-foreground">
+                <p className="mx-auto mt-4 min-h-[4.5rem] max-w-[18rem] text-sm leading-relaxed text-foreground">
                   {plan.description}
                 </p>
                 <div className="mt-7 border-y border-border/70 py-5">
-                  <div className="flex items-baseline gap-1">
+                  <div className="flex items-baseline justify-center gap-1">
                     <span className="font-display text-3xl font-semibold tracking-tight text-foreground">
                       {plan.price}
                     </span>
                     <span className="text-sm text-muted-foreground">{plan.billing}</span>
                   </div>
-                  {plan.annualPrice && (
-                    <p className="mt-1 text-xs font-medium text-primary">
+                   {plan.annualPrice && (
+                     <p className="mt-1 text-xs font-medium text-primary">
                       {plan.annualPrice} <span className="text-muted-foreground">({plan.savings})</span>
                     </p>
                   )}
                 </div>
               </div>
 
-              <ul className="mt-6 flex-1 space-y-3.5" aria-label={`${plan.name} plan features`}>
+               <ul className="mt-6 flex-1 space-y-3.5 text-left" aria-label={`${plan.name} plan features`}>
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3 text-sm text-foreground/80">
                     <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">

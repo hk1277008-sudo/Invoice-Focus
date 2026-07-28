@@ -39,13 +39,13 @@ export function Hero() {
             </Button>
           </div>
 
-          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-2">
+          <ul className="flex w-full flex-col items-center justify-center gap-2.5 pt-2 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
             {TRUST_POINTS.map((point) => (
-              <li key={point} className="flex items-center gap-2 text-sm text-muted-foreground">
+              <li key={point} className="inline-flex w-full max-w-[19rem] items-center justify-center gap-2 text-center text-sm leading-5 text-muted-foreground sm:w-auto sm:max-w-none">
                 <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Check className="h-3 w-3" />
                 </span>
-                <span className="text-balance">{point}</span>
+                <span>{point}</span>
               </li>
             ))}
           </ul>
