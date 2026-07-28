@@ -105,7 +105,10 @@ export function buildPasswordResetEmail(link: string, fullName?: string) {
   };
 }
 
-export function buildWelcomeEmail(fullName?: string) {
+export function buildWelcomeEmail(
+  fullName?: string,
+  dashboardBaseUrl = process.env.CLIENT_BASE_URL || 'https://invoicefocus.com',
+) {
   const greeting = fullName ? `Welcome, ${fullName}!` : 'Welcome to InvoiceFocus!';
   return {
     subject: 'Welcome to InvoiceFocus',
@@ -122,7 +125,7 @@ export function buildWelcomeEmail(fullName?: string) {
        <h1>Welcome to InvoiceFocus!</h1>
        <p>${fullName ? `Hi ${fullName},` : greeting}</p>
        <p>Your email has been verified successfully. Your InvoiceFocus account is now ready. We're excited to help you create professional invoices faster, stay organized, and grow your business with confidence.</p>
-       <p class="button-wrap"><a href="${process.env.CLIENT_BASE_URL || 'https://invoicefocus.com'}/dashboard" class="button">Go to Dashboard</a></p>
+       <p class="button-wrap"><a href="${dashboardBaseUrl}/dashboard" class="button">Go to Dashboard</a></p>
     </div>
     <div class="footer">
        <p>Thanks for Choosing InvoiceFocus.</p>

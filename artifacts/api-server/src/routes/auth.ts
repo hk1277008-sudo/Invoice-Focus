@@ -1,4 +1,4 @@
-import { Router, type IRouter, type Response } from 'express';
+import { Router, type IRouter, type Request, type Response } from 'express';
 import multer from 'multer';
 import { supabaseAdmin } from '../lib/supabase';
 import { sendEmail, buildVerificationEmail, buildPasswordResetEmail, buildWelcomeEmail } from '../lib/email';
@@ -55,8 +55,23 @@ function handleAuthError(error: unknown, res: Response, defaultStatus = 500) {
   res.status(defaultStatus).json({ error: message });
 }
 
-function buildCallbackUrl(path: string, params: Record<string, string>) {
-  const url = new URL(path, clientBaseUrl);
+function getRequestBaseUrl(req: Request) {
+  const forwardedProto = req.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  const forwardedHost = req.get('x-forwarded-host')?.split(',')[0]?.trim();
+
+  if (forwardedHost) {
+    return `${forwardedProto || req.protocol}://${forwardedHost}`;
+  }
+
+  return clientBaseUrl;
+}
+
+function buildCallbackUrl(
+  req: Request,
+  path: string,
+  params: Record<string, string>,
+) {
+  const url = new URL(path, getRequestBaseUrl(req));
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
@@ -88,7 +103,7 @@ router.post('/auth/signup', async (req, res) => {
       type: 'signup',
       email,
       password,
-      options: { redirectTo: buildCallbackUrl('/auth/verify-email', {}) },
+      options: { redirectTo: buildCallbackUrl(req, '/verify-email', {}) },
     });
 
     if (linkError) {
@@ -96,7 +111,7 @@ router.post('/auth/signup', async (req, res) => {
     }
 
     const { properties } = linkData;
-    const confirmationUrl = buildCallbackUrl('/auth/verify-email', {
+    const confirmationUrl = buildCallbackUrl(req, '/verify-email', {
       token: properties.hashed_token,
       type: 'email',
       email,
@@ -137,7 +152,7 @@ router.post('/auth/resend-verification', async (req, res) => {
       type: 'signup',
       email,
       password,
-      options: { redirectTo: buildCallbackUrl('/auth/verify-email', {}) },
+      options: { redirectTo: buildCallbackUrl(req, '/verify-email', {}) },
     });
 
     if (linkError) {
@@ -145,7 +160,7 @@ router.post('/auth/resend-verification', async (req, res) => {
     }
 
     const { properties } = linkData;
-    const confirmationUrl = buildCallbackUrl('/auth/verify-email', {
+    const confirmationUrl = buildCallbackUrl(req, '/verify-email', {
       token: properties.hashed_token,
       type: 'email',
       email,
@@ -188,7 +203,7 @@ router.post('/auth/forgot-password', async (req, res) => {
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email,
-      options: { redirectTo: buildCallbackUrl('/auth/reset-password', {}) },
+      options: { redirectTo: buildCallbackUrl(req, '/reset-password', {}) },
     });
 
     if (linkError) {
@@ -196,7 +211,7 @@ router.post('/auth/forgot-password', async (req, res) => {
     }
 
     const { properties } = linkData;
-    const resetUrl = buildCallbackUrl('/auth/reset-password', {
+    const resetUrl = buildCallbackUrl(req, '/reset-password', {
       token: properties.hashed_token,
       type: 'recovery',
       email,
@@ -225,7 +240,7 @@ router.post('/auth/welcome', async (req, res) => {
   try {
     await sendEmail({
       to: email,
-      ...buildWelcomeEmail(fullName),
+      ...buildWelcomeEmail(fullName, getRequestBaseUrl(req)),
     });
 
     res.json({ message: 'Welcome email sent.' });
