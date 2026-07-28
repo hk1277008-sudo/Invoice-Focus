@@ -22,7 +22,7 @@ const RESOURCES = [
   {
     icon: Newspaper,
     title: 'Release Notes',
-    description: 'See what is new, what is improved, and what is coming next to Invoice Focus.',
+    description: 'See what is new, what is improved, and what is coming next to InvoiceFocus.',
     href: '/release-notes',
   },
 ]
@@ -37,7 +37,7 @@ export function Resources() {
             Learn, integrate, and get help
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Everything you need to make the most of Invoice Focus, from guides to API docs.
+          Everything you need to make the most of InvoiceFocus, from guides to API docs.
           </p>
         </div>
 

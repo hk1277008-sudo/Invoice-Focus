@@ -23,27 +23,15 @@ export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
 
   return (
     <span className={cn('inline-flex items-center gap-2.5', className)}>
-      <span
-        className={cn(
-          'relative flex shrink-0 items-center justify-center rounded-[6px] bg-primary',
-          wrap
-        )}
-        aria-hidden="true"
-      >
-        <svg viewBox="0 0 20 20" fill="none" className="h-[58%] w-[58%]" aria-hidden="true">
-          {/* Vertical stem */}
-          <rect x="3" y="3" width="2.5" height="14" rx="1" fill="white" />
-          {/* Top horizontal bar */}
-          <rect x="3" y="3" width="11" height="2.5" rx="1" fill="white" />
-          {/* Mid horizontal bar */}
-          <rect x="3" y="8.75" width="8" height="2.5" rx="1" fill="white" />
-        </svg>
-      </span>
+      <img
+        src="/invoicefocus-icon.jpg"
+        alt="InvoiceFocus icon"
+        className={cn('block shrink-0 object-contain', wrap)}
+      />
       {!markOnly && (
-        <span
-          className={cn('font-display font-semibold tracking-tight text-foreground', text)}
-        >
-          Invoice Focus
+        <span className={cn('font-display font-semibold tracking-tight', text)}>
+          <span className="text-foreground">Invoice</span>
+          <span className="text-primary">Focus</span>
         </span>
       )}
     </span>

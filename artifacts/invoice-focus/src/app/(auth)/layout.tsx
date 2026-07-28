@@ -6,7 +6,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-svh flex-col bg-muted/40">
       {/* Logo only — no nav in auth flows */}
       <header className="flex h-16 items-center px-6">
-        <Link href="/" aria-label="Back to Invoice Focus home">
+        <Link href="/" aria-label="Back to InvoiceFocus home">
           <Logo size="sm" />
         </Link>
       </header>
