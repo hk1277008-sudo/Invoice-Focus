@@ -14,7 +14,7 @@ type RecurringRow = {
   due_date_offset: number;
   auto_invoice_number: boolean;
   auto_generation: boolean;
-  invoice_status: 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled';
+  invoice_status: 'Draft' | 'Sent' | 'Viewed' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled';
   status: 'active' | 'paused' | 'completed' | 'cancelled';
   template_data: Record<string, any>;
   generated_invoice_count: number;

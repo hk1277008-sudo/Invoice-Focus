@@ -55,11 +55,12 @@ export function buildInvoiceEmail(input: {
   dueDate?: string | null;
   personalMessage?: string;
   viewUrl: string;
+  downloadUrl?: string;
 }) {
   const greeting = input.recipientName ? `Hi ${input.recipientName},` : 'Hello,';
   return {
     subject: `Invoice ${input.invoiceNumber} from InvoiceFocus`,
-    html: `<!DOCTYPE html><html><head>${brandStyles()}</head><body><div class="container"><div class="header">${input.logo ? `<img src="${input.logo}" alt="${input.businessName}" style="max-height:48px;max-width:160px;margin-bottom:10px">` : ''}<p class="brand">${input.businessName || 'InvoiceFocus'}</p><p class="tagline">Professional invoicing, made simple</p></div><div class="content"><h1>Invoice ${input.invoiceNumber}</h1><p>${greeting}</p>${input.personalMessage ? `<p>${input.personalMessage}</p>` : '<p>Please find your invoice details below.</p>'}<p><strong>Amount due: ${input.amountDue}</strong><br>Due date: ${input.dueDate || 'Upon receipt'}</p><p class="button-wrap"><a href="${input.viewUrl}" class="button">View Invoice</a></p><p class="muted">A PDF copy of this invoice is attached for your records.</p></div><div class="footer"><p>Sent with InvoiceFocus.</p></div></div></body></html>`,
+    html: `<!DOCTYPE html><html><head>${brandStyles()}</head><body><div class="container"><div class="header">${input.logo ? `<img src="${input.logo}" alt="${input.businessName}" style="max-height:48px;max-width:160px;margin-bottom:10px">` : ''}<p class="brand">${input.businessName || 'InvoiceFocus'}</p><p class="tagline">Professional invoicing, made simple</p></div><div class="content"><h1>Invoice ${input.invoiceNumber}</h1><p>${greeting}</p>${input.personalMessage ? `<p>${input.personalMessage}</p>` : '<p>Please find your invoice details below.</p>'}<p><strong>Amount due: ${input.amountDue}</strong><br>Due date: ${input.dueDate || 'Upon receipt'}</p><p class="button-wrap"><a href="${input.viewUrl}" class="button">View Invoice</a>${input.downloadUrl ? ` <a href="${input.downloadUrl}" class="button">Download PDF</a>` : ''}</p><p class="muted">A PDF copy of this invoice is attached for your records.</p></div><div class="footer"><p>Sent with InvoiceFocus.</p></div></div></body></html>`,
   };
 }
 

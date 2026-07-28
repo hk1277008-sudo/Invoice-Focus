@@ -29,7 +29,7 @@ const inputBaseSchema = z.object({
   due_date_offset: z.coerce.number().int().min(0).max(3650),
   auto_invoice_number: z.boolean(),
   auto_generation: z.boolean().default(true),
-  invoice_status: z.enum(['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled']).default('Draft'),
+  invoice_status: z.enum(['Draft', 'Sent', 'Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled']).default('Draft'),
   template_data: templateSchema,
 });
 const inputSchema = inputBaseSchema.superRefine((value, ctx) => {

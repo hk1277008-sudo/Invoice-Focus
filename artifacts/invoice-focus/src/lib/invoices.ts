@@ -133,6 +133,12 @@ export function sendInvoice(id: string, input: { recipientEmail: string; subject
 export function recordPayment(id: string, input: { amount: number; paymentDate: string; paymentMethod: string; referenceNumber: string; notes: string }) {
   return request<{ payment: PaymentRecord; invoice: InvoiceRecord }>(`/invoices/${id}/payments`, { method: 'POST', body: JSON.stringify(input) })
 }
+export function updatePayment(id: string, paymentId: string, input: Partial<{ amount: number; paymentDate: string; paymentMethod: string; referenceNumber: string; notes: string }>) {
+  return request<{ payment: PaymentRecord; invoice: InvoiceRecord }>(`/invoices/${id}/payments/${paymentId}`, { method: 'PATCH', body: JSON.stringify(input) })
+}
+export function deletePayment(id: string, paymentId: string) {
+  return request<{ invoice: InvoiceRecord }>(`/invoices/${id}/payments/${paymentId}`, { method: 'DELETE' })
+}
 export function scheduleReminder(id: string, input: { triggerType: ReminderRecord['trigger_type']; enabled: boolean; recipientEmail: string; subject: string; personalMessage: string }) {
   return request<{ reminder: ReminderRecord }>(`/invoices/${id}/reminders`, { method: 'POST', body: JSON.stringify(input) })
 }

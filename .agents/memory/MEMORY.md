@@ -5,3 +5,4 @@
 - [Settings persistence](settings-persistence.md) — Settings require the user-scoped Supabase migration before save, export, and deletion flows can run.
 - [Subscription system](subscription-system.md) — Entitlements and Free usage are server-owned; apply the subscription migration before authenticated plan checks.
 - [Supabase schema cache repair](supabase-schema-cache-repair.md) — After creating application tables, reload PostgREST and verify real REST reads/inserts plus the OpenAPI table list.
+- [Supabase child-table RLS](supabase-child-table-rls.md) — Child rows must verify referenced parent ownership in RLS; matching user_id alone is insufficient.

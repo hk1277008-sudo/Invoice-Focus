@@ -19,6 +19,7 @@ export interface DashboardOverview {
   revenue: Array<{ date: string; amount: number }>
   statusDistribution: Array<{ status: InvoiceStatus; count: number }>
   recentInvoices: InvoiceRecord[]
+  recentActivity: Array<{ id: string; invoice_id: string; action: string; description: string; created_at: string }>
   recentClients: Array<{
     id: string
     full_name: string

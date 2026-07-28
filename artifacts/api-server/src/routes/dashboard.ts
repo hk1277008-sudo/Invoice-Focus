@@ -47,7 +47,7 @@ router.get('/dashboard/overview', async (req, res) => {
   const { start, end } = parsed.data;
   let invoiceQuery = supabaseAdmin
     .from('invoices')
-    .select('id, invoice_number, status, issue_date, due_date, client, company, total, currency, client_id, created_at, updated_at')
+    .select('id, invoice_number, status, issue_date, due_date, client, company, total, amount_paid, currency, client_id, created_at, updated_at')
     .eq('user_id', user.id)
     .order('updated_at', { ascending: false });
   let clientQuery = supabaseAdmin
@@ -78,8 +78,8 @@ router.get('/dashboard/overview', async (req, res) => {
   }));
   const paidRows = invoiceRows.filter((invoice) => invoice.status === 'Paid');
   const outstandingRows = invoiceRows.filter((invoice) => ['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status));
-  const totalRevenue = paidRows.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
-  const outstandingAmount = outstandingRows.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
+  const totalRevenue = invoiceRows.reduce((sum, invoice) => sum + Number(invoice.amount_paid || 0), 0);
+  const outstandingAmount = outstandingRows.reduce((sum, invoice) => sum + Math.max(Number(invoice.total || 0) - Number(invoice.amount_paid || 0), 0), 0);
 
   const revenueMap = new Map<string, number>();
   for (const invoice of paidRows) {
@@ -92,10 +92,11 @@ router.get('/dashboard/overview', async (req, res) => {
     if (!invoice.client_id) continue;
     const current = invoiceCountsByClient.get(invoice.client_id) ?? { count: 0, outstanding: 0 };
     current.count += 1;
-    if (['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status)) current.outstanding += Number(invoice.total || 0);
+    if (['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status)) current.outstanding += Math.max(Number(invoice.total || 0) - Number(invoice.amount_paid || 0), 0);
     invoiceCountsByClient.set(invoice.client_id, current);
   }
 
+  const { data: recentActivity } = await supabaseAdmin.from('invoice_activity').select('id,invoice_id,action,description,created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(8);
   res.json({
     range: { start: start ?? null, end: end ?? null },
     stats: {
@@ -113,6 +114,7 @@ router.get('/dashboard/overview', async (req, res) => {
     },
     revenue: [...revenueMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, amount]) => ({ date, amount })),
     statusDistribution,
+    recentActivity: recentActivity ?? [],
     recentInvoices: invoiceRows.slice(0, 8),
     recentClients: clientRows.slice(0, 6).map((client) => {
       const metrics = invoiceCountsByClient.get(client.id) ?? { count: 0, outstanding: 0 };

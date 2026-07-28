@@ -49,7 +49,7 @@ function shortDate(value: string) {
 }
 
 function statusClass(status: InvoiceStatus) {
-  return status === 'Paid' ? 'bg-emerald-50 text-emerald-700' : status === 'Overdue' ? 'bg-rose-50 text-rose-700' : status === 'Cancelled' ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'
+  return status === 'Paid' ? 'bg-emerald-50 text-emerald-700' : status === 'Overdue' ? 'bg-rose-50 text-rose-700' : status === 'Viewed' ? 'bg-violet-50 text-violet-700' : status === 'Partially Paid' ? 'bg-amber-50 text-amber-700' : status === 'Cancelled' ? 'bg-muted text-muted-foreground' : status === 'Draft' ? 'bg-slate-100 text-slate-700' : 'bg-blue-50 text-blue-700'
 }
 
 function DashboardSkeleton() {
@@ -118,7 +118,12 @@ function DashboardContent({ overview, onDuplicate, onDelete }: { overview: Dashb
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, icon: Icon, tone }) => <Card key={label}><CardContent className="flex items-start justify-between p-5"><div><p className="text-sm text-muted-foreground">{label}</p><p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p></div><Icon className={`h-5 w-5 ${tone}`} /></CardContent></Card>)}</div>
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]"><RevenueChart data={overview.revenue} /><StatusChart data={overview.statusDistribution} /></div>
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"><RecentInvoices invoices={overview.recentInvoices} onDuplicate={onDuplicate} onDelete={onDelete} /><RecentClients clients={overview.recentClients} /></div>
+    <RecentActivity items={overview.recentActivity} />
   </>}</>
+}
+
+function RecentActivity({ items }: { items: DashboardOverview['recentActivity'] }) {
+  return <Card><CardHeader><CardTitle>Recent Activity</CardTitle><p className="mt-1 text-sm text-muted-foreground">The latest changes across your invoices</p></CardHeader><CardContent>{items.length ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{items.map((item) => <Link key={item.id} href={`/invoice/${item.invoice_id}`} className="rounded-lg border p-3 transition-colors hover:bg-muted/40"><p className="text-sm font-medium">{item.description}</p><p className="mt-1 text-xs capitalize text-muted-foreground">{item.action.replaceAll('_', ' ')} · {new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date(item.created_at))}</p></Link>)}</div> : <p className="text-sm text-muted-foreground">No recent activity yet.</p>}</CardContent></Card>
 }
 
 function RevenueChart({ data }: { data: DashboardOverview['revenue'] }) {

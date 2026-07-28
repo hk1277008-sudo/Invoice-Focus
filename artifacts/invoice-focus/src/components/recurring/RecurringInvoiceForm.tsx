@@ -67,7 +67,7 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
   const [dueDateOffset, setDueDateOffset] = useState<number>(14)
   const [autoInvoiceNumber, setAutoInvoiceNumber] = useState<boolean>(true)
   const [autoGeneration, setAutoGeneration] = useState<boolean>(true)
-  const [invoiceStatus, setInvoiceStatus] = useState<'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled'>('Draft')
+  const [invoiceStatus, setInvoiceStatus] = useState<'Draft' | 'Sent' | 'Viewed' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled'>('Draft')
 
   useEffect(() => {
     listClients({ sort: 'name', direction: 'asc' })
