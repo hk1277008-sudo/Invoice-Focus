@@ -62,7 +62,7 @@ export function FAQ() {
         >
           <span className="label-caps">FAQ</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            Frequently asked questions
+            Frequently Asked Questions
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Common questions about InvoiceFocus.

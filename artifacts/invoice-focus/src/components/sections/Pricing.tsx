@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 
 type PricingPlan = {
   name: string
+  badge?: string
   description: string
   price: string
   billing?: string
@@ -19,6 +20,7 @@ type PricingPlan = {
 const PLANS: PricingPlan[] = [
   {
     name: 'Free',
+    badge: 'Free Forever',
     description: 'Perfect for freelancers, students, and small businesses getting started.',
     price: '$0',
     billing: '/month',
@@ -39,6 +41,7 @@ const PLANS: PricingPlan[] = [
   },
   {
     name: 'Pro',
+    badge: 'Most Popular',
     description: 'Perfect for growing businesses ready to automate invoicing and serve more clients.',
     price: '$9',
     billing: '/month',
@@ -100,7 +103,7 @@ export function Pricing() {
     <section id="pricing" className="bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="label-caps">Plans that grow with you</span>
+          <span className="label-caps">Plans That Grow With You</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             Choose the workspace that fits your next chapter
           </h2>
@@ -128,37 +131,40 @@ export function Pricing() {
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
-                  Most Popular
+                  {plan.badge}
                 </div>
               )}
 
               <div className="w-full">
-                <div className="flex min-h-8 items-center justify-center gap-3">
+                <div className="flex min-h-6 justify-center">
+                  {plan.name === 'Free' && (
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                      {plan.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-3 flex items-baseline justify-between gap-4 text-left">
                   <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
                     {plan.name}
                   </h3>
-                  {plan.name === 'Free' && (
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                      Free Forever
-                    </span>
-                  )}
+                  <div className="shrink-0 text-right">
+                    <div className="flex items-baseline justify-end gap-1">
+                      <span className="font-display text-3xl font-semibold tracking-tight text-foreground">
+                        {plan.price}
+                      </span>
+                      <span className="text-sm text-muted-foreground">{plan.billing}</span>
+                    </div>
+                    {plan.annualPrice && (
+                      <p className="mt-1 text-xs font-medium text-primary">
+                        {plan.annualPrice}{' '}
+                        <span className="text-muted-foreground">({plan.savings})</span>
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <p className="mx-auto mt-4 min-h-[4.5rem] max-w-[18rem] text-sm leading-relaxed text-foreground">
+                <p className="mt-4 min-h-[4.5rem] max-w-[20rem] text-left text-sm leading-relaxed text-foreground">
                   {plan.description}
                 </p>
-                <div className="mt-7 border-y border-border/70 py-5">
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="font-display text-3xl font-semibold tracking-tight text-foreground">
-                      {plan.price}
-                    </span>
-                    <span className="text-sm text-muted-foreground">{plan.billing}</span>
-                  </div>
-                   {plan.annualPrice && (
-                     <p className="mt-1 text-xs font-medium text-primary">
-                      {plan.annualPrice} <span className="text-muted-foreground">({plan.savings})</span>
-                    </p>
-                  )}
-                </div>
               </div>
 
                <ul className="mt-6 flex-1 space-y-3.5 text-left" aria-label={`${plan.name} plan features`}>

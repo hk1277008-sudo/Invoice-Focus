@@ -4,7 +4,7 @@ import { ArrowRight, Check } from 'lucide-react'
 
 const TRUST_POINTS = [
   'Professional Invoicing Made Simple',
-  'For freelancers, agencies, and growing businesses',
+  'Built for Freelancers and Businesses',
   'Simple. Fast. Reliable.',
 ]
 
