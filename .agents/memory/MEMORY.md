@@ -1,3 +1,4 @@
 - [Invoice Focus build env vars](invoice-focus-build-env-vars.md) — `vite.config.ts` requires `PORT` and `BASE_PATH` at config-load time; set them when running `pnpm run build` manually.
 - [Cloning as design inspiration](cloning-design-inspiration.md) — For third-party site inspiration, extract structure/copy, then adapt to the existing design system and replace all branding.
 - [Supabase Auth + Resend email caveats](auth-supabase-resend.md) — Custom Resend backend must generate Supabase email links; `signup` resends need the password, and Resend test mode only sends to verified domains.
+- [Invoice validation UX](invoice-validation-ux.md) — Required-field errors should appear after an export/print attempt, not while users are actively completing the invoice.

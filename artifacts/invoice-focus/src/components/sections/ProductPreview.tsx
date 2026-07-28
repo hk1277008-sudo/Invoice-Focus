@@ -64,7 +64,7 @@ function DocumentPreview({ type }: { type: string }) {
   const doc = DOCUMENTS[type]
 
   return (
-    <div className="h-full overflow-y-auto bg-white p-6 sm:p-8">
+    <div className="h-auto min-h-full overflow-visible bg-white p-6 sm:p-8">
       <div className="mx-auto max-w-2xl">
         <div className="mb-8 flex items-start justify-between border-b border-border/50 pb-6">
           <div>
@@ -200,7 +200,7 @@ export function ProductPreview() {
             </div>
 
             {/* App layout */}
-            <div className="flex h-[420px] sm:h-[480px] md:h-[520px]">
+             <div className="flex min-h-[660px] sm:min-h-[680px] md:min-h-[700px]">
               {/* Sidebar */}
               <div className="hidden w-14 flex-col items-center gap-4 border-r border-border/60 bg-card py-4 sm:flex lg:w-16">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">

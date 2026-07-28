@@ -66,12 +66,13 @@ export function InvoiceEditor({
           <FormField label="Currency" htmlFor="currency" error={errors['currency']}>
             <CurrencySelector value={invoice.details.currency} onChange={onUpdateCurrency} />
           </FormField>
-          <FormField label="Issue Date" htmlFor="issue-date">
+           <FormField label="Invoice Date" htmlFor="issue-date" error={errors['issue-date']}>
             <Input
               id="issue-date"
               type="date"
               value={invoice.details.issueDate}
               onChange={(e) => onUpdateDetails('issueDate', e.target.value)}
+               aria-invalid={!!errors['issue-date']}
             />
           </FormField>
           <FormField label="Due Date" htmlFor="due-date" error={errors['due-date']}>
@@ -291,8 +292,8 @@ export function InvoiceEditor({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg border border-border">
-            <div className="grid grid-cols-12 gap-2 border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <div className="col-span-12 sm:col-span-4">Item</div>
+            <div className="grid grid-cols-12 gap-2 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="col-span-12 sm:col-span-3">Item</div>
               <div className="col-span-3 sm:col-span-1">Qty</div>
               <div className="col-span-4 sm:col-span-2">Price</div>
               <div className="col-span-2 sm:col-span-1">Tax %</div>
@@ -406,8 +407,8 @@ function InvoiceItemRow({
   const priceError = errors[`item-${index}-price`]
 
   return (
-    <div className="grid grid-cols-12 gap-2 p-3">
-      <div className="col-span-12 sm:col-span-4 space-y-1">
+    <div className="grid min-w-0 grid-cols-12 gap-2 overflow-hidden p-3">
+      <div className="col-span-12 min-w-0 space-y-1 sm:col-span-3">
         <Input
           value={item.name}
           onChange={(e) => onUpdate(item.id, 'name', e.target.value)}
@@ -476,7 +477,7 @@ function InvoiceItemRow({
           className="h-8"
         />
       </div>
-      <div className="col-span-1 sm:col-span-1 flex items-center text-sm font-medium tabular-nums">
+      <div className="col-span-1 flex min-w-0 items-center justify-end overflow-hidden text-right text-xs font-medium tabular-nums sm:col-span-2">
         {lineTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
       <div className="col-span-1 sm:col-span-2 flex items-center justify-end">

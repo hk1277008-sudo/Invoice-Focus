@@ -51,6 +51,9 @@ export function useInvoiceValidation(invoice: InvoiceData): InvoiceValidation {
     if (!invoice.client.name.trim()) {
       errors.push({ field: 'client-name', message: 'Client name is required' })
     }
+    if (!invoice.details.issueDate) {
+      errors.push({ field: 'issue-date', message: 'Invoice date is required' })
+    }
 
     const businessEmailError = validateEmail(invoice.business.email, 'business email')
     if (businessEmailError) {

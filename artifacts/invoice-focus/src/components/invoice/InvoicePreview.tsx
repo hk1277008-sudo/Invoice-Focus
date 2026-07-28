@@ -34,7 +34,7 @@ export const InvoicePreview = memo(function InvoicePreview({
 
   return (
     <div className="invoice-preview-container overflow-hidden rounded-xl border border-border bg-white shadow-sm print:rounded-none print:border-0 print:shadow-none">
-      <div className="p-8 sm:p-10">
+      <div className="min-w-0 p-4 sm:p-10">
         {/* Header */}
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
@@ -133,8 +133,16 @@ export const InvoicePreview = memo(function InvoicePreview({
         </div>
 
         {/* Items Table */}
-        <div className="mt-10">
-          <table className="w-full text-left" aria-label="Invoice items">
+        <div className="mt-10 max-w-full overflow-x-auto">
+          <table className="w-full min-w-[520px] table-fixed text-left" aria-label="Invoice items">
+            <colgroup>
+              <col className="w-[32%]" />
+              <col className="w-[10%]" />
+              <col className="w-[15%]" />
+              <col className="w-[13%]" />
+              <col className="w-[13%]" />
+              <col className="w-[17%]" />
+            </colgroup>
             <thead>
               <tr className="border-b border-border">
                 <th className="py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</th>
@@ -180,26 +188,26 @@ export const InvoicePreview = memo(function InvoicePreview({
 
         {/* Totals */}
         <div className="mt-8 flex justify-end">
-          <div className="w-full max-w-xs space-y-2">
+          <div className="w-full min-w-0 max-w-xs space-y-2">
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Subtotal</span>
-              <span className="tabular-nums">{formatCurrency(calculations.subtotal, currency)}</span>
+              <span className="min-w-0">Subtotal</span>
+              <span className="min-w-0 break-all text-right tabular-nums">{formatCurrency(calculations.subtotal, currency)}</span>
             </div>
             {calculations.discount > 0 && (
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Discount</span>
-                <span className="tabular-nums">-{formatCurrency(calculations.discount, currency)}</span>
+                <span className="min-w-0">Discount</span>
+                <span className="min-w-0 break-all text-right tabular-nums">-{formatCurrency(calculations.discount, currency)}</span>
               </div>
             )}
             {calculations.tax > 0 && (
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Tax</span>
-                <span className="tabular-nums">{formatCurrency(calculations.tax, currency)}</span>
+                <span className="min-w-0">Tax</span>
+                <span className="min-w-0 break-all text-right tabular-nums">{formatCurrency(calculations.tax, currency)}</span>
               </div>
             )}
             <div className="flex justify-between border-t border-border pt-2 text-base font-bold text-foreground">
-              <span>Grand Total</span>
-              <span className="tabular-nums">{formatCurrency(calculations.grandTotal, currency)}</span>
+              <span className="min-w-0">Grand Total</span>
+              <span className="min-w-0 break-all text-right tabular-nums">{formatCurrency(calculations.grandTotal, currency)}</span>
             </div>
           </div>
         </div>

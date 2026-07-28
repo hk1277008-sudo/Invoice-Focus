@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Link } from 'wouter'
 import { MarketingLayout } from './layout'
 import { Button } from '@/components/ui/button'
@@ -24,9 +24,6 @@ export function PlaceholderPage({
     <MarketingLayout>
       <div className="flex flex-1 items-center justify-center px-6 py-20 sm:py-28">
         <div className="w-full max-w-2xl text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Sparkles className="h-5 w-5" aria-hidden="true" />
-          </div>
           <p className="label-caps mt-7">{eyebrow}</p>
           <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
             {title}

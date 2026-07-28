@@ -26,7 +26,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useToast } from '@/hooks/use-toast'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export default function InvoicePage() {
   const {
@@ -48,12 +47,15 @@ export default function InvoicePage() {
   } = useInvoice()
 
   const { draftStatus } = useInvoiceDraft(invoice)
-  const { fieldErrors, isValid } = useInvoiceValidation(invoice)
+  const { fieldErrors: validationErrors, isValid } = useInvoiceValidation(invoice)
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
+  const [showValidation, setShowValidation] = useState(false)
 
   const handlePrint = () => {
+    setShowValidation(true)
+    if (!isValid) return
     if (!hasAnyData) {
       toast({ title: 'Nothing to print', description: 'Add some invoice details before printing.' })
       return
@@ -62,6 +64,8 @@ export default function InvoicePage() {
   }
 
   const handleDownloadPDF = () => {
+    setShowValidation(true)
+    if (!isValid) return
     if (!hasAnyData) {
       toast({ title: 'Nothing to export', description: 'Add some invoice details before exporting.' })
       return
@@ -70,6 +74,8 @@ export default function InvoicePage() {
   }
 
   const handleExportJSON = () => {
+    setShowValidation(true)
+    if (!isValid) return
     const { blob, fileName } = exportInvoiceToJSON(invoice)
     downloadJSON(blob, fileName)
     toast({ title: 'Invoice exported', description: `${fileName} has been downloaded.` })
@@ -173,58 +179,14 @@ export default function InvoicePage() {
               </AlertDialogContent>
             </AlertDialog>
 
-             <TooltipProvider>
-               <Tooltip>
-                 <TooltipTrigger asChild>
-                   <span
-                     tabIndex={isValid ? undefined : 0}
-                     className={isValid ? 'inline-flex' : 'inline-flex cursor-not-allowed'}
-                   >
-                     <Button
-                       type="button"
-                       variant="outline"
-                       onClick={handlePrint}
-                       disabled={!isValid}
-                       className="gap-2"
-                     >
-                       <Printer className="h-4 w-4" />
-                       Print
-                     </Button>
-                   </span>
-                 </TooltipTrigger>
-                 {!isValid && (
-                   <TooltipContent>
-                     Complete the required fields to enable this action.
-                   </TooltipContent>
-                 )}
-               </Tooltip>
-             </TooltipProvider>
-
-             <TooltipProvider>
-               <Tooltip>
-                 <TooltipTrigger asChild>
-                   <span
-                     tabIndex={isValid ? undefined : 0}
-                     className={isValid ? 'inline-flex' : 'inline-flex cursor-not-allowed'}
-                   >
-                     <Button
-                       type="button"
-                       onClick={handleDownloadPDF}
-                       disabled={!isValid}
-                       className="gap-2"
-                     >
-                       <Download className="h-4 w-4" />
-                       Download PDF
-                     </Button>
-                   </span>
-                 </TooltipTrigger>
-                 {!isValid && (
-                   <TooltipContent>
-                     Complete the required fields to enable this action.
-                   </TooltipContent>
-                 )}
-               </Tooltip>
-             </TooltipProvider>
+              <Button type="button" variant="outline" onClick={handlePrint} className="gap-2">
+                <Printer className="h-4 w-4" />
+                Print
+              </Button>
+              <Button type="button" onClick={handleDownloadPDF} className="gap-2">
+                <Download className="h-4 w-4" />
+                Download PDF
+              </Button>
           </div>
         </div>
 
@@ -233,7 +195,7 @@ export default function InvoicePage() {
           <div className="order-2 lg:order-1 print:hidden">
             <InvoiceEditor
               invoice={invoice}
-              errors={fieldErrors}
+              errors={showValidation ? validationErrors : {}}
               onUpdateBusiness={updateBusiness}
               onUpdateClient={updateClient}
               onUpdateDetails={updateDetails}
