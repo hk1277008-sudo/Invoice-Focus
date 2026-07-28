@@ -11,7 +11,7 @@ const TRUST_POINTS = [
 export function Hero() {
   return (
     <section id="hero" className="relative overflow-hidden bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-24">
         <motion.div
           className="mx-auto flex max-w-3xl flex-col items-center gap-8 text-center"
           initial={{ opacity: 0, y: 24 }}

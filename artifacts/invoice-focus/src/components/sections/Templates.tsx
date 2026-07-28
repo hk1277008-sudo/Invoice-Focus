@@ -79,7 +79,7 @@ const item = {
 export function Templates() {
   return (
     <section id="templates" className="bg-muted/30">
-      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-24">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Templates</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">

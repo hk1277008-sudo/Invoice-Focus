@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Check, Sparkles } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -7,7 +7,10 @@ type PricingPlan = {
   name: string
   eyebrow?: string
   description: string
-  priceLabel: string
+  price: string
+  billing?: string
+  annualPrice?: string
+  savings?: string
   features: string[]
   cta: string
   href: string
@@ -19,7 +22,8 @@ const PLANS: PricingPlan[] = [
     name: 'Free',
     eyebrow: 'Free Forever',
     description: 'Perfect for freelancers, students, and small businesses getting started.',
-    priceLabel: 'Free Forever',
+    price: '$0',
+    billing: '/month',
     features: [
       '15 Professional Invoices Per Month',
       'Unlimited PDF Downloads',
@@ -39,7 +43,10 @@ const PLANS: PricingPlan[] = [
     name: 'Pro',
     eyebrow: 'Built for Businesses Ready to Scale.',
     description: 'Everything you need to automate and grow your business.',
-    priceLabel: 'Coming Soon',
+    price: '$9',
+    billing: '/month',
+    annualPrice: '$89/year',
+    savings: 'Save 18%',
     features: [
       'Everything in Free',
       'Unlimited Invoices',
@@ -61,7 +68,10 @@ const PLANS: PricingPlan[] = [
     name: 'Premium',
     eyebrow: 'Enterprise-Grade Tools for Growing Teams.',
     description: 'Advanced tools for businesses managing multiple teams and operations.',
-    priceLabel: 'Coming Soon',
+    price: '$19',
+    billing: '/month',
+    annualPrice: '$189/year',
+    savings: 'Save 17%',
     features: [
       'Everything in Pro',
       'Multiple Businesses',
@@ -92,7 +102,7 @@ const cardMotion = {
 export function Pricing() {
   return (
     <section id="pricing" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-6 py-20 lg:py-24">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Plans that grow with you</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
@@ -122,7 +132,6 @@ export function Pricing() {
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
-                  <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                   Most Popular
                 </div>
               )}
@@ -147,9 +156,17 @@ export function Pricing() {
                   {plan.description}
                 </p>
                 <div className="mt-7 border-y border-border/70 py-5">
-                  <span className="font-display text-2xl font-semibold tracking-tight text-foreground">
-                    {plan.priceLabel}
-                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-display text-3xl font-semibold tracking-tight text-foreground">
+                      {plan.price}
+                    </span>
+                    <span className="text-sm text-muted-foreground">{plan.billing}</span>
+                  </div>
+                  {plan.annualPrice && (
+                    <p className="mt-1 text-xs font-medium text-primary">
+                      {plan.annualPrice} <span className="text-muted-foreground">({plan.savings})</span>
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -166,8 +183,8 @@ export function Pricing() {
 
               <Button
                 asChild
-                className={cn('mt-8 w-full', !plan.popular && 'bg-primary/95')}
-                variant={plan.popular ? 'default' : 'outline'}
+                className="mt-8 w-full"
+                variant="default"
               >
                 <a href={plan.href}>{plan.cta}</a>
               </Button>

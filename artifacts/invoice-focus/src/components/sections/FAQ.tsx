@@ -52,7 +52,7 @@ const FAQS = [
 export function FAQ() {
   return (
     <section id="faq" className="bg-background">
-      <div className="mx-auto max-w-3xl px-6 py-24 lg:py-32">
+      <div className="mx-auto max-w-3xl px-6 py-20 lg:py-24">
         <motion.div
           className="text-center"
           initial={{ opacity: 0, y: 24 }}
