@@ -114,9 +114,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="border-t border-border p-3">
-          <Button size="sm" className="w-full gap-2">
+          <Button asChild size="sm" className="w-full gap-2">
+            <Link href="/invoice">
             <PlusCircle className="h-4 w-4" />
             New invoice
+            </Link>
           </Button>
         </div>
       </aside>

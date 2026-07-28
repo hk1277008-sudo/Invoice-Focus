@@ -93,12 +93,19 @@ export function InvoiceEditor({
             />
           </FormField>
           <FormField label="Invoice Status" htmlFor="status">
-            <Input
+            <select
               id="status"
               value={invoice.details.status}
               onChange={(e) => onUpdateDetails('status', e.target.value)}
-              placeholder="Draft"
-            />
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="">Draft</option>
+              <option value="Draft">Draft</option>
+              <option value="Sent">Sent</option>
+              <option value="Paid">Paid</option>
+              <option value="Overdue">Overdue</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
           </FormField>
           <FormField label="Purchase Order Number (optional)" htmlFor="po-number" className="sm:col-span-2">
             <Input
