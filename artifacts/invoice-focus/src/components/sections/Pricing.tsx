@@ -105,7 +105,7 @@ export function Pricing() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Plans That Grow With You</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            Choose the workspace that fits your next chapter
+            Choose the Workspace That Fits Your Next Chapter
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Start with the essentials today, then unlock more ways to streamline your business as it grows.

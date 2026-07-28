@@ -146,7 +146,7 @@ export function ProductPreview() {
         >
           <span className="label-caps">Live Preview</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            See your documents before you send them
+            See Your Documents Before You Send Them
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Switch between invoices, quotes, estimates, receipts, and purchase orders to preview every detail.

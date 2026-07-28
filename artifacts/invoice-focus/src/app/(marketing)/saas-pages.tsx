@@ -16,10 +16,10 @@ const guides = [
 ]
 
 const posts = [
-  ['Invoicing', 'The calm way to close out a project', 'How a simple end-of-project invoicing ritual helps independent teams get paid with confidence.', 'Jul 18, 2026'],
-  ['Small business', 'What to include on every professional invoice', 'The details that make an invoice useful to your client and easier to reconcile later.', 'Jul 9, 2026'],
-  ['Freelancing', 'A better weekly money check-in', 'A lightweight routine for staying on top of outstanding work without turning finance into a full-time job.', 'Jun 27, 2026'],
-  ['Productivity', 'Less admin, more focused work', 'Why thoughtful defaults and reusable templates make the business side of creative work feel lighter.', 'Jun 12, 2026'],
+  ['Invoicing', 'The Calm Way to Close Out a Project', 'How a simple end-of-project invoicing ritual helps independent teams get paid with confidence.', 'Jul 18, 2026'],
+  ['Small Business', 'What to Include on Every Professional Invoice', 'The details that make an invoice useful to your client and easier to reconcile later.', 'Jul 9, 2026'],
+  ['Freelancing', 'A Better Weekly Money Check-In', 'A lightweight routine for staying on top of outstanding work without turning finance into a full-time job.', 'Jun 27, 2026'],
+  ['Productivity', 'Less Admin, More Focused Work', 'Why thoughtful defaults and reusable templates make the business side of creative work feel lighter.', 'Jun 12, 2026'],
 ]
 
 function PageShell({ eyebrow, title, description, children }: { eyebrow: string; title: string; description: string; children: React.ReactNode }) {
@@ -39,12 +39,12 @@ function PageShell({ eyebrow, title, description, children }: { eyebrow: string;
 
 export function AboutPage() {
   return (
-    <PageShell eyebrow="About InvoiceFocus" title="Invoicing that keeps the focus on your work." description="InvoiceFocus helps freelancers, independent professionals, and growing teams create clear invoices without adding another complicated system to their day.">
+    <PageShell eyebrow="About InvoiceFocus" title="Invoicing That Keeps the Focus on Your Work." description="InvoiceFocus helps freelancers, independent professionals, and growing teams create clear invoices without adding another complicated system to their day.">
       <div className="grid gap-6 lg:grid-cols-3">
         {[
-          ['Our mission', 'Make the business side of meaningful work feel straightforward, professional, and calm.'],
-          ['Why people choose us', 'InvoiceFocus brings the essential invoice workflow into one focused workspace, with thoughtful defaults that save time.'],
-          ['Our philosophy', 'Good software should make the right action obvious, keep information legible, and stay out of the way when the work matters most.'],
+          ['Our Mission', 'Make the business side of meaningful work feel straightforward, professional, and calm.'],
+          ['Why People Choose Us', 'InvoiceFocus brings the essential invoice workflow into one focused workspace, with thoughtful defaults that save time.'],
+          ['Our Philosophy', 'Good software should make the right action obvious, keep information legible, and stay out of the way when the work matters most.'],
         ].map(([title, copy]) => (
           <Card key={title} className="h-full">
             <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
@@ -54,12 +54,12 @@ export function AboutPage() {
       </div>
       <div className="mt-6 grid gap-6 rounded-2xl border border-border/80 bg-card p-8 shadow-sm md:grid-cols-[1fr_auto] md:items-center">
         <div>
-          <p className="label-caps">Our values</p>
-          <h2 className="mt-3 font-display text-2xl font-semibold">Clarity, care, and momentum.</h2>
+          <p className="label-caps">Our Values</p>
+          <h2 className="mt-3 font-display text-2xl font-semibold">Clarity, Care, and Momentum.</h2>
           <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">We build for real working days: busy, collaborative, and full of details. Every part of InvoiceFocus is designed to help you communicate clearly and move work forward.</p>
         </div>
-        <div className="flex flex-wrap gap-2 md:max-w-xs md:justify-end">
-          {['Clear by default', 'Respectful design', 'Useful simplicity'].map((value) => <span key={value} className="rounded-full bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">{value}</span>)}
+        <div className="grid w-full max-w-sm grid-cols-2 gap-2 md:max-w-xs md:justify-self-end">
+          {['Clear by Default', 'Respectful Design', 'Useful Simplicity'].map((value, index) => <span key={value} className={`rounded-full bg-primary/10 px-3 py-1.5 text-center text-sm font-medium text-primary ${index === 2 ? 'col-span-2 justify-self-center' : ''}`}>{value}</span>)}
         </div>
       </div>
     </PageShell>
@@ -68,7 +68,7 @@ export function AboutPage() {
 
 export function GuidesPage() {
   return (
-    <PageShell eyebrow="Guides" title="Practical help for better invoicing." description="Short, useful guidance for creating polished invoices, keeping client details organized, and building a calmer billing workflow.">
+    <PageShell eyebrow="Guides" title="Practical Help for Better Invoicing." description="Short, useful guidance for creating polished invoices, keeping client details organized, and building a calmer billing workflow.">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {guides.map(([title, copy, meta], index) => (
           <a href={`#guide-${index}`} key={title} className="group rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg">
@@ -86,12 +86,12 @@ export function GuidesPage() {
 
 export function AIDocsPage() {
   return (
-    <PageShell eyebrow="AI Docs" title="A thoughtful foundation for future AI workflows." description="InvoiceFocus is exploring ways intelligent assistance can reduce repetitive invoice work while keeping people in control. These capabilities are upcoming and are not available today.">
+    <PageShell eyebrow="AI Docs" title="A Thoughtful Foundation for Future AI Workflows." description="InvoiceFocus is exploring ways intelligent assistance can reduce repetitive invoice work while keeping people in control. These capabilities are upcoming and are not available today.">
       <div className="grid gap-6 md:grid-cols-3">
         {[
-          ['Draft assistance', 'Upcoming: turn notes and project context into a suggested invoice draft for your review.'],
-          ['Payment follow-up ideas', 'Upcoming: get helpful, editable suggestions for clear and respectful client follow-ups.'],
-          ['Business insights', 'Upcoming: surface patterns in invoice activity so you can make better-informed decisions.'],
+          ['Draft Assistance', 'Upcoming: turn notes and project context into a suggested invoice draft for your review.'],
+          ['Payment Follow-Up Ideas', 'Upcoming: get helpful, editable suggestions for clear and respectful client follow-ups.'],
+          ['Business Insights', 'Upcoming: surface patterns in invoice activity so you can make better-informed decisions.'],
         ].map(([title, copy]) => (
           <Card key={title} className="h-full">
             <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
@@ -100,7 +100,7 @@ export function AIDocsPage() {
         ))}
       </div>
       <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/5 p-6 text-center">
-        <p className="font-semibold">Accuracy and user control come first.</p>
+        <p className="font-semibold">Accuracy and User Control Come First.</p>
         <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Any future AI feature will be clearly labeled, reviewable before it changes your work, and designed to support—not replace—your judgment.</p>
       </div>
     </PageShell>
@@ -112,7 +112,7 @@ export function StatusPage() {
   return (
     <PageShell eyebrow="System Status" title="InvoiceFocus Is Running Smoothly." description="A clear view of the services that support your invoicing workflow.">
       <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
-        <div className="flex items-center justify-between border-b border-border/80 px-6 py-5"><div><h2 className="font-display text-xl font-semibold">Current status</h2><p className="mt-1 text-sm text-muted-foreground">Last checked just now</p></div><span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700"><CheckCircle2 className="h-4 w-4" /> All systems operational</span></div>
+         <div className="flex items-center justify-between border-b border-border/80 px-6 py-5"><div><h2 className="font-display text-xl font-semibold">Current Status</h2><p className="mt-1 text-sm text-muted-foreground">Last checked just now</p></div><span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700"><CheckCircle2 className="h-4 w-4" /> All Systems Operational</span></div>
         <ul className="divide-y divide-border/80">
           {services.map((service) => <li key={service} className="flex items-center justify-between gap-4 px-6 py-4"><span className="font-medium">{service}</span><span className="inline-flex items-center gap-2 text-sm text-emerald-700"><span className="h-2 w-2 rounded-full bg-emerald-500" />Operational</span></li>)}
         </ul>
@@ -143,7 +143,7 @@ export function ContactPage() {
   }
 
   return (
-    <PageShell eyebrow="Contact InvoiceFocus" title="Questions? We’re here to help." description="Tell us what you’re working on or what would make invoicing easier. We typically respond within 12–24 hours during business days.">
+   <PageShell eyebrow="Contact InvoiceFocus" title="Questions? We’re Here to Help." description="Tell us what you’re working on or what would make invoicing easier. We typically respond within 12–24 hours during business days.">
       <div className="grid gap-6 lg:grid-cols-[1fr_1.35fr]">
         <div className="space-y-4">
           <Card><CardHeader><Mail className="h-5 w-5 text-primary" aria-hidden="true" /><CardTitle className="mt-3">Business Email</CardTitle></CardHeader><CardContent><a className="font-medium text-primary hover:underline" href="mailto:hello@invoicefocus.com">hello@invoicefocus.com</a><p className="mt-2 text-sm leading-relaxed text-muted-foreground">For product questions, partnerships, and general support.</p></CardContent></Card>

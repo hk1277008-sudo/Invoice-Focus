@@ -83,7 +83,7 @@ export function Templates() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Templates</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            Start with a professionally designed template
+            Start With a Professionally Designed Template
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Choose a layout, add your branding, and send your first invoice in minutes.
@@ -110,7 +110,7 @@ export function Templates() {
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
               </div>
               <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                Use template
+                Use Template
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
             </motion.a>

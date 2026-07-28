@@ -91,7 +91,7 @@ export function HowItWorks() {
         >
           <span className="label-caps">How It Works</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            From draft to delivery in four steps
+            From Draft to Delivery in Four Steps
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             No complicated setup. Create, customize, and send in moments.

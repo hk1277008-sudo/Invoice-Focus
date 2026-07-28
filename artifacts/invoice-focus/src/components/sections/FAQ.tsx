@@ -65,7 +65,7 @@ export function FAQ() {
             Frequently Asked Questions
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            Common questions about InvoiceFocus.
+             Common Questions About InvoiceFocus.
           </p>
         </motion.div>
 

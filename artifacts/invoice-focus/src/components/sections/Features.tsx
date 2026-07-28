@@ -67,7 +67,7 @@ export function Features() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Features</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            A complete toolkit for polished invoices, quotes, and estimates
+            A Complete Toolkit for Polished Invoices, Quotes, and Estimates
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             A focused toolkit for creating, customizing, and sharing professional documents.
