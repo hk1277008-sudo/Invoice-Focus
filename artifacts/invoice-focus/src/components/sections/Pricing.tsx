@@ -162,7 +162,7 @@ export function Pricing() {
                     )}
                   </div>
                 </div>
-                <p className="mt-4 min-h-[4.5rem] max-w-[20rem] text-left text-sm leading-relaxed text-foreground">
+                <p className="mt-4 min-h-[4.5rem] max-w-[20rem] text-left text-sm leading-relaxed text-foreground lg:mx-auto lg:text-center">
                   {plan.description}
                 </p>
               </div>

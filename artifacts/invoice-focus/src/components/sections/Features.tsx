@@ -63,7 +63,7 @@ const item = {
 export function Features() {
   return (
     <section id="features" className="bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-6 pb-16 pt-8 lg:pb-20 lg:pt-10">
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Features</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
