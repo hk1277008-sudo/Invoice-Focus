@@ -3,10 +3,17 @@ import type { InvoiceData, InvoiceItem, InvoiceCalculations, CurrencyCode } from
 import { DEFAULT_CURRENCY, getCurrencyByCode } from './currencies'
 import { calculateInvoiceTotals, parseNumber } from './utils'
 import { loadDraft } from './useInvoiceDraft'
+import { getSettings } from '@/lib/settings'
 
 function generateInvoiceNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
   return `INV-${timestamp}`
+}
+
+function formatInvoiceNumber(format: string, prefix: string, number: number): string {
+  return format
+    .replaceAll('{prefix}', prefix || 'INV')
+    .replaceAll('{number}', String(number))
 }
 
 function createEmptyItem(): InvoiceItem {
@@ -70,7 +77,58 @@ export function useInvoice() {
     const saved = loadDraft()
     if (saved) {
       setInvoice(saved)
+      return
     }
+    getSettings().then((settings) => {
+      setInvoice((current) => {
+        const hasUserData = Boolean(
+          current.business.name || current.business.email || current.business.phone ||
+          current.client.name || current.client.email || current.details.issueDate ||
+          current.additional.notes || current.additional.terms ||
+          current.items.some((item) => item.name || item.description || item.quantity || item.unitPrice),
+        )
+        if (hasUserData) return current
+        const issueDate = new Date()
+        const dueDate = new Date(issueDate)
+        dueDate.setDate(dueDate.getDate() + settings.defaultDueDays)
+        const formatDate = (value: Date) => value.toISOString().slice(0, 10)
+        return {
+          ...current,
+          business: {
+            ...current.business,
+            name: settings.businessName,
+            logo: settings.businessLogo || null,
+            email: settings.businessEmail,
+            phone: settings.businessPhone,
+            website: settings.website,
+            taxId: settings.taxId,
+            address: [settings.address, settings.city, settings.state, settings.postalCode, settings.country].filter(Boolean).join(', '),
+          },
+          details: {
+            ...current.details,
+            number: formatInvoiceNumber(
+              settings.invoiceNumberFormat,
+              settings.invoicePrefix,
+              settings.startingInvoiceNumber,
+            ),
+            currency: settings.defaultCurrency as CurrencyCode,
+            issueDate: formatDate(issueDate),
+            dueDate: formatDate(dueDate),
+            paymentTerms: settings.defaultPaymentTerms,
+          },
+          additional: {
+            ...current.additional,
+            notes: settings.defaultNotes,
+            terms: settings.defaultTerms,
+          },
+          items: current.items.map((item, index) =>
+            index === 0 && settings.defaultTaxRate > 0
+              ? { ...item, taxPercent: String(settings.defaultTaxRate) }
+              : item,
+          ),
+        }
+      })
+    }).catch(() => undefined)
   }, [])
 
   const updateBusiness = useCallback((field: keyof InvoiceData['business'], value: string) => {
