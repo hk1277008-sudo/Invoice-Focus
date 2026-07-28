@@ -50,16 +50,21 @@ for each row execute function public.set_recurring_invoice_updated_at();
 
 alter table public.recurring_invoices enable row level security;
 drop policy if exists "Users can view their recurring invoices" on public.recurring_invoices;
-create policy "Users can view their recurring invoices"
-on public.recurring_invoices for select using (auth.uid() = user_id);
+create policy "Users can view their recurring invoices" on public.recurring_invoices
+for select
+using (auth.uid() = user_id);
 drop policy if exists "Users can create their recurring invoices" on public.recurring_invoices;
-create policy "Users can create their recurring invoices"
-on public.recurring_invoices for insert with check (auth.uid() = user_id);
+create policy "Users can create their recurring invoices" on public.recurring_invoices
+for insert
+with check (auth.uid() = user_id);
 drop policy if exists "Users can update their recurring invoices" on public.recurring_invoices;
-create policy "Users can update their recurring invoices"
-on public.recurring_invoices for update using (auth.uid() = user_id);
+create policy "Users can update their recurring invoices" on public.recurring_invoices
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
 drop policy if exists "Users can delete their recurring invoices" on public.recurring_invoices;
-create policy "Users can delete their recurring invoices"
-on public.recurring_invoices for delete using (auth.uid() = user_id);
+create policy "Users can delete their recurring invoices" on public.recurring_invoices
+for delete
+using (auth.uid() = user_id);
 
 notify pgrst, 'reload schema';
