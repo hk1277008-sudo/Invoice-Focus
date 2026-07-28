@@ -7,16 +7,15 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { wrap: 'h-5 w-5', text: 'text-sm' },
-  md: { wrap: 'h-6 w-6', text: 'text-base' },
-  lg: { wrap: 'h-8 w-8', text: 'text-xl' },
+  sm: { wrap: 'h-6 w-6', text: 'text-[15px]' },
+  md: { wrap: 'h-7 w-7', text: 'text-[18px]' },
+  lg: { wrap: 'h-9 w-9', text: 'text-[22px]' },
 }
 
 /**
- * Invoice Focus logomark + wordmark.
- * The mark is an abstract "F" built from ledger-line geometry —
- * two horizontal bars anchored to a vertical stem, evoking both
- * the letter F and the act of structuring financial rows.
+ * Official InvoiceFocus icon + premium wordmark.
+ * The uploaded mark is rendered as-is; the wordmark uses the existing
+ * display type and primary color system for a balanced SaaS identity.
  */
 export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
   const { wrap, text } = sizes[size]
@@ -29,7 +28,7 @@ export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
         className={cn('block shrink-0 object-contain', wrap)}
       />
       {!markOnly && (
-        <span className={cn('font-display font-semibold tracking-tight', text)}>
+        <span className={cn('font-display font-bold tracking-[-0.025em] leading-none', text)}>
           <span className="text-foreground">Invoice</span>
           <span className="text-primary">Focus</span>
         </span>

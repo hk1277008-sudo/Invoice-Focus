@@ -9,7 +9,7 @@ export function InvoiceLayout({ children }: { children: React.ReactNode }) {
           <Link href="/" aria-label="InvoiceFocus home">
             <Logo size="sm" />
           </Link>
-          <div className="text-sm text-muted-foreground">Invoice Generator</div>
+          <div className="text-sm font-medium tracking-tight text-muted-foreground">Create Invoice</div>
         </div>
       </header>
       <main className="flex-1">{children}</main>
