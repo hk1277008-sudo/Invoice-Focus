@@ -26,15 +26,17 @@ export interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
+  attachments?: Array<{ filename: string; content: string }>;
 }
 
 export async function sendEmail(options: SendEmailOptions) {
-  const { to, subject, html } = options;
+  const { to, subject, html, attachments } = options;
   const { data, error } = await resend.emails.send({
     from: defaultFromEmail,
     to,
     subject,
     html,
+    attachments,
   });
 
   if (error) {
@@ -42,6 +44,23 @@ export async function sendEmail(options: SendEmailOptions) {
   }
 
   return data;
+}
+
+export function buildInvoiceEmail(input: {
+  businessName: string;
+  logo?: string;
+  recipientName?: string;
+  invoiceNumber: string;
+  amountDue: string;
+  dueDate?: string | null;
+  personalMessage?: string;
+  viewUrl: string;
+}) {
+  const greeting = input.recipientName ? `Hi ${input.recipientName},` : 'Hello,';
+  return {
+    subject: `Invoice ${input.invoiceNumber} from InvoiceFocus`,
+    html: `<!DOCTYPE html><html><head>${brandStyles()}</head><body><div class="container"><div class="header">${input.logo ? `<img src="${input.logo}" alt="${input.businessName}" style="max-height:48px;max-width:160px;margin-bottom:10px">` : ''}<p class="brand">${input.businessName || 'InvoiceFocus'}</p><p class="tagline">Professional invoicing, made simple</p></div><div class="content"><h1>Invoice ${input.invoiceNumber}</h1><p>${greeting}</p>${input.personalMessage ? `<p>${input.personalMessage}</p>` : '<p>Please find your invoice details below.</p>'}<p><strong>Amount due: ${input.amountDue}</strong><br>Due date: ${input.dueDate || 'Upon receipt'}</p><p class="button-wrap"><a href="${input.viewUrl}" class="button">View Invoice</a></p><p class="muted">A PDF copy of this invoice is attached for your records.</p></div><div class="footer"><p>Sent with InvoiceFocus.</p></div></div></body></html>`,
+  };
 }
 
 export function buildVerificationEmail(link: string, fullName?: string) {

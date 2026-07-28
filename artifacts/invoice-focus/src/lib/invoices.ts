@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import type { InvoiceData } from '@/components/invoice/types'
 
-export type InvoiceStatus = 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled'
+export type InvoiceStatus = 'Draft' | 'Sent' | 'Viewed' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled'
 
 export interface InvoiceRecord {
   id: string
@@ -16,6 +16,11 @@ export interface InvoiceRecord {
   created_at: string
   updated_at: string
   payload?: InvoiceData
+  amount_paid?: number
+  sent_at?: string | null
+  viewed_at?: string | null
+  last_viewed_at?: string | null
+  recurring_invoice_id?: string | null
 }
 
 export interface InvoiceInput {
@@ -58,7 +63,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export function invoiceInput(invoice: InvoiceData, total: number): InvoiceInput {
-  const status = ['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled'].includes(invoice.details.status)
+  const status = ['Draft', 'Sent', 'Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'].includes(invoice.details.status)
     ? invoice.details.status
     : 'Draft'
   const today = new Date().toISOString().slice(0, 10)
@@ -115,3 +120,27 @@ export async function duplicateInvoice(id: string) {
 export async function deleteInvoice(id: string) {
   return request<void>(`/invoices/${id}`, { method: 'DELETE' })
 }
+
+export function getInvoiceDetails(id: string) {
+  return request<{ invoice: InvoiceRecord; payments: PaymentRecord[]; activity: ActivityRecord[]; emails: EmailEventRecord[]; reminders: ReminderRecord[] }>(`/invoices/${id}/details`)
+}
+export function transitionInvoice(id: string, status: InvoiceStatus) {
+  return request<{ invoice: InvoiceRecord }>(`/invoices/${id}/status`, { method: 'POST', body: JSON.stringify({ status }) })
+}
+export function sendInvoice(id: string, input: { recipientEmail: string; subject: string; personalMessage: string; pdfBase64?: string }) {
+  return request<{ email: EmailEventRecord; invoice: InvoiceRecord }>(`/invoices/${id}/send`, { method: 'POST', body: JSON.stringify(input) })
+}
+export function recordPayment(id: string, input: { amount: number; paymentDate: string; paymentMethod: string; referenceNumber: string; notes: string }) {
+  return request<{ payment: PaymentRecord; invoice: InvoiceRecord }>(`/invoices/${id}/payments`, { method: 'POST', body: JSON.stringify(input) })
+}
+export function scheduleReminder(id: string, input: { triggerType: ReminderRecord['trigger_type']; enabled: boolean; recipientEmail: string; subject: string; personalMessage: string }) {
+  return request<{ reminder: ReminderRecord }>(`/invoices/${id}/reminders`, { method: 'POST', body: JSON.stringify(input) })
+}
+export function sendReminder(id: string, input: { recipientEmail: string; subject: string; personalMessage: string }) {
+  return request<{ reminder: ReminderRecord }>(`/invoices/${id}/reminders/send`, { method: 'POST', body: JSON.stringify(input) })
+}
+
+export interface PaymentRecord { id: string; amount: number; payment_date: string; payment_method: string; reference_number: string; notes: string; created_at: string }
+export interface ActivityRecord { id: string; action: string; description: string; metadata: Record<string, unknown>; created_at: string }
+export interface EmailEventRecord { id: string; event_type: string; recipient_email: string; subject: string; occurred_at: string; provider_message_id?: string | null }
+export interface ReminderRecord { id: string; trigger_type: 'before_3_days' | 'before_1_day' | 'due_date' | 'overdue_3_days' | 'overdue_7_days' | 'manual'; enabled: boolean; scheduled_for?: string | null; sent_at?: string | null; recipient_email: string; subject: string; personal_message: string; created_at: string }

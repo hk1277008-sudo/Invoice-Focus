@@ -25,6 +25,7 @@ import NewRecurringInvoicePage from '@/app/(dashboard)/recurring/new/page'
 import EditRecurringInvoicePage from '@/app/(dashboard)/recurring/[id]/page'
 import SettingsPage from '@/app/(dashboard)/settings/page'
 import UpgradePage from '@/app/(dashboard)/upgrade/page'
+import InvoiceDetailsPage from '@/components/invoice/InvoiceDetailsPage'
 import { SubscriptionProvider } from '@/providers/SubscriptionProvider'
 
 const InvoicePage = lazy(() => import('@/app/(invoice)/invoice/page'))
@@ -110,6 +111,9 @@ function Router() {
         <Suspense fallback={<InvoicePageFallback />}>
           <InvoicePage />
         </Suspense>
+      </Route>
+      <Route path="/invoice/:id">
+        {(params) => <ProtectedRoute><InvoiceDetailsPage id={params.id} /></ProtectedRoute>}
       </Route>
       <Route component={NotFound} />
     </Switch>

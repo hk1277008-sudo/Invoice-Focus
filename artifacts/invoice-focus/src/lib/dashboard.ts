@@ -7,6 +7,8 @@ export interface DashboardOverview {
     totalInvoices: number
     draftInvoices: number
     sentInvoices: number
+    viewedInvoices: number
+    partiallyPaidInvoices: number
     paidInvoices: number
     overdueInvoices: number
     cancelledInvoices: number

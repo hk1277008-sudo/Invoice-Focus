@@ -1,9 +1,10 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
+import { refreshOverdueInvoices } from '../services/invoice-lifecycle';
 
 const router: IRouter = Router();
-const statusValues = ['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled'] as const;
+const statusValues = ['Draft', 'Sent', 'Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'] as const;
 
 const querySchema = z.object({
   start: z.string().date().optional(),
@@ -36,6 +37,7 @@ function dateKey(value: string) {
 router.get('/dashboard/overview', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  await refreshOverdueInvoices(user.id);
   const parsed = querySchema.safeParse(req.query);
   if (!parsed.success || (parsed.data.start && parsed.data.end && parsed.data.start > parsed.data.end)) {
     res.status(400).json({ error: 'Invalid dashboard date range' });
@@ -75,7 +77,7 @@ router.get('/dashboard/overview', async (req, res) => {
     count: invoiceRows.filter((invoice) => invoice.status === status).length,
   }));
   const paidRows = invoiceRows.filter((invoice) => invoice.status === 'Paid');
-  const outstandingRows = invoiceRows.filter((invoice) => invoice.status === 'Sent' || invoice.status === 'Overdue');
+  const outstandingRows = invoiceRows.filter((invoice) => ['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status));
   const totalRevenue = paidRows.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
   const outstandingAmount = outstandingRows.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
 
@@ -90,7 +92,7 @@ router.get('/dashboard/overview', async (req, res) => {
     if (!invoice.client_id) continue;
     const current = invoiceCountsByClient.get(invoice.client_id) ?? { count: 0, outstanding: 0 };
     current.count += 1;
-    if (invoice.status === 'Sent' || invoice.status === 'Overdue') current.outstanding += Number(invoice.total || 0);
+    if (['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status)) current.outstanding += Number(invoice.total || 0);
     invoiceCountsByClient.set(invoice.client_id, current);
   }
 
@@ -100,6 +102,8 @@ router.get('/dashboard/overview', async (req, res) => {
       totalInvoices: invoiceRows.length,
       draftInvoices: invoiceRows.filter((invoice) => invoice.status === 'Draft').length,
       sentInvoices: invoiceRows.filter((invoice) => invoice.status === 'Sent').length,
+      viewedInvoices: invoiceRows.filter((invoice) => invoice.status === 'Viewed').length,
+      partiallyPaidInvoices: invoiceRows.filter((invoice) => invoice.status === 'Partially Paid').length,
       paidInvoices: invoiceRows.filter((invoice) => invoice.status === 'Paid').length,
       overdueInvoices: invoiceRows.filter((invoice) => invoice.status === 'Overdue').length,
       cancelledInvoices: invoiceRows.filter((invoice) => invoice.status === 'Cancelled').length,

@@ -2,9 +2,11 @@ import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
 import { releaseInvoice, reserveInvoice } from './subscriptions';
+import { buildInvoiceEmail, sendEmail } from '../lib/email';
+import { canTransition, invoiceStatuses, recordActivity, refreshOverdueInvoices, remainingBalance, statusAfterPayment, createSimplePdf, processDueReminders, type InvoiceStatus } from '../services/invoice-lifecycle';
 
 const router: IRouter = Router();
-const statuses = ['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled'] as const;
+const statuses = invoiceStatuses;
 const statusSchema = z.enum(statuses);
 
 const invoicePayloadSchema = z.object({
@@ -28,6 +30,25 @@ const invoiceInputSchema = z.object({
   payload: invoicePayloadSchema.default({}),
 });
 const invoiceIdSchema = z.string().uuid();
+const paymentSchema = z.object({
+  amount: z.coerce.number().finite().positive(),
+  paymentDate: z.string().date(),
+  paymentMethod: z.string().trim().min(1).max(80),
+  referenceNumber: z.string().trim().max(160).default(''),
+  notes: z.string().max(2000).default(''),
+});
+const sendSchema = z.object({
+  recipientEmail: z.string().email(),
+  subject: z.string().trim().min(1).max(200),
+  personalMessage: z.string().max(4000).default(''),
+});
+const reminderSchema = z.object({
+  triggerType: z.enum(['before_3_days', 'before_1_day', 'due_date', 'overdue_3_days', 'overdue_7_days', 'manual']),
+  enabled: z.boolean().default(true),
+  recipientEmail: z.string().email(),
+  subject: z.string().trim().min(1).max(200),
+  personalMessage: z.string().max(4000).default(''),
+});
 
 const listQuerySchema = z.object({
   search: z.string().trim().max(120).optional(),
@@ -74,6 +95,7 @@ const sortColumns = {
 router.get('/invoices', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
+  await refreshOverdueInvoices(user.id);
   const parsed = listQuerySchema.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid invoice filters', details: parsed.error.flatten() });
@@ -98,6 +120,27 @@ router.get('/invoices', async (req, res) => {
   res.json({ invoices: data ?? [] });
 });
 
+router.get('/invoices/:id/details', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  if (!invoiceIdSchema.safeParse(req.params.id).success) { res.status(400).json({ error: 'Invalid invoice ID' }); return; }
+  await refreshOverdueInvoices(user.id);
+  const invoice = await supabaseAdmin.from('invoices').select('*').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  if (invoice.error) { res.status(500).json({ error: 'Failed to load invoice details' }); return; }
+  if (!invoice.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
+  const [payments, activity, emails, reminders] = await Promise.all([
+    supabaseAdmin.from('invoice_payments').select('*').eq('invoice_id', req.params.id).eq('user_id', user.id).order('payment_date', { ascending: false }),
+    supabaseAdmin.from('invoice_activity').select('*').eq('invoice_id', req.params.id).eq('user_id', user.id).order('created_at', { ascending: false }),
+    supabaseAdmin.from('invoice_email_events').select('*').eq('invoice_id', req.params.id).eq('user_id', user.id).order('occurred_at', { ascending: false }),
+    supabaseAdmin.from('invoice_reminders').select('*').eq('invoice_id', req.params.id).eq('user_id', user.id).order('created_at', { ascending: false }),
+  ]);
+  if (payments.error || activity.error || emails.error || reminders.error) {
+    const schemaMissing = [payments.error, activity.error, emails.error, reminders.error].some((error) => error?.code === 'PGRST205');
+    res.status(schemaMissing ? 503 : 500).json({ error: schemaMissing ? 'Invoice lifecycle storage is not available yet. Apply migration 008.' : 'Failed to load invoice history' });
+    return;
+  }
+  res.json({ invoice: invoice.data, payments: payments.data ?? [], activity: activity.data ?? [], emails: emails.data ?? [], reminders: reminders.data ?? [] });
+});
+
 router.get('/invoices/:id', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
@@ -105,6 +148,7 @@ router.get('/invoices/:id', async (req, res) => {
     res.status(400).json({ error: 'Invalid invoice ID' });
     return;
   }
+  await refreshOverdueInvoices(user.id);
   const { data, error } = await supabaseAdmin
     .from('invoices')
     .select('*')
@@ -121,6 +165,7 @@ router.get('/invoices/:id', async (req, res) => {
   }
   res.json({ invoice: data });
 });
+
 
 router.post('/invoices', async (req, res) => {
   const user = await requireUser(req, res);
@@ -167,6 +212,7 @@ router.post('/invoices', async (req, res) => {
     res.status(error.code === '23505' ? 409 : 500).json({ error: error.code === '23505' ? 'Invoice number already exists' : 'Failed to save invoice' });
     return;
   }
+  await recordActivity(data.id, user.id, 'created', `Invoice ${data.invoice_number} created`);
   res.status(201).json({ invoice: data });
 });
 
@@ -209,7 +255,130 @@ router.patch('/invoices/:id', async (req, res) => {
     res.status(404).json({ error: 'Invoice not found' });
     return;
   }
+  await recordActivity(data.id, user.id, 'edited', `Invoice ${data.invoice_number} edited`);
   res.json({ invoice: data });
+});
+
+router.post('/invoices/:id/status', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  if (!invoiceIdSchema.safeParse(req.params.id).success) { res.status(400).json({ error: 'Invalid invoice ID' }); return; }
+  const parsed = z.object({ status: statusSchema }).safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: 'Invalid invoice status' }); return; }
+  const current = await supabaseAdmin.from('invoices').select('id,invoice_number,status').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  if (current.error) { res.status(500).json({ error: 'Failed to load invoice' }); return; }
+  if (!current.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
+  if (!canTransition(current.data.status as InvoiceStatus, parsed.data.status)) {
+    res.status(409).json({ error: `Cannot transition invoice from ${current.data.status} to ${parsed.data.status}.`, code: 'INVALID_STATUS_TRANSITION' }); return;
+  }
+  const updates: Record<string, unknown> = { status: parsed.data.status };
+  if (parsed.data.status === 'Sent' && current.data.status === 'Draft') updates.sent_at = new Date().toISOString();
+  if (parsed.data.status === 'Viewed') updates.viewed_at = new Date().toISOString();
+  const updated = await supabaseAdmin.from('invoices').update(updates).eq('id', req.params.id).eq('user_id', user.id).select('*').single();
+  if (updated.error) { res.status(500).json({ error: 'Failed to update invoice status' }); return; }
+  const action = parsed.data.status === 'Paid' ? 'marked_paid' : parsed.data.status === 'Partially Paid' ? 'marked_partially_paid' : parsed.data.status === 'Cancelled' ? 'marked_cancelled' : 'edited';
+  await recordActivity(req.params.id, user.id, action, `Invoice ${updated.data.invoice_number} marked ${parsed.data.status}`);
+  res.json({ invoice: updated.data });
+});
+
+router.post('/invoices/:id/send', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  if (!invoiceIdSchema.safeParse(req.params.id).success) { res.status(400).json({ error: 'Invalid invoice ID' }); return; }
+  const parsed = sendSchema.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: 'Invalid send data', details: parsed.error.flatten() }); return; }
+  const found = await supabaseAdmin.from('invoices').select('*').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  if (found.error) { res.status(500).json({ error: 'Failed to load invoice' }); return; }
+  if (!found.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
+  if (!canTransition(found.data.status as InvoiceStatus, 'Sent')) { res.status(409).json({ error: 'Only draft invoices can be sent.' }); return; }
+  const payload = found.data.payload ?? {};
+  const business = payload.business ?? {};
+  const client = payload.client ?? {};
+  const details = payload.details ?? {};
+  const amount = new Intl.NumberFormat(undefined, { style: 'currency', currency: found.data.currency }).format(Number(found.data.total));
+  const email = buildInvoiceEmail({
+    businessName: String((business as any).name || found.data.company || 'InvoiceFocus'),
+    logo: typeof (business as any).logo === 'string' ? (business as any).logo : undefined,
+    recipientName: String((client as any).name || found.data.client || ''),
+    invoiceNumber: found.data.invoice_number,
+    amountDue: amount,
+    dueDate: found.data.due_date,
+    personalMessage: parsed.data.personalMessage,
+    viewUrl: `${process.env.CLIENT_BASE_URL || 'https://invoicefocus.com'}/invoice?id=${found.data.id}`,
+  });
+  try {
+    const pdfBase64 = createSimplePdf([
+      String((business as any).name || found.data.company || 'InvoiceFocus'),
+      `Invoice ${found.data.invoice_number}`,
+      `Bill to: ${found.data.client}`,
+      `Amount due: ${amount}`,
+      `Due date: ${found.data.due_date || 'Upon receipt'}`,
+    ]);
+    const provider = await sendEmail({ to: parsed.data.recipientEmail, subject: parsed.data.subject || email.subject, html: email.html, attachments: [{ filename: `${found.data.invoice_number}.pdf`, content: pdfBase64 }] });
+    const event = await supabaseAdmin.from('invoice_email_events').insert({
+      invoice_id: found.data.id, user_id: user.id, event_type: 'sent', recipient_email: parsed.data.recipientEmail,
+      subject: parsed.data.subject || email.subject, personal_message: parsed.data.personalMessage, provider_message_id: provider?.id ?? null,
+    }).select('*').single();
+    const updated = await supabaseAdmin.from('invoices').update({ status: 'Sent', sent_at: new Date().toISOString() }).eq('id', found.data.id).eq('user_id', user.id).select('*').single();
+    await recordActivity(found.data.id, user.id, 'sent', `Invoice ${found.data.invoice_number} sent to ${parsed.data.recipientEmail}`);
+    res.json({ invoice: updated.data, email: event.data });
+  } catch {
+    await supabaseAdmin.from('invoice_email_events').insert({
+      invoice_id: found.data.id, user_id: user.id, event_type: 'failed', recipient_email: parsed.data.recipientEmail,
+      subject: parsed.data.subject, personal_message: parsed.data.personalMessage,
+    });
+    res.status(502).json({ error: 'Invoice email could not be sent.' });
+  }
+});
+
+router.post('/invoices/:id/payments', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  if (!invoiceIdSchema.safeParse(req.params.id).success) { res.status(400).json({ error: 'Invalid invoice ID' }); return; }
+  const parsed = paymentSchema.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: 'Invalid payment data', details: parsed.error.flatten() }); return; }
+  const found = await supabaseAdmin.from('invoices').select('*').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  if (found.error || !found.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
+  if (found.data.status === 'Cancelled') { res.status(409).json({ error: 'Cancelled invoices cannot receive payments.' }); return; }
+  const currentPaid = Number(found.data.amount_paid || 0);
+  const balance = remainingBalance(Number(found.data.total), currentPaid);
+  if (parsed.data.amount > balance) { res.status(400).json({ error: `Payment exceeds the remaining balance of ${balance.toFixed(2)}.` }); return; }
+  const payment = await supabaseAdmin.from('invoice_payments').insert({ invoice_id: found.data.id, user_id: user.id, amount: parsed.data.amount, payment_date: parsed.data.paymentDate, payment_method: parsed.data.paymentMethod, reference_number: parsed.data.referenceNumber, notes: parsed.data.notes }).select('*').single();
+  if (payment.error) { res.status(500).json({ error: 'Failed to record payment' }); return; }
+  const amountPaid = currentPaid + parsed.data.amount;
+  const status = statusAfterPayment(Number(found.data.total), amountPaid);
+  const updated = await supabaseAdmin.from('invoices').update({ amount_paid: amountPaid, status }).eq('id', found.data.id).eq('user_id', user.id).select('*').single();
+  await recordActivity(found.data.id, user.id, 'payment_recorded', `Payment of ${parsed.data.amount.toFixed(2)} recorded`, { paymentId: payment.data.id });
+  await recordActivity(found.data.id, user.id, status === 'Paid' ? 'marked_paid' : 'marked_partially_paid', `Invoice marked ${status}`);
+  res.status(201).json({ payment: payment.data, invoice: updated.data });
+});
+
+router.post('/invoices/:id/reminders', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  const { hasSubscriptionFeature } = await import('./subscriptions');
+  if (!(await hasSubscriptionFeature(user.id, 'paymentReminders'))) { res.status(403).json({ error: 'Automatic payment reminders are available on Pro and Premium plans.', code: 'FEATURE_NOT_INCLUDED' }); return; }
+  const parsed = reminderSchema.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: 'Invalid reminder data', details: parsed.error.flatten() }); return; }
+  const invoice = await supabaseAdmin.from('invoices').select('id,due_date').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  if (invoice.error || !invoice.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
+  const offsets: Record<string, number> = { before_3_days: -3, before_1_day: -1, due_date: 0, overdue_3_days: 3, overdue_7_days: 7, manual: 0 };
+  const scheduled = invoice.data.due_date && parsed.data.triggerType !== 'manual' ? new Date(`${invoice.data.due_date}T12:00:00Z`) : null;
+  if (scheduled) scheduled.setUTCDate(scheduled.getUTCDate() + offsets[parsed.data.triggerType]);
+  const reminder = await supabaseAdmin.from('invoice_reminders').insert({ invoice_id: invoice.data.id, user_id: user.id, ...parsed.data, scheduled_for: scheduled?.toISOString().slice(0, 10) ?? null }).select('*').single();
+  if (reminder.error) { res.status(500).json({ error: 'Failed to schedule reminder' }); return; }
+  res.status(201).json({ reminder: reminder.data });
+});
+
+router.post('/invoices/:id/reminders/send', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  const parsed = sendSchema.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: 'Invalid reminder data' }); return; }
+  const invoice = await supabaseAdmin.from('invoices').select('*').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  if (invoice.error || !invoice.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
+  const email = buildInvoiceEmail({ businessName: invoice.data.company || 'InvoiceFocus', invoiceNumber: invoice.data.invoice_number, amountDue: new Intl.NumberFormat(undefined, { style: 'currency', currency: invoice.data.currency }).format(remainingBalance(Number(invoice.data.total), Number(invoice.data.amount_paid || 0))), dueDate: invoice.data.due_date, personalMessage: parsed.data.personalMessage, viewUrl: `${process.env.CLIENT_BASE_URL || 'https://invoicefocus.com'}/invoice?id=${invoice.data.id}` });
+  try {
+    const provider = await sendEmail({ to: parsed.data.recipientEmail, subject: parsed.data.subject, html: email.html });
+    const reminder = await supabaseAdmin.from('invoice_reminders').insert({ invoice_id: invoice.data.id, user_id: user.id, trigger_type: 'manual', enabled: true, recipient_email: parsed.data.recipientEmail, subject: parsed.data.subject, personal_message: parsed.data.personalMessage, sent_at: new Date().toISOString() }).select('*').single();
+    await recordActivity(invoice.data.id, user.id, 'reminder_sent', `Payment reminder sent to ${parsed.data.recipientEmail}`, { providerMessageId: provider?.id ?? null });
+    res.json({ reminder: reminder.data });
+  } catch { res.status(502).json({ error: 'Payment reminder could not be sent.' }); }
 });
 
 router.post('/invoices/:id/duplicate', async (req, res) => {

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
 import { hasSubscriptionFeature } from './subscriptions';
 import { generateDueRecurringInvoices } from '../services/recurring-generator';
+import { processDueReminders } from '../services/invoice-lifecycle';
 
 const router: IRouter = Router();
 const frequencies = ['daily', 'weekly', 'monthly', 'quarterly', 'yearly', 'custom'] as const;
@@ -223,7 +224,8 @@ router.post('/internal/recurring-invoices/generate', async (req, res) => {
   }
   try {
     const generated = await generateDueRecurringInvoices(typeof req.body?.asOf === 'string' ? req.body.asOf : undefined);
-    res.json({ generated });
+    const reminders = await processDueReminders(typeof req.body?.asOf === 'string' ? req.body.asOf : undefined);
+    res.json({ generated, reminders });
   } catch {
     res.status(500).json({ error: 'Recurring invoice generation failed' });
   }
