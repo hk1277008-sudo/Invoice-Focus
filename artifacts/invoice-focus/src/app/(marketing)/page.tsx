@@ -6,6 +6,7 @@ import { Templates } from '@/components/sections/Templates'
 import { HowItWorks } from '@/components/sections/HowItWorks'
 import { ProductPreview } from '@/components/sections/ProductPreview'
 import { Why } from '@/components/sections/Why'
+import { Pricing } from '@/components/sections/Pricing'
 import { FAQ } from '@/components/sections/FAQ'
 import { CTA } from '@/components/sections/CTA'
 import { Footer } from '@/components/sections/Footer'
@@ -22,6 +23,7 @@ export default function HomePage() {
         <HowItWorks />
         <ProductPreview />
         <Why />
+        <Pricing />
         <FAQ />
         <CTA />
       </main>

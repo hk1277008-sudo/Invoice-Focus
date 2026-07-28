@@ -1,0 +1,180 @@
+import { motion } from 'framer-motion'
+import { Check, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+
+type PricingPlan = {
+  name: string
+  eyebrow?: string
+  description: string
+  priceLabel: string
+  features: string[]
+  cta: string
+  href: string
+  popular?: boolean
+}
+
+const PLANS: PricingPlan[] = [
+  {
+    name: 'Free',
+    eyebrow: 'Free Forever',
+    description: 'Perfect for freelancers, students, and small businesses getting started.',
+    priceLabel: 'Free Forever',
+    features: [
+      '15 Professional Invoices Per Month',
+      'Unlimited PDF Downloads',
+      'Print Invoices',
+      'Professional Invoice Templates',
+      'Logo Upload',
+      'Multiple Currencies',
+      'Cloud Sync',
+      'Basic Invoice History',
+      'Secure Authentication',
+      'Email Support',
+    ],
+    cta: 'Get Started Free',
+    href: '/invoice',
+  },
+  {
+    name: 'Pro',
+    eyebrow: 'Built for Businesses Ready to Scale.',
+    description: 'Everything you need to automate and grow your business.',
+    priceLabel: 'Coming Soon',
+    features: [
+      'Everything in Free',
+      'Unlimited Invoices',
+      'Unlimited Clients',
+      'Recurring Invoices',
+      'Invoice Status Tracking',
+      'Payment Reminders',
+      'Advanced Templates',
+      'Custom Invoice Numbering',
+      'Business Insights',
+      'Data Export',
+      'Priority Support',
+    ],
+    cta: 'Explore Pro Features',
+    href: '/sign-up',
+    popular: true,
+  },
+  {
+    name: 'Premium',
+    eyebrow: 'Enterprise-Grade Tools for Growing Teams.',
+    description: 'Advanced tools for businesses managing multiple teams and operations.',
+    priceLabel: 'Coming Soon',
+    features: [
+      'Everything in Pro',
+      'Multiple Businesses',
+      'Team Collaboration',
+      'Roles & Permissions',
+      'Advanced Analytics',
+      'Custom Branding',
+      'API Access',
+      'Integrations',
+      'Audit Logs',
+      'Early Access to New Features',
+      'Dedicated Priority Support',
+    ],
+    cta: 'Go Premium',
+    href: '/sign-up',
+  },
+]
+
+const cardMotion = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  },
+}
+
+export function Pricing() {
+  return (
+    <section id="pricing" className="bg-background">
+      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="label-caps">Plans that grow with you</span>
+          <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
+            Choose the workspace that fits your next chapter
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            Start with the essentials today, then unlock more ways to streamline your business as it grows.
+          </p>
+        </div>
+
+        <motion.div
+          className="mx-auto mt-16 grid max-w-6xl items-stretch gap-6 lg:grid-cols-3"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+        >
+          {PLANS.map((plan) => (
+            <motion.article
+              key={plan.name}
+              variants={cardMotion}
+              className={cn(
+                'relative flex h-full flex-col rounded-2xl border bg-card p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-8',
+                plan.popular
+                  ? 'border-primary/60 shadow-lg shadow-primary/10 lg:scale-[1.025] lg:hover:scale-[1.035]'
+                  : 'border-border/80 hover:border-primary/25',
+              )}
+            >
+              {plan.popular && (
+                <div className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
+                  <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                  Most Popular
+                </div>
+              )}
+
+              <div>
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
+                    {plan.name}
+                  </h3>
+                  {plan.name === 'Free' && (
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                      Free Forever
+                    </span>
+                  )}
+                </div>
+                {plan.eyebrow && plan.name !== 'Free' && (
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+                    {plan.eyebrow}
+                  </p>
+                )}
+                <p className="mt-4 min-h-[3.5rem] text-sm leading-relaxed text-muted-foreground">
+                  {plan.description}
+                </p>
+                <div className="mt-7 border-y border-border/70 py-5">
+                  <span className="font-display text-2xl font-semibold tracking-tight text-foreground">
+                    {plan.priceLabel}
+                  </span>
+                </div>
+              </div>
+
+              <ul className="mt-6 flex-1 space-y-3.5" aria-label={`${plan.name} plan features`}>
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-3 text-sm text-foreground/80">
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />
+                    </span>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button
+                asChild
+                className={cn('mt-8 w-full', !plan.popular && 'bg-primary/95')}
+                variant={plan.popular ? 'default' : 'outline'}
+              >
+                <a href={plan.href}>{plan.cta}</a>
+              </Button>
+            </motion.article>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  )
+}
