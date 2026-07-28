@@ -69,7 +69,7 @@ export async function generateDueRecurringInvoices(asOf = dateOnly(new Date())) 
     let nextRun = row.next_run_date;
     let count = row.generated_invoice_count;
     let lastGeneratedAt = new Date().toISOString();
-    while (nextRun <= asOf) {
+    while (nextRun <= asOf && (!row.end_date || nextRun <= row.end_date)) {
       const template = row.template_data ?? {};
       const details = template.details ?? {};
       const client = template.client ?? {};
@@ -79,7 +79,11 @@ export async function generateDueRecurringInvoices(asOf = dateOnly(new Date())) 
       const total = items.reduce((sum: number, item: any) => {
         const quantity = Number(item.quantity) || 0;
         const unitPrice = Number(item.unitPrice) || 0;
-        return sum + quantity * unitPrice;
+        const base = quantity * unitPrice;
+        const discount = base * ((Number(item.discountPercent) || 0) / 100);
+        const taxable = base - discount;
+        const tax = taxable * ((Number(item.taxPercent) || 0) / 100);
+        return sum + taxable + tax;
       }, 0);
       const number = invoiceNumber(row, nextRun, 0);
       const invoiceInsert = {
@@ -96,9 +100,16 @@ export async function generateDueRecurringInvoices(asOf = dateOnly(new Date())) 
         currency: details.currency || 'USD',
         payload: template,
       };
-      let inserted = await supabaseAdmin.from('invoices').insert(invoiceInsert).select('id').single();
+      let inserted: { data: { id: string } | null; error: { code?: string; message?: string } | null } =
+        await supabaseAdmin.from('invoices').insert(invoiceInsert).select('id').single();
       if (inserted.error?.code === '23505') {
-        inserted = await supabaseAdmin.from('invoices').insert({ ...invoiceInsert, invoice_number: `${number}-${Date.now()}` }).select('id').single();
+        const existing = await supabaseAdmin
+          .from('invoices')
+          .select('id')
+          .eq('user_id', row.user_id)
+          .eq('invoice_number', number)
+          .maybeSingle();
+        inserted = { data: existing.data, error: existing.error };
       }
       if (inserted.error || !inserted.data) throw inserted.error ?? new Error('Generated invoice was not returned');
       generated.push({ recurringInvoiceId: row.id, invoiceId: inserted.data.id });

@@ -36,6 +36,7 @@ import { useSubscription } from '@/providers/SubscriptionProvider'
 import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
 import { Badge } from '@/components/ui/badge'
 import { format, parseISO } from 'date-fns'
+import { calculateInvoiceTotals } from '@/components/invoice/utils'
 
 function money(value: number, currency = 'USD') {
   return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value)
@@ -252,13 +253,7 @@ export default function RecurringInvoicesPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {invoices.map((inv) => {
-                const subtotal = inv.template_data.items.reduce(
-                  (sum, item) => sum + Number(item.quantity) * Number(item.unitPrice),
-                  0
-                )
-                const discount = subtotal * (Number(inv.template_data.details.discount) || 0) / 100
-                const taxable = subtotal - discount
-                const total = taxable + taxable * (Number(inv.template_data.details.tax) || 0) / 100
+                const total = calculateInvoiceTotals(inv.template_data.items).grandTotal
                 const currency = inv.template_data.details.currency || 'USD'
 
                 return (

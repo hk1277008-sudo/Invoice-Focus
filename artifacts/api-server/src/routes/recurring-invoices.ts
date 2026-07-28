@@ -38,6 +38,17 @@ const inputSchema = inputBaseSchema.superRefine((value, ctx) => {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['next_run_date'], message: 'Next run date must be within the schedule range' });
   }
 });
+const patchSchema = inputBaseSchema.partial().superRefine((value, ctx) => {
+  if (value.end_date && value.start_date && value.end_date < value.start_date) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['end_date'], message: 'End date must be on or after the start date' });
+  }
+  if (value.next_run_date && value.start_date && value.next_run_date < value.start_date) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['next_run_date'], message: 'Next run date must be on or after the start date' });
+  }
+  if (value.next_run_date && value.end_date && value.next_run_date > value.end_date) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['next_run_date'], message: 'Next run date must be on or before the end date' });
+  }
+});
 
 function token(req: Request) {
   const value = req.get('authorization');
@@ -118,9 +129,41 @@ router.patch('/recurring-invoices/:id', async (req, res) => {
   if (!(await requireFeature(user.id, res))) return;
   const id = String(req.params.id);
   if (!idValid(id)) { res.status(400).json({ error: 'Invalid recurring invoice ID' }); return; }
-  const parsed = inputBaseSchema.partial().safeParse(req.body);
+  const parsed = patchSchema.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Invalid recurring invoice data', details: parsed.error.flatten() }); return; }
   const input = parsed.data as Partial<z.infer<typeof inputSchema>>;
+  const existing = await supabaseAdmin
+    .from('recurring_invoices')
+    .select('start_date,end_date,next_run_date')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (existing.error) { res.status(500).json({ error: 'Failed to load recurring invoice' }); return; }
+  if (!existing.data) { res.status(404).json({ error: 'Recurring invoice not found' }); return; }
+  const mergedDates = {
+    start_date: input.start_date ?? existing.data.start_date,
+    end_date: input.end_date !== undefined ? input.end_date : existing.data.end_date,
+    next_run_date: input.next_run_date ?? existing.data.next_run_date,
+  };
+  const dateValidation = inputSchema.safeParse({
+    ...mergedDates,
+    client_name: 'placeholder',
+    frequency: 'monthly',
+    interval_count: 1,
+    timezone: 'UTC',
+    due_date_offset: 0,
+    auto_invoice_number: true,
+    template_data: { items: [{}] },
+  });
+  if (!dateValidation.success) {
+    const dateIssues = dateValidation.error.issues.filter((issue) =>
+      ['start_date', 'end_date', 'next_run_date'].includes(String(issue.path[0])),
+    );
+    if (dateIssues.length) {
+      res.status(400).json({ error: 'Invalid recurring invoice dates', details: { fieldErrors: dateIssues } });
+      return;
+    }
+  }
   const updates: Record<string, unknown> = {};
   for (const key of ['client_id', 'client_name', 'frequency', 'interval_count', 'start_date', 'end_date', 'next_run_date', 'timezone', 'due_date_offset', 'auto_invoice_number', 'template_data']) {
     if (input[key as keyof typeof input] !== undefined) updates[key] = input[key as keyof typeof input];
