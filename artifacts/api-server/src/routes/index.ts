@@ -5,6 +5,7 @@ import invoicesRouter from "./invoices";
 import clientsRouter from "./clients";
 import dashboardRouter from "./dashboard";
 import settingsRouter from "./settings";
+import subscriptionsRouter from "./subscriptions";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(invoicesRouter);
 router.use(clientsRouter);
 router.use(dashboardRouter);
 router.use(settingsRouter);
+router.use(subscriptionsRouter);
 
 export default router;

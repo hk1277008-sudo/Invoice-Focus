@@ -21,6 +21,8 @@ import DashboardPage from '@/app/(dashboard)/dashboard/page'
 import ProfilePage from '@/app/(dashboard)/profile/page'
 import ClientsPage from '@/app/(dashboard)/clients/page'
 import SettingsPage from '@/app/(dashboard)/settings/page'
+import UpgradePage from '@/app/(dashboard)/upgrade/page'
+import { SubscriptionProvider } from '@/providers/SubscriptionProvider'
 
 const InvoicePage = lazy(() => import('@/app/(invoice)/invoice/page'))
 
@@ -71,6 +73,11 @@ function Router() {
           <SettingsPage />
         </ProtectedRoute>
       </Route>
+      <Route path="/dashboard/upgrade">
+        <ProtectedRoute>
+          <UpgradePage />
+        </ProtectedRoute>
+      </Route>
       <Route path="/dashboard/:rest*">
         <ProtectedRoute>
           <DashboardPage />
@@ -95,12 +102,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
+        <SubscriptionProvider>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+              <Router />
+            </WouterRouter>
+            <Toaster />
+          </TooltipProvider>
+        </SubscriptionProvider>
       </AuthProvider>
     </QueryClientProvider>
   )

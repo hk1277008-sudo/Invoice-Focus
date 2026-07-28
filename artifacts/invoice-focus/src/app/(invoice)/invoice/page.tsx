@@ -29,6 +29,8 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { createInvoice, getInvoice, invoiceInput, updateInvoice } from '@/lib/invoices'
 import { listClients, type ClientRecord } from '@/lib/clients'
+import { useSubscription } from '@/providers/SubscriptionProvider'
+import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
 
 export default function InvoicePage() {
   const search = useSearch()
@@ -54,6 +56,7 @@ export default function InvoicePage() {
   const { draftStatus } = useInvoiceDraft(invoice)
   const { fieldErrors: validationErrors, isValid } = useInvoiceValidation(invoice)
   const { toast } = useToast()
+  const { refreshSubscription } = useSubscription()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
@@ -61,6 +64,7 @@ export default function InvoicePage() {
   const [isLoadingRecord, setIsLoadingRecord] = useState(true)
   const [remoteStatus, setRemoteStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [clients, setClients] = useState<ClientRecord[]>([])
+  const [limitDialogOpen, setLimitDialogOpen] = useState(false)
 
   useEffect(() => {
     listClients({ sort: 'name', direction: 'asc' })
@@ -93,17 +97,22 @@ export default function InvoicePage() {
         const result = await createInvoice(input)
         setRecordId(result.invoice.id)
         navigate(`/invoice?id=${result.invoice.id}`, { replace: true })
+        await refreshSubscription()
       }
       setRemoteStatus('saved')
     } catch (error) {
       setRemoteStatus('error')
+      if (error instanceof Error && 'code' in error && (error as Error & { code?: string }).code === 'INVOICE_LIMIT_REACHED') {
+        setLimitDialogOpen(true)
+        return
+      }
       toast({
         title: 'Save failed',
         description: error instanceof Error ? error.message : 'Could not save this invoice.',
         variant: 'destructive',
       })
     }
-  }, [calculations.grandTotal, hasAnyData, invoice, navigate, recordId, toast])
+  }, [calculations.grandTotal, hasAnyData, invoice, navigate, recordId, refreshSubscription, toast])
 
   useEffect(() => {
     const params = new URLSearchParams(search)
@@ -201,6 +210,12 @@ export default function InvoicePage() {
 
   return (
     <InvoiceLayout>
+      <UpgradeDialog
+        open={limitDialogOpen}
+        onOpenChange={setLimitDialogOpen}
+        feature="You’ve reached your monthly invoice limit"
+        description="You've reached your monthly limit of 15 invoices. Upgrade to Pro for unlimited invoicing and additional business tools."
+      />
       <div className="mx-auto max-w-7xl px-6 py-8">
         {/* Top action bar */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">

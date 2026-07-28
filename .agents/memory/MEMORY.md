@@ -3,3 +3,4 @@
 - [Supabase Auth + Resend email caveats](auth-supabase-resend.md) — Custom Resend backend must generate Supabase email links; `signup` resends need the password, and Resend test mode only sends to verified domains.
 - [Invoice validation UX](invoice-validation-ux.md) — Required-field errors should appear after an export/print attempt, not while users are actively completing the invoice.
 - [Settings persistence](settings-persistence.md) — Settings require the user-scoped Supabase migration before save, export, and deletion flows can run.
+- [Subscription system](subscription-system.md) — Entitlements and Free usage are server-owned; apply the subscription migration before authenticated plan checks.

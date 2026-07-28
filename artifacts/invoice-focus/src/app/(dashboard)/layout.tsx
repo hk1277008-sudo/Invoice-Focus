@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
+import { UsageIndicator } from '@/components/subscription/UsageIndicator'
 
 const NAV_ITEMS = [
   { label: 'Invoices', href: '/dashboard', icon: FileText },
@@ -114,6 +115,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="border-t border-border p-3">
+          <div className="mb-3">
+            <UsageIndicator compact />
+          </div>
           <Button asChild size="sm" className="w-full gap-2">
             <Link href="/invoice">
             <PlusCircle className="h-4 w-4" />

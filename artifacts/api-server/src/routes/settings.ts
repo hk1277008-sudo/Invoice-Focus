@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
+import { hasSubscriptionFeature } from './subscriptions';
 
 const router: IRouter = Router();
 const settingsSchema = z.object({
@@ -79,6 +80,15 @@ router.put('/settings', async (req, res) => {
 
 router.get('/settings/export', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
+  try {
+    if (!(await hasSubscriptionFeature(user.id, 'dataExport'))) {
+      res.status(403).json({ error: 'Data export is available on Pro and Premium plans.', code: 'FEATURE_NOT_INCLUDED' });
+      return;
+    }
+  } catch {
+    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
+    return;
+  }
   const [{ data: settings }, { data: clients }, { data: invoices }] = await Promise.all([
     supabaseAdmin.from('user_settings').select('*').eq('user_id', user.id).maybeSingle(),
     supabaseAdmin.from('clients').select('*').eq('user_id', user.id),

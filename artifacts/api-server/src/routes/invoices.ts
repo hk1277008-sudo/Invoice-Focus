@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
+import { releaseInvoice, reserveInvoice } from './subscriptions';
 
 const router: IRouter = Router();
 const statuses = ['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled'] as const;
@@ -125,6 +126,20 @@ router.post('/invoices', async (req, res) => {
     return;
   }
   const input = parsed.data;
+  let usage: Awaited<ReturnType<typeof reserveInvoice>>;
+  try {
+    usage = await reserveInvoice(user.id);
+  } catch {
+    res.status(503).json({ error: 'Invoice service is temporarily unavailable. Please try again.' });
+    return;
+  }
+  if (!usage.allowed) {
+    res.status(402).json({
+      error: "You've reached your monthly limit of 15 invoices. Upgrade to Pro for unlimited invoicing and additional business tools.",
+      code: 'INVOICE_LIMIT_REACHED', subscription: usage,
+    });
+    return;
+  }
   const { data, error } = await supabaseAdmin
     .from('invoices')
     .insert({
@@ -143,6 +158,7 @@ router.post('/invoices', async (req, res) => {
     .select('*')
     .single();
   if (error) {
+    await releaseInvoice(user.id);
     res.status(error.code === '23505' ? 409 : 500).json({ error: error.code === '23505' ? 'Invoice number already exists' : 'Failed to save invoice' });
     return;
   }
@@ -200,6 +216,20 @@ router.post('/invoices/:id/duplicate', async (req, res) => {
     res.status(404).json({ error: 'Invoice not found' });
     return;
   }
+  let usage: Awaited<ReturnType<typeof reserveInvoice>>;
+  try {
+    usage = await reserveInvoice(user.id);
+  } catch {
+    res.status(503).json({ error: 'Invoice service is temporarily unavailable. Please try again.' });
+    return;
+  }
+  if (!usage.allowed) {
+    res.status(402).json({
+      error: "You've reached your monthly limit of 15 invoices. Upgrade to Pro for unlimited invoicing and additional business tools.",
+      code: 'INVOICE_LIMIT_REACHED', subscription: usage,
+    });
+    return;
+  }
   const { data, error } = await supabaseAdmin
     .from('invoices')
     .insert({
@@ -218,6 +248,7 @@ router.post('/invoices/:id/duplicate', async (req, res) => {
     .select('*')
     .single();
   if (error) {
+    await releaseInvoice(user.id);
     res.status(500).json({ error: 'Failed to duplicate invoice' });
     return;
   }
