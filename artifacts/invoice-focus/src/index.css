@@ -2,6 +2,16 @@
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
 
+@media print {
+  body { background: white !important; }
+  .reports-print-root { max-width: none !important; }
+  .reports-print-root > div:first-child > div:last-child,
+  .reports-print-root > div:nth-child(2),
+  aside, header { display: none !important; }
+  .reports-print-root .rounded-xl { box-shadow: none !important; break-inside: avoid; }
+  .reports-print-root .animate-pulse { animation: none !important; }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* ─── Theme mapping: CSS vars → Tailwind utilities ────────────────────────── */

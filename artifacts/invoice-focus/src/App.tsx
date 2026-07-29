@@ -26,6 +26,7 @@ import EditRecurringInvoicePage from '@/app/(dashboard)/recurring/[id]/page'
 import SettingsPage from '@/app/(dashboard)/settings/page'
 import UpgradePage from '@/app/(dashboard)/upgrade/page'
 import BillingPage from '@/app/(dashboard)/billing/page'
+import ReportsPage from '@/app/(dashboard)/reports/page'
 import InvoiceDetailsPage from '@/components/invoice/InvoiceDetailsPage'
 import { SubscriptionProvider } from '@/providers/SubscriptionProvider'
 
@@ -101,6 +102,11 @@ function Router() {
       <Route path="/dashboard/billing">
         <ProtectedRoute>
           <BillingPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/reports">
+        <ProtectedRoute>
+          <ReportsPage />
         </ProtectedRoute>
       </Route>
       <Route path="/dashboard/:rest*">
