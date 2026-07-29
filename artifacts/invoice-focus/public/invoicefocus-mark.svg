@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>InvoiceFocus</title>
+  <defs>
+    <linearGradient id="invoicefocus-gradient" x1="50" y1="256" x2="460" y2="256" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08B9E8"/>
+      <stop offset="1" stop-color="#5754F2"/>
+    </linearGradient>
+  </defs>
+  <path d="M52 88C52 70.327 66.327 56 84 56H108V456H84C66.327 456 52 441.673 52 424V88Z" fill="#08B9E8"/>
+  <path d="M124 56H348L460 168V424C460 441.673 445.673 456 428 456H156C138.327 456 124 441.673 124 424V56Z" fill="url(#invoicefocus-gradient)"/>
+  <path d="M348 56V136C348 153.673 362.327 168 380 168H460L348 56Z" fill="white"/>
+  <rect x="180" y="184" width="160" height="16" rx="8" fill="white"/>
+  <rect x="180" y="224" width="216" height="16" rx="8" fill="white"/>
+  <rect x="180" y="264" width="216" height="16" rx="8" fill="white"/>
+  <rect x="180" y="304" width="216" height="16" rx="8" fill="white"/>
+  <rect x="180" y="344" width="88" height="16" rx="8" fill="white"/>
+  <rect x="292" y="344" width="104" height="16" rx="8" fill="white"/>
+  <rect x="324" y="400" width="80" height="16" rx="8" fill="white"/>
+</svg>

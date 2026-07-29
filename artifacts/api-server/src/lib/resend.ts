@@ -10,4 +10,4 @@ if (!resendApiKey || !fromEmail) {
 }
 
 export const resend = new Resend(resendApiKey);
-export const defaultFromEmail = fromEmail;
+export const defaultFromEmail = `InvoiceFocus <${fromEmail}>`;

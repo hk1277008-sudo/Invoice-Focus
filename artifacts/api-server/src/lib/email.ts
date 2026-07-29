@@ -1,5 +1,7 @@
 import { resend, defaultFromEmail } from './resend';
 
+const brandLogoUrl = `${process.env.CLIENT_BASE_URL || 'https://invoicefocus.com'}/invoicefocus-mark.svg`;
+
 function brandStyles() {
   return `
     <style>
@@ -60,7 +62,7 @@ export function buildInvoiceEmail(input: {
   const greeting = input.recipientName ? `Hi ${input.recipientName},` : 'Hello,';
   return {
     subject: `Invoice ${input.invoiceNumber} from InvoiceFocus`,
-    html: `<!DOCTYPE html><html><head>${brandStyles()}</head><body><div class="container"><div class="header">${input.logo ? `<img src="${input.logo}" alt="${input.businessName}" style="max-height:48px;max-width:160px;margin-bottom:10px">` : ''}<p class="brand">${input.businessName || 'InvoiceFocus'}</p><p class="tagline">Professional invoicing, made simple</p></div><div class="content"><h1>Invoice ${input.invoiceNumber}</h1><p>${greeting}</p>${input.personalMessage ? `<p>${input.personalMessage}</p>` : '<p>Please find your invoice details below.</p>'}<p><strong>Amount due: ${input.amountDue}</strong><br>Due date: ${input.dueDate || 'Upon receipt'}</p><p class="button-wrap"><a href="${input.viewUrl}" class="button">View Invoice</a>${input.downloadUrl ? ` <a href="${input.downloadUrl}" class="button">Download PDF</a>` : ''}</p><p class="muted">A PDF copy of this invoice is attached for your records.</p></div><div class="footer"><p>Sent with InvoiceFocus.</p></div></div></body></html>`,
+   html: `<!DOCTYPE html><html><head>${brandStyles()}</head><body><div class="container"><div class="header"><img src="${brandLogoUrl}" alt="InvoiceFocus" width="56" height="56" style="display:block;margin:0 auto 12px;width:56px;height:56px;object-fit:contain">${input.logo ? `<img src="${input.logo}" alt="${input.businessName}" style="max-height:48px;max-width:160px;margin-bottom:10px">` : ''}<p class="brand">${input.businessName || 'InvoiceFocus'}</p><p class="tagline">Professional invoicing, made simple</p></div><div class="content"><h1>Invoice ${input.invoiceNumber}</h1><p>${greeting}</p>${input.personalMessage ? `<p>${input.personalMessage}</p>` : '<p>Please find your invoice details below.</p>'}<p><strong>Amount due: ${input.amountDue}</strong><br>Due date: ${input.dueDate || 'Upon receipt'}</p><p class="button-wrap"><a href="${input.viewUrl}" class="button">View Invoice</a>${input.downloadUrl ? ` <a href="${input.downloadUrl}" class="button">Download PDF</a>` : ''}</p><p class="muted">A PDF copy of this invoice is attached for your records.</p></div><div class="footer"><p>Sent with InvoiceFocus.</p></div></div></body></html>`,
   };
 }
 
@@ -73,7 +75,8 @@ export function buildVerificationEmail(link: string, fullName?: string) {
 <head>${brandStyles()}</head>
 <body>
   <div class="container">
-    <div class="header">
+     <div class="header">
+       <img src="${brandLogoUrl}" alt="InvoiceFocus" width="56" height="56" style="display:block;margin:0 auto 12px;width:56px;height:56px;object-fit:contain">
        <p class="brand">InvoiceFocus</p>
        <p class="tagline">Smart Invoicing for Freelancers and Businesses</p>
     </div>
@@ -103,7 +106,8 @@ export function buildPasswordResetEmail(link: string, fullName?: string) {
 <head>${brandStyles()}</head>
 <body>
   <div class="container">
-    <div class="header">
+     <div class="header">
+       <img src="${brandLogoUrl}" alt="InvoiceFocus" width="56" height="56" style="display:block;margin:0 auto 12px;width:56px;height:56px;object-fit:contain">
        <p class="brand">InvoiceFocus</p>
        <p class="tagline">Smart Invoicing for Freelancers and Businesses</p>
     </div>
@@ -137,7 +141,8 @@ export function buildWelcomeEmail(
 <head>${brandStyles()}</head>
 <body>
   <div class="container">
-    <div class="header">
+     <div class="header">
+       <img src="${brandLogoUrl}" alt="InvoiceFocus" width="56" height="56" style="display:block;margin:0 auto 12px;width:56px;height:56px;object-fit:contain">
        <p class="brand">InvoiceFocus</p>
        <p class="tagline">Smart Invoicing for Freelancers and Businesses</p>
     </div>
