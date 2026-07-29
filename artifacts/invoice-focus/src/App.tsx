@@ -29,6 +29,7 @@ import BillingPage from '@/app/(dashboard)/billing/page'
 import ReportsPage from '@/app/(dashboard)/reports/page'
 import InvoiceDetailsPage from '@/components/invoice/InvoiceDetailsPage'
 import { SubscriptionProvider } from '@/providers/SubscriptionProvider'
+import SharedInvoicePage from '@/app/share/[token]/page'
 
 const InvoicePage = lazy(() => import('@/app/(invoice)/invoice/page'))
 
@@ -127,6 +128,7 @@ function Router() {
       <Route path="/invoice/:id">
         {(params) => <ProtectedRoute><InvoiceDetailsPage id={params.id} /></ProtectedRoute>}
       </Route>
+      <Route path="/share/:token" component={SharedInvoicePage} />
       <Route component={NotFound} />
     </Switch>
   )

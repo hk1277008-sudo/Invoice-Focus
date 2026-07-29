@@ -10,6 +10,7 @@ import recurringInvoicesRouter from "./recurring-invoices";
 import notificationsRouter from "./notifications";
 import billingRouter from "./billing";
 import reportsRouter from "./reports";
+import shareRouter from "./share";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(recurringInvoicesRouter);
 router.use(notificationsRouter);
 router.use(billingRouter);
 router.use(reportsRouter);
+router.use(shareRouter);
 
 export default router;

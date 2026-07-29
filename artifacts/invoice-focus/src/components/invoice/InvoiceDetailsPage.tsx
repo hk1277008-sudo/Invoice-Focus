@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeft, Ban, Bell, CheckCircle2, Clock3, Copy, CreditCard, Download, Edit3, Mail, MoreHorizontal, Send, Trash2, Wallet } from 'lucide-react'
+import { ArrowLeft, Ban, Bell, CheckCircle2, Clock3, Copy, CreditCard, Download, Edit3, Link2, Mail, MoreHorizontal, Send, Trash2, Wallet } from 'lucide-react'
 import { Link, useLocation } from 'wouter'
 import { DashboardLayout } from '@/app/(dashboard)/layout'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast'
 import { deleteInvoice, deletePayment, duplicateInvoice, getInvoiceDetails, recordPayment, scheduleReminder, sendInvoice, sendReminder, transitionInvoice, updatePayment, type ActivityRecord, type EmailEventRecord, type InvoiceRecord, type PaymentRecord, type ReminderRecord } from '@/lib/invoices'
 import { format } from 'date-fns'
+import { createShareToken, listShareTokens, regenerateShareToken, updateShareToken, type ShareTokenRecord } from '@/lib/share'
 
 const statuses = ['Draft', 'Sent', 'Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'] as const
 const statusStyle: Record<typeof statuses[number], string> = {
@@ -45,11 +46,14 @@ export default function InvoiceDetailsPage({ id }: { id: string }) {
   const [personalMessage, setPersonalMessage] = useState('')
   const [payment, setPayment] = useState({ amount: '', paymentDate: new Date().toISOString().slice(0, 10), paymentMethod: 'Bank transfer', referenceNumber: '', notes: '' })
   const [reminder, setReminder] = useState({ triggerType: 'before_3_days' as ReminderRecord['trigger_type'], enabled: true, recipientEmail: '', subject: '', personalMessage: '' })
+  const [shareTokens, setShareTokens] = useState<ShareTokenRecord[]>([])
+  const [shareBusy, setShareBusy] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
 
   const load = useCallback(async () => {
     try { setData(await getInvoiceDetails(id)) } catch (error) { toast({ title: 'Invoice unavailable', description: error instanceof Error ? error.message : 'Could not load invoice.', variant: 'destructive' }) } finally { setLoading(false) }
   }, [id, toast])
-  useEffect(() => { void load() }, [load])
+  useEffect(() => { void load(); void listShareTokens(id).then(({ shareTokens: values }) => setShareTokens(values)).catch(() => setShareTokens([])) }, [id, load])
 
   const invoice = data?.invoice
   const payload = invoice?.payload
@@ -81,6 +85,27 @@ export default function InvoiceDetailsPage({ id }: { id: string }) {
   }
   const handleSchedule = () => run(() => scheduleReminder(id, reminder), 'Reminder scheduled')
   const handleManualReminder = () => run(() => sendReminder(id, { recipientEmail, subject, personalMessage }), 'Reminder sent')
+  const handleCreateShare = async (regenerate = false) => {
+    setShareBusy(true)
+    try {
+      const result = regenerate ? await regenerateShareToken(id) : await createShareToken(id)
+      setShareUrl(`${window.location.origin}/share/${result.token}`)
+      setShareTokens((current) => [result.shareToken, ...current])
+      toast({ title: regenerate ? 'Share link regenerated' : 'Share link created', description: 'Copy the link to send it to your client.' })
+    } catch (error) {
+      toast({ title: 'Share link failed', description: error instanceof Error ? error.message : 'Could not create a share link.', variant: 'destructive' })
+    } finally { setShareBusy(false) }
+  }
+  const handleDisableShare = async (token: ShareTokenRecord) => {
+    setShareBusy(true)
+    try {
+      const result = await updateShareToken(id, token.id, { enabled: false })
+      setShareTokens((current) => current.map((item) => item.id === token.id ? result.shareToken : item))
+      toast({ title: 'Share link disabled' })
+    } catch (error) {
+      toast({ title: 'Share link update failed', description: error instanceof Error ? error.message : 'Could not update the share link.', variant: 'destructive' })
+    } finally { setShareBusy(false) }
+  }
 
   if (loading) return <DashboardLayout><div className="mx-auto max-w-6xl animate-pulse space-y-6"><div className="h-12 rounded-xl bg-muted" /><div className="h-96 rounded-xl bg-muted" /></div></DashboardLayout>
   if (!invoice || !data) return <DashboardLayout><div className="mx-auto max-w-6xl rounded-xl border border-dashed p-12 text-center"><p className="text-muted-foreground">This invoice could not be found.</p><Button asChild className="mt-4"><Link href="/dashboard">Back to invoices</Link></Button></div></DashboardLayout>
@@ -105,6 +130,7 @@ export default function InvoiceDetailsPage({ id }: { id: string }) {
         </div>
         <div className="space-y-6">
           <Card><CardHeader><CardTitle>Quick actions</CardTitle></CardHeader><CardContent className="grid gap-2"><Button variant="outline" className="justify-start" onClick={openSend}><Mail className="mr-2 h-4 w-4" />Send invoice</Button><Button variant="outline" className="justify-start" onClick={openReminder}><Bell className="mr-2 h-4 w-4" />Send reminder</Button><Button variant="outline" className="justify-start" onClick={() => setDialog('reminder')}><Clock3 className="mr-2 h-4 w-4" />Schedule reminder</Button><Button variant="outline" className="justify-start" asChild><Link href={`/invoice?id=${invoice.id}`}><Download className="mr-2 h-4 w-4" />Download / print</Link></Button><Button variant="outline" className="justify-start" onClick={() => run(() => duplicateInvoice(invoice.id), 'Invoice duplicated')}><Copy className="mr-2 h-4 w-4" />Duplicate</Button></CardContent></Card>
+          <Card><CardHeader><CardTitle className="flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" />Client portal</CardTitle></CardHeader><CardContent className="space-y-3"><p className="text-sm text-muted-foreground">Create a secure, read-only link with your branded invoice.</p>{shareUrl && <div className="flex gap-2"><Input readOnly value={shareUrl} aria-label="Secure invoice share link" /><Button variant="outline" size="icon" aria-label="Copy secure invoice link" onClick={() => void navigator.clipboard?.writeText(shareUrl)}><Copy className="h-4 w-4" /></Button></div>}<div className="flex flex-wrap gap-2"><Button size="sm" onClick={() => void handleCreateShare()} disabled={shareBusy}><Link2 className="mr-2 h-4 w-4" />Create link</Button><Button size="sm" variant="outline" onClick={() => void handleCreateShare(true)} disabled={shareBusy}>Regenerate</Button></div>{shareTokens.slice(0, 3).map((token) => <div key={token.id} className="flex items-center justify-between gap-2 rounded-lg border p-2 text-xs"><span className={token.enabled && !token.revokedAt ? 'text-emerald-700' : 'text-muted-foreground'}>{token.enabled && !token.revokedAt ? 'Active' : 'Disabled'} · {token.accessCount} views</span>{token.enabled && !token.revokedAt && <Button variant="ghost" size="sm" onClick={() => void handleDisableShare(token)} disabled={shareBusy}>Disable</Button>}</div>)}</CardContent></Card>
           <Card><CardHeader><CardTitle>Lifecycle</CardTitle></CardHeader><CardContent className="space-y-2">{nextActions.length ? nextActions.map((status) => <Button key={status} variant={status === 'Cancelled' ? 'ghost' : 'outline'} className={`w-full justify-start ${status === 'Cancelled' ? 'text-destructive' : ''}`} onClick={() => run(() => transitionInvoice(invoice.id, status), `Invoice marked ${status}`)}>{status === 'Cancelled' ? <Ban className="mr-2 h-4 w-4" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}Mark {status}</Button>) : <p className="text-sm text-muted-foreground">No further lifecycle actions are available.</p>}</CardContent></Card>
           {invoice.recurring_invoice_id && <Card><CardHeader><CardTitle>Recurring information</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">Generated from recurring schedule</p><Link className="mt-2 inline-block text-sm font-medium text-primary hover:underline" href={`/dashboard/recurring/${invoice.recurring_invoice_id}`}>View schedule</Link></CardContent></Card>}
         </div>
