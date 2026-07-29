@@ -1,8 +1,8 @@
 type DiagnosticDetails = Record<string, unknown>
 
-const diagnosticPrefix = '[InvoiceFocus signup diagnostics]'
+const diagnosticPrefix = '[InvoiceFocus Auth Diagnostics]'
 
-export function logSignupDiagnostic(event: string, details: DiagnosticDetails = {}) {
+export function logAuthDiagnostic(event: string, details: DiagnosticDetails = {}) {
   if (!import.meta.env.DEV) return
   console.groupCollapsed(`${diagnosticPrefix} ${event}`)
   console.log({
@@ -12,6 +12,9 @@ export function logSignupDiagnostic(event: string, details: DiagnosticDetails = 
   })
   console.groupEnd()
 }
+
+// Kept as an alias for the temporary signup instrumentation.
+export const logSignupDiagnostic = logAuthDiagnostic
 
 export function installDevelopmentDiagnostics() {
   if (!import.meta.env.DEV || typeof window === 'undefined') return
