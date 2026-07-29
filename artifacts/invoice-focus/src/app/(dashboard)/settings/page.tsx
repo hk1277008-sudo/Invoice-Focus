@@ -19,7 +19,7 @@ import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
 
 const tabs = [
   ['business', 'Business Profile'], ['invoice', 'Invoice Preferences'], ['account', 'Account & Security'],
-  ['notifications', 'Notifications'], ['subscription', 'Subscription'], ['appearance', 'Appearance'], ['privacy', 'Data & Privacy'],
+  ['notifications', 'Notifications'], ['billing', 'Billing & Plans'], ['appearance', 'Appearance'], ['privacy', 'Data & Privacy'],
 ] as const
 type Tab = typeof tabs[number][0]
 
@@ -78,7 +78,7 @@ export default function SettingsPage() {
       {tab === 'invoice' && <InvoiceTab settings={settings} update={update} />}
       {tab === 'account' && <AccountTab />}
       {tab === 'notifications' && <NotificationsTab settings={settings} update={update} />}
-      {tab === 'subscription' && <SubscriptionTab />}
+      {tab === 'billing' && <BillingTab />}
       {tab === 'appearance' && <AppearanceTab settings={settings} update={update} />}
       {tab === 'privacy' && <PrivacyTab toast={toast} />}
     </div>
@@ -148,11 +148,10 @@ function NotificationsTab({ settings, update }: { settings: UserSettings; update
   return <Card><CardHeader><CardTitle>Notifications</CardTitle><CardDescription>Choose which updates InvoiceFocus sends to your inbox.</CardDescription></CardHeader><CardContent><ToggleRow title="Invoice Sent Emails" description="Receive a confirmation when an invoice is sent." checked={settings.invoiceSentEmails} onCheckedChange={(value) => update('invoiceSentEmails', value)} /><ToggleRow title="Payment Reminder Emails" description="Get reminders about invoices that are approaching or past due." checked={settings.paymentReminderEmails} onCheckedChange={(value) => update('paymentReminderEmails', value)} /><ToggleRow title="Product Updates" description="Hear about useful new InvoiceFocus features." checked={settings.productUpdates} onCheckedChange={(value) => update('productUpdates', value)} /><ToggleRow title="Security Alerts" description="Always receive important security and account notices." checked={settings.securityAlerts} onCheckedChange={(value) => update('securityAlerts', value)} /><ToggleRow title="Marketing Emails" description="Occasional tips and offers from InvoiceFocus." checked={settings.marketingEmails} onCheckedChange={(value) => update('marketingEmails', value)} /></CardContent></Card>
 }
 
-function SubscriptionTab() {
+function BillingTab() {
   const { subscription } = useSubscription()
   return <div className="space-y-6">
-    <Card className="border-primary/30"><CardHeader><div className="flex flex-wrap items-center justify-between gap-3"><div><CardTitle>{subscription.planName} Plan</CardTitle><CardDescription>Your current InvoiceFocus access and usage.</CardDescription></div><span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Current Plan</span></div></CardHeader><CardContent className="grid gap-6 md:grid-cols-2"><div><p className="text-sm text-muted-foreground">Billing cycle</p><p className="mt-1 font-medium capitalize">{subscription.billingCycle}</p><p className="mt-4 text-sm text-muted-foreground">Subscription status</p><p className="mt-1 font-medium capitalize">{subscription.status}</p></div><div>{subscription.invoiceLimit === null ? <div className="rounded-lg bg-emerald-500/10 p-4"><p className="font-medium text-emerald-700 dark:text-emerald-400">Unlimited invoicing</p><p className="mt-1 text-sm text-muted-foreground">Your plan has no monthly invoice limit.</p></div> : <UsageIndicator />}</div></CardContent></Card>
-    <Card><CardHeader><CardTitle>Available Features</CardTitle><CardDescription>Access is managed centrally by your plan permissions.</CardDescription></CardHeader><CardContent><div className="grid gap-3 sm:grid-cols-2">{subscription.catalog.features.map((feature) => <div key={feature} className="flex gap-2 text-sm text-muted-foreground"><Check className="h-4 w-4 shrink-0 text-emerald-500" />{feature}</div>)}</div><div className="mt-6 flex flex-wrap gap-3"><Button asChild><Link href="/dashboard/upgrade">Upgrade Plan</Link></Button><Button variant="outline" onClick={() => window.alert('Downgrades and cancellation will be available when billing is connected.')}>Downgrade Plan</Button><Button variant="ghost" onClick={() => window.alert('Cancellation will be available when billing is connected.')}>Cancel Subscription</Button></div></CardContent></Card>
+    <Card className="border-primary/30"><CardHeader><div className="flex flex-wrap items-center justify-between gap-3"><div><CardTitle>Billing & Subscription</CardTitle><CardDescription>Manage your plan, invoices, and payment methods.</CardDescription></div><span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Current Plan: {subscription.planName}</span></div></CardHeader><CardContent className="grid gap-6"><div><p className="text-sm text-muted-foreground">Your billing details, payment methods, and plan configuration have moved to a dedicated portal.</p></div><div className="flex"><Button asChild><Link href="/dashboard/billing">Open Billing Portal</Link></Button></div></CardContent></Card>
     <div><div className="mb-5"><h3 className="font-display text-xl font-semibold">Compare plans</h3><p className="mt-1 text-sm text-muted-foreground">Payment processing is not connected yet. Plan selection is safely preview-only.</p></div><SubscriptionPlans /></div>
   </div>
 }

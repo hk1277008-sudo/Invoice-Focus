@@ -18,5 +18,5 @@ export default function UpgradePage() {
   </DashboardLayout>
 }
 function ButtonBack() {
-  return <Link href="/dashboard/settings?tab=subscription" className="mt-1 flex shrink-0 items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /><span className="sr-only">Back to subscription settings</span></Link>
+  return <Link href="/dashboard/billing" className="mt-1 flex shrink-0 items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /><span className="sr-only">Back to billing</span></Link>
 }

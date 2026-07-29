@@ -8,6 +8,7 @@ import settingsRouter from "./settings";
 import subscriptionsRouter from "./subscriptions";
 import recurringInvoicesRouter from "./recurring-invoices";
 import notificationsRouter from "./notifications";
+import billingRouter from "./billing";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(settingsRouter);
 router.use(subscriptionsRouter);
 router.use(recurringInvoicesRouter);
 router.use(notificationsRouter);
+router.use(billingRouter);
 
 export default router;
