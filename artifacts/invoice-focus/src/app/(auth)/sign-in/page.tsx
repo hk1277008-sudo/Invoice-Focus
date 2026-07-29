@@ -13,7 +13,7 @@ export default function SignInPage() {
   const { toast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMeState] = useState(true)
+  const [rememberMe, setRememberMeState] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -31,6 +31,7 @@ export default function SignInPage() {
     if (!validate()) return
 
     setIsLoading(true)
+    setErrors({})
     setRememberMe(rememberMe)
 
     try {
@@ -39,17 +40,30 @@ export default function SignInPage() {
       if (error) {
         if (error.message.toLowerCase().includes('email not confirmed')) {
           setErrors({ email: 'Please verify your email before signing in.' })
+          toast({ title: 'Sign in failed', description: 'Please verify your email before signing in.', variant: 'destructive' })
+        } else if (
+          error.code === 'invalid_credentials' ||
+          error.message.toLowerCase().includes('invalid login credentials')
+        ) {
+          setErrors({ password: 'Invalid email or password' })
+          toast({ title: 'Sign in failed', description: 'Invalid email or password', variant: 'destructive' })
         } else {
-          setErrors({ password: error.message })
+          setErrors({ password: 'Unable to sign in right now. Please try again.' })
+          toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please try again.', variant: 'destructive' })
         }
-        toast({ title: 'Sign in failed', description: error.message, variant: 'destructive' })
         return
       }
 
       if (data.session) {
         toast({ title: 'Signed in', description: 'Welcome back.' })
         navigate('/dashboard')
+      } else {
+        setErrors({ password: 'Unable to sign in right now. Please try again.' })
+        toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please try again.', variant: 'destructive' })
       }
+    } catch {
+      setErrors({ password: 'Unable to sign in right now. Please check your connection and try again.' })
+      toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please check your connection and try again.', variant: 'destructive' })
     } finally {
       setIsLoading(false)
     }
@@ -76,7 +90,10 @@ export default function SignInPage() {
               placeholder="you@studio.com"
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setErrors({})
+              }}
               aria-invalid={!!errors.email}
               disabled={isLoading}
             />
@@ -91,7 +108,10 @@ export default function SignInPage() {
               placeholder="••••••••"
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setErrors({})
+              }}
               aria-invalid={!!errors.password}
               disabled={isLoading}
             />

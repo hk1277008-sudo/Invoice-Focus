@@ -10,7 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-let rememberMe = true
+let rememberMe = false
 
 export function setRememberMe(value: boolean) {
   rememberMe = value
