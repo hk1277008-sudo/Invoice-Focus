@@ -9,6 +9,8 @@ import { CurrencySelector } from './CurrencySelector'
 import type { InvoiceData, InvoiceItem } from './types'
 import type { ClientRecord } from '@/lib/clients'
 import { calculateItemValues } from './utils'
+import { InvoicePresentationControls } from './InvoicePresentationControls'
+import type { InvoicePresentation } from './presentation'
 
 interface InvoiceEditorProps {
   invoice: InvoiceData
@@ -24,6 +26,7 @@ interface InvoiceEditorProps {
   onSetLogo: (logo: string | null) => void
   clients?: ClientRecord[]
   onSelectClient?: (client: ClientRecord | null) => void
+  onUpdatePresentation: (field: keyof InvoicePresentation, value: string) => void
 }
 
 export function InvoiceEditor({
@@ -40,6 +43,7 @@ export function InvoiceEditor({
   onSetLogo,
   clients = [],
   onSelectClient,
+  onUpdatePresentation,
 }: InvoiceEditorProps) {
   const [clientSearch, setClientSearch] = useState('')
   const filteredClients = useMemo(() => {
@@ -59,6 +63,7 @@ export function InvoiceEditor({
 
   return (
     <div className="space-y-6">
+      <InvoicePresentationControls value={invoice.presentation} onChange={onUpdatePresentation} />
       {/* Invoice Details */}
       <Card>
         <CardHeader>

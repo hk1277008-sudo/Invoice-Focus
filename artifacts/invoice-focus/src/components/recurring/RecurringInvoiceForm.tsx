@@ -45,6 +45,7 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
     updateDetails,
     updateCurrency,
     updateAdditional,
+    updatePresentation,
     updateItem,
     addItem,
     removeItem,
@@ -353,6 +354,7 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
                 onSetLogo={setLogo}
                 clients={clients}
                 onSelectClient={selectClient}
+                onUpdatePresentation={updatePresentation}
               />
             </div>
           </div>

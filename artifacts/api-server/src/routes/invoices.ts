@@ -4,6 +4,7 @@ import { supabaseAdmin } from '../lib/supabase';
 import { releaseInvoice, reserveInvoice } from './subscriptions';
 import { buildInvoiceEmail, sendEmail } from '../lib/email';
 import { canTransition, invoiceStatuses, recordActivity, refreshOverdueInvoices, remainingBalance, statusAfterPayment, createSimplePdf, processDueReminders, type InvoiceStatus } from '../services/invoice-lifecycle';
+import { enforceInvoicePresentationEntitlement, invoicePresentationPayloadSchema } from '../lib/invoice-presentation';
 
 const router: IRouter = Router();
 const statuses = invoiceStatuses;
@@ -15,6 +16,7 @@ const invoicePayloadSchema = z.object({
   details: z.record(z.string(), z.unknown()).optional(),
   items: z.array(z.record(z.string(), z.unknown())).optional(),
   additional: z.record(z.string(), z.unknown()).optional(),
+  presentation: invoicePresentationPayloadSchema,
 });
 
 const invoiceInputSchema = z.object({
@@ -177,6 +179,13 @@ router.post('/invoices', async (req, res) => {
     return;
   }
   const input = parsed.data;
+  try {
+    const presentationError = await enforceInvoicePresentationEntitlement(user.id, input.payload.presentation);
+    if (presentationError) { res.status(403).json(presentationError); return; }
+  } catch {
+    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
+    return;
+  }
   let usage: Awaited<ReturnType<typeof reserveInvoice>>;
   try {
     usage = await reserveInvoice(user.id);
@@ -230,6 +239,13 @@ router.patch('/invoices/:id', async (req, res) => {
     return;
   }
   const input = parsed.data;
+  try {
+    const presentationError = await enforceInvoicePresentationEntitlement(user.id, input.payload?.presentation);
+    if (presentationError) { res.status(403).json(presentationError); return; }
+  } catch {
+    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
+    return;
+  }
   const updates: Record<string, unknown> = {};
   if (input.invoiceNumber !== undefined) updates.invoice_number = input.invoiceNumber;
   if (input.status !== undefined) {

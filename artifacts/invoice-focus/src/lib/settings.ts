@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import type { InvoicePresentation } from '@/components/invoice/presentation'
 
 export type ThemeMode = 'system' | 'light' | 'dark'
 
@@ -36,6 +37,7 @@ export interface UserSettings {
   recurringDefaultDueDateOffset: number
   recurringDefaultInvoiceStatus: 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled'
   recurringDefaultAutoGeneration: boolean
+  invoicePresentation: InvoicePresentation
 }
 
 export const defaultSettings: UserSettings = {
@@ -47,6 +49,10 @@ export const defaultSettings: UserSettings = {
   paymentReminderEmails: true, productUpdates: true, securityAlerts: true, marketingEmails: false, theme: 'system',
   recurringDefaultTimezone: 'UTC', recurringDefaultFrequency: 'monthly', recurringDefaultDueDateOffset: 14,
   recurringDefaultInvoiceStatus: 'Draft', recurringDefaultAutoGeneration: true,
+  invoicePresentation: {
+    template: 'modern', primaryColor: '#2e5bff', accentColor: '#13a6a6', font: 'Inter',
+    headerLayout: 'Split', footerLayout: 'Simple', paperSize: 'A4', titleStyle: 'default',
+  },
 }
 
 async function request<T>(path: string, init: RequestInit = {}) {

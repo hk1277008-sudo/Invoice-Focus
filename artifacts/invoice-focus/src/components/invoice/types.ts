@@ -71,6 +71,7 @@ export interface InvoiceData {
   details: InvoiceDetails
   items: InvoiceItem[]
   additional: InvoiceAdditional
+  presentation?: import('./presentation').InvoicePresentation
 }
 
 export interface InvoiceCalculations {

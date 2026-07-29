@@ -4,6 +4,7 @@ import { DEFAULT_CURRENCY, getCurrencyByCode } from './currencies'
 import { calculateInvoiceTotals, parseNumber } from './utils'
 import { loadDraft } from './useInvoiceDraft'
 import { getSettings } from '@/lib/settings'
+import { defaultPresentation, normalizePresentation } from './presentation'
 
 function generateInvoiceNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
@@ -64,6 +65,7 @@ export function createEmptyInvoice(): InvoiceData {
       paymentInstructions: '',
       terms: '',
     },
+    presentation: defaultPresentation,
   }
 }
 
@@ -121,6 +123,7 @@ export function useInvoice() {
             notes: settings.defaultNotes,
             terms: settings.defaultTerms,
           },
+          presentation: normalizePresentation(settings.invoicePresentation),
           items: current.items.map((item, index) =>
             index === 0 && settings.defaultTaxRate > 0
               ? { ...item, taxPercent: String(settings.defaultTaxRate) }
@@ -151,6 +154,16 @@ export function useInvoice() {
     setInvoice((prev) => ({ ...prev, additional: { ...prev.additional, [field]: value } }))
   }, [])
 
+  const updatePresentation = useCallback((field: keyof NonNullable<InvoiceData['presentation']>, value: string) => {
+    setInvoice((prev) => ({
+      ...prev,
+      presentation: {
+        ...normalizePresentation(prev.presentation),
+        [field]: value,
+      } as InvoiceData['presentation'],
+    }))
+  }, [])
+
   const updateItem = useCallback((id: string, field: keyof InvoiceItem, value: string) => {
     setInvoice((prev) => ({
       ...prev,
@@ -174,7 +187,7 @@ export function useInvoice() {
   }, [])
 
   const loadFromData = useCallback((data: InvoiceData) => {
-    setInvoice(data)
+    setInvoice({ ...data, presentation: normalizePresentation(data.presentation) })
   }, [])
 
   const reset = useCallback(() => {
@@ -231,6 +244,7 @@ export function useInvoice() {
     updateDetails,
     updateCurrency,
     updateAdditional,
+    updatePresentation,
     updateItem,
     addItem,
     removeItem,

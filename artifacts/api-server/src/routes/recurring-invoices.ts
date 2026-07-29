@@ -4,6 +4,7 @@ import { supabaseAdmin } from '../lib/supabase';
 import { hasSubscriptionFeature } from './subscriptions';
 import { generateDueRecurringInvoices } from '../services/recurring-generator';
 import { processDueReminders } from '../services/invoice-lifecycle';
+import { enforceInvoicePresentationEntitlement, invoicePresentationSchema } from '../lib/invoice-presentation';
 
 const router: IRouter = Router();
 const frequencies = ['daily', 'weekly', 'monthly', 'quarterly', 'yearly', 'custom'] as const;
@@ -16,6 +17,7 @@ const templateSchema = z.object({
   details: z.record(z.string(), z.unknown()).optional(),
   items: z.array(z.record(z.string(), z.unknown())).min(1),
   additional: z.record(z.string(), z.unknown()).optional(),
+  presentation: invoicePresentationSchema.optional(),
 });
 const inputBaseSchema = z.object({
   client_id: z.string().uuid().nullable().optional(),
@@ -123,6 +125,13 @@ router.post('/recurring-invoices', async (req, res) => {
   if (!(await requireFeature(user.id, res))) return;
   const parsed = inputSchema.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Invalid recurring invoice data', details: parsed.error.flatten() }); return; }
+  try {
+    const presentationError = await enforceInvoicePresentationEntitlement(user.id, parsed.data.template_data.presentation);
+    if (presentationError) { res.status(403).json(presentationError); return; }
+  } catch {
+    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
+    return;
+  }
   const { data, error } = await supabaseAdmin.from('recurring_invoices').insert(shape(parsed.data, user.id)).select('*').single();
   if (error) { res.status(500).json({ error: 'Failed to create recurring invoice' }); return; }
   res.status(201).json({ recurringInvoice: data });
@@ -136,6 +145,13 @@ router.patch('/recurring-invoices/:id', async (req, res) => {
   const parsed = patchSchema.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Invalid recurring invoice data', details: parsed.error.flatten() }); return; }
   const input = parsed.data as Partial<z.infer<typeof inputSchema>>;
+  try {
+    const presentationError = await enforceInvoicePresentationEntitlement(user.id, input.template_data?.presentation);
+    if (presentationError) { res.status(403).json(presentationError); return; }
+  } catch {
+    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
+    return;
+  }
   const existing = await supabaseAdmin
     .from('recurring_invoices')
     .select('start_date,end_date,next_run_date')

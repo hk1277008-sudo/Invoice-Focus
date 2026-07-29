@@ -45,6 +45,7 @@ export default function InvoicePage() {
     updateDetails,
     updateCurrency,
     updateAdditional,
+    updatePresentation,
     updateItem,
     addItem,
     removeItem,
@@ -332,6 +333,7 @@ export default function InvoicePage() {
               onSetLogo={setLogo}
               clients={clients}
               onSelectClient={selectClient}
+              onUpdatePresentation={updatePresentation}
             />
           </div>
           <div className="order-1 lg:order-2 print:m-0 print:p-0">
