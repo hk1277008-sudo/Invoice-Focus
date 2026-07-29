@@ -1,9 +1,14 @@
-import { Router, type IRouter, type Request, type Response } from 'express';
-import multer from 'multer';
-import { supabaseAdmin } from '../lib/supabase';
-import { sendEmail, buildVerificationEmail, buildPasswordResetEmail, buildWelcomeEmail } from '../lib/email';
-import { uploadAvatar } from '../lib/storage';
-import { z } from 'zod';
+import { Router, type IRouter, type Request, type Response } from "express";
+import multer from "multer";
+import { supabaseAdmin } from "../lib/supabase";
+import {
+  sendEmail,
+  buildVerificationEmail,
+  buildPasswordResetEmail,
+  buildWelcomeEmail,
+} from "../lib/email";
+import { uploadAvatar } from "../lib/storage";
+import { z } from "zod";
 
 const router: IRouter = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -28,19 +33,28 @@ const welcomeSchema = z.object({
   fullName: z.string().optional(),
 });
 
-const clientBaseUrl = process.env.CLIENT_BASE_URL || 'https://invoicefocus.com';
-
-function isAuthClientError(error: unknown): { status: number; message: string } | null {
+const clientBaseUrl = process.env.CLIENT_BASE_URL || "https://invoicefocus.com";
+console.log("process.env.CLIENT_BASE_URL =", process.env.CLIENT_BASE_URL);
+console.log("clientBaseUrl =", clientBaseUrl);
+function isAuthClientError(
+  error: unknown,
+): { status: number; message: string } | null {
   if (!(error instanceof Error)) return null;
   const message = error.message.toLowerCase();
-  if (message.includes('already been registered') || message.includes('user already registered')) {
-    return { status: 400, message: 'A user with this email address has already been registered' };
+  if (
+    message.includes("already been registered") ||
+    message.includes("user already registered")
+  ) {
+    return {
+      status: 400,
+      message: "A user with this email address has already been registered",
+    };
   }
-  if (message.includes('invalid login credentials')) {
-    return { status: 400, message: 'Invalid email or password' };
+  if (message.includes("invalid login credentials")) {
+    return { status: 400, message: "Invalid email or password" };
   }
-  if (message.includes('user not found')) {
-    return { status: 400, message: 'No account found with this email address' };
+  if (message.includes("user not found")) {
+    return { status: 400, message: "No account found with this email address" };
   }
   return null;
 }
@@ -51,21 +65,22 @@ function handleAuthError(error: unknown, res: Response, defaultStatus = 500) {
     res.status(clientError.status).json({ error: clientError.message });
     return;
   }
-  const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+  const message =
+    error instanceof Error ? error.message : "An unexpected error occurred";
   res.status(defaultStatus).json({ error: message });
 }
 
 async function requireUser(req: Request, res: Response) {
-  const header = req.get('authorization');
-  const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
+  const header = req.get("authorization");
+  const token = header?.startsWith("Bearer ") ? header.slice(7) : null;
   if (!token) {
-    res.status(401).json({ error: 'Authentication required' });
+    res.status(401).json({ error: "Authentication required" });
     return null;
   }
 
   const { data, error } = await supabaseAdmin.auth.getUser(token);
   if (error || !data.user) {
-    res.status(401).json({ error: 'Invalid or expired session' });
+    res.status(401).json({ error: "Invalid or expired session" });
     return null;
   }
 
@@ -73,8 +88,8 @@ async function requireUser(req: Request, res: Response) {
 }
 
 function getRequestBaseUrl(req: Request) {
-  const forwardedProto = req.get('x-forwarded-proto')?.split(',')[0]?.trim();
-  const forwardedHost = req.get('x-forwarded-host')?.split(',')[0]?.trim();
+  const forwardedProto = req.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const forwardedHost = req.get("x-forwarded-host")?.split(",")[0]?.trim();
 
   if (forwardedHost) {
     return `${forwardedProto || req.protocol}://${forwardedHost}`;
@@ -95,42 +110,46 @@ function buildCallbackUrl(
   return url.toString();
 }
 
-router.post('/auth/signup', async (req, res) => {
+router.post("/auth/signup", async (req, res) => {
   const parse = signupSchema.safeParse(req.body);
   if (!parse.success) {
-    res.status(400).json({ error: 'Invalid signup data', details: parse.error.flatten() });
+    res
+      .status(400)
+      .json({ error: "Invalid signup data", details: parse.error.flatten() });
     return;
   }
 
   const { email, password, fullName } = parse.data;
 
   try {
-    const { data: userData, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: false,
-      user_metadata: { full_name: fullName },
-    });
+    const { data: userData, error: createError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: false,
+        user_metadata: { full_name: fullName },
+      });
 
     if (createError) {
       throw createError;
     }
 
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'signup',
-      email,
-      password,
-      options: { redirectTo: buildCallbackUrl(req, '/verify-email', {}) },
-    });
+    const { data: linkData, error: linkError } =
+      await supabaseAdmin.auth.admin.generateLink({
+        type: "signup",
+        email,
+        password,
+        options: { redirectTo: buildCallbackUrl(req, "/verify-email", {}) },
+      });
 
     if (linkError) {
       throw linkError;
     }
 
     const { properties } = linkData;
-    const confirmationUrl = buildCallbackUrl(req, '/verify-email', {
+    const confirmationUrl = buildCallbackUrl(req, "/verify-email", {
       token: properties.hashed_token,
-      type: 'email',
+      type: "email",
       email,
     });
 
@@ -140,7 +159,8 @@ router.post('/auth/signup', async (req, res) => {
     });
 
     res.status(201).json({
-      message: 'Account created. Please check your email to verify your account.',
+      message:
+        "Account created. Please check your email to verify your account.",
       userId: userData.user.id,
     });
   } catch (error) {
@@ -148,10 +168,12 @@ router.post('/auth/signup', async (req, res) => {
   }
 });
 
-router.post('/auth/resend-verification', async (req, res) => {
+router.post("/auth/resend-verification", async (req, res) => {
   const parse = resendVerificationSchema.safeParse(req.body);
   if (!parse.success) {
-    res.status(400).json({ error: 'Invalid data', details: parse.error.flatten() });
+    res
+      .status(400)
+      .json({ error: "Invalid data", details: parse.error.flatten() });
     return;
   }
 
@@ -159,27 +181,31 @@ router.post('/auth/resend-verification', async (req, res) => {
 
   try {
     // Retrieve user metadata to include the full name in the email if available.
-    const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: usersData, error: listError } =
+      await supabaseAdmin.auth.admin.listUsers();
     if (listError) throw listError;
 
-    const user = usersData.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+    const user = usersData.users.find(
+      (u) => u.email?.toLowerCase() === email.toLowerCase(),
+    );
     const fullName = user?.user_metadata?.full_name as string | undefined;
 
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'signup',
-      email,
-      password,
-      options: { redirectTo: buildCallbackUrl(req, '/verify-email', {}) },
-    });
+    const { data: linkData, error: linkError } =
+      await supabaseAdmin.auth.admin.generateLink({
+        type: "signup",
+        email,
+        password,
+        options: { redirectTo: buildCallbackUrl(req, "/verify-email", {}) },
+      });
 
     if (linkError) {
       throw linkError;
     }
 
     const { properties } = linkData;
-    const confirmationUrl = buildCallbackUrl(req, '/verify-email', {
+    const confirmationUrl = buildCallbackUrl(req, "/verify-email", {
       token: properties.hashed_token,
-      type: 'email',
+      type: "email",
       email,
     });
 
@@ -188,49 +214,57 @@ router.post('/auth/resend-verification', async (req, res) => {
       ...buildVerificationEmail(confirmationUrl, fullName),
     });
 
-    res.json({ message: 'Verification email sent. Please check your inbox.' });
+    res.json({ message: "Verification email sent. Please check your inbox." });
   } catch (error) {
     handleAuthError(error, res, 500);
   }
 });
 
-router.post('/auth/forgot-password', async (req, res) => {
+router.post("/auth/forgot-password", async (req, res) => {
   const parse = emailSchema.safeParse(req.body);
   if (!parse.success) {
-    res.status(400).json({ error: 'Invalid email', details: parse.error.flatten() });
+    res
+      .status(400)
+      .json({ error: "Invalid email", details: parse.error.flatten() });
     return;
   }
 
   const { email } = parse.data;
 
   try {
-    const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: usersData, error: listError } =
+      await supabaseAdmin.auth.admin.listUsers();
     if (listError) throw listError;
 
-    const user = usersData.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+    const user = usersData.users.find(
+      (u) => u.email?.toLowerCase() === email.toLowerCase(),
+    );
 
     if (!user) {
       // Don’t reveal whether an email is registered.
-      res.json({ message: 'If an account exists, a password reset email has been sent.' });
+      res.json({
+        message: "If an account exists, a password reset email has been sent.",
+      });
       return;
     }
 
     const fullName = user.user_metadata?.full_name as string | undefined;
 
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'recovery',
-      email,
-      options: { redirectTo: buildCallbackUrl(req, '/reset-password', {}) },
-    });
+    const { data: linkData, error: linkError } =
+      await supabaseAdmin.auth.admin.generateLink({
+        type: "recovery",
+        email,
+        options: { redirectTo: buildCallbackUrl(req, "/reset-password", {}) },
+      });
 
     if (linkError) {
       throw linkError;
     }
 
     const { properties } = linkData;
-    const resetUrl = buildCallbackUrl(req, '/reset-password', {
+    const resetUrl = buildCallbackUrl(req, "/reset-password", {
       token: properties.hashed_token,
-      type: 'recovery',
+      type: "recovery",
       email,
     });
 
@@ -239,26 +273,30 @@ router.post('/auth/forgot-password', async (req, res) => {
       ...buildPasswordResetEmail(resetUrl, fullName),
     });
 
-    res.json({ message: 'If an account exists, a password reset email has been sent.' });
+    res.json({
+      message: "If an account exists, a password reset email has been sent.",
+    });
   } catch (error) {
     handleAuthError(error, res, 500);
   }
 });
 
-router.post('/auth/welcome', async (req, res) => {
+router.post("/auth/welcome", async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
 
   const parse = welcomeSchema.safeParse(req.body);
   if (!parse.success) {
-    res.status(400).json({ error: 'Invalid data', details: parse.error.flatten() });
+    res
+      .status(400)
+      .json({ error: "Invalid data", details: parse.error.flatten() });
     return;
   }
 
   const { fullName } = parse.data;
   const email = user.email;
   if (!email) {
-    res.status(400).json({ error: 'Authenticated user email is required' });
+    res.status(400).json({ error: "Authenticated user email is required" });
     return;
   }
 
@@ -268,30 +306,31 @@ router.post('/auth/welcome', async (req, res) => {
       ...buildWelcomeEmail(fullName, getRequestBaseUrl(req)),
     });
 
-    res.json({ message: 'Welcome email sent.' });
+    res.json({ message: "Welcome email sent." });
   } catch (error) {
     handleAuthError(error, res, 500);
   }
 });
 
-router.post('/auth/avatar', upload.single('avatar'), async (req, res) => {
+router.post("/auth/avatar", upload.single("avatar"), async (req, res) => {
   try {
     if (!req.file) {
-      res.status(400).json({ error: 'No file uploaded' });
+      res.status(400).json({ error: "No file uploaded" });
       return;
     }
 
-    const token = req.get('authorization')?.startsWith('Bearer ')
-      ? req.get('authorization')!.slice(7)
+    const token = req.get("authorization")?.startsWith("Bearer ")
+      ? req.get("authorization")!.slice(7)
       : null;
     if (!token) {
-      res.status(401).json({ error: 'Authentication required' });
+      res.status(401).json({ error: "Authentication required" });
       return;
     }
 
-    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    const { data: authData, error: authError } =
+      await supabaseAdmin.auth.getUser(token);
     if (authError || !authData.user) {
-      res.status(401).json({ error: 'Invalid or expired session' });
+      res.status(401).json({ error: "Invalid or expired session" });
       return;
     }
 
@@ -299,7 +338,8 @@ router.post('/auth/avatar', upload.single('avatar'), async (req, res) => {
     const { url } = await uploadAvatar(userId, req.file);
     res.json({ url });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to upload avatar';
+    const message =
+      error instanceof Error ? error.message : "Failed to upload avatar";
     res.status(500).json({ error: message });
   }
 });
