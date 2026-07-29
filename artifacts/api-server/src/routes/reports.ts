@@ -98,19 +98,25 @@ router.get('/reports/overview', async (req, res) => {
   const invoiceRows = invoices ?? [];
   const paymentRows = payments ?? [];
   const clientRows = clients ?? [];
+  const selectedInvoiceIds = new Set(invoiceRows.map((invoice) => invoice.id));
+  const selectedPaymentRows = paymentRows.filter((payment) => selectedInvoiceIds.has(payment.invoice_id));
+  const paidByInvoice = new Map<string, number>();
+  for (const payment of selectedPaymentRows) add(paidByInvoice, payment.invoice_id, Number(payment.amount || 0));
+  const paidFor = (invoice: { id: string; amount_paid?: number | null }) =>
+    paidByInvoice.has(invoice.id) ? paidByInvoice.get(invoice.id)! : Number(invoice.amount_paid || 0);
   const paidRows = invoiceRows.filter((invoice) => invoice.status === 'Paid');
   const outstandingRows = invoiceRows.filter((invoice) => ['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status));
   const totalBilled = invoiceRows.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
-  const paidAmount = invoiceRows.reduce((sum, invoice) => sum + Number(invoice.amount_paid || 0), 0);
-  const outstandingAmount = outstandingRows.reduce((sum, invoice) => sum + Math.max(Number(invoice.total || 0) - Number(invoice.amount_paid || 0), 0), 0);
-  const overdueAmount = invoiceRows.filter((invoice) => invoice.status === 'Overdue').reduce((sum, invoice) => sum + Math.max(Number(invoice.total || 0) - Number(invoice.amount_paid || 0), 0), 0);
+  const paidAmount = selectedPaymentRows.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+  const outstandingAmount = outstandingRows.reduce((sum, invoice) => sum + Math.max(Number(invoice.total || 0) - paidFor(invoice), 0), 0);
+  const overdueAmount = invoiceRows.filter((invoice) => invoice.status === 'Overdue').reduce((sum, invoice) => sum + Math.max(Number(invoice.total || 0) - paidFor(invoice), 0), 0);
   const invoiceStatus = statuses.map((status) => ({ status, count: invoiceRows.filter((invoice) => invoice.status === status).length }));
 
   const revenueMap = new Map<string, number>();
-  for (const payment of paymentRows) add(revenueMap, periodKey(payment.payment_date, period), Number(payment.amount || 0));
+  for (const payment of selectedPaymentRows) add(revenueMap, periodKey(payment.payment_date, period), Number(payment.amount || 0));
   const revenue = [...revenueMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([label, value]) => ({ label, value }));
   const collectionMap = new Map<string, number>();
-  for (const payment of paymentRows) add(collectionMap, periodKey(payment.payment_date, 'month'), Number(payment.amount || 0));
+  for (const payment of selectedPaymentRows) add(collectionMap, periodKey(payment.payment_date, 'month'), Number(payment.amount || 0));
   const monthlyCollections = [...collectionMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([label, value]) => ({ label, value }));
 
   const clientMetrics = new Map<string, { name: string; revenue: number; invoices: number; paidInvoices: number }>();
@@ -118,7 +124,7 @@ router.get('/reports/overview', async (req, res) => {
     const key = invoice.client_id || `name:${invoice.client || invoice.company || 'Unassigned'}`;
     const name = invoice.company || invoice.client || 'Unassigned client';
     const current = clientMetrics.get(key) ?? { name, revenue: 0, invoices: 0, paidInvoices: 0 };
-    current.revenue += Number(invoice.amount_paid || 0);
+    current.revenue += paidFor(invoice);
     current.invoices += 1;
     if (invoice.status === 'Paid') current.paidInvoices += 1;
     clientMetrics.set(key, current);
@@ -129,7 +135,7 @@ router.get('/reports/overview', async (req, res) => {
   const newClients = clientRows.length;
   const averageClientRevenue = clientMetrics.size ? [...clientMetrics.values()].reduce((sum, client) => sum + client.revenue, 0) / clientMetrics.size : 0;
   const invoiceIssueDates = new Map(invoiceRows.map((invoice) => [invoice.id, day(invoice.issue_date)]));
-  const paymentTimes = paymentRows
+  const paymentTimes = selectedPaymentRows
     .map((payment) => {
       const issueDate = invoiceIssueDates.get(payment.invoice_id);
       if (!issueDate) return null;
@@ -186,7 +192,7 @@ router.get('/reports/overview', async (req, res) => {
       clientGrowth: newClients,
       revenueGrowth,
     },
-    totals: { totalBilled, totalPayments: paymentRows.length },
+    totals: { totalBilled, totalPayments: selectedPaymentRows.length },
   });
 });
 

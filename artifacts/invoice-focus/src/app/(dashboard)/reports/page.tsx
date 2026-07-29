@@ -31,7 +31,45 @@ function ReportsSkeleton() {
 }
 
 function exportCsv(report: ReportsOverview) {
-  const rows = [['Metric', 'Value'], ['Total Revenue', report.summary.totalRevenue], ['Outstanding Revenue', report.summary.outstandingRevenue], ['Paid Revenue', report.summary.paidRevenue], ['Overdue Revenue', report.summary.overdueRevenue], ['Total Invoices', report.summary.totalInvoices], ['Paid Invoices', report.summary.paidInvoices], ['Outstanding Invoices', report.summary.outstandingInvoices], ['Overdue Invoices', report.summary.overdueInvoices], ['Active Clients', report.summary.activeClients], ['Average Invoice Value', report.summary.averageInvoiceValue], [], ['Revenue Period', 'Amount'], ...report.revenue.map((item) => [item.label, item.value]), [], ['Client', 'Revenue', 'Invoices', 'Paid Invoices'], ...report.topClients.map((client) => [client.name, client.revenue, client.invoices, client.paidInvoices])]
+  const rows = [
+    ['Metric', 'Value'],
+    ['Total Revenue', report.summary.totalRevenue],
+    ['Outstanding Revenue', report.summary.outstandingRevenue],
+    ['Paid Revenue', report.summary.paidRevenue],
+    ['Overdue Revenue', report.summary.overdueRevenue],
+    ['Total Invoices', report.summary.totalInvoices],
+    ['Paid Invoices', report.summary.paidInvoices],
+    ['Outstanding Invoices', report.summary.outstandingInvoices],
+    ['Overdue Invoices', report.summary.overdueInvoices],
+    ['Active Clients', report.summary.activeClients],
+    ['Average Invoice Value', report.summary.averageInvoiceValue],
+    ['Average Client Revenue', report.summary.averageClientRevenue],
+    ['New Clients', report.summary.newClients],
+    ['Returning Clients', report.summary.returningClients],
+    ['Collection Rate', report.payments.collectionRate],
+    ['Outstanding Balance', report.payments.outstandingBalance],
+    ['Paid Amount', report.payments.paidAmount],
+    ['Partial Payments', report.payments.partialPayments],
+    ['Monthly Revenue', report.kpis.monthlyRevenue],
+    ['Annual Revenue', report.kpis.annualRevenue],
+    ['Average Payment Time', report.kpis.averagePaymentTime],
+    ['Invoice Conversion Rate', report.kpis.invoiceConversionRate],
+    ['Collection Percentage', report.kpis.collectionPercentage],
+    ['Client Growth', report.kpis.clientGrowth],
+    ['Revenue Growth', report.kpis.revenueGrowth],
+    [],
+    ['Revenue Period', 'Amount'],
+    ...report.revenue.map((item) => [item.label, item.value]),
+    [],
+    ['Monthly Collection Period', 'Amount'],
+    ...report.payments.monthlyCollections.map((item) => [item.label, item.value]),
+    [],
+    ['Invoice Status', 'Count'],
+    ...report.invoiceStatus.map((item) => [item.status, item.count]),
+    [],
+    ['Client', 'Revenue', 'Invoices', 'Paid Invoices'],
+    ...report.topClients.map((client) => [client.name, client.revenue, client.invoices, client.paidInvoices]),
+  ]
   const csv = rows.map((row) => row.map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\n')
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
   const link = document.createElement('a'); link.href = url; link.download = `invoicefocus-report-${dateString(new Date())}.csv`; link.click(); URL.revokeObjectURL(url)
@@ -70,7 +108,7 @@ function StatusPanel({ report }: { report: ReportsOverview }) {
 }
 
 function KpiPanel({ kpis, payments, summary }: { kpis: ReportsOverview['kpis']; payments: ReportsOverview['payments']; summary: ReportsOverview['summary'] }) {
-  const items = [['Monthly Revenue', money(kpis.monthlyRevenue), 'Collected this month'], ['Annual Revenue', money(kpis.annualRevenue), 'Collected in selected range'], ['Collection Rate', `${payments.collectionRate.toFixed(1)}%`, 'Paid against billed'], ['Conversion Rate', `${kpis.invoiceConversionRate.toFixed(1)}%`, 'Invoices sent beyond draft'], ['Avg. Payment Time', `${Math.round(kpis.averagePaymentTime)} days`, 'Based on due dates'], ['Client Growth', `+${kpis.clientGrowth}`, 'New clients in range']]
+  const items = [['Monthly Revenue', money(kpis.monthlyRevenue), 'Collected this month'], ['Annual Revenue', money(kpis.annualRevenue), 'Collected in selected range'], ['Collection Rate', `${payments.collectionRate.toFixed(1)}%`, 'Paid against billed'], ['Conversion Rate', `${kpis.invoiceConversionRate.toFixed(1)}%`, 'Invoices sent beyond draft'], ['Avg. Payment Time', `${Math.round(kpis.averagePaymentTime)} days`, 'Based on invoice issue to payment dates'], ['Client Growth', `+${kpis.clientGrowth}`, 'New clients in range']]
   const clientItems = [['Average Client Revenue', money(summary.averageClientRevenue), 'Average collected revenue per active client'], ['New Clients', String(summary.newClients), 'New clients in the selected range'], ['Returning Clients', String(summary.returningClients), 'Clients with repeat invoice activity']]
   return <Card><CardHeader><CardTitle>Executive KPIs</CardTitle><p className="mt-1 text-sm text-muted-foreground">Signals to help you make better billing decisions.</p></CardHeader><CardContent className="grid gap-3 sm:grid-cols-2">{[...items, ['Revenue Growth', `${kpis.revenueGrowth >= 0 ? '+' : ''}${kpis.revenueGrowth.toFixed(1)}%`, 'Compared with the previous matching range'], ['Collection Percentage', `${kpis.collectionPercentage.toFixed(1)}%`, 'Paid amount against billed amount'], ...clientItems].map(([label, value, hint]) => <Hint key={label}><TooltipTrigger asChild><div className="rounded-lg border bg-muted/20 p-4"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-xl font-semibold">{value}</p><p className="mt-1 text-xs text-muted-foreground">{hint}</p></div></TooltipTrigger><TooltipContent>{hint}</TooltipContent></Hint>)}</CardContent></Card>
 }
