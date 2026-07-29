@@ -1,6 +1,8 @@
 import { resend, defaultFromEmail } from './resend';
 
-const brandLogoUrl = `${process.env.CLIENT_BASE_URL || 'https://invoicefocus.com'}/invoicefocus-mark.svg`;
+// Keep this URL absolute and stable for email clients. Gmail and Outlook are
+// more reliable with the publicly hosted raster asset than an inline SVG.
+const brandLogoUrl = 'https://invoicefocus.com/invoicefocus-icon.jpg';
 const supportEmail = 'hello@invoicefocus.com';
 
 function escapeHtml(value: unknown) {
@@ -28,13 +30,15 @@ function emailDocument(preheader: string, content: string) {
     .preheader { display: none !important; visibility: hidden; opacity: 0; color: transparent; height: 0; width: 0; overflow: hidden; }
     .shell { width: 100%; background: #f5f7fb; }
     .container { width: 100%; max-width: 600px; margin: 0 auto; }
-    .topbar { padding: 28px 24px 20px; }
-    .logo { width: 36px; height: 36px; }
-    .wordmark { color: #172033; font-size: 17px; font-weight: 750; letter-spacing: -0.04em; line-height: 36px; }
-    .wordmark-focus { color: #315de8; }
+     .topbar { padding: 28px 24px 22px; }
+     .brand-header { width: 100%; }
+     .logo { width: 40px; height: 40px; border-radius: 10px; }
+     .wordmark { color: #172033; font-size: 16px; font-weight: 750; letter-spacing: -0.025em; line-height: 18px; }
+     .wordmark-line { display: block; height: 18px; white-space: nowrap; }
+     .wordmark-focus { color: #315de8; }
     .card { background: #ffffff; border: 1px solid #e3e8f1; border-radius: 16px; box-shadow: 0 8px 28px rgba(23, 32, 51, 0.06); }
     .hero { padding: 36px 40px 12px; }
-    .hero-mark { width: 64px; height: 64px; margin-bottom: 24px; }
+     .hero-mark { width: 64px; height: 64px; margin-bottom: 24px; border-radius: 16px; }
     .eyebrow { margin: 0 0 12px; color: #315de8; font-size: 11px; font-weight: 750; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; }
     h1 { margin: 0; color: #172033; font-size: 30px; font-weight: 750; letter-spacing: -0.04em; line-height: 1.15; }
     .body { padding: 12px 40px 40px; }
@@ -55,7 +59,7 @@ function emailDocument(preheader: string, content: string) {
     .footer p { margin: 0 0 7px; color: #8793a5; font-size: 12px; line-height: 1.5; }
     .footer a { color: #617087; text-decoration: underline; }
     @media screen and (max-width: 620px) {
-      .topbar { padding: 20px 16px 14px; }
+       .topbar { padding: 20px 16px 16px; }
       .hero { padding: 28px 24px 10px; }
       .body { padding: 10px 24px 28px; }
       h1 { font-size: 26px; }
@@ -70,11 +74,18 @@ function emailDocument(preheader: string, content: string) {
   <table role="presentation" class="shell" width="100%">
     <tr><td align="center">
       <table role="presentation" class="container" width="100%">
-        <tr><td class="topbar">
-          <table role="presentation"><tr>
-            <td><img class="logo" src="${brandLogoUrl}" width="36" height="36" alt="InvoiceFocus"></td>
-            <td style="padding-left:10px"><div class="wordmark">Invoice<span class="wordmark-focus">Focus</span></div></td>
-          </tr></table>
+         <tr><td class="topbar">
+           <table role="presentation" class="brand-header" width="100%">
+             <tr>
+               <td valign="middle" width="40"><img class="logo" src="${brandLogoUrl}" width="40" height="40" alt="InvoiceFocus logo" style="display:block;width:40px;height:40px;border:0;border-radius:10px"></td>
+               <td valign="middle" style="padding-left:12px">
+                 <table role="presentation">
+                   <tr><td class="wordmark wordmark-line" style="white-space:nowrap">Invoice</td></tr>
+                   <tr><td class="wordmark wordmark-line wordmark-focus" style="white-space:nowrap">Focus</td></tr>
+                 </table>
+               </td>
+             </tr>
+           </table>
         </td></tr>
         <tr><td class="card">${content}</td></tr>
         <tr><td class="footer">
@@ -89,7 +100,7 @@ function emailDocument(preheader: string, content: string) {
 }
 
 function hero(eyebrow: string, title: string) {
-  return `<div class="hero"><img class="hero-mark" src="${brandLogoUrl}" width="64" height="64" alt="InvoiceFocus"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h1>${escapeHtml(title)}</h1></div>`;
+  return `<div class="hero"><img class="hero-mark" src="${brandLogoUrl}" width="64" height="64" alt="InvoiceFocus logo" style="display:block;width:64px;height:64px;border:0;border-radius:16px"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h1>${escapeHtml(title)}</h1></div>`;
 }
 
 function button(url: string, label: string, secondary = false) {
