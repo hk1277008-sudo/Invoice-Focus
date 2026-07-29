@@ -436,9 +436,9 @@ router.post('/invoices/:id/reminders/send', async (req, res) => {
   const invoice = await supabaseAdmin.from('invoices').select('*').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
   if (invoice.error || !invoice.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
   const viewUrl = `${process.env.CLIENT_BASE_URL || 'https://invoicefocus.com'}/invoice?id=${invoice.data.id}`;
-  const email = buildInvoiceEmail({ businessName: invoice.data.company || 'InvoiceFocus', invoiceNumber: invoice.data.invoice_number, amountDue: new Intl.NumberFormat(undefined, { style: 'currency', currency: invoice.data.currency }).format(remainingBalance(Number(invoice.data.total), Number(invoice.data.amount_paid || 0))), dueDate: invoice.data.due_date, personalMessage: parsed.data.personalMessage, viewUrl, downloadUrl: `${viewUrl}&download=1` });
+  const email = buildInvoiceEmail({ businessName: invoice.data.company || 'InvoiceFocus', invoiceNumber: invoice.data.invoice_number, amountDue: new Intl.NumberFormat(undefined, { style: 'currency', currency: invoice.data.currency }).format(remainingBalance(Number(invoice.data.total), Number(invoice.data.amount_paid || 0))), dueDate: invoice.data.due_date, personalMessage: parsed.data.personalMessage, viewUrl, downloadUrl: `${viewUrl}&download=1`, emailType: 'payment-reminder' });
   try {
-    const provider = await sendEmail({ to: parsed.data.recipientEmail, subject: parsed.data.subject, html: email.html });
+    const provider = await sendEmail({ to: parsed.data.recipientEmail, subject: parsed.data.subject || email.subject, html: email.html });
     const reminder = await supabaseAdmin.from('invoice_reminders').insert({ invoice_id: invoice.data.id, user_id: user.id, trigger_type: 'manual', enabled: true, recipient_email: parsed.data.recipientEmail, subject: parsed.data.subject, personal_message: parsed.data.personalMessage, sent_at: new Date().toISOString() }).select('*').single();
     await recordActivity(invoice.data.id, user.id, 'reminder_sent', `Payment reminder sent to ${parsed.data.recipientEmail}`, { providerMessageId: provider?.id ?? null });
     res.json({ reminder: reminder.data });

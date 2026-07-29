@@ -2,12 +2,11 @@
 
 ## Application-owned sender branding
 
-The repository currently has no transactional email sender implementation. Invoice
-verification, welcome, and password-reset messages are sent by Supabase Auth;
-invoice, payment-reminder, and future billing delivery are not currently sent by
-this application. No source-level `hello` sender remains to update.
+Application-owned transactional email delivery uses the shared Resend helper.
+Verification, welcome, password-reset, invoice, and payment-reminder emails all
+use the centralized InvoiceFocus sender and responsive branded templates.
 
-When an application-owned sender is added, it must use:
+The application sender uses:
 
 ```text
 InvoiceFocus <hello@invoicefocus.com>
@@ -31,8 +30,8 @@ In the Supabase project:
 
 ## Resend and future application mail
 
-When invoice, payment-reminder, or billing emails are implemented with Resend,
-every send call must set the same display name:
+Invoice and payment-reminder emails already use the shared sender. Future billing
+emails must use the same display name:
 
 ```ts
 from: 'InvoiceFocus <hello@invoicefocus.com>'

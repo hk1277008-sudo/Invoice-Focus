@@ -96,11 +96,12 @@ export async function processDueReminders(asOf = new Date().toISOString().slice(
       dueDate: invoice.due_date,
       personalMessage: reminder.personal_message,
       viewUrl: `${process.env.CLIENT_BASE_URL || 'https://invoicefocus.com'}/invoice?id=${invoice.id}`,
+      emailType: 'payment-reminder',
     });
     try {
       const provider = await sendEmail({
         to: reminder.recipient_email,
-        subject: reminder.subject || `Payment reminder for invoice ${invoice.invoice_number}`,
+        subject: reminder.subject || email.subject,
         html: email.html,
       });
       await supabaseAdmin.from('invoice_reminders').update({ sent_at: new Date().toISOString() }).eq('id', reminder.id);
