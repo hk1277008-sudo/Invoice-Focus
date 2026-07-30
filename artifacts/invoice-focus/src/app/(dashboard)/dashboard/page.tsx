@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'wouter'
 import {
   ArrowUpRight, CalendarDays, CheckCircle2, CircleDollarSign, Clock3, Copy, FileText,
-  MoreHorizontal, Plus, Receipt, Search, Sparkles, TrendingUp, Users, XCircle,
+  Eye, MoreHorizontal, Plus, Receipt, TrendingUp, Users, XCircle,
 } from 'lucide-react'
 import {
   Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer,
@@ -86,8 +86,8 @@ export default function DashboardPage() {
   }
 
   return <DashboardLayout><div className="mx-auto max-w-[1600px] space-y-6">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div><div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" /><h1 className="font-display text-2xl font-semibold tracking-tight">Business Overview</h1></div><p className="mt-1 text-sm text-muted-foreground">Track your invoicing activity and business performance.</p></div>
+     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+       <div><p className="label-caps">Workspace overview</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Business Overview</h1><p className="mt-1 text-sm leading-6 text-muted-foreground">Track your invoicing activity and business performance.</p></div>
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1"><CalendarDays className="ml-2 h-4 w-4 text-muted-foreground" /><select value={preset} onChange={(event) => setPreset(event.target.value as Preset)} className="h-8 bg-transparent px-2 text-sm outline-none"><option value="today">Today</option><option value="7d">Last 7 Days</option><option value="30d">Last 30 Days</option><option value="month">This Month</option><option value="year">This Year</option><option value="12m">Last 12 Months</option><option value="custom">Custom Range</option></select></div>
         <Button asChild className="gap-2"><Link href="/invoice"><Plus className="h-4 w-4" /> Create Invoice</Link></Button>
@@ -105,7 +105,7 @@ function DashboardContent({ overview, onDuplicate, onDelete }: { overview: Dashb
     { label: 'Total Invoices', value: stats.totalInvoices, icon: FileText, tone: 'text-primary' },
     { label: 'Draft Invoices', value: stats.draftInvoices, icon: Clock3, tone: 'text-slate-500' },
     { label: 'Sent Invoices', value: stats.sentInvoices, icon: ArrowUpRight, tone: 'text-blue-500' },
-    { label: 'Viewed Invoices', value: stats.viewedInvoices, icon: Sparkles, tone: 'text-violet-500' },
+    { label: 'Viewed Invoices', value: stats.viewedInvoices, icon: Eye, tone: 'text-violet-500' },
     { label: 'Partially Paid', value: stats.partiallyPaidInvoices, icon: CircleDollarSign, tone: 'text-amber-500' },
     { label: 'Paid Invoices', value: stats.paidInvoices, icon: CheckCircle2, tone: 'text-emerald-500' },
     { label: 'Overdue Invoices', value: stats.overdueInvoices, icon: XCircle, tone: 'text-rose-500' },
@@ -115,7 +115,7 @@ function DashboardContent({ overview, onDuplicate, onDelete }: { overview: Dashb
   ]
   const isEmpty = stats.totalInvoices === 0 && stats.totalClients === 0
   return <>{isEmpty ? <EmptyDashboard /> : <>
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, icon: Icon, tone }) => <Card key={label}><CardContent className="flex items-start justify-between p-5"><div><p className="text-sm text-muted-foreground">{label}</p><p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p></div><Icon className={`h-5 w-5 ${tone}`} /></CardContent></Card>)}</div>
+     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, icon: Icon, tone }) => <Card key={label} className="interactive-surface"><CardContent className="flex items-start justify-between p-5"><div><p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</p><p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums">{value}</p></div><div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted/70"><Icon className={`h-4 w-4 ${tone}`} /></div></CardContent></Card>)}</div>
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]"><RevenueChart data={overview.revenue} /><StatusChart data={overview.statusDistribution} /></div>
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"><RecentInvoices invoices={overview.recentInvoices} onDuplicate={onDuplicate} onDelete={onDelete} /><RecentClients clients={overview.recentClients} /></div>
     <RecentActivity items={overview.recentActivity} />
@@ -134,7 +134,7 @@ function StatusChart({ data }: { data: DashboardOverview['statusDistribution'] }
   return <Card><CardHeader><CardTitle>Invoice Status</CardTitle><p className="mt-1 text-sm text-muted-foreground">Distribution across the selected period</p></CardHeader><CardContent><div className="h-[280px]">{data.some((item) => item.count > 0) ? <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data} dataKey="count" nameKey="status" innerRadius={66} outerRadius={94} paddingAngle={3}>{data.map((item) => <Cell key={item.status} fill={statusColors[item.status]} />)}</Pie><Tooltip /><text x="50%" y="47%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-2xl font-semibold">{data.reduce((sum, item) => sum + item.count, 0)}</text><text x="50%" y="56%" textAnchor="middle" dominantBaseline="middle" className="fill-muted-foreground text-xs">Invoices</text></PieChart></ResponsiveContainer> : <ChartEmpty label="No invoices in this period" />}</div><div className="mt-2 grid grid-cols-2 gap-2">{data.map((item) => <div key={item.status} className="flex items-center justify-between text-xs"><span className="flex items-center gap-2 text-muted-foreground"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: statusColors[item.status] }} />{item.status}</span><span className="font-medium">{item.count}</span></div>)}</div></CardContent></Card>
 }
 
-function ChartEmpty({ label }: { label: string }) { return <div className="flex h-full items-center justify-center text-sm text-muted-foreground">{label}</div> }
+function ChartEmpty({ label }: { label: string }) { return <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground"><Receipt className="h-5 w-5 text-muted-foreground/60" /><span>{label}</span></div> }
 
 function RecentInvoices({ invoices, onDuplicate, onDelete }: { invoices: DashboardOverview['recentInvoices']; onDuplicate: (id: string) => void; onDelete: (id: string) => void }) {
   return <Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle>Recent Invoices</CardTitle><p className="mt-1 text-sm text-muted-foreground">Latest activity from your invoice history</p></div><Button asChild variant="ghost" size="sm"><Link href="/dashboard">View All <ArrowUpRight className="ml-1 h-4 w-4" /></Link></Button></CardHeader><CardContent className="p-0">{invoices.length ? <div className="divide-y divide-border">{invoices.map((invoice) => <div key={invoice.id} className="flex items-center gap-3 px-5 py-4"><Receipt className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" /><div className="min-w-0 flex-1"><Link href={`/invoice/${invoice.id}`} className="font-medium text-primary hover:underline">{invoice.invoice_number}</Link><p className="truncate text-xs text-muted-foreground">{invoice.client || 'No Client'} · {shortDate(invoice.issue_date)}</p></div><Badge className={`hidden border-0 sm:inline-flex ${statusClass(invoice.status)}`}>{invoice.status}</Badge><span className="text-sm font-semibold">{money(Number(invoice.total))}</span><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Actions for ${invoice.invoice_number}`}><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem asChild><Link href={`/invoice/${invoice.id}`}>Open Details</Link></DropdownMenuItem><DropdownMenuItem asChild><Link href={`/invoice?id=${invoice.id}`}>Edit Invoice</Link></DropdownMenuItem><DropdownMenuItem onClick={() => onDuplicate(invoice.id)}><Copy className="mr-2 h-4 w-4" />Duplicate</DropdownMenuItem><DropdownMenuItem onClick={() => onDelete(invoice.id)} className="text-destructive focus:text-destructive">Delete</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>)}</div> : <div className="p-8 text-center text-sm text-muted-foreground">No invoices in this period.</div>}</CardContent></Card>
@@ -145,5 +145,5 @@ function RecentClients({ clients }: { clients: DashboardOverview['recentClients'
 }
 
 function EmptyDashboard() {
-  return <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/[0.03] px-6 py-16 text-center"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Sparkles className="h-7 w-7" /></div><h2 className="mt-5 font-display text-xl font-semibold">Welcome to your business dashboard</h2><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Create your first invoice or add a client to start tracking your business activity.</p><div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><Button asChild><Link href="/invoice"><Plus className="mr-2 h-4 w-4" />Create First Invoice</Link></Button><Button asChild variant="outline"><Link href="/dashboard/clients"><Users className="mr-2 h-4 w-4" />Add Client</Link></Button></div></div>
+  return <div className="rounded-lg border border-dashed border-primary/30 bg-primary/[0.03] px-6 py-16 text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary"><FileText className="h-6 w-6" /></div><h2 className="mt-5 text-xl font-semibold">Welcome to your business dashboard</h2><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Create your first invoice or add a client to start tracking your business activity.</p><div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><Button asChild><Link href="/invoice"><Plus className="mr-2 h-4 w-4" />Create First Invoice</Link></Button><Button asChild variant="outline"><Link href="/dashboard/clients"><Users className="mr-2 h-4 w-4" />Add Client</Link></Button></div></div>
 }

@@ -259,7 +259,8 @@ export default function InvoicePage() {
         {/* Top action bar */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+            <p className="label-caps">Invoice workspace</p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
               {recordId ? 'Edit Invoice' : 'Create Invoice'}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -351,7 +352,7 @@ export default function InvoicePage() {
 
         {/* Editor + Preview */}
         {isLoadingRecord ? (
-          <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-dashed border-border bg-card text-sm text-muted-foreground">
+          <div className="flex min-h-[320px] items-center justify-center rounded-lg border border-dashed border-border bg-card text-sm text-muted-foreground">
             Loading invoice...
           </div>
         ) : <div className="grid gap-8 lg:grid-cols-2 print:block">

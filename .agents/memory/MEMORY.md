@@ -9,3 +9,4 @@
 - [Provider-neutral billing](provider-neutral-billing.md) — Keep checkout, portal, webhook verification, subscription state, and billing history behind neutral interfaces until a gateway is configured.
 - [Canvas iframe variants](canvas-iframe-variants.md) — Canvas iframe updates reject arbitrary custom props; use query parameters for per-variant preview state.
 - [Supabase migration path](supabase-migration-path.md) — InvoiceFocus schema lives in Supabase, not the separate Replit PostgreSQL database tool.
+- [InvoiceFocus UI polish system](ui-polish-system.md) — Refine shared primitives and route rhythm while preserving the existing brand, workflows, auth, and invoice output.

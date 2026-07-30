@@ -8,11 +8,11 @@ export default function UpgradePage() {
   const { subscription } = useSubscription()
   return <DashboardLayout>
     <div className="mx-auto max-w-6xl space-y-8">
-      <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
         <ButtonBack />
-        <div><p className="text-sm font-medium text-primary">Plans & access</p><h1 className="font-display text-3xl font-semibold tracking-tight">Make more room for good work.</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Choose the InvoiceFocus plan that fits your business today. Payment processing is not connected yet, so your plan stays safely unchanged until checkout is available.</p></div>
+         <div><p className="label-caps">Plans & access</p><h1 className="mt-2 text-3xl font-semibold tracking-tight">Make more room for good work.</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Choose the InvoiceFocus plan that fits your business today. Payment processing is not connected yet, so your plan stays safely unchanged until checkout is available.</p></div>
       </div>
-      <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground"><ShieldCheck className="h-4 w-4 text-emerald-600" />You’re currently on the {subscription.planName} plan.</div>
+       <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm"><ShieldCheck className="h-4 w-4 text-emerald-600" />You’re currently on the {subscription.planName} plan.</div>
       <SubscriptionPlans />
     </div>
   </DashboardLayout>

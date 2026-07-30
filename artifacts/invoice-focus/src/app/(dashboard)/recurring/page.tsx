@@ -179,7 +179,8 @@ export default function RecurringInvoicesPage() {
         <div className="space-y-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="font-display text-2xl font-semibold tracking-tight">Recurring Invoices</h1>
+               <p className="label-caps">Automated billing</p>
+               <h1 className="mt-2 text-2xl font-semibold tracking-tight">Recurring Invoices</h1>
               <p className="mt-1 text-sm text-muted-foreground">Automate your regular billing cycles.</p>
             </div>
             <Button asChild className="gap-2">
@@ -189,7 +190,7 @@ export default function RecurringInvoicesPage() {
             </Button>
           </div>
 
-          <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 md:flex-row">
+           <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm md:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -245,11 +246,11 @@ export default function RecurringInvoicesPage() {
           {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>}
 
           {loading ? (
-            <div className="rounded-xl border border-border bg-card p-12 text-center text-sm text-muted-foreground">
+             <div className="rounded-lg border border-border bg-card p-12 text-center text-sm text-muted-foreground">
               Loading recurring invoices...
             </div>
           ) : invoices.length === 0 ? (
-            <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card p-8 text-center">
+             <div className="flex min-h-[320px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card p-8 text-center">
               <RefreshCcw className="h-9 w-9 text-muted-foreground/50" />
               <h2 className="mt-4 font-medium">No Recurring Invoices</h2>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
@@ -266,7 +267,7 @@ export default function RecurringInvoicesPage() {
                 const currency = inv.template_data.details.currency || 'USD'
 
                 return (
-                  <Card key={inv.id} className="transition-shadow hover:shadow-md">
+                   <Card key={inv.id} className="interactive-surface">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">

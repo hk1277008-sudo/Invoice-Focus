@@ -77,9 +77,9 @@ export default function SettingsPage() {
 
   if (loading) return <DashboardLayout><div className="mx-auto max-w-6xl animate-pulse space-y-6"><div className="h-10 w-56 rounded bg-muted" /><div className="h-[520px] rounded-xl bg-muted" /></div></DashboardLayout>
 
-  return <DashboardLayout><div className="mx-auto max-w-6xl space-y-6">
-    <div><h1 className="font-display text-2xl font-semibold tracking-tight">Settings</h1><p className="mt-1 text-sm text-muted-foreground">Manage your business, workspace preferences, and account security.</p></div>
-     <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border pb-2">{tabs.map(([key, label]) => <button key={key} onClick={() => setTab(key)} className={`whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${tab === key ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>{label}</button>)}</div>
+  return <DashboardLayout><div className="mx-auto max-w-6xl space-y-8">
+     <div><p className="label-caps">Workspace configuration</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Settings</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">Manage your business, workspace preferences, and account security.</p></div>
+      <div role="tablist" aria-label="Settings sections" className="-mx-1 flex gap-1 overflow-x-auto border-b border-border px-1 pb-px">{tabs.map(([key, label]) => <button key={key} role="tab" aria-selected={tab === key} onClick={() => setTab(key)} className={`min-h-10 shrink-0 whitespace-nowrap rounded-t-lg border-b-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${tab === key ? 'border-primary bg-primary/5 text-primary' : 'border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground'}`}>{label}</button>)}</div>
     <div className="min-w-0">
       {tab === 'business' && <BusinessTab settings={settings} update={update} logoPreview={logoPreview} uploadLogo={uploadLogo} />}
       {tab === 'invoice' && <InvoiceTab settings={settings} update={update} />}
@@ -89,7 +89,7 @@ export default function SettingsPage() {
       {tab === 'appearance' && <AppearanceTab settings={settings} update={update} />}
       {tab === 'privacy' && <PrivacyTab toast={toast} />}
     </div>
-    {(tab === 'business' || tab === 'invoice' || tab === 'notifications' || tab === 'appearance') && <div className="flex justify-end"><Button onClick={save} disabled={saving} className="w-full gap-2 sm:w-auto"><Save className="h-4 w-4" />{saving ? 'Saving...' : 'Save Changes'}</Button></div>}
+     {(tab === 'business' || tab === 'invoice' || tab === 'notifications' || tab === 'appearance') && <div className="sticky bottom-4 z-10 flex justify-end rounded-lg border border-border bg-background/95 p-3 shadow-md backdrop-blur sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none"><Button onClick={save} disabled={saving} className="w-full gap-2 sm:w-auto"><Save className="h-4 w-4" />{saving ? 'Saving...' : 'Save Changes'}</Button></div>}
   </div></DashboardLayout>
 }
 

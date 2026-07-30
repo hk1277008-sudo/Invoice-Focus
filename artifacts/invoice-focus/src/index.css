@@ -250,6 +250,19 @@ html, body, #root {
     font-feature-settings: 'rlig' 1, 'calt' 1, 'ss01' 1;
   }
 
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  select {
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+  }
+
   /* Display font for headings */
   h1, h2, h3, h4 {
     font-family: var(--app-font-display);
@@ -292,6 +305,15 @@ html, body, #root {
   /* Font display shorthand */
   .font-display {
     font-family: var(--app-font-display);
+  }
+
+  .interactive-surface {
+    transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+
+  .interactive-surface:hover {
+    border-color: hsl(var(--primary) / 0.28);
+    box-shadow: var(--shadow-md);
   }
 
   /* Hide search cancel button in Chrome */

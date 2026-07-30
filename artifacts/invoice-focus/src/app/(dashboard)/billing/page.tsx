@@ -87,7 +87,7 @@ export default function BillingPage() {
       <DashboardLayout>
         <div className="mx-auto max-w-5xl animate-pulse space-y-6">
           <div className="h-10 w-48 rounded bg-muted" />
-          <div className="h-64 rounded-xl bg-muted" />
+           <div className="h-64 rounded-lg bg-muted" />
         </div>
       </DashboardLayout>
     )
@@ -100,8 +100,9 @@ export default function BillingPage() {
     <DashboardLayout>
       <div className="mx-auto max-w-5xl space-y-8">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">Billing & Plans</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage your subscription, payment methods, and billing history.</p>
+           <p className="label-caps">Workspace billing</p>
+           <h1 className="mt-2 text-2xl font-semibold tracking-tight">Billing & Plans</h1>
+           <p className="mt-1 text-sm leading-6 text-muted-foreground">Manage your subscription, payment methods, and billing history.</p>
         </div>
         {selectedPlan && selectedPlan !== subscription.plan && (
           <Card className="border-primary/30 bg-primary/[0.03]">
@@ -313,19 +314,19 @@ export default function BillingPage() {
                 <table className="w-full caption-bottom text-sm">
                   <thead className="[&_tr]:border-b">
                     <tr className="border-b border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                      <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Date</th>
-                      <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Description</th>
-                      <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Status</th>
-                      <th className="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Amount</th>
-                      <th className="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Invoice</th>
+                       <th className="h-11 px-4 text-left align-middle text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Date</th>
+                       <th className="h-11 px-4 text-left align-middle text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Description</th>
+                       <th className="h-11 px-4 text-left align-middle text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Status</th>
+                       <th className="h-11 px-4 text-right align-middle text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Amount</th>
+                       <th className="h-11 px-4 text-right align-middle text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Invoice</th>
                     </tr>
                   </thead>
                   <tbody className="[&_tr:last-child]:border-0">
                     {history.map(item => (
                       <tr key={item.id} className="border-b border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                        <td className="p-4 align-middle">{new Date(item.date).toLocaleDateString()}</td>
-                        <td className="p-4 align-middle">{item.description}</td>
-                        <td className="p-4 align-middle">
+                         <td className="px-4 py-3.5 align-middle">{new Date(item.date).toLocaleDateString()}</td>
+                         <td className="px-4 py-3.5 align-middle">{item.description}</td>
+                         <td className="px-4 py-3.5 align-middle">
                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
                             item.status === 'paid' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
                             item.status === 'failed' ? 'bg-destructive/10 text-destructive' :
@@ -334,8 +335,8 @@ export default function BillingPage() {
                             {item.status}
                           </span>
                         </td>
-                        <td className="p-4 align-middle text-right">${(item.amount / 100).toFixed(2)}</td>
-                        <td className="p-4 align-middle text-right">
+                         <td className="px-4 py-3.5 align-middle text-right">${(item.amount / 100).toFixed(2)}</td>
+                         <td className="px-4 py-3.5 align-middle text-right">
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => toast({ description: 'Secure checkout will be available after production deployment.' })}>
                             <span className="sr-only">Download</span>
                             <FileText className="h-4 w-4" />
@@ -357,7 +358,7 @@ export default function BillingPage() {
         {/* Upgrade / Change Plan Section */}
         <div id="plans" className="pt-8">
           <div className="mb-6">
-            <h2 className="font-display text-2xl font-semibold tracking-tight">Available Plans</h2>
+             <h2 className="text-2xl font-semibold tracking-tight">Available Plans</h2>
             <p className="mt-1 text-sm text-muted-foreground">Payment processing is safely preview-only. Secure checkout will be available after production deployment.</p>
           </div>
           <SubscriptionPlans />

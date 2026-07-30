@@ -49,10 +49,10 @@ function UserMenu() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex h-10 w-10 items-center justify-center rounded-full outline-none ring-offset-background transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="User menu"
         >
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-9 w-9">
             <AvatarImage src={avatarUrl} alt={fullName || user?.email || 'User'} />
             <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
               {initials}
@@ -90,7 +90,7 @@ function NotificationMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" aria-label={`${unread} unread notifications`} className="relative flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground">
+        <button type="button" aria-label={`${unread} unread notifications`} className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
           <Bell className="h-4 w-4" />
           {unread > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">{unread > 9 ? '9+' : unread}</span>}
         </button>
@@ -121,14 +121,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-svh min-w-0 bg-background overflow-x-hidden">
       {/* Sidebar */}
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card lg:flex">
-        <div className="flex h-14 items-center border-b border-border px-4">
+        <div className="flex h-16 items-center border-b border-border px-5">
           <Link href="/">
             <Logo size="sm" />
           </Link>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3">
-          <ul className="space-y-0.5">
+          <ul className="space-y-1">
             {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
               const isActive = location === href
               return (
@@ -136,7 +136,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <Link
                     href={href}
                     className={cn(
-                      'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-100',
+                      'flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm transition-colors duration-150',
                       isActive
                         ? 'bg-primary/10 font-medium text-primary'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -179,7 +179,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           mobileNavOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex h-14 items-center border-b border-border px-4">
+        <div className="flex h-16 items-center border-b border-border px-5">
           <Link href="/" onClick={() => setMobileNavOpen(false)}>
             <Logo size="sm" />
           </Link>
@@ -218,7 +218,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 shrink-0 items-center border-b border-border px-4 sm:px-6">
+        <header className="flex h-16 shrink-0 items-center border-b border-border bg-card/80 px-4 backdrop-blur-sm sm:px-6">
           <Button
             type="button"
             variant="ghost"
@@ -236,7 +236,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <div className="flex-1 hidden lg:block" />
           <div className="flex items-center gap-2"><NotificationMenu /><UserMenu /></div>
         </header>
-        <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
+         <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   )

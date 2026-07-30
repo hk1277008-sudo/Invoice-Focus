@@ -77,7 +77,7 @@ export default function ResetPasswordPage() {
   if (isSuccess) {
     return (
       <AuthLayout>
-        <div className="rounded-xl border border-border bg-card px-8 py-10 shadow-sm text-center">
+        <div className="rounded-lg border border-border bg-card px-5 py-8 text-center shadow-sm sm:px-8 sm:py-10">
           <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
             Password updated
           </h1>
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthLayout>
-      <div className="rounded-xl border border-border bg-card px-8 py-10 shadow-sm">
+      <div className="rounded-lg border border-border bg-card px-5 py-8 shadow-sm sm:px-8 sm:py-10">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
             Choose a new password
