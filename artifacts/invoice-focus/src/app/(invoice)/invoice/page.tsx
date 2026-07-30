@@ -27,7 +27,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useToast } from '@/hooks/use-toast'
-import { createInvoice, getInvoice, invoiceInput, transitionInvoice, updateInvoice, type InvoiceStatus } from '@/lib/invoices'
+import { createInvoice, getInvoice, invoiceInput, updateInvoice, type InvoiceStatus } from '@/lib/invoices'
 import { listClients, type ClientRecord } from '@/lib/clients'
 import { useSubscription } from '@/providers/SubscriptionProvider'
 import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
@@ -93,16 +93,20 @@ export default function InvoicePage() {
   const persistInvoice = useCallback(async () => {
     if (!hasAnyData || !isAuthenticated) return
     setRemoteStatus('saving')
+    const input = invoiceInput(invoice, calculations.grandTotal)
+    const statusChanged = Boolean(recordId && savedStatus !== null && input.status !== savedStatus)
     try {
-      const input = invoiceInput(invoice, calculations.grandTotal)
       if (recordId) {
-        const statusChanged = savedStatus !== null && input.status !== savedStatus
-        if (statusChanged) {
-          await transitionInvoice(recordId, input.status)
-        }
-        const { status: _status, ...invoiceFields } = input
-        const result = await updateInvoice(recordId, statusChanged ? invoiceFields : input)
+        // Submit status and invoice data together. The PATCH endpoint owns
+        // transition validation and returns the canonical synchronized row.
+        const result = await updateInvoice(recordId, input)
         setSavedStatus(result.invoice.status)
+        if (result.invoice.payload) {
+          loadFromData({
+            ...result.invoice.payload,
+            details: { ...result.invoice.payload.details, status: result.invoice.status },
+          })
+        }
         if (statusChanged) {
           toast({ title: 'Invoice status updated', description: `Invoice marked ${input.status}.` })
         }
@@ -115,6 +119,11 @@ export default function InvoicePage() {
       }
       setRemoteStatus('saved')
     } catch (error) {
+      if (statusChanged && savedStatus) {
+        // A rejected transition must not leave the editor showing an
+        // unsaved/invalid local status. Preserve all other in-progress edits.
+        updateDetails('status', savedStatus)
+      }
       setRemoteStatus('error')
       if (error instanceof Error && 'code' in error && (error as Error & { code?: string }).code === 'INVOICE_LIMIT_REACHED') {
         setLimitDialogOpen(true)

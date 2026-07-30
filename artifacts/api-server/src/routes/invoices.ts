@@ -267,7 +267,10 @@ router.patch('/invoices/:id', async (req, res) => {
   if (input.clientId !== undefined) updates.client_id = input.clientId;
   if (input.total !== undefined) updates.total = input.total;
   if (input.currency !== undefined) updates.currency = input.currency.toUpperCase();
-  if (input.payload !== undefined) updates.payload = input.payload;
+  // When status is part of this PATCH, the status branch above deliberately
+  // synchronizes payload.details.status. Do not overwrite that canonical value
+  // with the client payload after the transition has been validated.
+  if (input.payload !== undefined && input.status === undefined) updates.payload = input.payload;
   const { data, error } = await supabaseAdmin
     .from('invoices')
     .update(updates)

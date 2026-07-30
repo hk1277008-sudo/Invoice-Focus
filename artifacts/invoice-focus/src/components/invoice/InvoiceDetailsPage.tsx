@@ -50,9 +50,20 @@ export default function InvoiceDetailsPage({ id }: { id: string }) {
   const [shareTokens, setShareTokens] = useState<ShareTokenRecord[]>([])
   const [shareBusy, setShareBusy] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
+  const [statusError, setStatusError] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
-    try { setData(await getInvoiceDetails(id)) } catch (error) { toast({ title: 'Invoice unavailable', description: error instanceof Error ? error.message : 'Could not load invoice.', variant: 'destructive' }) } finally { setLoading(false) }
+  const load = useCallback(async ({ notify = true }: { notify?: boolean } = {}) => {
+    try {
+      setData(await getInvoiceDetails(id))
+      return true
+    } catch (error) {
+      if (notify) {
+        toast({ title: 'Invoice unavailable', description: error instanceof Error ? error.message : 'Could not load invoice.', variant: 'destructive' })
+      }
+      return false
+    } finally {
+      setLoading(false)
+    }
   }, [id, toast])
   useEffect(() => { void load(); void listShareTokens(id).then(({ shareTokens: values }) => setShareTokens(values)).catch(() => setShareTokens([])) }, [id, load])
 
@@ -73,25 +84,22 @@ export default function InvoiceDetailsPage({ id }: { id: string }) {
   const handleTransition = async (status: InvoiceStatus) => {
     if (!invoice) return
     const previous = data
-    setData((current) => current ? {
-      ...current,
-      invoice: {
-        ...current.invoice,
-        status,
-        payload: current.invoice.payload
-          ? { ...current.invoice.payload, details: { ...current.invoice.payload.details, status } }
-          : current.invoice.payload,
-      },
-    } : current)
+    setStatusError(null)
     setBusy(true)
     try {
       const result = await transitionInvoice(invoice.id, status)
       setData((current) => current ? { ...current, invoice: result.invoice } : current)
-      toast({ title: 'Invoice status updated', description: `Invoice marked ${status}.` })
-      await load()
+      setStatusError(null)
+      // The mutation has succeeded at this point. A later refresh is useful
+      // for history/badges, but must never turn a successful transition into
+      // a destructive status error or roll back the server response.
+      toast({ title: 'Invoice status updated successfully.', description: `Invoice marked ${status}.` })
+      await load({ notify: false })
     } catch (error) {
       setData(previous)
-      toast({ title: 'Status update failed', description: error instanceof Error ? error.message : 'Could not update invoice status.', variant: 'destructive' })
+      const message = error instanceof Error ? error.message : 'Could not update invoice status.'
+      setStatusError(message)
+      toast({ title: 'Status update failed', description: message, variant: 'destructive' })
     } finally {
       setBusy(false)
     }
@@ -168,7 +176,7 @@ export default function InvoiceDetailsPage({ id }: { id: string }) {
         <div className="space-y-6">
           <Card><CardHeader><CardTitle>Quick actions</CardTitle></CardHeader><CardContent className="grid gap-2"><Button variant="outline" className="justify-start" onClick={openSend}><Mail className="mr-2 h-4 w-4" />Send invoice</Button><Button variant="outline" className="justify-start" onClick={openReminder}><Bell className="mr-2 h-4 w-4" />Send reminder</Button><Button variant="outline" className="justify-start" onClick={() => setDialog('reminder')}><Clock3 className="mr-2 h-4 w-4" />Schedule reminder</Button><Button variant="outline" className="justify-start" asChild><Link href={`/invoice?id=${invoice.id}`}><Download className="mr-2 h-4 w-4" />Download / print</Link></Button><Button variant="outline" className="justify-start" onClick={() => run(() => duplicateInvoice(invoice.id), 'Invoice duplicated')}><Copy className="mr-2 h-4 w-4" />Duplicate</Button></CardContent></Card>
           <Card><CardHeader><CardTitle className="flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" />Client portal</CardTitle></CardHeader><CardContent className="space-y-3"><p className="text-sm text-muted-foreground">Create a secure, read-only link with your branded invoice.</p>{shareUrl && <div className="flex gap-2"><Input readOnly value={shareUrl} aria-label="Secure invoice share link" /><Button variant="outline" size="icon" aria-label="Copy secure invoice link" onClick={() => void navigator.clipboard?.writeText(shareUrl)}><Copy className="h-4 w-4" /></Button></div>}<div className="flex flex-wrap gap-2"><Button size="sm" onClick={() => void handleCreateShare()} disabled={shareBusy}><Link2 className="mr-2 h-4 w-4" />Create link</Button><Button size="sm" variant="outline" onClick={() => void handleCreateShare(true)} disabled={shareBusy}>Regenerate</Button></div>{shareTokens.slice(0, 3).map((token) => <div key={token.id} className="flex items-center justify-between gap-2 rounded-lg border p-2 text-xs"><span className={token.enabled && !token.revokedAt ? 'text-emerald-700' : 'text-muted-foreground'}>{token.enabled && !token.revokedAt ? 'Active' : 'Disabled'} · {token.accessCount} views</span>{token.enabled && !token.revokedAt && <Button variant="ghost" size="sm" onClick={() => void handleDisableShare(token)} disabled={shareBusy}>Disable</Button>}</div>)}</CardContent></Card>
-           <Card><CardHeader><CardTitle>Lifecycle</CardTitle></CardHeader><CardContent className="space-y-2">{nextActions.length ? nextActions.map((status) => <Button key={status} variant={status === 'Cancelled' ? 'ghost' : 'outline'} className={`w-full justify-start ${status === 'Cancelled' ? 'text-destructive' : ''}`} onClick={() => void handleTransition(status)} disabled={busy}>{status === 'Cancelled' ? <Ban className="mr-2 h-4 w-4" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}Mark {status}</Button>) : <p className="text-sm text-muted-foreground">No further lifecycle actions are available.</p>}</CardContent></Card>
+           <Card><CardHeader><CardTitle>Lifecycle</CardTitle></CardHeader><CardContent className="space-y-2">{statusError && <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{statusError}</p>}{nextActions.length ? nextActions.map((status) => <Button key={status} variant={status === 'Cancelled' ? 'ghost' : 'outline'} className={`w-full justify-start ${status === 'Cancelled' ? 'text-destructive' : ''}`} onClick={() => void handleTransition(status)} disabled={busy}>{status === 'Cancelled' ? <Ban className="mr-2 h-4 w-4" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}Mark {status}</Button>) : <p className="text-sm text-muted-foreground">No further lifecycle actions are available.</p>}</CardContent></Card>
           {invoice.recurring_invoice_id && <Card><CardHeader><CardTitle>Recurring information</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">Generated from recurring schedule</p><Link className="mt-2 inline-block text-sm font-medium text-primary hover:underline" href={`/dashboard/recurring/${invoice.recurring_invoice_id}`}>View schedule</Link></CardContent></Card>}
         </div>
       </div>

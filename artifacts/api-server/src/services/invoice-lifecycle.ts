@@ -1,22 +1,9 @@
 import { supabaseAdmin } from '../lib/supabase';
 import { buildInvoiceEmail, sendEmail } from '../lib/email';
+import { canTransition, invoiceStatuses, statusAfterPayment, type InvoiceStatus } from './invoice-status';
 
-export const invoiceStatuses = ['Draft', 'Sent', 'Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'] as const;
-export type InvoiceStatus = typeof invoiceStatuses[number];
-
-const transitions: Record<InvoiceStatus, InvoiceStatus[]> = {
-  Draft: ['Sent', 'Cancelled'],
-  Sent: ['Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'],
-  Viewed: ['Partially Paid', 'Paid', 'Overdue', 'Cancelled'],
-  'Partially Paid': ['Paid', 'Cancelled'],
-  Paid: ['Sent', 'Cancelled'],
-  Overdue: ['Cancelled'],
-  Cancelled: [],
-};
-
-export function canTransition(from: InvoiceStatus, to: InvoiceStatus) {
-  return from === to || transitions[from]?.includes(to);
-}
+export { canTransition, invoiceStatuses, statusAfterPayment };
+export type { InvoiceStatus };
 
 export function withInvoicePayloadStatus(payload: unknown, status: InvoiceStatus) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
@@ -64,11 +51,6 @@ export async function recordActivity(
 
 export function remainingBalance(total: number, amountPaid: number) {
   return Math.max(Number(total || 0) - Number(amountPaid || 0), 0);
-}
-
-export function statusAfterPayment(total: number, amountPaid: number): InvoiceStatus {
-  if (amountPaid >= total) return 'Paid';
-  return amountPaid > 0 ? 'Partially Paid' : 'Sent';
 }
 
 export function createSimplePdf(lines: string[]) {
