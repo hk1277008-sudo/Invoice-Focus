@@ -29,7 +29,6 @@ const resendVerificationSchema = z.object({
 });
 
 const welcomeSchema = z.object({
-  email: z.string().email(),
   fullName: z.string().optional(),
 });
 
@@ -125,6 +124,14 @@ function buildCallbackUrl(
   return url.toString();
 }
 
+function getDisplayName(user: { user_metadata?: Record<string, unknown> }) {
+  const metadata = user.user_metadata || {};
+  for (const value of [metadata.full_name, metadata.display_name, metadata.name]) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return undefined;
+}
+
 router.post("/auth/signup", async (req, res) => {
   const parse = signupSchema.safeParse(req.body);
   if (!parse.success) {
@@ -204,7 +211,7 @@ router.post("/auth/resend-verification", async (req, res) => {
     const user = usersData.users.find(
       (u) => u.email?.toLowerCase() === email.toLowerCase(),
     );
-    const fullName = user?.user_metadata?.full_name as string | undefined;
+    const fullName = user ? getDisplayName(user) : undefined;
 
     const { data: linkData, error: linkError } =
       await supabaseAdmin.auth.admin.generateLink({
@@ -265,7 +272,7 @@ router.post("/auth/forgot-password", async (req, res) => {
       return;
     }
 
-    const fullName = user.user_metadata?.full_name as string | undefined;
+    const fullName = getDisplayName(user);
 
     const { data: linkData, error: linkError } =
       await supabaseAdmin.auth.admin.generateLink({
@@ -311,7 +318,6 @@ router.post("/auth/welcome", async (req, res) => {
     return;
   }
 
-  const { fullName } = parse.data;
   const email = user.email;
   if (!email) {
     res.status(400).json({ error: "Authenticated user email is required" });
@@ -321,7 +327,10 @@ router.post("/auth/welcome", async (req, res) => {
   try {
     await sendEmail({
       to: email,
-      ...buildWelcomeEmail(fullName, getRequestBaseUrl(req)),
+      ...buildWelcomeEmail(
+        getDisplayName(user),
+        getRequestBaseUrl(req),
+      ),
       disableTracking: true,
     });
 

@@ -1,9 +1,27 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { resend, defaultFromEmail, resendApiKey } from './resend';
 
-// Keep this URL absolute and stable for email clients. This is the uploaded
-// InvoiceFocus logo with only its outside white background removed.
-const brandLogoUrl = 'https://invoicefocus.com/invoicefocus-logo.png';
+const brandLogoCid = 'invoicefocus-logo';
 const supportEmail = 'hello@invoicefocus.com';
+
+function loadProductionLogo() {
+  const candidates = [
+    fileURLToPath(new URL('../../invoice-focus/public/invoicefocus-logo.png', import.meta.url)),
+    resolve(process.cwd(), 'artifacts/invoice-focus/public/invoicefocus-logo.png'),
+    resolve(process.cwd(), '../invoice-focus/public/invoicefocus-logo.png'),
+  ];
+  const path = candidates.find((candidate) => existsSync(candidate));
+  if (!path) throw new Error('The canonical InvoiceFocus production logo is unavailable.');
+  return readFileSync(path).toString('base64');
+}
+
+const productionLogoAttachment = {
+  filename: 'invoicefocus-logo.png',
+  content: loadProductionLogo(),
+  contentId: brandLogoCid,
+};
 
 function escapeHtml(value: unknown) {
   return String(value ?? '')
@@ -12,6 +30,11 @@ function escapeHtml(value: unknown) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+function authGreeting(fullName?: string) {
+  const displayName = fullName?.trim();
+  return displayName ? `Hi ${escapeHtml(displayName)},` : 'Hi there,';
 }
 
 function emailDocument(preheader: string, content: string) {
@@ -79,7 +102,7 @@ function emailDocument(preheader: string, content: string) {
            <table role="presentation" class="brand-header" width="100%">
              <tr>
                 <td align="center" valign="middle">
-                  <img class="logo" src="${brandLogoUrl}" width="64" height="64" alt="InvoiceFocus logo" style="display:block;width:64px;height:64px;border:0;border-radius:14px;margin:0 auto 14px">
+                  <img class="logo" src="cid:${brandLogoCid}" width="64" height="64" alt="InvoiceFocus logo" style="display:block;width:64px;height:64px;border:0;border-radius:14px;margin:0 auto 14px">
                   <div class="wordmark">Invoice<span class="wordmark-focus">Focus</span></div>
                 </td>
              </tr>
@@ -87,10 +110,8 @@ function emailDocument(preheader: string, content: string) {
         </td></tr>
         <tr><td class="card">${content}</td></tr>
         <tr><td class="footer">
-            <p><strong>InvoiceFocus</strong></p>
-            <p><a href="https://invoicefocus.com">https://invoicefocus.com</a></p>
             <p>Support: <a href="mailto:${supportEmail}">${supportEmail}</a></p>
-            <p class="copyright">© 2026 InvoiceFocus — Professional invoicing made effortless</p>
+            <p class="copyright">© 2026 Invoice Focus — Professional Invoicing Made Effortless</p>
         </td></tr>
       </table>
     </td></tr>
@@ -108,19 +129,20 @@ function button(url: string, label: string, secondary = false) {
 }
 
 function fallbackLink(url: string) {
-  return `<div class="fallback"><p>If the button doesn’t work, copy and paste this secure link into your browser:</p><a href="${escapeHtml(url)}">${escapeHtml(url)}</a></div>`;
+  return `<div class="fallback"><p>If the button doesn’t work, <a href="${escapeHtml(url)}">open the secure link in your browser</a>.</p></div>`;
 }
 
 export interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
-  attachments?: Array<{ filename: string; content: string }>;
+  attachments?: Array<{ filename: string; content: string; contentId?: string }>;
   disableTracking?: boolean;
 }
 
 export async function sendEmail(options: SendEmailOptions) {
   const { to, subject, html, attachments, disableTracking } = options;
+  const emailAttachments = [...(attachments || []), productionLogoAttachment];
   if (disableTracking) {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -133,7 +155,10 @@ export async function sendEmail(options: SendEmailOptions) {
         to,
         subject,
         html,
-        attachments,
+        attachments: emailAttachments.map(({ contentId, ...attachment }) => ({
+          ...attachment,
+          ...(contentId ? { content_id: contentId } : {}),
+        })),
         click_tracking: false,
         open_tracking: false,
       }),
@@ -149,7 +174,7 @@ export async function sendEmail(options: SendEmailOptions) {
     to,
     subject,
     html,
-    attachments,
+    attachments: emailAttachments,
   });
 
   if (error) {
@@ -187,8 +212,7 @@ export function buildInvoiceEmail(input: {
 }
 
 export function buildVerificationEmail(link: string, fullName?: string) {
-  const greeting = fullName ? `Hi ${escapeHtml(fullName)},` : 'Hi there,';
-  const content = `${hero('Account setup', 'Verify your email address')}<div class="body"><p class="greeting">${greeting}</p><p>Thanks for creating your InvoiceFocus account. Confirm your email address to finish setup and start creating professional invoices.</p><div class="cta-wrap">${button(link, 'Verify Email Address')}</div>${fallbackLink(link)}<p class="security-note">For your security, this verification link is intended only for you. If you didn’t create an InvoiceFocus account, no action is needed.</p></div>`;
+  const content = `${hero('Account setup', 'Verify your email address')}<div class="body"><p class="greeting">${authGreeting(fullName)}</p><p>Thanks for creating your InvoiceFocus account. Confirm your email address to finish setup and start creating professional invoices.</p><div class="cta-wrap">${button(link, 'Verify Email Address')}</div>${fallbackLink(link)}<p class="security-note">For your security, this verification link is intended only for you. If you didn’t create an InvoiceFocus account, no action is needed.</p></div>`;
   return {
     subject: 'Verify Your Email Address – InvoiceFocus',
     html: emailDocument('Complete your account setup and start creating professional invoices.', content),
@@ -196,8 +220,7 @@ export function buildVerificationEmail(link: string, fullName?: string) {
 }
 
 export function buildPasswordResetEmail(link: string, fullName?: string) {
-  const greeting = fullName ? `Hi ${escapeHtml(fullName)},` : 'Hi there,';
-  const content = `${hero('Account security', 'Reset your password')}<div class="body"><p class="greeting">${greeting}</p><p>We received a request to reset your InvoiceFocus password. Use the secure link below to choose a new one.</p><div class="cta-wrap">${button(link, 'Reset Password')}</div>${fallbackLink(link)}<p class="security-note">This link expires in 24 hours. If you didn’t request a password reset, you can safely ignore this email.</p></div>`;
+  const content = `${hero('Account security', 'Reset your password')}<div class="body"><p class="greeting">${authGreeting(fullName)}</p><p>We received a request to reset your InvoiceFocus password. Use the secure link below to choose a new one.</p><div class="cta-wrap">${button(link, 'Reset Password')}</div>${fallbackLink(link)}<p class="security-note">This link expires in 24 hours. If you didn’t request a password reset, you can safely ignore this email.</p></div>`;
   return {
     subject: 'Reset Your InvoiceFocus Password',
     html: emailDocument('Use the secure link below to reset your password.', content),
@@ -208,11 +231,18 @@ export function buildWelcomeEmail(
   fullName?: string,
   dashboardBaseUrl = process.env.CLIENT_BASE_URL || 'https://invoicefocus.com',
 ) {
-  const greeting = fullName ? `Welcome, ${escapeHtml(fullName)}!` : 'Welcome to InvoiceFocus!';
-  const content = `${hero('Welcome to InvoiceFocus', 'Your account is ready')}<div class="body"><p class="greeting">${greeting}</p><p>Your workspace is ready. Create polished invoices, share them with confidence, and spend less time on billing administration.</p><div class="cta-wrap">${button(`${dashboardBaseUrl}/dashboard`, 'Go to Dashboard')}</div><p class="security-note">You’re receiving this because your InvoiceFocus account was successfully verified.</p></div>`;
+  const content = `${hero('Welcome to InvoiceFocus', 'Your account is ready')}<div class="body"><p class="greeting">${authGreeting(fullName)}</p><p>Your workspace is ready. Create polished invoices, share them with confidence, and spend less time on billing administration.</p><div class="cta-wrap">${button(`${dashboardBaseUrl}/dashboard`, 'Go to Dashboard')}</div><p class="security-note">You’re receiving this because your InvoiceFocus account was successfully verified.</p></div>`;
   return {
     subject: 'Welcome to InvoiceFocus',
     html: emailDocument('Your account is ready. Start creating invoices in minutes.', content),
+  };
+}
+
+export function buildMagicLinkEmail(link: string, fullName?: string) {
+  const content = `${hero('Secure sign in', 'Sign in to InvoiceFocus')}<div class="body"><p class="greeting">${authGreeting(fullName)}</p><p>Use the secure link below to sign in to your InvoiceFocus account.</p><div class="cta-wrap">${button(link, 'Sign In Securely')}</div>${fallbackLink(link)}<p class="security-note">This sign-in link expires soon and can only be used once. If you didn’t request it, you can safely ignore this email.</p></div>`;
+  return {
+    subject: 'Your InvoiceFocus Sign-In Link',
+    html: emailDocument('Use the secure link below to sign in to InvoiceFocus.', content),
   };
 }
 
@@ -246,10 +276,11 @@ export function buildTeamInviteEmail(input: {
   inviteUrl: string;
   inviterName?: string;
   workspaceName?: string;
+  recipientName?: string;
 }) {
   const inviter = input.inviterName ? escapeHtml(input.inviterName) : 'A teammate';
   const workspace = input.workspaceName ? escapeHtml(input.workspaceName) : 'an InvoiceFocus workspace';
-  const content = `${hero('Team invitation', 'You’re invited to InvoiceFocus')}<div class="body"><p class="greeting">Hello,</p><p>${inviter} invited you to join ${workspace} on InvoiceFocus.</p><div class="cta-wrap">${button(input.inviteUrl, 'Accept Invitation')}</div>${fallbackLink(input.inviteUrl)}<p class="security-note">If you weren’t expecting this invitation, you can safely ignore this email.</p></div>`;
+  const content = `${hero('Team invitation', 'You’re invited to InvoiceFocus')}<div class="body"><p class="greeting">${authGreeting(input.recipientName)}</p><p>${inviter} invited you to join ${workspace} on InvoiceFocus.</p><div class="cta-wrap">${button(input.inviteUrl, 'Accept Invitation')}</div>${fallbackLink(input.inviteUrl)}<p class="security-note">If you weren’t expecting this invitation, you can safely ignore this email.</p></div>`;
   return {
     subject: `${inviter} invited you to InvoiceFocus`,
     html: emailDocument('You have been invited to collaborate in InvoiceFocus.', content),

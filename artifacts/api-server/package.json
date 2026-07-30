@@ -8,7 +8,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:invoice-status": "node ./scripts/test-invoice-status.mjs"
+    "test:invoice-status": "node ./scripts/test-invoice-status.mjs",
+    "test:auth-email": "node ./scripts/test-auth-email.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.8",
