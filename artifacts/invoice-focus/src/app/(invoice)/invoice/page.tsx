@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Download, FileJson, Printer, RotateCcw, Save, Upload, Repeat } from 'lucide-react'
+import { Download, Eye, FileJson, Printer, RotateCcw, Save, Upload, Repeat } from 'lucide-react'
 import { useLocation, useSearch } from 'wouter'
 import { Button } from '@/components/ui/button'
 import { InvoiceLayout } from '../layout'
@@ -148,8 +148,7 @@ export default function InvoicePage() {
   }, [hasAnyData, invoice, isLoadingRecord, persistInvoice])
 
   const handlePrint = () => {
-    setShowValidation(true)
-    if (!isValid) return
+    if (!runValidation()) return
     if (!hasAnyData) {
       toast({ title: 'Nothing to print', description: 'Add some invoice details before printing.' })
       return
@@ -158,8 +157,7 @@ export default function InvoicePage() {
   }
 
   const handleDownloadPDF = () => {
-    setShowValidation(true)
-    if (!isValid) return
+    if (!runValidation()) return
     if (!hasAnyData) {
       toast({ title: 'Nothing to export', description: 'Add some invoice details before exporting.' })
       return
@@ -206,13 +204,41 @@ export default function InvoicePage() {
   }
 
   const handleSave = () => {
-    setShowValidation(true)
-    if (!isValid) return
+    if (!runValidation()) return
     if (!isAuthenticated) {
       toast({ title: 'Sign in to save invoices', description: 'Your local draft is safe in this browser. Sign in when you want to save it to your account.' })
       return
     }
     void persistInvoice()
+  }
+
+  const handlePreview = () => {
+    if (!runValidation()) return
+    document.getElementById('invoice-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const runValidation = () => {
+    setShowValidation(true)
+    if (isValid) return true
+    toast({
+      title: 'Please complete all required fields before continuing.',
+      description: 'Review the highlighted fields and try again.',
+      variant: 'destructive',
+    })
+    const firstError = Object.keys(validationErrors)[0]
+    window.setTimeout(() => {
+      const target = firstError === 'items'
+        ? document.querySelector<HTMLElement>('[data-invoice-items]')
+        : document.getElementById(firstError)
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement || target instanceof HTMLTextAreaElement) {
+        target.focus({ preventScroll: true })
+      } else {
+        const field = target?.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea')
+        field?.focus({ preventScroll: true })
+      }
+    }, 0)
+    return false
   }
 
   const handleMakeRecurring = () => {
@@ -239,7 +265,7 @@ export default function InvoicePage() {
               Build and preview your invoice in real time.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3">
             {draftStatus.status !== 'idle' && (
               <span className="text-xs text-muted-foreground" aria-live="polite">
                 {draftStatus.status === 'saving' ? 'Saving draft...' : 'Draft saved'}
@@ -265,20 +291,20 @@ export default function InvoicePage() {
               variant="outline"
               onClick={handleImportClick}
               disabled={isImporting}
-              className="gap-2"
+              className="w-full gap-2 sm:w-auto"
             >
               <Upload className="h-4 w-4" />
               Import
             </Button>
 
-            <Button type="button" variant="outline" onClick={handleExportJSON} className="gap-2">
+            <Button type="button" variant="outline" onClick={handleExportJSON} className="w-full gap-2 sm:w-auto">
               <FileJson className="h-4 w-4" />
               Export JSON
             </Button>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button type="button" variant="outline" className="gap-2">
+                <Button type="button" variant="outline" className="w-full gap-2 sm:w-auto">
                   <RotateCcw className="h-4 w-4" />
                   Reset
                 </Button>
@@ -297,20 +323,24 @@ export default function InvoicePage() {
               </AlertDialogContent>
             </AlertDialog>
 
-              <Button type="button" variant="outline" onClick={handlePrint} className="gap-2">
+              <Button type="button" variant="outline" onClick={handlePrint} className="w-full gap-2 sm:w-auto">
                 <Printer className="h-4 w-4" />
                 Print
               </Button>
-              <Button type="button" onClick={handleDownloadPDF} className="gap-2">
+              <Button type="button" onClick={handleDownloadPDF} className="w-full gap-2 sm:w-auto">
                 <Download className="h-4 w-4" />
                 Download PDF
               </Button>
-              <Button type="button" variant="outline" onClick={handleSave} disabled={isLoadingRecord || remoteStatus === 'saving'} className="gap-2">
+              <Button type="button" variant="outline" onClick={handleSave} disabled={isLoadingRecord || remoteStatus === 'saving'} className="w-full gap-2 sm:w-auto">
                 <Save className="h-4 w-4" />
                 Save Invoice
               </Button>
+              <Button type="button" variant="secondary" onClick={handlePreview} className="w-full gap-2 sm:w-auto">
+                <Eye className="h-4 w-4" />
+                Preview
+              </Button>
               {hasAnyData && (
-                <Button type="button" variant="secondary" onClick={handleMakeRecurring} className="gap-2">
+                <Button type="button" variant="secondary" onClick={handleMakeRecurring} className="w-full gap-2 sm:w-auto">
                   <Repeat className="h-4 w-4" />
                   Make Recurring
                 </Button>
@@ -342,7 +372,7 @@ export default function InvoicePage() {
               onUpdatePresentation={updatePresentation}
             />
           </div>
-          <div className="order-1 lg:order-2 print:m-0 print:p-0">
+          <div id="invoice-preview" className="order-1 lg:order-2 print:m-0 print:p-0">
             <div className="sticky top-20 print:static">
               <InvoicePreview
                 invoice={invoice}

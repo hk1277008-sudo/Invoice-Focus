@@ -350,7 +350,7 @@ export function InvoiceEditor({
           <CardDescription>Add products or services to the invoice.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg border border-border">
+          <div className="rounded-lg border border-border" data-invoice-items>
             <div className="hidden grid-cols-12 gap-2 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
               <div className="col-span-3">Item</div>
               <div className="col-span-3 sm:col-span-1">Qty</div>
@@ -373,6 +373,7 @@ export function InvoiceEditor({
                 />
               ))}
             </div>
+            {errors.items && <p id="items-error" className="px-3 pb-3 text-xs text-destructive">{errors.items}</p>}
           </div>
           <Button type="button" variant="outline" onClick={onAddItem} className="w-full gap-2">
             <Plus className="h-4 w-4" />

@@ -2,6 +2,11 @@
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
 
+html, body, #root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 @media print {
   body { background: white !important; }
   .reports-print-root { max-width: none !important; }

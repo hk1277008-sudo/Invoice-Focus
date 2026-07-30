@@ -74,7 +74,7 @@ export default function SettingsPage() {
 
   return <DashboardLayout><div className="mx-auto max-w-6xl space-y-6">
     <div><h1 className="font-display text-2xl font-semibold tracking-tight">Settings</h1><p className="mt-1 text-sm text-muted-foreground">Manage your business, workspace preferences, and account security.</p></div>
-    <div className="flex gap-6 overflow-x-auto border-b border-border pb-px">{tabs.map(([key, label]) => <button key={key} onClick={() => setTab(key)} className={`whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${tab === key ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>{label}</button>)}</div>
+     <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border pb-2">{tabs.map(([key, label]) => <button key={key} onClick={() => setTab(key)} className={`whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${tab === key ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>{label}</button>)}</div>
     <div className="min-w-0">
       {tab === 'business' && <BusinessTab settings={settings} update={update} logoPreview={logoPreview} uploadLogo={uploadLogo} />}
       {tab === 'invoice' && <InvoiceTab settings={settings} update={update} />}
@@ -84,7 +84,7 @@ export default function SettingsPage() {
       {tab === 'appearance' && <AppearanceTab settings={settings} update={update} />}
       {tab === 'privacy' && <PrivacyTab toast={toast} />}
     </div>
-    {(tab === 'business' || tab === 'invoice' || tab === 'notifications' || tab === 'appearance') && <div className="flex justify-end"><Button onClick={save} disabled={saving} className="gap-2"><Save className="h-4 w-4" />{saving ? 'Saving...' : 'Save Changes'}</Button></div>}
+    {(tab === 'business' || tab === 'invoice' || tab === 'notifications' || tab === 'appearance') && <div className="flex justify-end"><Button onClick={save} disabled={saving} className="w-full gap-2 sm:w-auto"><Save className="h-4 w-4" />{saving ? 'Saving...' : 'Save Changes'}</Button></div>}
   </div></DashboardLayout>
 }
 

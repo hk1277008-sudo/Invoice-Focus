@@ -19,6 +19,10 @@ export function setRememberMe(value: boolean) {
   else window.localStorage.removeItem(REMEMBER_ME_KEY)
 }
 
+export function getRememberMe() {
+  return rememberMe
+}
+
 const customStorage = {
   getItem: (key: string): string | null => {
     const storage = rememberMe ? window.localStorage : window.sessionStorage

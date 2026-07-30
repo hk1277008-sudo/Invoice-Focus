@@ -15,6 +15,47 @@ export interface InvoiceValidation {
   isValid: boolean
 }
 
+export function validateInvoice(invoice: InvoiceData): InvoiceValidation {
+  const errors: ValidationError[] = []
+
+  if (!invoice.business.name.trim()) {
+    errors.push({ field: 'business-name', message: 'Business name is required' })
+  }
+  if (!invoice.client.name.trim()) {
+    errors.push({ field: 'client-name', message: 'Client name is required' })
+  }
+  if (!invoice.details.issueDate) {
+    errors.push({ field: 'issue-date', message: 'Issue date is required' })
+  }
+  if (!invoice.details.dueDate) {
+    errors.push({ field: 'due-date', message: 'Due date is required' })
+  }
+  const businessEmailError = validateEmail(invoice.business.email, 'business email')
+  if (businessEmailError) {
+    errors.push({ field: 'business-email', message: businessEmailError })
+  }
+  const clientEmailError = validateEmail(invoice.client.email, 'client email')
+  if (clientEmailError) {
+    errors.push({ field: 'client-email', message: clientEmailError })
+  }
+
+  const hasInvoiceItem = invoice.items.some((item) => (
+    item.name.trim() || parseNumber(item.quantity) > 0 || parseNumber(item.unitPrice) > 0
+  ))
+  if (!hasInvoiceItem) {
+    errors.push({ field: 'items', message: 'Add at least one invoice item before continuing' })
+  }
+  invoice.items.forEach((item, index) => {
+    errors.push(...validateItem(item, index))
+  })
+
+  const fieldErrors: Record<string, string> = {}
+  for (const error of errors) {
+    fieldErrors[error.field] = error.message
+  }
+  return { errors, fieldErrors, isValid: errors.length === 0 }
+}
+
 function validateEmail(email: string, fieldName: string): string | null {
   if (!email.trim()) return null
   return EMAIL_REGEX.test(email) ? null : `Please enter a valid ${fieldName}`
@@ -42,36 +83,5 @@ function validateItem(item: InvoiceItem, index: number): ValidationError[] {
 }
 
 export function useInvoiceValidation(invoice: InvoiceData): InvoiceValidation {
-  return useMemo(() => {
-    const errors: ValidationError[] = []
-
-    if (!invoice.business.name.trim()) {
-      errors.push({ field: 'business-name', message: 'Business name is required' })
-    }
-    if (!invoice.client.name.trim()) {
-      errors.push({ field: 'client-name', message: 'Client name is required' })
-    }
-    const businessEmailError = validateEmail(invoice.business.email, 'business email')
-    if (businessEmailError) {
-      errors.push({ field: 'business-email', message: businessEmailError })
-    }
-    const clientEmailError = validateEmail(invoice.client.email, 'client email')
-    if (clientEmailError) {
-      errors.push({ field: 'client-email', message: clientEmailError })
-    }
-
-    if (!invoice.details.dueDate) {
-      errors.push({ field: 'due-date', message: 'Due date is required' })
-    }
-    invoice.items.forEach((item, index) => {
-      errors.push(...validateItem(item, index))
-    })
-
-    const fieldErrors: Record<string, string> = {}
-    for (const error of errors) {
-      fieldErrors[error.field] = error.message
-    }
-
-    return { errors, fieldErrors, isValid: errors.length === 0 }
-  }, [invoice])
+  return useMemo(() => validateInvoice(invoice), [invoice])
 }

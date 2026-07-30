@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { supabase, setRememberMe } from '@/lib/supabase'
+import { supabase, getRememberMe, setRememberMe } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 import { logAuthDiagnostic } from '@/lib/dev-diagnostics'
 
@@ -14,7 +14,7 @@ export default function SignInPage() {
   const { toast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMeState] = useState(false)
+  const [rememberMe, setRememberMeState] = useState(getRememberMe)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const passwordRef = useRef<HTMLInputElement>(null)

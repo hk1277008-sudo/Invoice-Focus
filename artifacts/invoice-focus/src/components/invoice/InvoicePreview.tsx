@@ -149,7 +149,7 @@ export const InvoicePreview = memo(function InvoicePreview({
         </div>
 
         {/* Items Table */}
-        <div className={`mt-10 max-w-full overflow-x-auto ${presentation.template === 'corporate' || presentation.template === 'professional' ? 'border-t-2' : ''}`} style={{ borderColor: presentation.primaryColor }}>
+        <div className={`mt-10 max-w-full overflow-hidden ${presentation.template === 'corporate' || presentation.template === 'professional' ? 'border-t-2' : ''}`} style={{ borderColor: presentation.primaryColor }}>
           <table className="w-full min-w-0 table-fixed text-left text-[11px] sm:text-sm" aria-label="Invoice items">
             <colgroup>
               <col className="w-[36%]" />
