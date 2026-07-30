@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Plus, Search, Trash2, Upload, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { ChevronDown, Plus, Search, Trash2, Upload, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -46,6 +46,14 @@ export function InvoiceEditor({
   onUpdatePresentation,
 }: InvoiceEditorProps) {
   const [clientSearch, setClientSearch] = useState('')
+  const [advancedOptionsOpen, setAdvancedOptionsOpen] = useState(() =>
+    invoice.items.some((item) => Number.parseFloat(item.taxPercent) > 0 || Number.parseFloat(item.discountPercent) > 0),
+  )
+  useEffect(() => {
+    if (invoice.items.some((item) => Number.parseFloat(item.taxPercent) > 0 || Number.parseFloat(item.discountPercent) > 0)) {
+      setAdvancedOptionsOpen(true)
+    }
+  }, [invoice.items])
   const filteredClients = useMemo(() => {
     const query = clientSearch.trim().toLowerCase()
     if (!query) return clients
@@ -117,12 +125,11 @@ export function InvoiceEditor({
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             >
               <option value="">Draft</option>
-              <option value="Draft">Draft</option>
-              <option value="Sent">Sent</option>
-              <option value="Paid">Paid</option>
-              <option value="Overdue">Overdue</option>
-              <option value="Cancelled">Cancelled</option>
+              {['Draft', 'Sent', 'Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'].map((status) => (
+                <option key={status} value={status}>{status}</option>
+              ))}
             </select>
+            <p className="mt-1 text-xs text-muted-foreground">Only valid lifecycle transitions can be saved. You can also manage status from the invoice details page.</p>
           </FormField>
           <FormField label="Purchase Order Number (optional)" htmlFor="po-number" className="sm:col-span-2">
             <Input
@@ -351,14 +358,13 @@ export function InvoiceEditor({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg border border-border" data-invoice-items>
-            <div className="hidden grid-cols-12 gap-2 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
+            <div className={`${advancedOptionsOpen ? 'grid-cols-12' : 'grid-cols-10'} hidden gap-2 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid`}>
               <div className="col-span-3">Item</div>
               <div className="col-span-3 sm:col-span-1">Qty</div>
-              <div className="col-span-4 sm:col-span-2">Price</div>
-              <div className="col-span-2 sm:col-span-1">Tax %</div>
-              <div className="col-span-2 sm:col-span-1">Disc %</div>
-              <div className="col-span-1 sm:col-span-1">Total</div>
-              <div className="col-span-1 sm:col-span-2"></div>
+              <div className="col-span-4 sm:col-span-3">Price</div>
+              {advancedOptionsOpen && <><div className="col-span-2 sm:col-span-1">Tax %</div><div className="col-span-2 sm:col-span-1">Disc %</div></>}
+              <div className={`${advancedOptionsOpen ? 'col-span-1' : 'col-span-2'} sm:col-span-2`}>Total</div>
+              <div className="col-span-1 sm:col-span-1"></div>
             </div>
             <div className="divide-y divide-border">
               {invoice.items.map((item, index) => (
@@ -370,6 +376,7 @@ export function InvoiceEditor({
                   onUpdate={onUpdateItem}
                   onRemove={onRemoveItem}
                   canRemove={invoice.items.length > 1}
+                  showAdjustments={advancedOptionsOpen}
                 />
               ))}
             </div>
@@ -379,6 +386,16 @@ export function InvoiceEditor({
             <Plus className="h-4 w-4" />
             Add Item
           </Button>
+          <button
+            type="button"
+            onClick={() => setAdvancedOptionsOpen((open) => !open)}
+            className="flex w-full items-center justify-between rounded-lg border border-dashed border-border px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+            aria-expanded={advancedOptionsOpen}
+          >
+            <span>Advanced options</span>
+            <ChevronDown className={`h-4 w-4 transition-transform ${advancedOptionsOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {advancedOptionsOpen && <p className="text-xs text-muted-foreground">Use tax and discount percentages only when they apply to this invoice. They will appear in the preview and export.</p>}
         </CardContent>
       </Card>
 
@@ -453,6 +470,7 @@ function InvoiceItemRow({
   onUpdate,
   onRemove,
   canRemove,
+  showAdjustments,
 }: {
   index: number
   item: InvoiceItem
@@ -460,6 +478,7 @@ function InvoiceItemRow({
   onUpdate: (id: string, field: keyof InvoiceItem, value: string) => void
   onRemove: (id: string) => void
   canRemove: boolean
+  showAdjustments: boolean
 }) {
   const { lineTotal } = calculateItemValues(item)
   const nameError = errors[`item-${index}-name`]
@@ -467,7 +486,7 @@ function InvoiceItemRow({
   const priceError = errors[`item-${index}-price`]
 
   return (
-    <div className="grid min-w-0 grid-cols-2 gap-3 overflow-hidden p-3 sm:grid-cols-12 sm:gap-2">
+    <div className={`grid min-w-0 grid-cols-2 gap-3 overflow-hidden p-3 sm:gap-2 ${showAdjustments ? 'sm:grid-cols-12' : 'sm:grid-cols-10'}`}>
       <div className="col-span-2 min-w-0 space-y-1 sm:col-span-3">
         <Input
           value={item.name}
@@ -502,7 +521,7 @@ function InvoiceItemRow({
         />
         {qtyError && <p className="text-xs text-destructive">{qtyError}</p>}
       </div>
-      <div className="col-span-1 sm:col-span-2">
+      <div className="col-span-1 sm:col-span-3">
         <Input
           type="number"
           min="0"
@@ -515,7 +534,7 @@ function InvoiceItemRow({
         />
         {priceError && <p className="text-xs text-destructive">{priceError}</p>}
       </div>
-      <div className="col-span-1 sm:col-span-1">
+      {showAdjustments && <div className="col-span-1 sm:col-span-1">
         <Input
           type="number"
           min="0"
@@ -525,8 +544,8 @@ function InvoiceItemRow({
           placeholder="Tax %"
           className="h-8"
         />
-      </div>
-      <div className="col-span-1 sm:col-span-1">
+      </div>}
+      {showAdjustments && <div className="col-span-1 sm:col-span-1">
         <Input
           type="number"
           min="0"
@@ -536,8 +555,8 @@ function InvoiceItemRow({
           placeholder="Disc %"
           className="h-8"
         />
-      </div>
-      <div className="col-span-1 flex min-w-0 items-center justify-end overflow-hidden text-right text-xs font-medium tabular-nums sm:col-span-2">
+      </div>}
+      <div className={`col-span-1 flex min-w-0 items-center justify-end overflow-hidden text-right text-xs font-medium tabular-nums ${showAdjustments ? 'sm:col-span-2' : 'sm:col-span-2'}`}>
         <span className="mr-1 text-[10px] font-normal text-muted-foreground sm:hidden">Total</span>
         {lineTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>

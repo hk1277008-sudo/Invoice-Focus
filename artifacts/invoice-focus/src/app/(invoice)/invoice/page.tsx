@@ -166,6 +166,7 @@ export default function InvoicePage() {
   }
 
   const handleExportJSON = () => {
+    if (!runValidation()) return
     const { blob, fileName } = exportInvoiceToJSON(invoice)
     downloadJSON(blob, fileName)
     toast({ title: 'Invoice exported', description: `${fileName} has been downloaded.` })

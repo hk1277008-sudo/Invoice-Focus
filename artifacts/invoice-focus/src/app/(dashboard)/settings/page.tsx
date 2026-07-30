@@ -57,7 +57,12 @@ export default function SettingsPage() {
   const save = async () => {
     if (!settings.businessName.trim() && tab === 'business') { toast({ title: 'Business name required', description: 'Add a business name before saving.', variant: 'destructive' }); return }
     setSaving(true)
-    try { await saveSettings(settings); toast({ title: 'Settings saved', description: 'Your changes are now applied.' }) }
+    try {
+      const saved = await saveSettings(settings)
+      setSettings(saved)
+      setLogoPreview(saved.businessLogo)
+      toast({ title: 'Settings saved', description: 'Your changes are now applied.' })
+    }
     catch (error) { toast({ title: 'Save failed', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' }) }
     finally { setSaving(false) }
   }

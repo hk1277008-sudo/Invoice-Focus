@@ -37,6 +37,14 @@ export const InvoicePreview = memo(function InvoicePreview({
   const band = presentation.headerLayout === 'Band'
   const centered = presentation.headerLayout === 'Centered'
   const titleClass = presentation.titleStyle === 'editorial' ? 'font-serif tracking-[0.12em]' : presentation.titleStyle === 'compact' ? 'text-xl tracking-tight' : 'text-2xl tracking-tight'
+  const visibleItems = invoice.items.filter((item) => {
+    const values = calculateItemValues(item)
+    return item.name || item.description || values.quantity > 0 || values.unitPrice > 0
+  })
+  const showAdjustments = visibleItems.some((item) => {
+    const values = calculateItemValues(item)
+    return values.taxPercent > 0 || values.discountPercent > 0
+  })
 
   return (
     <div
@@ -150,49 +158,39 @@ export const InvoicePreview = memo(function InvoicePreview({
 
         {/* Items Table */}
         <div className={`mt-10 max-w-full overflow-hidden ${presentation.template === 'corporate' || presentation.template === 'professional' ? 'border-t-2' : ''}`} style={{ borderColor: presentation.primaryColor }}>
-          <table className="w-full min-w-0 table-fixed text-left text-[11px] sm:text-sm" aria-label="Invoice items">
+          <table className="w-full min-w-0 table-fixed border-separate border-spacing-0 text-left text-[11px] sm:text-sm" aria-label="Invoice items">
             <colgroup>
-              <col className="w-[36%]" />
-              <col className="w-[10%]" />
-              <col className="w-[16%]" />
-              <col className="w-[11%]" />
-              <col className="w-[11%]" />
-              <col className="w-[16%]" />
+              <col className={showAdjustments ? 'w-[40%]' : 'w-[48%]'} />
+              <col className={showAdjustments ? 'w-[10%]' : 'w-[12%]'} />
+              <col className={showAdjustments ? 'w-[15%]' : 'w-[20%]'} />
+              {showAdjustments && <><col className="w-[11%]" /><col className="w-[11%]" /></>}
+              <col className={showAdjustments ? 'w-[13%]' : 'w-[20%]'} />
             </colgroup>
             <thead>
               <tr className={`border-b ${dark ? 'border-white/10' : 'border-border'}`}>
-                <th className="py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</th>
-                <th className="py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Qty</th>
-                <th className="py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price</th>
-                <th className="py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tax</th>
-                <th className="py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Disc</th>
-                <th className="py-3 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Amount</th>
+                <th className="px-3 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-4">Description</th>
+                <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-4">Qty</th>
+                <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-4">Price</th>
+                {showAdjustments && <><th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-4">Tax</th><th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-4">Discount</th></>}
+                <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:px-4">Amount</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {invoice.items.map((item) => {
+              {visibleItems.map((item) => {
                 const values = calculateItemValues(item)
-                const showItem = item.name || item.description || values.quantity > 0 || values.unitPrice > 0
-
-                if (!showItem) return null
 
                 return (
                   <tr key={item.id}>
-                    <td className="py-3">
-                      <p className={`font-medium ${dark ? 'text-white' : 'text-foreground'}`}>{item.name || 'Item'}</p>
-                      {item.description && <p className={dark ? 'text-sm text-white/55' : 'text-sm text-muted-foreground'}>{item.description}</p>}
+                    <td className="px-3 py-4 align-top sm:px-4">
+                      <p className={`break-words font-medium leading-5 ${dark ? 'text-white' : 'text-foreground'}`}>{item.name || 'Item'}</p>
+                      {item.description && <p className={`mt-1 break-words text-xs leading-5 ${dark ? 'text-white/55' : 'text-muted-foreground'}`}>{item.description}</p>}
                     </td>
-                    <td className={`py-3 text-right text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'}`}>{values.quantity}</td>
-                    <td className={`py-3 text-right text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'}`}>
+                    <td className={`px-3 py-4 text-right align-top text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'} sm:px-4`}>{values.quantity}</td>
+                    <td className={`px-3 py-4 text-right align-top text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'} sm:px-4`}>
                       {formatCurrency(values.unitPrice, currency)}
                     </td>
-                    <td className={`py-3 text-right text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'}`}>
-                      {values.taxPercent > 0 ? `${values.taxPercent}%` : '—'}
-                    </td>
-                    <td className={`py-3 text-right text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'}`}>
-                      {values.discountPercent > 0 ? `${values.discountPercent}%` : '—'}
-                    </td>
-                    <td className={`py-3 text-right text-sm font-medium tabular-nums ${dark ? 'text-white' : 'text-foreground'}`}>
+                    {showAdjustments && <><td className={`px-3 py-4 text-right align-top text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'} sm:px-4`}>{values.taxPercent > 0 ? `${values.taxPercent}%` : '—'}</td><td className={`px-3 py-4 text-right align-top text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'} sm:px-4`}>{values.discountPercent > 0 ? `${values.discountPercent}%` : '—'}</td></>}
+                    <td className={`px-3 py-4 text-right align-top text-sm font-semibold tabular-nums ${dark ? 'text-white' : 'text-foreground'} sm:px-4`}>
                       {formatCurrency(values.lineTotal, currency)}
                     </td>
                   </tr>

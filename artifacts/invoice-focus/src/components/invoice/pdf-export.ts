@@ -18,13 +18,27 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   const centered = presentation.headerLayout === 'Centered'
   const pageWidth = presentation.paperSize === 'Letter' ? '8.5in' : '210mm'
   const font = presentationFontFamily(presentation.font)
-  const itemsHTML = invoice.items
-    .filter((item) => item.name.trim() || Number(item.quantity) > 0 || Number(item.unitPrice) > 0)
+  const visibleItems = invoice.items
+    .filter((item) => item.name.trim() || item.description.trim() || Number(item.quantity) > 0 || Number(item.unitPrice) > 0)
+  const showAdjustments = visibleItems.some((item) => {
+    const values = calculateItemValues(item)
+    return values.taxPercent > 0 || values.discountPercent > 0
+  })
+  const itemsHTML = visibleItems
     .map((item) => {
       const values = calculateItemValues(item)
-      return `<tr><td><div class="item-name">${escapeHtml(item.name || 'Item')}</div>${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ''}</td><td class="num">${values.quantity}</td><td class="num">${formatCurrency(values.unitPrice, currency)}</td><td class="num">${values.taxPercent > 0 ? values.taxPercent + '%' : '—'}</td><td class="num">${values.discountPercent > 0 ? values.discountPercent + '%' : '—'}</td><td class="num">${formatCurrency(values.lineTotal, currency)}</td></tr>`
+      const adjustments = showAdjustments
+        ? `<td class="num">${values.taxPercent > 0 ? values.taxPercent + '%' : '—'}</td><td class="num">${values.discountPercent > 0 ? values.discountPercent + '%' : '—'}</td>`
+        : ''
+      return `<tr><td><div class="item-name">${escapeHtml(item.name || 'Item')}</div>${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ''}</td><td class="num">${values.quantity}</td><td class="num">${formatCurrency(values.unitPrice, currency)}</td>${adjustments}<td class="num">${formatCurrency(values.lineTotal, currency)}</td></tr>`
     })
     .join('')
+  const tableColumns = showAdjustments
+    ? '<col class="description"><col class="qty"><col class="price"><col class="tax"><col class="discount"><col class="amount">'
+    : '<col class="description-simple"><col class="qty-simple"><col class="price-simple"><col class="amount-simple">'
+  const tableHeaders = showAdjustments
+    ? '<th>Description</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Tax</th><th class="num">Discount</th><th class="num">Amount</th>'
+    : '<th>Description</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th>'
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>${escapeHtml(invoice.details.number || 'Invoice')}</title>
@@ -50,9 +64,10 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   .status { display: inline-block; padding: 4px 9px; border-radius: 999px; background: ${dark || band ? 'rgba(255,255,255,.15)' : `${presentation.primaryColor}18`}; color: ${dark || band ? '#fff' : presentation.primaryColor}; font-size: 9px; font-weight: 700; margin-top: 6px; }
   table { width: 100%; border-collapse: collapse; margin-bottom: 22px; page-break-inside: auto; }
   thead { display: table-header-group; } tr { page-break-inside: avoid; page-break-after: auto; }
-  col.description { width: 36%; } col.qty { width: 10%; } col.price { width: 16%; } col.tax { width: 11%; } col.discount { width: 11%; } col.amount { width: 16%; }
-  th { text-align: left; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: ${dark ? 'rgba(255,255,255,.55)' : '#7c8798'}; border-bottom: ${presentation.template === 'corporate' || presentation.template === 'professional' ? `2px solid ${presentation.primaryColor}` : `1px solid ${dark ? 'rgba(255,255,255,.15)' : '#e5e7eb'}`}; padding: 8px 6px; white-space: nowrap; }
-  td { padding: 10px 6px; border-bottom: 1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e5e7eb'}; vertical-align: top; overflow-wrap: anywhere; }
+  col.description { width: 40%; } col.qty { width: 10%; } col.price { width: 15%; } col.tax { width: 11%; } col.discount { width: 11%; } col.amount { width: 13%; }
+  col.description-simple { width: 48%; } col.qty-simple { width: 12%; } col.price-simple { width: 20%; } col.amount-simple { width: 20%; }
+  th { text-align: left; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: ${dark ? 'rgba(255,255,255,.55)' : '#7c8798'}; border-bottom: ${presentation.template === 'corporate' || presentation.template === 'professional' ? `2px solid ${presentation.primaryColor}` : `1px solid ${dark ? 'rgba(255,255,255,.15)' : '#e5e7eb'}`}; padding: 10px 9px; white-space: nowrap; }
+  td { padding: 12px 9px; border-bottom: 1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e5e7eb'}; vertical-align: top; overflow-wrap: anywhere; }
   th.num, td.num { text-align: right; } .item-name { font-weight: 600; } .item-description { font-size: 10px; color: ${dark ? 'rgba(255,255,255,.55)' : '#6b7280'}; margin-top: 2px; }
   .totals { margin-left: auto; width: 100%; max-width: 240px; } .totals-row { display: flex; justify-content: space-between; padding: 4px 0; color: ${dark ? 'rgba(255,255,255,.6)' : '#6b7280'}; }
   .totals-row.total { border-top: 1px solid ${dark ? 'rgba(255,255,255,.15)' : '#e5e7eb'}; margin-top: 6px; padding-top: 8px; font-weight: 700; color: ${dark ? '#fff' : '#172033'}; font-size: 14px; }
@@ -66,7 +81,7 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
 <main class="invoice">${presentation.template === 'corporate' ? '<div class="topbar"></div>' : ''}${presentation.template === 'creative' ? '<div class="orb"></div>' : ''}
   <header class="header"><div class="header-left">${invoice.business.logo ? `<img class="logo" src="${escapeHtml(invoice.business.logo)}" alt="${escapeHtml(invoice.business.name || 'Business')} logo">` : ''}<p class="business-name">${escapeHtml(invoice.business.name || 'Business Name')}</p>${invoice.business.contactPerson ? `<p class="muted">${escapeHtml(invoice.business.contactPerson)}</p>` : ''}${invoice.business.address ? `<p class="muted">${escapeHtml(invoice.business.address).replace(/\n/g, '<br>')}</p>` : ''}<div style="margin-top:6px">${invoice.business.email ? `<p class="muted">${escapeHtml(invoice.business.email)}</p>` : ''}${invoice.business.phone ? `<p class="muted">${escapeHtml(invoice.business.phone)}</p>` : ''}${invoice.business.website ? `<p class="muted">${escapeHtml(invoice.business.website)}</p>` : ''}</div>${invoice.business.taxId ? `<p class="muted" style="margin-top:8px">Tax ID: ${escapeHtml(invoice.business.taxId)}</p>` : ''}</div><div class="header-right"><p class="business-name" style="font-size:${presentation.titleStyle === 'compact' ? '19px' : '24px'}">INVOICE</p>${invoice.details.number ? `<p class="meta-value">${escapeHtml(invoice.details.number)}</p>` : ''}${invoice.details.status ? `<span class="status">${escapeHtml(invoice.details.status)}</span>` : ''}</div></header>
   <section class="columns"><div class="column"><p class="meta-label">Bill To</p><p class="meta-value">${escapeHtml(invoice.client.name || invoice.client.companyName || 'Client Name')}</p>${invoice.client.companyName && invoice.client.name ? `<p class="muted">${escapeHtml(invoice.client.companyName)}</p>` : ''}${invoice.client.billingAddress ? `<p class="muted">${escapeHtml(invoice.client.billingAddress).replace(/\n/g, '<br>')}</p>` : ''}<div style="margin-top:6px">${invoice.client.email ? `<p class="muted">${escapeHtml(invoice.client.email)}</p>` : ''}${invoice.client.phone ? `<p class="muted">${escapeHtml(invoice.client.phone)}</p>` : ''}</div></div><div class="column column-right"><div><p class="meta-label">Issue Date</p><p class="meta-value">${invoice.details.issueDate || '—'}</p></div><div><p class="meta-label">Due Date</p><p class="meta-value">${invoice.details.dueDate || '—'}</p></div><div><p class="meta-label">Payment Terms</p><p class="meta-value">${escapeHtml(invoice.details.paymentTerms || '—')}</p></div><div><p class="meta-label">PO Number</p><p class="meta-value">${escapeHtml(invoice.details.poNumber || '—')}</p></div></div></section>
-   <table><colgroup><col class="description"><col class="qty"><col class="price"><col class="tax"><col class="discount"><col class="amount"></colgroup><thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Tax</th><th class="num">Disc</th><th class="num">Amount</th></tr></thead><tbody>${itemsHTML}</tbody></table>
+    <table><colgroup>${tableColumns}</colgroup><thead><tr>${tableHeaders}</tr></thead><tbody>${itemsHTML}</tbody></table>
   <div class="totals"><div class="totals-row"><span>Subtotal</span><span>${formatCurrency(calculations.subtotal, currency)}</span></div>${calculations.discount > 0 ? `<div class="totals-row"><span>Discount</span><span>-${formatCurrency(calculations.discount, currency)}</span></div>` : ''}${calculations.tax > 0 ? `<div class="totals-row"><span>Tax</span><span>${formatCurrency(calculations.tax, currency)}</span></div>` : ''}<div class="totals-row total"><span>Grand Total</span><span style="color:${dark ? '#fff' : presentation.primaryColor}">${formatCurrency(calculations.grandTotal, currency)}</span></div></div>
   ${invoice.additional.notes || invoice.additional.paymentInstructions || invoice.additional.terms ? `<div class="additional">${invoice.additional.notes ? `<div class="additional-block"><p class="additional-title">Notes</p><p class="additional-text">${escapeHtml(invoice.additional.notes)}</p></div>` : ''}${invoice.additional.paymentInstructions ? `<div class="additional-block"><p class="additional-title">Payment Instructions</p><p class="additional-text">${escapeHtml(invoice.additional.paymentInstructions)}</p></div>` : ''}${invoice.additional.terms ? `<div class="additional-block"><p class="additional-title">Terms & Conditions</p><p class="additional-text">${escapeHtml(invoice.additional.terms)}</p></div>` : ''}</div>` : ''}
   <footer class="footer ${presentation.footerLayout === 'Bar' ? 'footer-bar' : ''}">${presentation.footerLayout === 'Detailed' ? 'Payment details available on request. · ' : ''}Thank you for your business.${presentation.footerLayout === 'Detailed' ? ` · ${escapeHtml(invoice.business.website || invoice.business.email || '')}` : ''}</footer>

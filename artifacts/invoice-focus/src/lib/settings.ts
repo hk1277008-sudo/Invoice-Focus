@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { InvoicePresentation } from '@/components/invoice/presentation'
+import { defaultPresentation, normalizePresentation, type InvoicePresentation } from '@/components/invoice/presentation'
 
 export type ThemeMode = 'system' | 'light' | 'dark'
 
@@ -71,10 +71,19 @@ async function request<T>(path: string, init: RequestInit = {}) {
 
 export async function getSettings() {
   const result = await request<{ settings: UserSettings | null }>('/settings')
-  return result.settings ? { ...defaultSettings, ...result.settings } : defaultSettings
+  return result.settings ? {
+    ...defaultSettings,
+    ...result.settings,
+    invoicePresentation: normalizePresentation(result.settings.invoicePresentation),
+  } : defaultSettings
 }
-export function saveSettings(settings: UserSettings) {
-  return request<{ settings: UserSettings }>('/settings', { method: 'PUT', body: JSON.stringify(settings) })
+export async function saveSettings(settings: UserSettings) {
+  const result = await request<{ settings: UserSettings }>('/settings', { method: 'PUT', body: JSON.stringify(settings) })
+  return {
+    ...defaultSettings,
+    ...result.settings,
+    invoicePresentation: normalizePresentation(result.settings?.invoicePresentation ?? defaultPresentation),
+  }
 }
 export function exportSettingsData() {
   return request<Record<string, unknown>>('/settings/export')
