@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
 import { releaseInvoice, reserveInvoice } from './subscriptions';
 import { buildInvoiceEmail, sendEmail } from '../lib/email';
-import { canTransition, invoiceStatuses, recordActivity, refreshOverdueInvoices, remainingBalance, statusAfterPayment, createSimplePdf, processDueReminders, type InvoiceStatus } from '../services/invoice-lifecycle';
+import { canTransition, invoiceStatuses, recordActivity, refreshOverdueInvoices, remainingBalance, statusAfterPayment, withInvoicePayloadStatus, createSimplePdf, processDueReminders, type InvoiceStatus } from '../services/invoice-lifecycle';
 import { enforceInvoicePresentationEntitlement, invoicePresentationPayloadSchema } from '../lib/invoice-presentation';
 
 const router: IRouter = Router();
@@ -249,13 +249,14 @@ router.patch('/invoices/:id', async (req, res) => {
   const updates: Record<string, unknown> = {};
   if (input.invoiceNumber !== undefined) updates.invoice_number = input.invoiceNumber;
   if (input.status !== undefined) {
-    const current = await supabaseAdmin.from('invoices').select('status,invoice_number').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+    const current = await supabaseAdmin.from('invoices').select('status,invoice_number,payload').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
     if (current.error) { res.status(500).json({ error: 'Failed to load invoice' }); return; }
     if (!current.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
     if (!canTransition(current.data.status as InvoiceStatus, input.status)) {
       res.status(409).json({ error: `Cannot transition invoice from ${current.data.status} to ${input.status}.`, code: 'INVALID_STATUS_TRANSITION' }); return;
     }
     updates.status = input.status;
+    updates.payload = withInvoicePayloadStatus(input.payload ?? current.data.payload, input.status);
     if (input.status === 'Sent' && current.data.status === 'Draft') updates.sent_at = new Date().toISOString();
     if (input.status === 'Viewed') updates.viewed_at = new Date().toISOString();
   }
@@ -295,13 +296,16 @@ router.post('/invoices/:id/status', async (req, res) => {
   if (!invoiceIdSchema.safeParse(req.params.id).success) { res.status(400).json({ error: 'Invalid invoice ID' }); return; }
   const parsed = z.object({ status: statusSchema }).safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Invalid invoice status' }); return; }
-  const current = await supabaseAdmin.from('invoices').select('id,invoice_number,status').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  const current = await supabaseAdmin.from('invoices').select('id,invoice_number,status,payload').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
   if (current.error) { res.status(500).json({ error: 'Failed to load invoice' }); return; }
   if (!current.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
   if (!canTransition(current.data.status as InvoiceStatus, parsed.data.status)) {
     res.status(409).json({ error: `Cannot transition invoice from ${current.data.status} to ${parsed.data.status}.`, code: 'INVALID_STATUS_TRANSITION' }); return;
   }
-  const updates: Record<string, unknown> = { status: parsed.data.status };
+  const updates: Record<string, unknown> = {
+    status: parsed.data.status,
+    payload: withInvoicePayloadStatus(current.data.payload, parsed.data.status),
+  };
   if (parsed.data.status === 'Sent' && current.data.status === 'Draft') updates.sent_at = new Date().toISOString();
   if (parsed.data.status === 'Viewed') updates.viewed_at = new Date().toISOString();
   const updated = await supabaseAdmin.from('invoices').update(updates).eq('id', req.params.id).eq('user_id', user.id).select('*').single();
@@ -349,7 +353,11 @@ router.post('/invoices/:id/send', async (req, res) => {
       invoice_id: found.data.id, user_id: user.id, event_type: 'sent', recipient_email: parsed.data.recipientEmail,
       subject: parsed.data.subject || email.subject, personal_message: parsed.data.personalMessage, provider_message_id: provider?.id ?? null,
     }).select('*').single();
-    const updated = await supabaseAdmin.from('invoices').update({ status: 'Sent', sent_at: new Date().toISOString() }).eq('id', found.data.id).eq('user_id', user.id).select('*').single();
+    const updated = await supabaseAdmin.from('invoices').update({
+      status: 'Sent',
+      sent_at: new Date().toISOString(),
+      payload: withInvoicePayloadStatus(found.data.payload, 'Sent'),
+    }).eq('id', found.data.id).eq('user_id', user.id).select('*').single();
     if (updated.error) throw updated.error;
     await recordActivity(found.data.id, user.id, 'sent', `Invoice ${found.data.invoice_number} sent to ${parsed.data.recipientEmail}`);
     res.json({ invoice: updated.data, email: event.data });
@@ -379,7 +387,11 @@ router.post('/invoices/:id/payments', async (req, res) => {
   if (payment.error) { res.status(500).json({ error: 'Failed to record payment' }); return; }
   const amountPaid = currentPaid + parsed.data.amount;
   const status = statusAfterPayment(Number(found.data.total), amountPaid);
-  const updated = await supabaseAdmin.from('invoices').update({ amount_paid: amountPaid, status }).eq('id', found.data.id).eq('user_id', user.id).select('*').single();
+  const updated = await supabaseAdmin.from('invoices').update({
+    amount_paid: amountPaid,
+    status,
+    payload: withInvoicePayloadStatus(found.data.payload, status),
+  }).eq('id', found.data.id).eq('user_id', user.id).select('*').single();
   if (updated.error) { await supabaseAdmin.from('invoice_payments').delete().eq('id', payment.data.id).eq('user_id', user.id); res.status(500).json({ error: 'Failed to update invoice balance' }); return; }
   await recordActivity(found.data.id, user.id, 'payment_recorded', `Payment of ${parsed.data.amount.toFixed(2)} recorded`, { paymentId: payment.data.id });
   await recordActivity(found.data.id, user.id, status === 'Paid' ? 'marked_paid' : 'marked_partially_paid', `Invoice marked ${status}`);
@@ -391,7 +403,7 @@ router.patch('/invoices/:id/payments/:paymentId', async (req, res) => {
   if (!invoiceIdSchema.safeParse(req.params.id).success || !invoiceIdSchema.safeParse(req.params.paymentId).success) { res.status(400).json({ error: 'Invalid payment ID' }); return; }
   const parsed = paymentPatchSchema.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Invalid payment data', details: parsed.error.flatten() }); return; }
-  const invoice = await supabaseAdmin.from('invoices').select('id,total,status').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  const invoice = await supabaseAdmin.from('invoices').select('id,total,status,payload').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
   if (invoice.error || !invoice.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
   const existing = await supabaseAdmin.from('invoice_payments').select('*').eq('id', req.params.paymentId).eq('invoice_id', invoice.data.id).eq('user_id', user.id).maybeSingle();
   if (existing.error || !existing.data) { res.status(404).json({ error: 'Payment not found' }); return; }
@@ -404,7 +416,11 @@ router.patch('/invoices/:id/payments/:paymentId', async (req, res) => {
   if (updatedPayment.error) { res.status(500).json({ error: 'Failed to update payment' }); return; }
   const amountPaid = otherPaid + nextAmount;
   const status = statusAfterPayment(Number(invoice.data.total), amountPaid);
-  const updatedInvoice = await supabaseAdmin.from('invoices').update({ amount_paid: amountPaid, status }).eq('id', invoice.data.id).eq('user_id', user.id).select('*').single();
+  const updatedInvoice = await supabaseAdmin.from('invoices').update({
+    amount_paid: amountPaid,
+    status,
+    payload: withInvoicePayloadStatus(invoice.data.payload, status),
+  }).eq('id', invoice.data.id).eq('user_id', user.id).select('*').single();
   if (updatedInvoice.error) { res.status(500).json({ error: 'Failed to update invoice balance' }); return; }
   await recordActivity(invoice.data.id, user.id, 'payment_recorded', `Payment updated to ${nextAmount.toFixed(2)}`, { paymentId: existing.data.id });
   await recordActivity(invoice.data.id, user.id, status === 'Paid' ? 'marked_paid' : 'marked_partially_paid', `Invoice marked ${status}`);
@@ -414,7 +430,7 @@ router.patch('/invoices/:id/payments/:paymentId', async (req, res) => {
 router.delete('/invoices/:id/payments/:paymentId', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
   if (!invoiceIdSchema.safeParse(req.params.id).success || !invoiceIdSchema.safeParse(req.params.paymentId).success) { res.status(400).json({ error: 'Invalid payment ID' }); return; }
-  const invoice = await supabaseAdmin.from('invoices').select('id,total,status').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
+  const invoice = await supabaseAdmin.from('invoices').select('id,total,status,payload').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
   if (invoice.error || !invoice.data) { res.status(404).json({ error: 'Invoice not found' }); return; }
   const payment = await supabaseAdmin.from('invoice_payments').select('id,amount').eq('id', req.params.paymentId).eq('invoice_id', invoice.data.id).eq('user_id', user.id).maybeSingle();
   if (payment.error || !payment.data) { res.status(404).json({ error: 'Payment not found' }); return; }
@@ -423,7 +439,11 @@ router.delete('/invoices/:id/payments/:paymentId', async (req, res) => {
   const all = await supabaseAdmin.from('invoice_payments').select('amount').eq('invoice_id', invoice.data.id).eq('user_id', user.id);
   const amountPaid = (all.data ?? []).reduce((sum, row) => sum + Number(row.amount || 0), 0);
   const status = statusAfterPayment(Number(invoice.data.total), amountPaid);
-  const updatedInvoice = await supabaseAdmin.from('invoices').update({ amount_paid: amountPaid, status }).eq('id', invoice.data.id).eq('user_id', user.id).select('*').single();
+  const updatedInvoice = await supabaseAdmin.from('invoices').update({
+    amount_paid: amountPaid,
+    status,
+    payload: withInvoicePayloadStatus(invoice.data.payload, status),
+  }).eq('id', invoice.data.id).eq('user_id', user.id).select('*').single();
   if (updatedInvoice.error) { res.status(500).json({ error: 'Failed to update invoice balance' }); return; }
   await recordActivity(invoice.data.id, user.id, 'payment_recorded', `Payment of ${Number(payment.data.amount).toFixed(2)} removed`, { paymentId: payment.data.id });
   res.json({ invoice: updatedInvoice.data });

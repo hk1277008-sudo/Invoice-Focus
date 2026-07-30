@@ -6,10 +6,10 @@ export type InvoiceStatus = typeof invoiceStatuses[number];
 
 const transitions: Record<InvoiceStatus, InvoiceStatus[]> = {
   Draft: ['Sent', 'Cancelled'],
-  Sent: ['Viewed', 'Overdue', 'Cancelled'],
+  Sent: ['Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'],
   Viewed: ['Partially Paid', 'Paid', 'Overdue', 'Cancelled'],
   'Partially Paid': ['Paid', 'Cancelled'],
-  Paid: ['Cancelled'],
+  Paid: ['Sent', 'Cancelled'],
   Overdue: ['Cancelled'],
   Cancelled: [],
 };
@@ -18,16 +18,36 @@ export function canTransition(from: InvoiceStatus, to: InvoiceStatus) {
   return from === to || transitions[from]?.includes(to);
 }
 
+export function withInvoicePayloadStatus(payload: unknown, status: InvoiceStatus) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
+  const value = payload as Record<string, unknown>;
+  const details = value.details && typeof value.details === 'object' && !Array.isArray(value.details)
+    ? value.details as Record<string, unknown>
+    : {};
+  return { ...value, details: { ...details, status } };
+}
+
 export async function refreshOverdueInvoices(userId: string) {
   const today = new Date().toISOString().slice(0, 10);
-  const result = await supabaseAdmin
+  const candidates = await supabaseAdmin
     .from('invoices')
-    .update({ status: 'Overdue' })
+    .select('id,payload')
     .eq('user_id', userId)
     .in('status', ['Sent', 'Viewed', 'Partially Paid'])
     .lt('due_date', today)
     .not('due_date', 'is', null);
-  if (result.error && !['42703', 'PGRST204'].includes(result.error.code ?? '')) throw result.error;
+  if (candidates.error) {
+    if (!['42703', 'PGRST204'].includes(candidates.error.code ?? '')) throw candidates.error;
+    return;
+  }
+  for (const invoice of candidates.data ?? []) {
+    const result = await supabaseAdmin
+      .from('invoices')
+      .update({ status: 'Overdue', payload: withInvoicePayloadStatus(invoice.payload, 'Overdue') })
+      .eq('id', invoice.id)
+      .eq('user_id', userId);
+    if (result.error && !['42703', 'PGRST204'].includes(result.error.code ?? '')) throw result.error;
+  }
 }
 
 export async function recordActivity(

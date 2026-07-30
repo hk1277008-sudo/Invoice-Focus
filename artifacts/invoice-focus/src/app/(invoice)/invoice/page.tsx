@@ -27,7 +27,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useToast } from '@/hooks/use-toast'
-import { createInvoice, getInvoice, invoiceInput, updateInvoice } from '@/lib/invoices'
+import { createInvoice, getInvoice, invoiceInput, transitionInvoice, updateInvoice, type InvoiceStatus } from '@/lib/invoices'
 import { listClients, type ClientRecord } from '@/lib/clients'
 import { useSubscription } from '@/providers/SubscriptionProvider'
 import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
@@ -64,6 +64,7 @@ export default function InvoicePage() {
   const [isImporting, setIsImporting] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
   const [recordId, setRecordId] = useState<string | null>(null)
+  const [savedStatus, setSavedStatus] = useState<InvoiceStatus | null>(null)
   const [isLoadingRecord, setIsLoadingRecord] = useState(true)
   const [remoteStatus, setRemoteStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [clients, setClients] = useState<ClientRecord[]>([])
@@ -95,10 +96,20 @@ export default function InvoicePage() {
     try {
       const input = invoiceInput(invoice, calculations.grandTotal)
       if (recordId) {
-        await updateInvoice(recordId, input)
+        const statusChanged = savedStatus !== null && input.status !== savedStatus
+        if (statusChanged) {
+          await transitionInvoice(recordId, input.status)
+        }
+        const { status: _status, ...invoiceFields } = input
+        const result = await updateInvoice(recordId, statusChanged ? invoiceFields : input)
+        setSavedStatus(result.invoice.status)
+        if (statusChanged) {
+          toast({ title: 'Invoice status updated', description: `Invoice marked ${input.status}.` })
+        }
       } else {
         const result = await createInvoice(input)
         setRecordId(result.invoice.id)
+        setSavedStatus(result.invoice.status)
         navigate(`/invoice?id=${result.invoice.id}`, { replace: true })
         await refreshSubscription()
       }
@@ -115,7 +126,7 @@ export default function InvoicePage() {
         variant: 'destructive',
       })
     }
-  }, [calculations.grandTotal, hasAnyData, invoice, isAuthenticated, navigate, recordId, refreshSubscription, toast])
+  }, [calculations.grandTotal, hasAnyData, invoice, isAuthenticated, navigate, recordId, refreshSubscription, savedStatus, toast])
 
   useEffect(() => {
     const params = new URLSearchParams(search)
@@ -126,7 +137,13 @@ export default function InvoicePage() {
 
     getInvoice(id)
       .then(({ invoice: record }) => {
-        if (record.payload) loadFromData(record.payload)
+        setSavedStatus(record.status)
+        if (record.payload) {
+          loadFromData({
+            ...record.payload,
+            details: { ...record.payload.details, status: record.status },
+          })
+        }
       })
       .catch((error) => {
         toast({

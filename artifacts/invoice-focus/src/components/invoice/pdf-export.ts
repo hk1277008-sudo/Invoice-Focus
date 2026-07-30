@@ -62,12 +62,12 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   .columns { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 26px; border-top: 1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e5eaf0'}; border-bottom: 1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e5eaf0'}; padding: 14px 0; }
   .column { flex: 1; } .column-right { text-align: right; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .status { display: inline-block; padding: 4px 9px; border-radius: 999px; background: ${dark || band ? 'rgba(255,255,255,.15)' : `${presentation.primaryColor}18`}; color: ${dark || band ? '#fff' : presentation.primaryColor}; font-size: 9px; font-weight: 700; margin-top: 6px; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 22px; page-break-inside: auto; }
+  table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 22px; page-break-inside: auto; }
   thead { display: table-header-group; } tr { page-break-inside: avoid; page-break-after: auto; }
-  col.description { width: 40%; } col.qty { width: 10%; } col.price { width: 15%; } col.tax { width: 11%; } col.discount { width: 11%; } col.amount { width: 13%; }
-  col.description-simple { width: 48%; } col.qty-simple { width: 12%; } col.price-simple { width: 20%; } col.amount-simple { width: 20%; }
-  th { text-align: left; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: ${dark ? 'rgba(255,255,255,.55)' : '#7c8798'}; border-bottom: ${presentation.template === 'corporate' || presentation.template === 'professional' ? `2px solid ${presentation.primaryColor}` : `1px solid ${dark ? 'rgba(255,255,255,.15)' : '#e5e7eb'}`}; padding: 10px 9px; white-space: nowrap; }
-  td { padding: 12px 9px; border-bottom: 1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e5e7eb'}; vertical-align: top; overflow-wrap: anywhere; }
+  col.description { width: 36%; } col.qty { width: 9%; } col.price { width: 15%; } col.tax { width: 13%; } col.discount { width: 14%; } col.amount { width: 13%; }
+  col.description-simple { width: 46%; } col.qty-simple { width: 12%; } col.price-simple { width: 20%; } col.amount-simple { width: 22%; }
+  th { text-align: left; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: ${dark ? 'rgba(255,255,255,.55)' : '#7c8798'}; border-bottom: ${presentation.template === 'corporate' || presentation.template === 'professional' ? `2px solid ${presentation.primaryColor}` : `1px solid ${dark ? 'rgba(255,255,255,.15)' : '#e5e7eb'}`}; padding: 10px 7px; overflow-wrap: anywhere; }
+  td { padding: 12px 7px; border-bottom: 1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e5e7eb'}; vertical-align: top; overflow-wrap: anywhere; word-break: break-word; }
   th.num, td.num { text-align: right; } .item-name { font-weight: 600; } .item-description { font-size: 10px; color: ${dark ? 'rgba(255,255,255,.55)' : '#6b7280'}; margin-top: 2px; }
   .totals { margin-left: auto; width: 100%; max-width: 240px; } .totals-row { display: flex; justify-content: space-between; padding: 4px 0; color: ${dark ? 'rgba(255,255,255,.6)' : '#6b7280'}; }
   .totals-row.total { border-top: 1px solid ${dark ? 'rgba(255,255,255,.15)' : '#e5e7eb'}; margin-top: 6px; padding-top: 8px; font-weight: 700; color: ${dark ? '#fff' : '#172033'}; font-size: 14px; }

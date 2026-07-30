@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import { deleteInvoice, deletePayment, duplicateInvoice, getInvoiceDetails, recordPayment, scheduleReminder, sendInvoice, sendReminder, transitionInvoice, updatePayment, type ActivityRecord, type EmailEventRecord, type InvoiceRecord, type PaymentRecord, type ReminderRecord } from '@/lib/invoices'
+import { deleteInvoice, deletePayment, duplicateInvoice, getInvoiceDetails, recordPayment, scheduleReminder, sendInvoice, sendReminder, transitionInvoice, updatePayment, type ActivityRecord, type EmailEventRecord, type InvoiceRecord, type InvoiceStatus, type PaymentRecord, type ReminderRecord } from '@/lib/invoices'
 import { format } from 'date-fns'
 import { createShareToken, listShareTokens, regenerateShareToken, updateShareToken, type ShareTokenRecord } from '@/lib/share'
 import { validateInvoice } from './useInvoiceValidation'
@@ -23,8 +23,8 @@ const statusStyle: Record<typeof statuses[number], string> = {
   Overdue: 'bg-rose-100 text-rose-700', Cancelled: 'bg-muted text-muted-foreground',
 }
 const actions: Record<typeof statuses[number], typeof statuses[number][]> = {
-  Draft: ['Sent', 'Cancelled'], Sent: ['Viewed', 'Overdue', 'Cancelled'], Viewed: ['Partially Paid', 'Paid', 'Overdue', 'Cancelled'],
-  'Partially Paid': ['Paid', 'Cancelled'], Paid: ['Cancelled'], Overdue: ['Cancelled'], Cancelled: [],
+  Draft: ['Sent', 'Cancelled'], Sent: ['Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'], Viewed: ['Partially Paid', 'Paid', 'Overdue', 'Cancelled'],
+  'Partially Paid': ['Paid', 'Cancelled'], Paid: ['Sent', 'Cancelled'], Overdue: ['Cancelled'], Cancelled: [],
 }
 
 function money(value: number, currency: string) {
@@ -69,6 +69,32 @@ export default function InvoiceDetailsPage({ id }: { id: string }) {
   const run = async (operation: () => Promise<unknown>, success: string) => {
     setBusy(true)
     try { await operation(); toast({ title: success }); setDialog(null); await load() } catch (error) { toast({ title: 'Action failed', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' }) } finally { setBusy(false) }
+  }
+  const handleTransition = async (status: InvoiceStatus) => {
+    if (!invoice) return
+    const previous = data
+    setData((current) => current ? {
+      ...current,
+      invoice: {
+        ...current.invoice,
+        status,
+        payload: current.invoice.payload
+          ? { ...current.invoice.payload, details: { ...current.invoice.payload.details, status } }
+          : current.invoice.payload,
+      },
+    } : current)
+    setBusy(true)
+    try {
+      const result = await transitionInvoice(invoice.id, status)
+      setData((current) => current ? { ...current, invoice: result.invoice } : current)
+      toast({ title: 'Invoice status updated', description: `Invoice marked ${status}.` })
+      await load()
+    } catch (error) {
+      setData(previous)
+      toast({ title: 'Status update failed', description: error instanceof Error ? error.message : 'Could not update invoice status.', variant: 'destructive' })
+    } finally {
+      setBusy(false)
+    }
   }
   const handleSend = () => run(() => sendInvoice(id, { recipientEmail, subject, personalMessage }), 'Invoice sent')
   const handlePayment = () => {
@@ -142,7 +168,7 @@ export default function InvoiceDetailsPage({ id }: { id: string }) {
         <div className="space-y-6">
           <Card><CardHeader><CardTitle>Quick actions</CardTitle></CardHeader><CardContent className="grid gap-2"><Button variant="outline" className="justify-start" onClick={openSend}><Mail className="mr-2 h-4 w-4" />Send invoice</Button><Button variant="outline" className="justify-start" onClick={openReminder}><Bell className="mr-2 h-4 w-4" />Send reminder</Button><Button variant="outline" className="justify-start" onClick={() => setDialog('reminder')}><Clock3 className="mr-2 h-4 w-4" />Schedule reminder</Button><Button variant="outline" className="justify-start" asChild><Link href={`/invoice?id=${invoice.id}`}><Download className="mr-2 h-4 w-4" />Download / print</Link></Button><Button variant="outline" className="justify-start" onClick={() => run(() => duplicateInvoice(invoice.id), 'Invoice duplicated')}><Copy className="mr-2 h-4 w-4" />Duplicate</Button></CardContent></Card>
           <Card><CardHeader><CardTitle className="flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" />Client portal</CardTitle></CardHeader><CardContent className="space-y-3"><p className="text-sm text-muted-foreground">Create a secure, read-only link with your branded invoice.</p>{shareUrl && <div className="flex gap-2"><Input readOnly value={shareUrl} aria-label="Secure invoice share link" /><Button variant="outline" size="icon" aria-label="Copy secure invoice link" onClick={() => void navigator.clipboard?.writeText(shareUrl)}><Copy className="h-4 w-4" /></Button></div>}<div className="flex flex-wrap gap-2"><Button size="sm" onClick={() => void handleCreateShare()} disabled={shareBusy}><Link2 className="mr-2 h-4 w-4" />Create link</Button><Button size="sm" variant="outline" onClick={() => void handleCreateShare(true)} disabled={shareBusy}>Regenerate</Button></div>{shareTokens.slice(0, 3).map((token) => <div key={token.id} className="flex items-center justify-between gap-2 rounded-lg border p-2 text-xs"><span className={token.enabled && !token.revokedAt ? 'text-emerald-700' : 'text-muted-foreground'}>{token.enabled && !token.revokedAt ? 'Active' : 'Disabled'} · {token.accessCount} views</span>{token.enabled && !token.revokedAt && <Button variant="ghost" size="sm" onClick={() => void handleDisableShare(token)} disabled={shareBusy}>Disable</Button>}</div>)}</CardContent></Card>
-          <Card><CardHeader><CardTitle>Lifecycle</CardTitle></CardHeader><CardContent className="space-y-2">{nextActions.length ? nextActions.map((status) => <Button key={status} variant={status === 'Cancelled' ? 'ghost' : 'outline'} className={`w-full justify-start ${status === 'Cancelled' ? 'text-destructive' : ''}`} onClick={() => run(() => transitionInvoice(invoice.id, status), `Invoice marked ${status}`)}>{status === 'Cancelled' ? <Ban className="mr-2 h-4 w-4" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}Mark {status}</Button>) : <p className="text-sm text-muted-foreground">No further lifecycle actions are available.</p>}</CardContent></Card>
+           <Card><CardHeader><CardTitle>Lifecycle</CardTitle></CardHeader><CardContent className="space-y-2">{nextActions.length ? nextActions.map((status) => <Button key={status} variant={status === 'Cancelled' ? 'ghost' : 'outline'} className={`w-full justify-start ${status === 'Cancelled' ? 'text-destructive' : ''}`} onClick={() => void handleTransition(status)} disabled={busy}>{status === 'Cancelled' ? <Ban className="mr-2 h-4 w-4" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}Mark {status}</Button>) : <p className="text-sm text-muted-foreground">No further lifecycle actions are available.</p>}</CardContent></Card>
           {invoice.recurring_invoice_id && <Card><CardHeader><CardTitle>Recurring information</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">Generated from recurring schedule</p><Link className="mt-2 inline-block text-sm font-medium text-primary hover:underline" href={`/dashboard/recurring/${invoice.recurring_invoice_id}`}>View schedule</Link></CardContent></Card>}
         </div>
       </div>

@@ -130,8 +130,8 @@ html, body, #root {
   /* Brand */
   --primary: 224 68% 46%;            /* cobalt #1C51D8 */
   --primary-foreground: 0 0% 100%;
-  --secondary: 160 55% 38%;          /* forest emerald #2A9470 */
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 224 68% 95%;          /* cobalt-tinted secondary surface */
+  --secondary-foreground: 224 68% 36%;
 
   /* States */
   --muted: 220 16% 93%;
@@ -212,8 +212,8 @@ html, body, #root {
 
   --primary: 224 78% 62%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 160 50% 46%;
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 224 40% 20%;
+  --secondary-foreground: 224 78% 82%;
 
   --muted: 222 24% 16%;
   --muted-foreground: 215 14% 56%;

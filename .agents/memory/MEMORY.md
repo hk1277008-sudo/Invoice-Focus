@@ -10,3 +10,4 @@
 - [Canvas iframe variants](canvas-iframe-variants.md) — Canvas iframe updates reject arbitrary custom props; use query parameters for per-variant preview state.
 - [Supabase migration path](supabase-migration-path.md) — InvoiceFocus schema lives in Supabase, not the separate Replit PostgreSQL database tool.
 - [InvoiceFocus UI polish system](ui-polish-system.md) — Refine shared primitives and route rhythm while preserving the existing brand, workflows, auth, and invoice output.
+- [Invoice lifecycle status sync](invoice-lifecycle-status-sync.md) — Keep the invoice row status and embedded payload.details.status synchronized across every lifecycle and payment update.
