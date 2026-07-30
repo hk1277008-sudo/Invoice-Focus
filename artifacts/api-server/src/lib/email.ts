@@ -1,8 +1,8 @@
 import { resend, defaultFromEmail, resendApiKey } from './resend';
 
-// Keep this URL absolute and stable for email clients. Gmail and Outlook are
-// more reliable with the publicly hosted raster asset than an inline SVG.
-const brandLogoUrl = 'https://invoicefocus.com/invoicefocus-icon.jpg';
+// Keep this URL absolute and stable for email clients. The same flat cobalt
+// mark is used by the web app, favicon, PWA manifest, and transactional mail.
+const brandLogoUrl = 'https://invoicefocus.com/invoicefocus-icon.png';
 const supportEmail = 'hello@invoicefocus.com';
 
 function escapeHtml(value: unknown) {
@@ -33,9 +33,8 @@ function emailDocument(preheader: string, content: string) {
      .topbar { padding: 28px 24px 22px; }
      .brand-header { width: 100%; }
      .logo { width: 40px; height: 40px; border-radius: 10px; }
-     .wordmark { color: #172033; font-size: 16px; font-weight: 750; letter-spacing: -0.025em; line-height: 18px; }
-     .wordmark-line { display: block; height: 18px; white-space: nowrap; }
-     .wordmark-focus { color: #315de8; }
+      .wordmark { color: #172033; font-size: 17px; font-weight: 750; letter-spacing: -0.035em; line-height: 20px; white-space: nowrap; }
+      .wordmark-focus { color: #2454D6; }
     .card { background: #ffffff; border: 1px solid #e3e8f1; border-radius: 16px; box-shadow: 0 8px 28px rgba(23, 32, 51, 0.06); }
     .hero { padding: 36px 40px 12px; }
      .hero-mark { width: 64px; height: 64px; margin-bottom: 24px; border-radius: 16px; }
@@ -79,18 +78,16 @@ function emailDocument(preheader: string, content: string) {
              <tr>
                <td valign="middle" width="40"><img class="logo" src="${brandLogoUrl}" width="40" height="40" alt="InvoiceFocus logo" style="display:block;width:40px;height:40px;border:0;border-radius:10px"></td>
                <td valign="middle" style="padding-left:12px">
-                 <table role="presentation">
-                   <tr><td class="wordmark wordmark-line" style="white-space:nowrap">Invoice</td></tr>
-                   <tr><td class="wordmark wordmark-line wordmark-focus" style="white-space:nowrap">Focus</td></tr>
-                 </table>
+                  <div class="wordmark">Invoice<span class="wordmark-focus">Focus</span></div>
                </td>
              </tr>
            </table>
         </td></tr>
         <tr><td class="card">${content}</td></tr>
         <tr><td class="footer">
-          <p>Questions? <a href="mailto:${supportEmail}">${supportEmail}</a></p>
-          <p>© 2026 InvoiceFocus. Professional invoicing, made simple.</p>
+           <p><strong>InvoiceFocus</strong> · <a href="https://invoicefocus.com">invoicefocus.com</a></p>
+           <p>Questions? <a href="mailto:${supportEmail}">${supportEmail}</a></p>
+           <p>© 2026 InvoiceFocus. Professional invoicing, made simple.</p>
         </td></tr>
       </table>
     </td></tr>
@@ -100,7 +97,7 @@ function emailDocument(preheader: string, content: string) {
 }
 
 function hero(eyebrow: string, title: string) {
-  return `<div class="hero"><img class="hero-mark" src="${brandLogoUrl}" width="64" height="64" alt="InvoiceFocus logo" style="display:block;width:64px;height:64px;border:0;border-radius:16px"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h1>${escapeHtml(title)}</h1></div>`;
+  return `<div class="hero"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h1>${escapeHtml(title)}</h1></div>`;
 }
 
 function button(url: string, label: string, secondary = false) {
@@ -213,5 +210,45 @@ export function buildWelcomeEmail(
   return {
     subject: 'Welcome to InvoiceFocus',
     html: emailDocument('Your account is ready. Start creating invoices in minutes.', content),
+  };
+}
+
+export function buildSubscriptionEmail(input: {
+  title: string;
+  message: string;
+  dashboardUrl: string;
+  actionLabel?: string;
+}) {
+  const content = `${hero('Subscription update', escapeHtml(input.title))}<div class="body"><p>${escapeHtml(input.message)}</p><div class="cta-wrap">${button(input.dashboardUrl, input.actionLabel || 'Open Dashboard')}</div><p class="security-note">You’re receiving this because your InvoiceFocus subscription settings changed.</p></div>`;
+  return {
+    subject: `${input.title} – InvoiceFocus`,
+    html: emailDocument(input.message, content),
+  };
+}
+
+export function buildBillingEmail(input: {
+  title: string;
+  message: string;
+  billingUrl: string;
+  actionLabel?: string;
+}) {
+  const content = `${hero('Billing update', escapeHtml(input.title))}<div class="body"><p>${escapeHtml(input.message)}</p><div class="cta-wrap">${button(input.billingUrl, input.actionLabel || 'Review Billing')}</div><p class="security-note">If you don’t recognize this billing update, contact ${supportEmail}.</p></div>`;
+  return {
+    subject: `${input.title} – InvoiceFocus`,
+    html: emailDocument(input.message, content),
+  };
+}
+
+export function buildTeamInviteEmail(input: {
+  inviteUrl: string;
+  inviterName?: string;
+  workspaceName?: string;
+}) {
+  const inviter = input.inviterName ? escapeHtml(input.inviterName) : 'A teammate';
+  const workspace = input.workspaceName ? escapeHtml(input.workspaceName) : 'an InvoiceFocus workspace';
+  const content = `${hero('Team invitation', 'You’re invited to InvoiceFocus')}<div class="body"><p class="greeting">Hello,</p><p>${inviter} invited you to join ${workspace} on InvoiceFocus.</p><div class="cta-wrap">${button(input.inviteUrl, 'Accept Invitation')}</div>${fallbackLink(input.inviteUrl)}<p class="security-note">If you weren’t expecting this invitation, you can safely ignore this email.</p></div>`;
+  return {
+    subject: `${inviter} invited you to InvoiceFocus`,
+    html: emailDocument('You have been invited to collaborate in InvoiceFocus.', content),
   };
 }

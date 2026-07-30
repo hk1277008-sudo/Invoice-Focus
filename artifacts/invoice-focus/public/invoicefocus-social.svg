@@ -1,0 +1,17 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>InvoiceFocus — Professional invoicing made simple</title>
+  <rect width="1200" height="630" fill="#F8F7F3"/>
+  <circle cx="1060" cy="88" r="220" fill="#E8EDFF"/>
+  <circle cx="1040" cy="590" r="150" fill="#EEF2FF"/>
+  <g transform="translate(112 140)">
+    <rect width="132" height="132" rx="29" fill="#2454D6"/>
+    <path d="M34 18H78L98 38V104C98 109.523 93.523 114 88 114H34C28.477 114 24 109.523 24 104V28C24 22.477 28.477 18 34 18Z" fill="#F8FAFF"/>
+    <path d="M78 18V34C78 36.209 79.791 38 82 38H98L78 18Z" fill="#B9C9FF"/>
+    <rect x="36" y="50" width="46" height="6" rx="3" fill="#2454D6"/>
+    <rect x="36" y="64" width="32" height="6" rx="3" fill="#2454D6"/>
+    <rect x="36" y="78" width="46" height="6" rx="3" fill="#2454D6"/>
+  </g>
+  <text x="112" y="360" fill="#172033" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="750" letter-spacing="-3">Invoice<tspan fill="#2454D6">Focus</tspan></text>
+  <text x="116" y="420" fill="#56657A" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="500">Professional invoicing made simple.</text>
+  <rect x="116" y="484" width="168" height="6" rx="3" fill="#2454D6"/>
+</svg>

@@ -13,23 +13,23 @@ const sizes = {
 }
 
 /**
- * Official InvoiceFocus icon + premium wordmark.
- * The uploaded mark is rendered as-is; the wordmark uses the existing
- * display type and primary color system for a balanced SaaS identity.
+ * Official InvoiceFocus mark and wordmark. Keep this component as the
+ * single product-brand entry point across marketing, auth, dashboard, and
+ * invoice shells.
  */
 export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
   const { wrap, text } = sizes[size]
 
   return (
-    <span className={cn('group/logo inline-flex items-center gap-2.5 transition-transform duration-300 hover:-translate-y-0.5', className)}>
+    <span className={cn('inline-flex items-center gap-2.5', className)}>
       <img
         src="/invoicefocus-mark.svg"
         alt="InvoiceFocus icon"
-        className={cn('block shrink-0 object-contain transition-transform duration-300 group-hover/logo:scale-105', wrap)}
+        className={cn('block shrink-0 object-contain', wrap)}
       />
       {!markOnly && (
         <span className={cn('font-display font-bold tracking-[-0.025em] leading-none', text)}>
-          <span className="text-foreground transition-colors duration-300 group-hover/logo:text-primary">Invoice</span>
+           <span className="text-foreground">Invoice</span>
           <span className="text-primary">Focus</span>
         </span>
       )}
