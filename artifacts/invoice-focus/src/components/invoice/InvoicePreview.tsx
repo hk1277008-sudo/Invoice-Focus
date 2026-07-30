@@ -48,7 +48,6 @@ export const InvoicePreview = memo(function InvoicePreview({
         fontFamily: presentationFontFamily(presentation.font),
       } as React.CSSProperties}
     >
-      {presentation.template === 'modern' && <div className="absolute inset-y-0 left-0 w-1.5 print:w-1" style={{ backgroundColor: presentation.primaryColor }} aria-hidden="true" />}
       {presentation.template === 'corporate' && <div className="absolute inset-x-0 top-0 h-1.5" style={{ backgroundColor: presentation.primaryColor }} aria-hidden="true" />}
       {presentation.template === 'creative' && <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full opacity-20" style={{ backgroundColor: presentation.accentColor }} aria-hidden="true" />}
       <div className="min-w-0 p-4 sm:p-10">
@@ -151,14 +150,14 @@ export const InvoicePreview = memo(function InvoicePreview({
 
         {/* Items Table */}
         <div className={`mt-10 max-w-full overflow-x-auto ${presentation.template === 'corporate' || presentation.template === 'professional' ? 'border-t-2' : ''}`} style={{ borderColor: presentation.primaryColor }}>
-          <table className="w-full min-w-[520px] table-fixed text-left" aria-label="Invoice items">
+          <table className="w-full min-w-0 table-fixed text-left text-[11px] sm:text-sm" aria-label="Invoice items">
             <colgroup>
-              <col className="w-[32%]" />
+              <col className="w-[36%]" />
               <col className="w-[10%]" />
-              <col className="w-[15%]" />
-              <col className="w-[13%]" />
-              <col className="w-[13%]" />
-              <col className="w-[17%]" />
+              <col className="w-[16%]" />
+              <col className="w-[11%]" />
+              <col className="w-[11%]" />
+              <col className="w-[16%]" />
             </colgroup>
             <thead>
               <tr className={`border-b ${dark ? 'border-white/10' : 'border-border'}`}>

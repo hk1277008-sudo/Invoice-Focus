@@ -20,7 +20,8 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(search)
-    const tokenValue = params.get('token')
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    const tokenValue = params.get('token') || params.get('token_hash') || hashParams.get('token_hash')
     if (tokenValue) {
       setToken(tokenValue)
     }
@@ -107,6 +108,14 @@ export default function ResetPasswordPage() {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            tabIndex={-1}
+            aria-hidden="true"
+            className="sr-only"
+          />
           <div className="space-y-1.5">
             <Label htmlFor="password">New password</Label>
             <Input

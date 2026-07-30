@@ -351,8 +351,8 @@ export function InvoiceEditor({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg border border-border">
-            <div className="grid grid-cols-12 gap-2 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <div className="col-span-12 sm:col-span-3">Item</div>
+            <div className="hidden grid-cols-12 gap-2 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
+              <div className="col-span-3">Item</div>
               <div className="col-span-3 sm:col-span-1">Qty</div>
               <div className="col-span-4 sm:col-span-2">Price</div>
               <div className="col-span-2 sm:col-span-1">Tax %</div>
@@ -466,8 +466,8 @@ function InvoiceItemRow({
   const priceError = errors[`item-${index}-price`]
 
   return (
-    <div className="grid min-w-0 grid-cols-12 gap-2 overflow-hidden p-3">
-      <div className="col-span-12 min-w-0 space-y-1 sm:col-span-3">
+    <div className="grid min-w-0 grid-cols-2 gap-3 overflow-hidden p-3 sm:grid-cols-12 sm:gap-2">
+      <div className="col-span-2 min-w-0 space-y-1 sm:col-span-3">
         <Input
           value={item.name}
           onChange={(e) => onUpdate(item.id, 'name', e.target.value)}
@@ -488,7 +488,7 @@ function InvoiceItemRow({
           </p>
         )}
       </div>
-      <div className="col-span-3 sm:col-span-1">
+      <div className="col-span-1 sm:col-span-1">
         <Input
           type="number"
           min="0"
@@ -501,7 +501,7 @@ function InvoiceItemRow({
         />
         {qtyError && <p className="text-xs text-destructive">{qtyError}</p>}
       </div>
-      <div className="col-span-4 sm:col-span-2">
+      <div className="col-span-1 sm:col-span-2">
         <Input
           type="number"
           min="0"
@@ -514,7 +514,7 @@ function InvoiceItemRow({
         />
         {priceError && <p className="text-xs text-destructive">{priceError}</p>}
       </div>
-      <div className="col-span-2 sm:col-span-1">
+      <div className="col-span-1 sm:col-span-1">
         <Input
           type="number"
           min="0"
@@ -525,7 +525,7 @@ function InvoiceItemRow({
           className="h-8"
         />
       </div>
-      <div className="col-span-2 sm:col-span-1">
+      <div className="col-span-1 sm:col-span-1">
         <Input
           type="number"
           min="0"
@@ -537,9 +537,10 @@ function InvoiceItemRow({
         />
       </div>
       <div className="col-span-1 flex min-w-0 items-center justify-end overflow-hidden text-right text-xs font-medium tabular-nums sm:col-span-2">
+        <span className="mr-1 text-[10px] font-normal text-muted-foreground sm:hidden">Total</span>
         {lineTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
-      <div className="col-span-1 sm:col-span-2 flex items-center justify-end">
+      <div className="col-span-1 flex items-center justify-end sm:col-span-2">
         <Button
           type="button"
           variant="ghost"

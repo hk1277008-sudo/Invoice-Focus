@@ -8,7 +8,7 @@ import { InvoicePreview } from '@/components/invoice/InvoicePreview'
 import { useInvoice } from '@/components/invoice/useInvoice'
 import { useInvoiceDraft } from '@/components/invoice/useInvoiceDraft'
 import { useInvoiceValidation } from '@/components/invoice/useInvoiceValidation'
-import { downloadPDF } from '@/components/invoice/pdf-export'
+import { printInvoice } from '@/components/invoice/pdf-export'
 import {
   exportInvoiceToJSON,
   downloadJSON,
@@ -31,6 +31,7 @@ import { createInvoice, getInvoice, invoiceInput, updateInvoice } from '@/lib/in
 import { listClients, type ClientRecord } from '@/lib/clients'
 import { useSubscription } from '@/providers/SubscriptionProvider'
 import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function InvoicePage() {
   const search = useSearch()
@@ -58,6 +59,7 @@ export default function InvoicePage() {
   const { fieldErrors: validationErrors, isValid } = useInvoiceValidation(invoice)
   const { toast } = useToast()
   const { refreshSubscription } = useSubscription()
+  const { isAuthenticated } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
@@ -88,7 +90,7 @@ export default function InvoicePage() {
   }, [updateBusiness, updateClient])
 
   const persistInvoice = useCallback(async () => {
-    if (!hasAnyData) return
+    if (!hasAnyData || !isAuthenticated) return
     setRemoteStatus('saving')
     try {
       const input = invoiceInput(invoice, calculations.grandTotal)
@@ -113,7 +115,7 @@ export default function InvoicePage() {
         variant: 'destructive',
       })
     }
-  }, [calculations.grandTotal, hasAnyData, invoice, navigate, recordId, refreshSubscription, toast])
+  }, [calculations.grandTotal, hasAnyData, invoice, isAuthenticated, navigate, recordId, refreshSubscription, toast])
 
   useEffect(() => {
     const params = new URLSearchParams(search)
@@ -152,7 +154,7 @@ export default function InvoicePage() {
       toast({ title: 'Nothing to print', description: 'Add some invoice details before printing.' })
       return
     }
-    window.print()
+    printInvoice(invoice)
   }
 
   const handleDownloadPDF = () => {
@@ -162,12 +164,10 @@ export default function InvoicePage() {
       toast({ title: 'Nothing to export', description: 'Add some invoice details before exporting.' })
       return
     }
-    downloadPDF(invoice)
+    printInvoice(invoice)
   }
 
   const handleExportJSON = () => {
-    setShowValidation(true)
-    if (!isValid) return
     const { blob, fileName } = exportInvoiceToJSON(invoice)
     downloadJSON(blob, fileName)
     toast({ title: 'Invoice exported', description: `${fileName} has been downloaded.` })
@@ -206,6 +206,12 @@ export default function InvoicePage() {
   }
 
   const handleSave = () => {
+    setShowValidation(true)
+    if (!isValid) return
+    if (!isAuthenticated) {
+      toast({ title: 'Sign in to save invoices', description: 'Your local draft is safe in this browser. Sign in when you want to save it to your account.' })
+      return
+    }
     void persistInvoice()
   }
 

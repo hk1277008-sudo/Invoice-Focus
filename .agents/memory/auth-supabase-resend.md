@@ -3,14 +3,13 @@ name: Supabase Auth + Resend email caveats
 description: Non-obvious constraints when using Supabase Auth with a custom Resend email backend in InvoiceFocus.
 ---
 
-**Rule:** When sending Supabase Auth confirmation and recovery emails through a custom backend (Resend), you need to generate the email link yourself with the Supabase admin `generateLink` API.
+**Rule:** When sending Supabase Auth confirmation and recovery emails through a custom backend (Resend), generate the email link yourself with Supabase Admin `generateLink`, send auth emails with Resend tracking disabled, and use a reachable deployed origin without a URL fragment.
 
-**Why:** Supabase Auth’s default email flow uses Supabase’s own mail provider. To use a custom transactional email service, the backend must generate the confirmation/recovery link and send the email.
+**Why:** Supabase Auth’s default email flow is replaced by the custom transactional email service. Resend click tracking can rewrite links through a tracking host that is not the deployed application, and a `CLIENT_BASE_URL` fragment such as `/#templates` is not a valid callback base. If deployment metadata reports no active deployment, a custom production domain can fail independently of the application routes.
 
 **How to apply:**
 
-- For `type: 'signup'`, `admin.generateLink` requires the user’s plaintext `password` as a parameter. This means a “resend verification email” feature must ask the user to re-enter their password; it cannot be done with just the email address.
+- For `type: 'signup'`, `admin.generateLink` requires the user’s plaintext `password`; resend verification therefore asks the user to re-enter it.
 - For `type: 'recovery'`, only the email address is required.
-- The frontend must parse the `token` from the resulting email URL and call `supabase.auth.verifyOtp({ token_hash, type: 'email' | 'recovery' })` to complete the flow.
-
-**Resend test mode:** Resend rejects emails sent to unverified domains (e.g., `example.com`, `gmail.com`) in test mode. To test or send emails in production, verify the sending domain in the Resend dashboard and use an address on that domain as `FROM_EMAIL`.
+- The frontend must parse query or hash token values and call `supabase.auth.verifyOtp({ token_hash, type: 'email' | 'recovery' })`.
+- Resend test mode rejects unverified recipient domains; verify the sending domain and use an allowed `FROM_EMAIL` before production testing.

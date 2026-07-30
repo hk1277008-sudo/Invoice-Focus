@@ -18,7 +18,9 @@ export function InvoicePresentationControls({
   const [upgradeOpen, setUpgradeOpen] = useState(false)
   const [upgradePlan, setUpgradePlan] = useState<'Pro' | 'Premium'>('Pro')
   const plan = subscription.plan
+  const developmentUnlock = import.meta.env.DEV || import.meta.env.VITE_INVOICEFOCUS_UNLOCK_TEMPLATES === 'true'
   const canUse = (template: InvoiceTemplate) => {
+    if (developmentUnlock) return true
     if (template === 'modern' || template === 'minimal') return true
     if (template === 'corporate' || template === 'executive' || template === 'elegant') return plan !== 'free'
     return plan === 'premium'
@@ -31,7 +33,7 @@ export function InvoicePresentationControls({
     }
     onChange('template', template)
   }
-  const customBrandingLocked = plan !== 'premium'
+  const customBrandingLocked = !developmentUnlock && plan !== 'premium'
   const updateBrand = (field: keyof InvoicePresentation, next: string) => {
     if (customBrandingLocked && next !== (presentation[field] as string)) {
       setUpgradePlan('Premium')
@@ -72,6 +74,7 @@ export function InvoicePresentationControls({
           <SelectField label="Paper size" value={presentation.paperSize} options={['A4', 'Letter']} onChange={(value) => onChange('paperSize', value)} />
         </div>
         {customBrandingLocked && <p className="text-xs text-muted-foreground">Color, font, header, and footer customization is available on Premium.</p>}
+        {developmentUnlock && <p className="text-xs text-amber-700">Development preview: all templates and branding controls are temporarily unlocked for testing.</p>}
       </CardContent>
     </Card>
   )

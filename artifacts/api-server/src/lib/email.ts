@@ -1,4 +1,4 @@
-import { resend, defaultFromEmail } from './resend';
+import { resend, defaultFromEmail, resendApiKey } from './resend';
 
 // Keep this URL absolute and stable for email clients. Gmail and Outlook are
 // more reliable with the publicly hosted raster asset than an inline SVG.
@@ -116,10 +116,34 @@ export interface SendEmailOptions {
   subject: string;
   html: string;
   attachments?: Array<{ filename: string; content: string }>;
+  disableTracking?: boolean;
 }
 
 export async function sendEmail(options: SendEmailOptions) {
-  const { to, subject, html, attachments } = options;
+  const { to, subject, html, attachments, disableTracking } = options;
+  if (disableTracking) {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: defaultFromEmail,
+        to,
+        subject,
+        html,
+        attachments,
+        click_tracking: false,
+        open_tracking: false,
+      }),
+    });
+    const body = await response.json().catch(() => null) as { id?: string; message?: string };
+    if (!response.ok) {
+      throw new Error(`Failed to send email: ${body?.message || response.statusText}`);
+    }
+    return body;
+  }
   const { data, error } = await resend.emails.send({
     from: defaultFromEmail,
     to,

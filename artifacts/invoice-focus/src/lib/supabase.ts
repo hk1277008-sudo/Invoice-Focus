@@ -10,10 +10,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-let rememberMe = false
+const REMEMBER_ME_KEY = 'invoicefocus-remember-me'
+let rememberMe = typeof window !== 'undefined' && window.localStorage.getItem(REMEMBER_ME_KEY) === 'true'
 
 export function setRememberMe(value: boolean) {
   rememberMe = value
+  if (value) window.localStorage.setItem(REMEMBER_ME_KEY, 'true')
+  else window.localStorage.removeItem(REMEMBER_ME_KEY)
 }
 
 const customStorage = {

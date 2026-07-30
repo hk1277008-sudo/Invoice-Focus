@@ -21,7 +21,8 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(search)
-    const tokenValue = params.get('token')
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    const tokenValue = params.get('token') || params.get('token_hash') || hashParams.get('token_hash')
     const emailValue = params.get('email') || ''
     setEmail(emailValue)
 

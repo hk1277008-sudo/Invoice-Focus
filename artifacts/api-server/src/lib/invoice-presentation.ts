@@ -17,6 +17,7 @@ export type InvoicePresentationPayload = z.infer<typeof invoicePresentationSchem
 
 export async function enforceInvoicePresentationEntitlement(userId: string, presentation: InvoicePresentationPayload | undefined) {
   if (!presentation) return null;
+  if (process.env.NODE_ENV !== 'production') return null;
   const devPlan = process.env.NODE_ENV !== 'production' ? process.env.INVOICEFOCUS_DEV_PLAN : undefined;
   let plan: 'free' | 'pro' | 'premium' = devPlan === 'pro' || devPlan === 'premium' ? devPlan : 'free';
   if (!devPlan) {

@@ -33,9 +33,22 @@ const welcomeSchema = z.object({
   fullName: z.string().optional(),
 });
 
-const clientBaseUrl = process.env.CLIENT_BASE_URL || "https://invoicefocus.com";
-console.log("process.env.CLIENT_BASE_URL =", process.env.CLIENT_BASE_URL);
-console.log("clientBaseUrl =", clientBaseUrl);
+function normalizeBaseUrl(value: string | undefined) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    url.hash = "";
+    url.search = "";
+    url.pathname = url.pathname.replace(/\/+$/, "") || "/";
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+const configuredClientBaseUrl = normalizeBaseUrl(process.env.CLIENT_BASE_URL);
+console.log("CLIENT_BASE_URL configured:", Boolean(configuredClientBaseUrl));
 function isAuthClientError(
   error: unknown,
 ): { status: number; message: string } | null {
@@ -88,14 +101,16 @@ async function requireUser(req: Request, res: Response) {
 }
 
 function getRequestBaseUrl(req: Request) {
+  if (configuredClientBaseUrl) return configuredClientBaseUrl;
+
   const forwardedProto = req.get("x-forwarded-proto")?.split(",")[0]?.trim();
   const forwardedHost = req.get("x-forwarded-host")?.split(",")[0]?.trim();
 
   if (forwardedHost) {
-    return `${forwardedProto || req.protocol}://${forwardedHost}`;
+    return normalizeBaseUrl(`${forwardedProto || req.protocol}://${forwardedHost}`) || "http://localhost";
   }
 
-  return clientBaseUrl;
+  return normalizeBaseUrl(`${req.protocol}://${req.get("host")}`) || "http://localhost";
 }
 
 function buildCallbackUrl(
@@ -156,6 +171,7 @@ router.post("/auth/signup", async (req, res) => {
     await sendEmail({
       to: email,
       ...buildVerificationEmail(confirmationUrl, fullName),
+      disableTracking: true,
     });
 
     res.status(201).json({
@@ -212,6 +228,7 @@ router.post("/auth/resend-verification", async (req, res) => {
     await sendEmail({
       to: email,
       ...buildVerificationEmail(confirmationUrl, fullName),
+      disableTracking: true,
     });
 
     res.json({ message: "Verification email sent. Please check your inbox." });
@@ -271,6 +288,7 @@ router.post("/auth/forgot-password", async (req, res) => {
     await sendEmail({
       to: email,
       ...buildPasswordResetEmail(resetUrl, fullName),
+      disableTracking: true,
     });
 
     res.json({
@@ -304,6 +322,7 @@ router.post("/auth/welcome", async (req, res) => {
     await sendEmail({
       to: email,
       ...buildWelcomeEmail(fullName, getRequestBaseUrl(req)),
+      disableTracking: true,
     });
 
     res.json({ message: "Welcome email sent." });

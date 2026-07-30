@@ -402,10 +402,7 @@
 
   /* Print styles for invoice generator */
   @media print {
-    @page {
-      size: A4;
-      margin: 16mm;
-    }
+    @page { size: auto; margin: 16mm; }
 
     body {
       background: white !important;
@@ -439,9 +436,8 @@
       border-radius: 0 !important;
     }
 
-    .invoice-preview-container > div {
-      padding: 0 !important;
-    }
+    .invoice-preview-container > div { padding: 0 !important; }
+    .invoice-preview-container [aria-hidden="true"] { display: none !important; }
 
     /* Avoid breaking important elements across pages */
     table,
@@ -452,6 +448,13 @@
 
     tr {
       break-inside: avoid;
+    }
+
+    .invoice-preview-container table {
+      table-layout: fixed !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      font-size: 11px !important;
     }
 
     img {
