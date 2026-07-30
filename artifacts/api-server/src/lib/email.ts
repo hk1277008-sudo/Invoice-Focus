@@ -1,8 +1,8 @@
 import { resend, defaultFromEmail, resendApiKey } from './resend';
 
-// Keep this URL absolute and stable for email clients. The same flat cobalt
-// mark is used by the web app, favicon, PWA manifest, and transactional mail.
-const brandLogoUrl = 'https://invoicefocus.com/invoicefocus-icon.png';
+// Keep this URL absolute and stable for email clients. This is the uploaded
+// InvoiceFocus logo with only its outside white background removed.
+const brandLogoUrl = 'https://invoicefocus.com/invoicefocus-logo.png';
 const supportEmail = 'hello@invoicefocus.com';
 
 function escapeHtml(value: unknown) {
@@ -30,11 +30,11 @@ function emailDocument(preheader: string, content: string) {
     .preheader { display: none !important; visibility: hidden; opacity: 0; color: transparent; height: 0; width: 0; overflow: hidden; }
     .shell { width: 100%; background: #f5f7fb; }
     .container { width: 100%; max-width: 600px; margin: 0 auto; }
-     .topbar { padding: 28px 24px 22px; }
+     .topbar { padding: 36px 24px 26px; text-align: center; }
      .brand-header { width: 100%; }
-     .logo { width: 40px; height: 40px; border-radius: 10px; }
-      .wordmark { color: #172033; font-size: 17px; font-weight: 750; letter-spacing: -0.035em; line-height: 20px; white-space: nowrap; }
-      .wordmark-focus { color: #2454D6; }
+     .logo { width: 64px; height: 64px; border-radius: 14px; margin: 0 auto 14px; }
+     .wordmark { color: #172033; font-size: 18px; font-weight: 750; letter-spacing: -0.035em; line-height: 22px; white-space: nowrap; }
+     .wordmark-focus { color: #2454D6; }
     .card { background: #ffffff; border: 1px solid #e3e8f1; border-radius: 16px; box-shadow: 0 8px 28px rgba(23, 32, 51, 0.06); }
     .hero { padding: 36px 40px 12px; }
      .hero-mark { width: 64px; height: 64px; margin-bottom: 24px; border-radius: 16px; }
@@ -55,16 +55,18 @@ function emailDocument(preheader: string, content: string) {
     .fallback a { color: #315de8; font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
     .security-note { margin-top: 24px; padding: 14px 16px; border-radius: 9px; background: #f5f7fb; color: #68768b; font-size: 12px; line-height: 1.55; }
     .footer { padding: 24px 24px 32px; text-align: center; }
-    .footer p { margin: 0 0 7px; color: #8793a5; font-size: 12px; line-height: 1.5; }
+     .footer p { margin: 0 0 7px; color: #8793a5; font-size: 12px; line-height: 1.5; }
+     .footer .copyright { white-space: nowrap; }
     .footer a { color: #617087; text-decoration: underline; }
     @media screen and (max-width: 620px) {
-       .topbar { padding: 20px 16px 16px; }
+       .topbar { padding: 28px 16px 20px; }
       .hero { padding: 28px 24px 10px; }
       .body { padding: 10px 24px 28px; }
       h1 { font-size: 26px; }
       .button { display: block; text-align: center; }
       .button-secondary { margin: 10px 0 0; }
-      .footer { padding: 20px 16px 26px; }
+       .footer { padding: 20px 16px 26px; }
+       .footer .copyright { white-space: normal; }
     }
   </style>
 </head>
@@ -76,18 +78,19 @@ function emailDocument(preheader: string, content: string) {
          <tr><td class="topbar">
            <table role="presentation" class="brand-header" width="100%">
              <tr>
-               <td valign="middle" width="40"><img class="logo" src="${brandLogoUrl}" width="40" height="40" alt="InvoiceFocus logo" style="display:block;width:40px;height:40px;border:0;border-radius:10px"></td>
-               <td valign="middle" style="padding-left:12px">
+                <td align="center" valign="middle">
+                  <img class="logo" src="${brandLogoUrl}" width="64" height="64" alt="InvoiceFocus logo" style="display:block;width:64px;height:64px;border:0;border-radius:14px;margin:0 auto 14px">
                   <div class="wordmark">Invoice<span class="wordmark-focus">Focus</span></div>
-               </td>
+                </td>
              </tr>
            </table>
         </td></tr>
         <tr><td class="card">${content}</td></tr>
         <tr><td class="footer">
-           <p><strong>InvoiceFocus</strong> · <a href="https://invoicefocus.com">invoicefocus.com</a></p>
-           <p>Questions? <a href="mailto:${supportEmail}">${supportEmail}</a></p>
-           <p>© 2026 InvoiceFocus. Professional invoicing, made simple.</p>
+            <p><strong>InvoiceFocus</strong></p>
+            <p><a href="https://invoicefocus.com">https://invoicefocus.com</a></p>
+            <p>Support: <a href="mailto:${supportEmail}">${supportEmail}</a></p>
+            <p class="copyright">© 2026 InvoiceFocus — Professional invoicing made effortless</p>
         </td></tr>
       </table>
     </td></tr>

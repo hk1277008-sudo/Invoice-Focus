@@ -23,7 +23,7 @@ export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
   return (
     <span className={cn('inline-flex items-center gap-2.5', className)}>
       <img
-        src="/invoicefocus-mark.svg"
+        src="/invoicefocus-logo.png"
         alt="InvoiceFocus icon"
         className={cn('block shrink-0 object-contain', wrap)}
       />
