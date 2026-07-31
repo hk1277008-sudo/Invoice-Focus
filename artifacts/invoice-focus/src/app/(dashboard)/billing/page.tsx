@@ -22,8 +22,9 @@ import {
 export default function BillingPage() {
   const { subscription, isLoading: subLoading, refreshSubscription } = useSubscription()
   const { toast } = useToast()
-  const [location] = useLocation()
+  const [location, navigate] = useLocation()
   const selectedPlan = new URLSearchParams(location.split('?')[1] || '').get('plan')
+  const selectedCycle = new URLSearchParams(location.split('?')[1] || '').get('cycle') === 'yearly' ? 'yearly' : 'monthly'
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [history, setHistory] = useState<PaymentHistoryItem[]>([])
@@ -58,7 +59,7 @@ export default function BillingPage() {
       await refreshSubscription()
       toast({
         title: 'Action completed',
-        description: 'Secure checkout will be available after production deployment.',
+        description: 'Your subscription preferences are now up to date.',
       })
       setConfirmDialog(null)
     } catch (err) {
@@ -72,9 +73,9 @@ export default function BillingPage() {
     if (!selectedPlan || !['free', 'pro', 'premium'].includes(selectedPlan) || selectedPlan === subscription.plan) return
     setIsProcessing(true)
     try {
-      await updateSubscriptionAction('upgrade', selectedPlan as PlanId)
+      await updateSubscriptionAction('upgrade', selectedPlan as PlanId, selectedCycle)
       await refreshSubscription()
-      toast({ title: 'Plan updated', description: 'Your subscription was updated in simulation mode. Secure checkout will be available after production deployment.' })
+      toast({ title: 'Plan updated', description: 'Your selected plan is active for this workspace.' })
     } catch (error) {
       toast({ title: 'Could not update plan', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
     } finally {
@@ -111,7 +112,7 @@ export default function BillingPage() {
               <CardDescription>You've selected the {selectedPlan === 'free' ? 'Free' : selectedPlan === 'pro' ? 'Pro' : 'Premium'} plan.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-muted-foreground">Secure checkout will be available after production deployment.</p>
+               <p className="text-sm text-muted-foreground">Review the plan details, then continue to activate it for this workspace.</p>
               <Button onClick={() => void simulateUpgrade()} disabled={isProcessing}>{isProcessing ? 'Updating...' : 'Continue'}</Button>
             </CardContent>
           </Card>
@@ -137,7 +138,7 @@ export default function BillingPage() {
               <p className="text-sm font-medium">Payment past due</p>
               <p className="text-sm">Please update your payment method to keep your subscription active.</p>
             </div>
-            <Button size="sm" variant="default" className="bg-amber-600 text-white hover:bg-amber-700" onClick={() => setConfirmDialog({ isOpen: true, action: 'renew', title: 'Renew Subscription', desc: 'Secure checkout will be available after production deployment.' })}>
+             <Button size="sm" variant="default" className="bg-amber-600 text-white hover:bg-amber-700" onClick={() => setConfirmDialog({ isOpen: true, action: 'renew', title: 'Renew Subscription', desc: 'Renew this workspace subscription and keep its current plan active.' })}>
               Update Payment
             </Button>
           </div>
@@ -256,15 +257,15 @@ export default function BillingPage() {
                         {pm.isDefault && <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">Default</span>}
                       </div>
                     ))}
-                    <Button variant="outline" className="w-full text-sm h-9" onClick={() => toast({ description: 'Secure checkout will be available after production deployment.' })}>
+                    <Button variant="outline" className="w-full text-sm h-9" onClick={() => navigate('/dashboard/upgrade')}>
                       Update Method
                     </Button>
                   </div>
                 ) : (
                   <div className="text-center py-4">
                     <p className="text-sm text-muted-foreground mb-3">No payment methods found.</p>
-                    <Button variant="outline" size="sm" onClick={() => toast({ description: 'Secure checkout will be available after production deployment.' })}>
-                      Add Card
+                    <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/upgrade')}>
+                      Choose a plan
                     </Button>
                   </div>
                 )}
@@ -281,11 +282,11 @@ export default function BillingPage() {
                   <div>
                   <h3 className="font-medium">Customer Portal</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Download past invoices, update tax IDs, and manage billing details with your payment provider.
+                      Review plan access and manage workspace billing preferences.
                     </p>
                   </div>
-                  <Button variant="default" className="w-full mt-2 gap-2" onClick={() => toast({ description: 'Secure checkout will be available after production deployment.' })}>
-                    Open Portal
+                  <Button variant="default" className="w-full mt-2 gap-2" onClick={() => navigate('/dashboard/upgrade')}>
+                    Review plans
                     <ExternalLink className="h-3 w-3" />
                   </Button>
                 </div>
@@ -337,7 +338,15 @@ export default function BillingPage() {
                         </td>
                          <td className="px-4 py-3.5 align-middle text-right">${(item.amount / 100).toFixed(2)}</td>
                          <td className="px-4 py-3.5 align-middle text-right">
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => toast({ description: 'Secure checkout will be available after production deployment.' })}>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => {
+                            const blob = new Blob([JSON.stringify(item, null, 2)], { type: 'application/json' })
+                            const url = URL.createObjectURL(blob)
+                            const anchor = document.createElement('a')
+                            anchor.href = url
+                            anchor.download = `invoicefocus-billing-${item.id}.json`
+                            anchor.click()
+                            URL.revokeObjectURL(url)
+                          }}>
                             <span className="sr-only">Download</span>
                             <FileText className="h-4 w-4" />
                           </Button>
@@ -359,7 +368,7 @@ export default function BillingPage() {
         <div id="plans" className="pt-8">
           <div className="mb-6">
              <h2 className="text-2xl font-semibold tracking-tight">Available Plans</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Payment processing is safely preview-only. Secure checkout will be available after production deployment.</p>
+             <p className="mt-1 text-sm text-muted-foreground">Choose a plan to update workspace access. Plan changes are applied immediately during the private beta.</p>
           </div>
           <SubscriptionPlans />
         </div>

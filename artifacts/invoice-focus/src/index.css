@@ -280,6 +280,11 @@ html, body, #root {
   }
 }
 
+html[data-font-size='small'] { font-size: 14px; }
+html[data-font-size='large'] { font-size: 18px; }
+.compact-mode .space-y-8 { row-gap: 1.25rem; }
+.compact-mode .space-y-6 { row-gap: 1rem; }
+
 /* ─── Custom utilities ────────────────────────────────────────────────────── */
 @layer utilities {
   /* Section labels — tracked small caps, muted */

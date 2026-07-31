@@ -217,7 +217,7 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
             </Button>
             <Button onClick={handleSave} disabled={remoteStatus === 'saving'} className="gap-2">
               <Save className="h-4 w-4" />
-              {remoteStatus === 'saving' ? 'Saving...' : 'Save Schedule'}
+               {remoteStatus === 'saving' ? 'Applying...' : 'Save Schedule'}
             </Button>
           </div>
         </div>

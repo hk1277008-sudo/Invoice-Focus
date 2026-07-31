@@ -56,6 +56,6 @@ export async function getBillingOverview(): Promise<BillingOverview> {
   return request<BillingOverview>('/billing/overview')
 }
 
-export async function updateSubscriptionAction(action: 'upgrade' | 'downgrade' | 'cancel' | 'renew' | 'reactivate', planId?: string): Promise<void> {
-  await request('/billing/actions', { method: 'POST', body: JSON.stringify({ action, plan: planId }) })
+export async function updateSubscriptionAction(action: 'upgrade' | 'downgrade' | 'cancel' | 'renew' | 'reactivate', planId?: string, billingCycle: 'monthly' | 'yearly' = 'monthly'): Promise<void> {
+  await request('/billing/actions', { method: 'POST', body: JSON.stringify({ action, plan: planId, billingCycle }) })
 }

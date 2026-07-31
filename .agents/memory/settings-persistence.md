@@ -14,3 +14,9 @@ The settings client should replace its local form state with the server’s norm
 **Why:** Server-side entitlement checks and normalization can change the accepted presentation or preference values; keeping the submitted state can make the UI disagree with the next reload.
 
 **How to apply:** Treat the saved response as authoritative for settings UI state, invoice defaults, and theme behavior.
+
+When adding a preference, update its client defaults/types, API validation and column map, Supabase migration, and every global consumer together.
+
+**Why:** A preference can appear to save successfully while failing on reload or only applying inside the Settings screen if one layer is missing.
+
+**How to apply:** Treat settings additions as a cross-layer change and verify a save/reload round trip before beta release.

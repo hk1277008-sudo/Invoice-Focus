@@ -176,7 +176,7 @@ export default function ProfilePage() {
 
           <div className="flex justify-end">
             <Button type="submit" disabled={isUpdating || isUploading}>
-              {isUpdating ? 'Saving...' : 'Save changes'}
+               {isUpdating ? 'Applying...' : 'Save changes'}
             </Button>
           </div>
         </form>

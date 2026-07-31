@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { deleteAccount, defaultSettings, exportSettingsData, getSettings, saveSettings, type ThemeMode, type UserSettings } from '@/lib/settings'
+import { applySettingsAppearance, deleteAccount, defaultSettings, exportSettingsData, getSettings, saveSettings, type FontSize, type ThemeMode, type UserSettings } from '@/lib/settings'
 import { SubscriptionPlans } from '@/components/subscription/SubscriptionPlans'
 import { UsageIndicator } from '@/components/subscription/UsageIndicator'
 import { useSubscription } from '@/providers/SubscriptionProvider'
@@ -48,10 +49,8 @@ export default function SettingsPage() {
 
   useEffect(() => { getSettings().then((value) => { setSettings(value); setLogoPreview(value.businessLogo) }).catch((error) => toast({ title: 'Could not load settings', description: error.message, variant: 'destructive' })).finally(() => setLoading(false)) }, [toast])
   useEffect(() => {
-    const root = document.documentElement
-    if (settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) root.classList.add('dark')
-    else root.classList.remove('dark')
-  }, [settings.theme])
+    applySettingsAppearance(settings)
+  }, [settings.theme, settings.fontSize, settings.compactMode, settings.workspaceAccentColor])
 
   const update = (key: keyof UserSettings, value: string | number | boolean | InvoicePresentation) => setSettings((current) => ({ ...current, [key]: value }))
   const save = async () => {
@@ -83,13 +82,13 @@ export default function SettingsPage() {
     <div className="min-w-0">
       {tab === 'business' && <BusinessTab settings={settings} update={update} logoPreview={logoPreview} uploadLogo={uploadLogo} />}
       {tab === 'invoice' && <InvoiceTab settings={settings} update={update} />}
-      {tab === 'account' && <AccountTab />}
+       {tab === 'account' && <AccountTab settings={settings} update={update} />}
       {tab === 'notifications' && <NotificationsTab settings={settings} update={update} />}
       {tab === 'billing' && <BillingTab />}
       {tab === 'appearance' && <AppearanceTab settings={settings} update={update} />}
       {tab === 'privacy' && <PrivacyTab toast={toast} />}
     </div>
-     {(tab === 'business' || tab === 'invoice' || tab === 'notifications' || tab === 'appearance') && <div className="sticky bottom-4 z-10 flex justify-end rounded-lg border border-border bg-background/95 p-3 shadow-md backdrop-blur sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none"><Button onClick={save} disabled={saving} className="w-full gap-2 sm:w-auto"><Save className="h-4 w-4" />{saving ? 'Saving...' : 'Save Changes'}</Button></div>}
+     {(tab === 'business' || tab === 'invoice' || tab === 'account' || tab === 'notifications' || tab === 'appearance') && <div className="sticky bottom-4 z-10 flex justify-end rounded-lg border border-border bg-background/95 p-3 shadow-md backdrop-blur sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none"><Button onClick={save} disabled={saving} className="w-full gap-2 sm:w-auto"><Save className="h-4 w-4" />{saving ? 'Applying...' : 'Apply Changes'}</Button></div>}
   </div></DashboardLayout>
 }
 
@@ -104,7 +103,7 @@ function InvoiceTab({ settings, update }: { settings: UserSettings; update: (key
   return <div className="space-y-6"><Card><CardHeader><CardTitle>Invoice Preferences</CardTitle><CardDescription>Set defaults for invoices and recurring schedules.</CardDescription></CardHeader><CardContent className="grid gap-5 sm:grid-cols-2"><Field label="Default Currency" value={settings.defaultCurrency} onChange={(value) => update('defaultCurrency', value.toUpperCase())} placeholder="USD" /><Field label="Default Language" value={settings.defaultLanguage} onChange={(value) => update('defaultLanguage', value)} /><Field label="Default Tax Rate (%)" type="number" value={settings.defaultTaxRate} onChange={(value) => update('defaultTaxRate', Number(value) || 0)} /><Field label="Default Payment Terms" value={settings.defaultPaymentTerms} onChange={(value) => update('defaultPaymentTerms', value)} /><Field label="Default Due Date (days)" type="number" value={settings.defaultDueDays} onChange={(value) => update('defaultDueDays', Number(value) || 0)} /><Field label="Invoice Number Format" value={settings.invoiceNumberFormat} onChange={(value) => update('invoiceNumberFormat', value)} placeholder="INV-{number}" /><Field label="Invoice Prefix" value={settings.invoicePrefix} onChange={(value) => update('invoicePrefix', value)} /><Field label="Starting Invoice Number" type="number" value={settings.startingInvoiceNumber} onChange={(value) => update('startingInvoiceNumber', Number(value) || 1)} /><div className="sm:col-span-2 rounded-xl border border-border p-4"><p className="font-medium">Recurring Invoice Defaults</p><div className="mt-4 grid gap-5 sm:grid-cols-2"><div><Label>Default Time Zone</Label><select value={settings.recurringDefaultTimezone} onChange={(e) => update('recurringDefaultTimezone', e.target.value)} className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm">{Intl.supportedValuesOf('timeZone').map((tz) => <option key={tz}>{tz}</option>)}</select></div><div><Label>Default Frequency</Label><select value={settings.recurringDefaultFrequency} onChange={(e) => update('recurringDefaultFrequency', e.target.value)} className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm">{['daily','weekly','monthly','quarterly','yearly','custom'].map((value) => <option key={value}>{value}</option>)}</select></div><Field label="Default Due Date Offset (days)" type="number" value={settings.recurringDefaultDueDateOffset} onChange={(value) => update('recurringDefaultDueDateOffset', Number(value) || 0)} /><div><Label>Default Generated Status</Label><select value={settings.recurringDefaultInvoiceStatus} onChange={(e) => update('recurringDefaultInvoiceStatus', e.target.value)} className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm">{['Draft','Sent','Paid','Overdue','Cancelled'].map((value) => <option key={value}>{value}</option>)}</select></div><div className="sm:col-span-2 flex items-center gap-2"><Switch checked={settings.recurringDefaultAutoGeneration} onCheckedChange={(value) => update('recurringDefaultAutoGeneration', value)} /><Label>Enable automatic generation by default</Label></div></div></div><div className="sm:col-span-2 space-y-1.5"><Label>Default Notes</Label><Textarea value={settings.defaultNotes} onChange={(event) => update('defaultNotes', event.target.value)} rows={3} /></div><div className="sm:col-span-2 space-y-1.5"><Label>Default Terms & Conditions</Label><Textarea value={settings.defaultTerms} onChange={(event) => update('defaultTerms', event.target.value)} rows={4} /></div></CardContent></Card><InvoicePresentationControls value={settings.invoicePresentation} onChange={(field, value) => update('invoicePresentation', { ...settings.invoicePresentation, [field]: value } as InvoicePresentation)} /></div>
 }
 
-function AccountTab() {
+ function AccountTab({ settings, update }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean | InvoicePresentation) => void }) {
   const { user, refreshSession, signOut } = useAuth()
   const { toast } = useToast()
   const [name, setName] = useState((user?.user_metadata?.full_name as string) || '')
@@ -112,7 +111,10 @@ function AccountTab() {
   const [password, setPassword] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [busy, setBusy] = useState(false)
-  const [signingOutOthers, setSigningOutOthers] = useState(false)
+   const [signingOutOthers, setSigningOutOthers] = useState(false)
+   const [avatarUrl, setAvatarUrl] = useState((user?.user_metadata?.avatar_url as string) || '')
+   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+   const avatarInputRef = useRef<HTMLInputElement>(null)
   const saveAccount = async () => {
     setBusy(true)
     try {
@@ -148,23 +150,55 @@ function AccountTab() {
       setSigningOutOthers(false)
     }
   }
-  return <div className="space-y-6"><Card><CardHeader><CardTitle>Account & Security</CardTitle><CardDescription>Update your identity and sign-in credentials. Sensitive changes require your current password.</CardDescription></CardHeader><CardContent className="space-y-5"><div className="grid gap-5 sm:grid-cols-2"><Field label="Full Name" value={name} onChange={setName} /><Field label="Email Address" type="email" value={email} onChange={setEmail} /><Field label="New Password" type="password" value={password} onChange={setPassword} placeholder="Leave blank to keep current password" /><Field label="Current Password (for email/password changes)" type="password" value={currentPassword} onChange={setCurrentPassword} /></div><div className="flex justify-end"><Button onClick={saveAccount} disabled={busy}>{busy ? 'Updating...' : 'Update Account'}</Button></div></CardContent></Card><Card><CardHeader><CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-primary" />Security Controls</CardTitle></CardHeader><CardContent><ToggleRow title="Two-Factor Authentication" description="Add another layer of protection to your account. Coming soon." checked={false} onCheckedChange={() => toast({ title: 'Two-factor authentication is coming soon' })} /><div className="flex items-center justify-between border-b border-border py-4"><div><p className="text-sm font-medium">Last Login</p><p className="mt-1 text-xs text-muted-foreground">Current session · {user?.email}</p></div><LockKeyhole className="h-4 w-4 text-muted-foreground" /></div><div className="flex flex-wrap gap-3 pt-4"><Button variant="outline" className="gap-2" onClick={signOutOtherDevices} disabled={signingOutOthers}><LogOut className="h-4 w-4" />{signingOutOthers ? 'Signing Out...' : 'Sign Out Other Devices'}</Button><Button variant="outline" className="gap-2" onClick={() => signOut()}><LogOut className="h-4 w-4" />Sign Out</Button></div></CardContent></Card></div>
+   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+     const file = event.target.files?.[0]
+     if (!file || !user) return
+     if (!file.type.startsWith('image/') || file.size > 2_000_000) {
+       toast({ title: 'Photo not uploaded', description: 'Use an image smaller than 2MB.', variant: 'destructive' })
+       return
+     }
+     setUploadingAvatar(true)
+     try {
+       const formData = new FormData()
+       formData.append('avatar', file)
+       const { data: sessionData } = await supabase.auth.getSession()
+       const response = await fetch('/api/auth/avatar', {
+         method: 'POST',
+         headers: sessionData.session?.access_token ? { Authorization: `Bearer ${sessionData.session.access_token}` } : {},
+         body: formData,
+       })
+       const data = await response.json().catch(() => null)
+       if (!response.ok || !data?.url) throw new Error(data?.error || 'Could not upload photo')
+       const { error } = await supabase.auth.updateUser({ data: { avatar_url: data.url } })
+       if (error) throw error
+       setAvatarUrl(data.url)
+       await refreshSession()
+       toast({ title: 'Photo updated', description: 'Your profile photo is now visible across your account.' })
+     } catch (error) {
+       toast({ title: 'Photo update failed', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
+     } finally {
+       setUploadingAvatar(false)
+       if (avatarInputRef.current) avatarInputRef.current.value = ''
+     }
+   }
+   const initials = name ? name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2) : user?.email?.slice(0, 2).toUpperCase() || 'IF'
+   return <div className="space-y-6"><Card><CardHeader><CardTitle>Account & Security</CardTitle><CardDescription>Update your identity and sign-in credentials. Sensitive changes require your current password.</CardDescription></CardHeader><CardContent className="space-y-5"><div className="flex items-center gap-4 rounded-xl border border-border p-4"><Avatar className="h-14 w-14"><AvatarImage src={avatarUrl} alt={name || 'Profile'} /><AvatarFallback className="bg-primary/10 font-semibold text-primary">{initials}</AvatarFallback></Avatar><div className="flex-1"><p className="text-sm font-medium">Profile picture</p><p className="mt-1 text-xs text-muted-foreground">JPG, PNG, or GIF up to 2MB.</p></div><input ref={avatarInputRef} type="file" accept="image/*" className="sr-only" onChange={uploadAvatar} /><Button type="button" variant="outline" onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar}>{uploadingAvatar ? 'Uploading...' : 'Upload photo'}</Button></div><div className="grid gap-5 sm:grid-cols-2"><Field label="Full Name" value={name} onChange={setName} /><Field label="Email Address" type="email" value={email} onChange={setEmail} /><Field label="Timezone" value={settings.accountTimezone} onChange={(value) => update('accountTimezone', value)} /><Field label="Country" value={settings.accountCountry} onChange={(value) => update('accountCountry', value)} /><Field label="New Password" type="password" value={password} onChange={setPassword} placeholder="Leave blank to keep current password" /><Field label="Current Password (for email/password changes)" type="password" value={currentPassword} onChange={setCurrentPassword} /></div><div className="flex justify-end"><Button onClick={saveAccount} disabled={busy}>{busy ? 'Updating...' : 'Update Account'}</Button></div></CardContent></Card><Card><CardHeader><CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-primary" />Security Controls</CardTitle><CardDescription>Use your profile and session controls to keep the account current.</CardDescription></CardHeader><CardContent><div className="flex items-center justify-between border-b border-border py-4"><div><p className="text-sm font-medium">Last Login</p><p className="mt-1 text-xs text-muted-foreground">Current session · {user?.email}</p></div><LockKeyhole className="h-4 w-4 text-muted-foreground" /></div><div className="flex flex-wrap gap-3 pt-4"><Button variant="outline" className="gap-2" onClick={signOutOtherDevices} disabled={signingOutOthers}><LogOut className="h-4 w-4" />{signingOutOthers ? 'Signing Out...' : 'Sign Out Other Devices'}</Button><Button variant="outline" className="gap-2" onClick={() => signOut()}><LogOut className="h-4 w-4" />Sign Out</Button></div></CardContent></Card></div>
 }
 
 function NotificationsTab({ settings, update }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean) => void }) {
-  return <Card><CardHeader><CardTitle>Notifications</CardTitle><CardDescription>Choose which updates InvoiceFocus sends to your inbox.</CardDescription></CardHeader><CardContent><ToggleRow title="Invoice Sent Emails" description="Receive a confirmation when an invoice is sent." checked={settings.invoiceSentEmails} onCheckedChange={(value) => update('invoiceSentEmails', value)} /><ToggleRow title="Payment Reminder Emails" description="Get reminders about invoices that are approaching or past due." checked={settings.paymentReminderEmails} onCheckedChange={(value) => update('paymentReminderEmails', value)} /><ToggleRow title="Product Updates" description="Hear about useful new InvoiceFocus features." checked={settings.productUpdates} onCheckedChange={(value) => update('productUpdates', value)} /><ToggleRow title="Security Alerts" description="Always receive important security and account notices." checked={settings.securityAlerts} onCheckedChange={(value) => update('securityAlerts', value)} /><ToggleRow title="Marketing Emails" description="Occasional tips and offers from InvoiceFocus." checked={settings.marketingEmails} onCheckedChange={(value) => update('marketingEmails', value)} /></CardContent></Card>
+  return <Card><CardHeader><CardTitle>Notifications</CardTitle><CardDescription>Choose which updates InvoiceFocus sends to your inbox.</CardDescription></CardHeader><CardContent><ToggleRow title="Invoice Sent" description="Receive a confirmation when an invoice is sent." checked={settings.invoiceSentEmails} onCheckedChange={(value) => update('invoiceSentEmails', value)} /><ToggleRow title="Invoice Viewed" description="Know when a client opens a shared invoice." checked={settings.invoiceViewedEmails} onCheckedChange={(value) => update('invoiceViewedEmails', value)} /><ToggleRow title="Invoice Paid" description="Receive a confirmation when an invoice is marked paid." checked={settings.invoicePaidEmails} onCheckedChange={(value) => update('invoicePaidEmails', value)} /><ToggleRow title="Weekly Summary" description="Get a weekly overview of invoice activity and outstanding balances." checked={settings.weeklySummaryEmails} onCheckedChange={(value) => update('weeklySummaryEmails', value)} /><ToggleRow title="Product Updates" description="Hear about useful new InvoiceFocus features." checked={settings.productUpdates} onCheckedChange={(value) => update('productUpdates', value)} /><ToggleRow title="Payment Reminders" description="Get reminders about invoices that are approaching or past due." checked={settings.paymentReminderEmails} onCheckedChange={(value) => update('paymentReminderEmails', value)} /><ToggleRow title="Security Alerts" description="Always receive important security and account notices." checked={settings.securityAlerts} onCheckedChange={(value) => update('securityAlerts', value)} /><ToggleRow title="Marketing Emails" description="Occasional tips and offers from InvoiceFocus." checked={settings.marketingEmails} onCheckedChange={(value) => update('marketingEmails', value)} /></CardContent></Card>
 }
 
 function BillingTab() {
   const { subscription } = useSubscription()
   return <div className="space-y-6">
     <Card className="border-primary/30"><CardHeader><div className="flex flex-wrap items-center justify-between gap-3"><div><CardTitle>Billing & Subscription</CardTitle><CardDescription>Manage your plan, invoices, and payment methods.</CardDescription></div><span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Current Plan: {subscription.planName}</span></div></CardHeader><CardContent className="grid gap-6"><div><p className="text-sm text-muted-foreground">Your billing details, payment methods, and plan configuration have moved to a dedicated portal.</p></div><div className="flex"><Button asChild><Link href="/dashboard/billing">Open Billing Portal</Link></Button></div></CardContent></Card>
-    <div><div className="mb-5"><h3 className="font-display text-xl font-semibold">Compare plans</h3><p className="mt-1 text-sm text-muted-foreground">Payment processing is not connected yet. Plan selection is safely preview-only.</p></div><SubscriptionPlans /></div>
+     <div><div className="mb-5"><h3 className="font-display text-xl font-semibold">Compare plans</h3><p className="mt-1 text-sm text-muted-foreground">Plan changes are applied directly to this workspace during the private beta.</p></div><SubscriptionPlans /></div>
   </div>
 }
 
 function AppearanceTab({ settings, update }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean) => void }) {
-  return <Card><CardHeader><CardTitle>Appearance</CardTitle><CardDescription>Choose how InvoiceFocus looks across your workspace.</CardDescription></CardHeader><CardContent className="grid gap-4 sm:grid-cols-3">{([['system', 'System Theme', Eye], ['light', 'Light Mode', Sun], ['dark', 'Dark Mode', Moon]] as const).map(([value, label, Icon]) => <button key={value} onClick={() => update('theme', value as ThemeMode)} className={`rounded-xl border p-5 text-left transition-colors ${settings.theme === value ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}><Icon className={`h-5 w-5 ${settings.theme === value ? 'text-primary' : 'text-muted-foreground'}`} /><p className="mt-4 font-medium">{label}</p><p className="mt-1 text-xs text-muted-foreground">{value === 'system' ? 'Follow your device preference' : `Use ${value} colors throughout the app`}</p></button>)}</CardContent></Card>
+  return <Card><CardHeader><CardTitle>Appearance</CardTitle><CardDescription>Choose how InvoiceFocus looks across your workspace.</CardDescription></CardHeader><CardContent className="space-y-6"><div className="grid gap-4 sm:grid-cols-3">{([['system', 'System Theme', Eye], ['light', 'Light Mode', Sun], ['dark', 'Dark Mode', Moon]] as const).map(([value, label, Icon]) => <button key={value} onClick={() => update('theme', value as ThemeMode)} className={`rounded-xl border p-5 text-left transition-colors ${settings.theme === value ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}><Icon className={`h-5 w-5 ${settings.theme === value ? 'text-primary' : 'text-muted-foreground'}`} /><p className="mt-4 font-medium">{label}</p><p className="mt-1 text-xs text-muted-foreground">{value === 'system' ? 'Follow your device preference' : `Use ${value} colors throughout the app`}</p></button>)}</div><div className="grid gap-5 border-t border-border pt-5 sm:grid-cols-3"><div className="space-y-1.5"><Label htmlFor="accent-color">Accent color</Label><div className="flex gap-2"><Input id="accent-color" type="color" value={settings.workspaceAccentColor} onChange={(event) => update('workspaceAccentColor', event.target.value)} className="h-10 w-14 cursor-pointer p-1" /><Input aria-label="Accent color hex value" value={settings.workspaceAccentColor} onChange={(event) => update('workspaceAccentColor', event.target.value)} /></div></div><div className="space-y-1.5"><Label htmlFor="font-size">Font size</Label><select id="font-size" value={settings.fontSize} onChange={(event) => update('fontSize', event.target.value as FontSize)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></div><div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5"><div><Label htmlFor="compact-mode">Compact mode</Label><p className="mt-1 text-xs text-muted-foreground">Use tighter workspace spacing.</p></div><Switch id="compact-mode" checked={settings.compactMode} onCheckedChange={(value) => update('compactMode', value)} /></div></div></CardContent></Card>
 }
 
 function PrivacyTab({ toast }: { toast: ReturnType<typeof useToast>['toast'] }) {

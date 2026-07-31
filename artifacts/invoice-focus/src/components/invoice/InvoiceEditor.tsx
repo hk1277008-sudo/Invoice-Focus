@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Plus, Search, Trash2, Upload, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -46,6 +46,7 @@ export function InvoiceEditor({
   onUpdatePresentation,
 }: InvoiceEditorProps) {
   const [clientSearch, setClientSearch] = useState('')
+  const previousItemIds = useRef(invoice.items.map((item) => item.id))
   const [advancedOptionsOpen, setAdvancedOptionsOpen] = useState(() =>
     invoice.items.some((item) => Number.parseFloat(item.taxPercent) > 0 || Number.parseFloat(item.discountPercent) > 0),
   )
@@ -53,6 +54,15 @@ export function InvoiceEditor({
     if (invoice.items.some((item) => Number.parseFloat(item.taxPercent) > 0 || Number.parseFloat(item.discountPercent) > 0)) {
       setAdvancedOptionsOpen(true)
     }
+  }, [invoice.items])
+  useEffect(() => {
+    const currentIds = invoice.items.map((item) => item.id)
+    const addedId = currentIds.find((id) => !previousItemIds.current.includes(id))
+    previousItemIds.current = currentIds
+    if (!addedId) return
+    window.setTimeout(() => {
+      document.querySelector<HTMLInputElement>(`[data-item-description="${addedId}"]`)?.focus()
+    }, 0)
   }, [invoice.items])
   const filteredClients = useMemo(() => {
     const query = clientSearch.trim().toLowerCase()
@@ -359,7 +369,7 @@ export function InvoiceEditor({
         <CardContent className="space-y-4">
           <div className="rounded-lg border border-border" data-invoice-items>
             <div className={`${advancedOptionsOpen ? 'grid-cols-12' : 'grid-cols-10'} hidden gap-2 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid`}>
-              <div className="col-span-3">Item</div>
+               <div className="col-span-3">Description</div>
               <div className="col-span-3 sm:col-span-1">Qty</div>
               <div className="col-span-4 sm:col-span-3">Price</div>
               {advancedOptionsOpen && <><div className="col-span-2 sm:col-span-1">Tax %</div><div className="col-span-2 sm:col-span-1">Disc %</div></>}
@@ -489,18 +499,20 @@ function InvoiceItemRow({
     <div className={`grid min-w-0 grid-cols-2 gap-3 overflow-hidden p-3 sm:gap-2 ${showAdjustments ? 'sm:grid-cols-12' : 'sm:grid-cols-10'}`}>
       <div className="col-span-2 min-w-0 space-y-1 sm:col-span-3">
         <Input
-          value={item.name}
-          onChange={(e) => onUpdate(item.id, 'name', e.target.value)}
-          placeholder="Item Name"
-          className="h-8"
-          aria-invalid={!!nameError}
-          aria-describedby={nameError ? `item-${index}-name-error` : undefined}
-        />
-        <Input
           value={item.description}
           onChange={(e) => onUpdate(item.id, 'description', e.target.value)}
           placeholder="Description"
           className="h-8"
+          data-item-description={item.id}
+        />
+        <Input
+          value={item.name}
+          onChange={(e) => onUpdate(item.id, 'name', e.target.value)}
+          placeholder="Item Name"
+          className="h-8"
+          tabIndex={-1}
+          aria-invalid={!!nameError}
+          aria-describedby={nameError ? `item-${index}-name-error` : undefined}
         />
         {nameError && (
           <p id={`item-${index}-name-error`} className="text-xs text-destructive">
@@ -534,18 +546,7 @@ function InvoiceItemRow({
         />
         {priceError && <p className="text-xs text-destructive">{priceError}</p>}
       </div>
-      {showAdjustments && <div className="col-span-1 sm:col-span-1">
-        <Input
-          type="number"
-          min="0"
-          step="0.01"
-          value={item.taxPercent}
-          onChange={(e) => onUpdate(item.id, 'taxPercent', e.target.value)}
-          placeholder="Tax %"
-          className="h-8"
-        />
-      </div>}
-      {showAdjustments && <div className="col-span-1 sm:col-span-1">
+      {showAdjustments && <div className="col-span-1 sm:col-span-1 order-1">
         <Input
           type="number"
           min="0"
@@ -553,6 +554,17 @@ function InvoiceItemRow({
           value={item.discountPercent}
           onChange={(e) => onUpdate(item.id, 'discountPercent', e.target.value)}
           placeholder="Disc %"
+          className="h-8"
+        />
+      </div>}
+      {showAdjustments && <div className="col-span-1 sm:col-span-1 order-2">
+        <Input
+          type="number"
+          min="0"
+          step="0.01"
+          value={item.taxPercent}
+          onChange={(e) => onUpdate(item.id, 'taxPercent', e.target.value)}
+          placeholder="Tax %"
           className="h-8"
         />
       </div>}

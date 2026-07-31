@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { UsageIndicator } from '@/components/subscription/UsageIndicator'
 import { getNotifications, markNotificationRead, type NotificationRecord } from '@/lib/notifications'
+import { applySettingsAppearance, getSettings } from '@/lib/settings'
 import { useEffect, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -114,6 +115,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
+    getSettings().then(applySettingsAppearance).catch(() => undefined)
+  }, [])
+
+  useEffect(() => {
     setMobileNavOpen(false)
   }, [location])
 
@@ -122,7 +127,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card lg:flex">
         <div className="flex h-16 items-center border-b border-border px-5">
-          <Link href="/">
+           <Link href="/dashboard">
             <Logo size="sm" />
           </Link>
         </div>
@@ -180,7 +185,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="flex h-16 items-center border-b border-border px-5">
-          <Link href="/" onClick={() => setMobileNavOpen(false)}>
+           <Link href="/dashboard" onClick={() => setMobileNavOpen(false)}>
             <Logo size="sm" />
           </Link>
         </div>
@@ -231,7 +236,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1 lg:hidden">
-            <Link href="/" aria-label="InvoiceFocus home"><Logo size="sm" /></Link>
+             <Link href="/dashboard" aria-label="InvoiceFocus dashboard"><Logo size="sm" /></Link>
           </div>
           <div className="flex-1 hidden lg:block" />
           <div className="flex items-center gap-2"><NotificationMenu /><UserMenu /></div>

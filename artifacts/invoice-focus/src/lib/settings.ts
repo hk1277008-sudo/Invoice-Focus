@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { defaultPresentation, normalizePresentation, type InvoicePresentation } from '@/components/invoice/presentation'
 
 export type ThemeMode = 'system' | 'light' | 'dark'
+export type FontSize = 'small' | 'medium' | 'large'
 
 export interface UserSettings {
   businessName: string
@@ -27,11 +28,19 @@ export interface UserSettings {
   defaultNotes: string
   defaultTerms: string
   invoiceSentEmails: boolean
+  invoiceViewedEmails: boolean
+  invoicePaidEmails: boolean
+  weeklySummaryEmails: boolean
   paymentReminderEmails: boolean
   productUpdates: boolean
   securityAlerts: boolean
   marketingEmails: boolean
   theme: ThemeMode
+  accountTimezone: string
+  accountCountry: string
+  compactMode: boolean
+  fontSize: FontSize
+  workspaceAccentColor: string
   recurringDefaultTimezone: string
   recurringDefaultFrequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom'
   recurringDefaultDueDateOffset: number
@@ -46,13 +55,50 @@ export const defaultSettings: UserSettings = {
   defaultCurrency: 'USD', defaultLanguage: 'English', defaultTaxRate: 0, defaultPaymentTerms: 'Net 30',
   defaultDueDays: 30, invoiceNumberFormat: 'INV-{number}', invoicePrefix: 'INV',
   startingInvoiceNumber: 1, defaultNotes: '', defaultTerms: '', invoiceSentEmails: true,
+  invoiceViewedEmails: true, invoicePaidEmails: true, weeklySummaryEmails: true,
   paymentReminderEmails: true, productUpdates: true, securityAlerts: true, marketingEmails: false, theme: 'system',
+  accountTimezone: 'UTC', accountCountry: '', compactMode: false, fontSize: 'medium', workspaceAccentColor: '#2e5bff',
   recurringDefaultTimezone: 'UTC', recurringDefaultFrequency: 'monthly', recurringDefaultDueDateOffset: 14,
   recurringDefaultInvoiceStatus: 'Draft', recurringDefaultAutoGeneration: true,
   invoicePresentation: {
     template: 'modern', primaryColor: '#2e5bff', accentColor: '#13a6a6', font: 'Inter',
     headerLayout: 'Split', footerLayout: 'Simple', paperSize: 'A4', titleStyle: 'default',
   },
+}
+
+function hexToHsl(hex: string) {
+  const value = hex.replace('#', '')
+  const red = Number.parseInt(value.slice(0, 2), 16) / 255
+  const green = Number.parseInt(value.slice(2, 4), 16) / 255
+  const blue = Number.parseInt(value.slice(4, 6), 16) / 255
+  const max = Math.max(red, green, blue)
+  const min = Math.min(red, green, blue)
+  const lightness = (max + min) / 2
+  if (max === min) return `0 0% ${Math.round(lightness * 100)}%`
+  const delta = max - min
+  const saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min)
+  let hue = 0
+  if (max === red) hue = ((green - blue) / delta + (green < blue ? 6 : 0)) / 6
+  else if (max === green) hue = ((blue - red) / delta + 2) / 6
+  else hue = ((red - green) / delta + 4) / 6
+  return `${Math.round(hue * 360)} ${Math.round(saturation * 100)}% ${Math.round(lightness * 100)}%`
+}
+
+export function applySettingsAppearance(settings: Pick<UserSettings, 'theme' | 'fontSize' | 'compactMode' | 'workspaceAccentColor'>) {
+  if (typeof document === 'undefined') return
+  const root = document.documentElement
+  if (settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) root.classList.add('dark')
+  else root.classList.remove('dark')
+  root.dataset.fontSize = settings.fontSize
+  root.classList.toggle('compact-mode', settings.compactMode)
+  const accent = /^#[0-9a-f]{6}$/i.test(settings.workspaceAccentColor) ? settings.workspaceAccentColor : defaultSettings.workspaceAccentColor
+  const accentHsl = hexToHsl(accent)
+  root.style.setProperty('--workspace-accent', accent)
+  root.style.setProperty('--primary', accentHsl)
+  root.style.setProperty('--ring', accentHsl)
+  root.style.setProperty('--sidebar-primary', accentHsl)
+  root.style.setProperty('--sidebar-ring', accentHsl)
+  root.style.setProperty('--chart-1', accentHsl)
 }
 
 async function request<T>(path: string, init: RequestInit = {}) {

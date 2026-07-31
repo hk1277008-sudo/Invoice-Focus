@@ -118,6 +118,7 @@ export default function InvoicePage() {
         await refreshSubscription()
       }
       setRemoteStatus('saved')
+      window.setTimeout(() => setRemoteStatus((status) => status === 'saved' ? 'idle' : status), 1800)
     } catch (error) {
       if (statusChanged && savedStatus) {
         // A rejected transition must not leave the editor showing an
@@ -294,16 +295,12 @@ export default function InvoicePage() {
             </p>
           </div>
           <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3">
-            {draftStatus.status !== 'idle' && (
+            {remoteStatus === 'saved' && (
               <span className="text-xs text-muted-foreground" aria-live="polite">
-                {draftStatus.status === 'saving' ? 'Saving draft...' : 'Draft saved'}
+                Saved
               </span>
             )}
-            {remoteStatus !== 'idle' && (
-              <span className="text-xs text-muted-foreground" aria-live="polite">
-                {remoteStatus === 'saving' ? 'Saving to Supabase...' : remoteStatus === 'saved' ? 'Saved' : 'Save failed'}
-              </span>
-            )}
+            {remoteStatus === 'error' && <span className="text-xs text-destructive" aria-live="polite">Could not save</span>}
 
             <input
               ref={fileInputRef}
