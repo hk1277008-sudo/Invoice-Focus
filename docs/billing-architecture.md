@@ -60,12 +60,12 @@ webhook verification must be validated before enabling a production adapter.
 
 ## Schema rollout
 
-Apply `artifacts/api-server/sql/010_billing_architecture.sql`,
-`017_settings_billing_completion.sql`, and `018_billing_idempotency.sql` to the
-Supabase project after the application deployment is configured, then reload
-the PostgREST schema and verify the billing tables, provider columns, and
-unique provider indexes through the Supabase REST OpenAPI document. The
-application intentionally does not run DDL at startup.
+Migration `010_billing_architecture.sql` already exists in the beta Supabase
+project. Apply or verify only `017_settings_billing_completion.sql` and
+`018_billing_idempotency.sql`, then reload the PostgREST schema and verify the
+billing tables, provider columns, and unique provider indexes through the
+Supabase REST OpenAPI document. The application intentionally does not run DDL
+at startup.
 
 ## Subscription lifecycle
 
