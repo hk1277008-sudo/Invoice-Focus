@@ -67,6 +67,7 @@ try {
   globalThis.fetch = originalFetch;
 
   assert.equal(requestBody.attachments.length, 1);
+  assert.equal(requestBody.from, 'Invoice Focus <hello@invoicefocus.com>');
   assert.equal(requestBody.attachments[0].filename, 'invoicefocus-logo.png');
   assert.equal(requestBody.attachments[0].content_id, 'invoicefocus-logo');
   assert.match(requestBody.attachments[0].content, /^iVBORw0KGgo/);
