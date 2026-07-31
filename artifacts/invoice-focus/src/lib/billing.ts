@@ -66,7 +66,7 @@ export async function updateSubscriptionAction(action: 'upgrade' | 'downgrade' |
 }
 
 export async function createCheckout(plan: string, billingCycle: 'monthly' | 'yearly') {
-  return request<{ checkoutUrl: string | null; status: string; provider: string; message?: string }>('/billing/checkout', {
+  return request<{ checkoutUrl: string | null; transactionId?: string | null; clientToken?: string | null; priceId?: string | null; environment?: 'sandbox' | 'production'; status: string; provider: string; message?: string }>('/billing/checkout', {
     method: 'POST', body: JSON.stringify({ plan, billingCycle, returnUrl: window.location.href }),
   })
 }

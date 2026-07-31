@@ -1,10 +1,10 @@
 ---
 name: Provider-neutral billing
-description: Architecture rule for connecting a future payment gateway without coupling entitlements or UI to provider SDKs.
+description: Architecture rule for connecting Paddle without coupling entitlements or UI to provider SDKs.
 ---
 
 Billing provider adapters should own checkout sessions, customer portals, provider IDs, signature verification, and provider event mapping. Subscription entitlements, feature gating, billing history, and customer-facing UI must depend only on neutral contracts and server-owned subscription state.
 
-**Why:** Paddle credentials exist, but no catalog price IDs or verified adapter flow exists yet; enabling the provider early would create invalid checkout links and unverified webhook risk.
+**Why:** Paddle checkout and webhooks are provider-specific, while subscription access must remain server-owned and safe if a catalog interval or webhook configuration is missing.
 
-**How to apply:** Add Lemon Squeezy, Paddle, or Stripe only by implementing `BillingProvider` and registering it behind the existing checkout, portal, and webhook services. Do not import provider SDKs into routes, subscription logic, or React components.
+**How to apply:** Keep Paddle SDK calls in the adapter, resolve only active catalog prices, reject missing intervals instead of guessing, and allow unsigned webhook payloads only in Sandbox until `PADDLE_WEBHOOK_SECRET` is configured. Do not import provider SDKs into routes, subscription logic, or React components.

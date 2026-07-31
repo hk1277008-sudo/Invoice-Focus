@@ -11,11 +11,19 @@ record. Billing is an independent domain:
 - `InvoiceBillingService` — reads billing overview, payment history, and billing invoices.
 - `BillingEventHandler` — translates verified provider events into subscription state and history.
 
-The current provider is intentionally `unconfigured`. It returns a safe
-`not_configured` response and never accepts a webhook. Paddle credentials are
-present in the environment, but credentials alone do not activate billing:
-valid catalog price IDs, hosted-session API calls, and signature verification
-must be implemented together before the provider can be registered.
+Paddle Billing Sandbox is enabled through the official Node SDK. The API server
+resolves active catalog prices by product name and billing interval, then creates
+an authenticated Paddle transaction with InvoiceFocus custom data. The browser
+opens that transaction in Paddle.js overlay checkout using the client token.
+
+The optional overrides `PADDLE_PRO_MONTHLY_PRICE_ID`,
+`PADDLE_PRO_YEARLY_PRICE_ID`, `PADDLE_PREMIUM_MONTHLY_PRICE_ID`, and
+`PADDLE_PREMIUM_YEARLY_PRICE_ID` can pin catalog mappings. If an interval is
+not present in the Paddle catalog, checkout fails clearly rather than using a
+different price. The current Sandbox API key can read existing monthly prices
+but does not have permission to create yearly prices, so yearly IDs must be
+created in Paddle and supplied through those overrides before yearly checkout
+is enabled.
 
 ## Future provider integration points
 
@@ -35,8 +43,10 @@ adapter should know provider event names, signatures, or IDs.
 
 ## Webhook flow
 
-1. Provider sends `POST /api/webhooks/billing/:provider`.
-2. Adapter verifies the signature and returns a `VerifiedWebhook`.
+1. Paddle sends `POST /api/paddle/webhook`.
+2. The adapter verifies `Paddle-Signature` with `PADDLE_WEBHOOK_SECRET`.
+   While `PADDLE_ENV=sandbox`, verification is intentionally skipped only when
+   that secret is absent; production rejects unsigned payloads.
 3. The event is deduplicated by `(provider, provider_event_id)`.
 4. `BillingEventHandler` updates the server-owned subscription.
 5. A billing history record is written for the customer timeline.

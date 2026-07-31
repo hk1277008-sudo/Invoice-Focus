@@ -28,8 +28,17 @@ router.post('/billing/checkout', async (req, res) => {
   const plan = req.body?.plan as BillingPlan;
   const billingCycle = req.body?.billingCycle === 'yearly' ? 'yearly' : 'monthly';
   if (!['free', 'pro', 'premium'].includes(plan)) { res.status(400).json({ error: 'Invalid billing plan' }); return; }
-  const result = await checkoutService.create(user.id, plan, billingCycle, req.body?.returnUrl || '/dashboard/billing');
-  res.json({ ...result });
+   try {
+     const current = await subscriptionManager.get(user.id);
+     if (current.plan !== 'free' && current.status !== 'cancelled' && current.status !== 'incomplete') {
+       res.status(409).json({ error: 'You already have an active paid subscription. Manage it from the billing portal.' }); return;
+     }
+     const result = await checkoutService.create(user.id, plan, billingCycle, req.body?.returnUrl || '/dashboard/billing');
+     if (result.status === 'not_configured') { res.status(503).json({ ...result, error: result.message || 'Paddle checkout is not configured yet.' }); return; }
+     res.json({ ...result });
+   } catch (error) {
+     res.status(502).json({ error: error instanceof Error ? error.message : 'Could not create Paddle checkout.' });
+   }
 });
 
 router.post('/billing/portal', async (req, res) => {
@@ -61,5 +70,35 @@ router.post('/webhooks/billing/:provider', async (req, res) => {
     res.status(503).json({ error: 'Billing provider webhook verification is not configured.' });
   }
 });
+
+export async function handlePaddleWebhook(req: Request, res: Response) {
+  const provider = getBillingProvider();
+  const signature = req.get('paddle-signature') || null;
+  const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '';
+  try {
+    const event = await provider.verifyWebhook({ provider: 'paddle', rawBody, signature });
+    const { data: duplicate, error: duplicateError } = await supabaseAdmin
+      .from('billing_webhook_events')
+      .select('id,status')
+      .eq('provider', event.provider)
+      .eq('provider_event_id', event.eventId)
+      .maybeSingle();
+    if (duplicateError) throw duplicateError;
+    if (duplicate) { res.status(204).end(); return; }
+    const { error: receivedError } = await supabaseAdmin.from('billing_webhook_events').insert({
+      provider: event.provider,
+      provider_event_id: event.eventId,
+      event_type: event.type,
+      status: 'received',
+      payload: event.data,
+    });
+    if (receivedError) throw receivedError;
+    await billingEventHandler.handle(event);
+    await supabaseAdmin.from('billing_webhook_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('provider', event.provider).eq('provider_event_id', event.eventId);
+    res.status(204).end();
+  } catch (error) {
+    res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid Paddle webhook.' });
+  }
+}
 
 export default router;

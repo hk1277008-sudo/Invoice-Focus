@@ -28,7 +28,12 @@ export interface CheckoutInput {
 export interface CheckoutResult {
   provider: string;
   checkoutUrl: string | null;
+  transactionId?: string | null;
+  clientToken?: string | null;
+  priceId?: string | null;
+  environment?: 'sandbox' | 'production';
   status: 'not_configured' | 'ready';
+  message?: string;
 }
 
 export interface CustomerPortalInput {
@@ -40,6 +45,7 @@ export interface CustomerPortalResult {
   provider: string;
   portalUrl: string | null;
   status: 'not_configured' | 'ready';
+  message?: string;
 }
 
 export interface WebhookVerificationInput {

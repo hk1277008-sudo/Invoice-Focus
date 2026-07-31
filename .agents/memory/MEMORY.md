@@ -6,7 +6,7 @@
 - [Subscription system](subscription-system.md) — Entitlements and Free usage are server-owned; apply the subscription migration before authenticated plan checks.
 - [Supabase schema cache repair](supabase-schema-cache-repair.md) — After creating application tables, reload PostgREST and verify real REST reads/inserts plus the OpenAPI table list.
 - [Supabase child-table RLS](supabase-child-table-rls.md) — Child rows must verify referenced parent ownership in RLS; matching user_id alone is insufficient.
-- [Provider-neutral billing](provider-neutral-billing.md) — Keep checkout, portal, webhook verification, subscription state, and billing history behind neutral interfaces until a gateway is configured.
+- [Provider-neutral billing](provider-neutral-billing.md) — Keep Paddle checkout, portal, webhooks, subscription state, and billing history behind neutral interfaces.
 - [Canvas iframe variants](canvas-iframe-variants.md) — Canvas iframe updates reject arbitrary custom props; use query parameters for per-variant preview state.
 - [Supabase migration path](supabase-migration-path.md) — InvoiceFocus schema lives in Supabase, not the separate Replit PostgreSQL database tool.
 - [InvoiceFocus UI polish system](ui-polish-system.md) — Refine shared primitives and route rhythm while preserving the existing brand, workflows, auth, and invoice output.

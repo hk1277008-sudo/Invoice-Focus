@@ -5,14 +5,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useSubscription } from '@/providers/SubscriptionProvider'
 import { type BillingCycle, type PlanId } from '@/lib/subscription'
 import { useLocation } from 'wouter'
-import { updateSubscriptionAction } from '@/lib/billing'
+import { createCheckout, updateSubscriptionAction } from '@/lib/billing'
 import { useToast } from '@/hooks/use-toast'
+
+declare global {
+  interface Window {
+    Paddle?: {
+      Environment: { set: (environment: 'sandbox' | 'production') => void }
+      Initialize: (options: { token: string; eventCallback?: (event: { name?: string }) => void }) => void
+      Checkout: { open: (options: { transactionId: string; settings?: { successUrl?: string } }) => void }
+    }
+  }
+}
 
 const plans: { id: PlanId; name: string; monthly: string; yearly: string; description: string; features: string[]; popular?: boolean }[] = [
   { id: 'free', name: 'Free', monthly: 'Free Forever', yearly: 'Free Forever', description: 'The essentials for getting started.', features: ['15 invoices per month', '1 business', 'Basic invoice templates', 'Basic dashboard', 'Standard email support'] },
   { id: 'pro', name: 'Pro', monthly: '$9/month', yearly: '$89/year', description: 'More room for a growing business.', popular: true, features: ['Unlimited invoices and clients', 'Recurring invoices', 'Advanced templates', 'Payment reminders', 'Business insights', 'Data export', 'Priority support'] },
   { id: 'premium', name: 'Premium', monthly: '$19/month', yearly: '$189/year', description: 'For teams building an operation.', features: ['Everything in Pro', 'Multiple businesses', 'Team collaboration', 'Roles and permissions', 'Advanced analytics', 'API access', 'Integrations', 'Audit logs'] },
 ]
+let initializedPaddleToken: string | null = null
+
 export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?: BillingCycle }) {
   const [cycle, setCycle] = useState<BillingCycle>(initialCycle)
   const [busy, setBusy] = useState<PlanId | null>(null)
@@ -23,12 +35,39 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
     if (plan === subscription.plan) return
     setBusy(plan)
     try {
-      await updateSubscriptionAction(plan === 'free' ? 'downgrade' : 'upgrade', plan, cycle)
-      await refreshSubscription()
-      toast({ title: `${plan === 'free' ? 'Downgraded to' : 'Upgraded to'} ${plan === 'free' ? 'Free' : plan[0].toUpperCase() + plan.slice(1)}`, description: 'Your workspace access is now up to date.' })
-      navigate('/dashboard/billing')
+      if (plan === 'free') {
+        await updateSubscriptionAction('downgrade', plan, cycle)
+        await refreshSubscription()
+        toast({ title: 'Downgraded to Free', description: 'Your workspace access is now up to date.' })
+        navigate('/dashboard/billing')
+        return
+      }
+      const checkout = await createCheckout(plan, cycle)
+      if (!checkout.transactionId || !checkout.clientToken) throw new Error(checkout.message || 'Paddle checkout is not configured yet.')
+      const open = () => {
+        if (!window.Paddle) throw new Error('Paddle Checkout could not be loaded. Please try again.')
+        window.Paddle.Checkout.open({ transactionId: checkout.transactionId!, settings: { successUrl: `${window.location.origin}${import.meta.env.BASE_URL}dashboard/billing?checkout=success` } })
+      }
+      if (!window.Paddle) {
+        await new Promise<void>((resolve, reject) => {
+          const script = document.createElement('script')
+          script.src = 'https://cdn.paddle.com/paddle/v2/paddle.js'
+          script.onload = () => resolve()
+          script.onerror = () => reject(new Error('Paddle Checkout could not be loaded.'))
+          document.head.appendChild(script)
+        })
+      }
+      if (!window.Paddle) throw new Error('Paddle Checkout could not be loaded. Please try again.')
+      window.Paddle.Environment.set(checkout.environment === 'production' ? 'production' : 'sandbox')
+      if (initializedPaddleToken !== checkout.clientToken) {
+        window.Paddle.Initialize({ token: checkout.clientToken, eventCallback: (event) => {
+          if (event.name === 'checkout.completed') void refreshSubscription()
+        } })
+        initializedPaddleToken = checkout.clientToken
+      }
+      open()
     } catch (error) {
-      toast({ title: 'Could not change plan', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
+      toast({ title: 'Could not open secure checkout', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
     } finally {
       setBusy(null)
     }

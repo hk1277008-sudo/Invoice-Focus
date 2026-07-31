@@ -13,6 +13,7 @@ import reportsRouter from "./reports";
 import shareRouter from "./share";
 import onboardingRouter from "./onboarding";
 import feedbackRouter from "./feedback";
+import { handlePaddleWebhook } from "./billing";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(reportsRouter);
 router.use(shareRouter);
 router.use(onboardingRouter);
 router.use(feedbackRouter);
+router.post('/paddle/webhook', handlePaddleWebhook);
 
 export default router;

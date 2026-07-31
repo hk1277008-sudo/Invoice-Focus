@@ -73,20 +73,6 @@ export default function BillingPage() {
     }
   }
 
-  const simulateUpgrade = async () => {
-    if (!selectedPlan || !['free', 'pro', 'premium'].includes(selectedPlan) || selectedPlan === subscription.plan) return
-    setIsProcessing(true)
-    try {
-      await updateSubscriptionAction('upgrade', selectedPlan as PlanId, selectedCycle)
-      await refreshSubscription()
-      toast({ title: 'Plan updated', description: 'Your selected plan is active for this workspace.' })
-    } catch (error) {
-      toast({ title: 'Could not update plan', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-
   const openPaymentMethodFlow = async () => {
     setPortalBusy(true)
     try {
@@ -149,7 +135,7 @@ export default function BillingPage() {
             </CardHeader>
             <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                <p className="text-sm text-muted-foreground">Review the plan details, then continue to activate it for this workspace.</p>
-              <Button onClick={() => void simulateUpgrade()} disabled={isProcessing}>{isProcessing ? 'Updating...' : 'Continue'}</Button>
+               <Button onClick={() => navigate(`/dashboard/upgrade?plan=${selectedPlan}&cycle=${selectedCycle}`)} disabled={isProcessing}>Continue to secure checkout</Button>
             </CardContent>
           </Card>
         )}
