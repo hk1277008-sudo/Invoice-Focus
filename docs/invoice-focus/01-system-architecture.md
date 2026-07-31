@@ -15,14 +15,14 @@ flowchart LR
   Replit --> API
 ```
 
-The browser is responsible for presentation, interactive editing, client-side session state, and export/print UX. The API is the business boundary for invoices, clients, settings, subscriptions, recurring schedules, notifications, and account operations. Supabase is the system of record for identity and application data.
+The browser is responsible for presentation, interactive editing, local draft state, and export/print UX. The API is the business boundary for cloud invoices, clients, settings, recurring schedules, notifications, and account operations. Supabase is the system of record for identity and synchronized application data.
 
 ## 1.2 Frontend architecture
 
 The frontend is a React + TypeScript + Vite single-page application using:
 
 - `wouter` route declarations in `src/App.tsx`
-- Context providers for authentication and subscription state
+- Context provider for authentication state
 - Feature-oriented page and component folders
 - Supabase browser client for Auth session operations
 - A small typed API-client pattern in `src/lib/*.ts`
@@ -36,7 +36,7 @@ The route groups are organizational folders; they do not represent a server-side
 2. The client retrieves the current Supabase session.
 3. It sends `Authorization: Bearer <access_token>` to `/api/...`.
 4. The Express API validates the token and performs the operation.
-5. The client converts non-2xx responses into user-facing errors or upgrade states.
+5. The client converts non-2xx responses into user-facing errors.
 
 ## 1.3 Backend architecture
 
@@ -104,21 +104,9 @@ Resend is used for:
 
 The API requires `RESEND_API_KEY` and `FROM_EMAIL`. Email templates are generated in `src/lib/email.ts` and use InvoiceFocus branding. The application avoids revealing account existence in the forgot-password response.
 
-Invoice delivery and payment-reminder automation are represented as product settings and plan features, but a separate invoice-delivery scheduler/provider implementation is not present in the inspected source.
+Invoice delivery and payment-reminder automation are represented as application capabilities. Payment reminders are available across all accounts.
 
-## 1.7 Subscription flow
-
-1. The browser requests `GET /api/subscriptions/me`.
-2. The API loads the user subscription or normalizes an implicit Free plan.
-3. The response includes plan metadata, invoice usage, remaining quota, feature permissions, and catalog information.
-4. `SubscriptionProvider` exposes `hasFeature()` and invoice-limit state to the UI.
-5. Invoice creation and duplication call the database usage RPC before inserting.
-6. Recurring-invoice mutations require `recurringInvoices`, which is granted to Pro and Premium.
-7. Plan preview returns pricing metadata and indicates that payment is required.
-
-The repository does not contain a payment processor checkout/webhook implementation. `POST /api/subscriptions/preview` is a checkout-ready preview boundary, not a completed billing integration.
-
-## 1.8 Invoice generation flow
+## 1.7 Invoice generation flow
 
 ### Interactive invoice creation
 
@@ -126,10 +114,8 @@ The repository does not contain a payment processor checkout/webhook implementat
 2. Shared invoice utilities calculate totals.
 3. The client submits normalized invoice data to `POST /api/invoices`.
 4. The API validates the request with Zod.
-5. The API calls `reserve_invoice_usage`.
-6. If usage is allowed, the API inserts the invoice.
-7. If insertion fails, the API calls `release_invoice_usage`.
-8. The API returns the persisted invoice.
+5. The API inserts the invoice for the authenticated owner.
+6. The API returns the persisted invoice.
 
 Invoices store both indexed summary columns and a JSONB `payload` containing the invoice editor data.
 
@@ -137,7 +123,7 @@ Invoices store both indexed summary columns and a JSONB `payload` containing the
 
 The frontend contains PDF/JSON export and print-oriented invoice preview components. These are browser-side presentation/export concerns and do not create a second invoice storage path.
 
-## 1.9 Recurring invoice flow
+## 1.8 Recurring invoice flow
 
 1. A Pro or Premium user creates a schedule through `POST /api/recurring-invoices`.
 2. The schedule stores dates, frequency, time zone, due-date offset, generated status, automatic-generation state, and the invoice template in JSONB.

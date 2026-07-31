@@ -29,13 +29,14 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { createInvoice, getInvoice, invoiceInput, updateInvoice, type InvoiceStatus } from '@/lib/invoices'
 import { listClients, type ClientRecord } from '@/lib/clients'
-import { useSubscription } from '@/providers/SubscriptionProvider'
-import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
 import { useAuth } from '@/hooks/useAuth'
+import { invoiceTemplates, type InvoiceTemplate } from '@/components/invoice/presentation'
 
 export default function InvoicePage() {
   const search = useSearch()
   const [, navigate] = useLocation()
+  const templateParam = new URLSearchParams(search).get('template')
+  const selectedTemplate = invoiceTemplates.some((template) => template.id === templateParam) ? templateParam as InvoiceTemplate : undefined
   const {
     invoice,
     currency,
@@ -53,12 +54,11 @@ export default function InvoicePage() {
     setLogo,
     loadFromData,
     reset,
-  } = useInvoice()
+  } = useInvoice(selectedTemplate)
 
   useInvoiceDraft(invoice)
   const { fieldErrors: validationErrors, isValid } = useInvoiceValidation(invoice)
   const { toast } = useToast()
-  const { refreshSubscription } = useSubscription()
   const { isAuthenticated } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isImporting, setIsImporting] = useState(false)
@@ -68,7 +68,6 @@ export default function InvoicePage() {
   const [isLoadingRecord, setIsLoadingRecord] = useState(true)
   const [remoteStatus, setRemoteStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [clients, setClients] = useState<ClientRecord[]>([])
-  const [limitDialogOpen, setLimitDialogOpen] = useState(false)
 
   useEffect(() => {
     listClients({ sort: 'name', direction: 'asc' })
@@ -115,7 +114,6 @@ export default function InvoicePage() {
         setRecordId(result.invoice.id)
         setSavedStatus(result.invoice.status)
         navigate(`/invoice?id=${result.invoice.id}`, { replace: true })
-        await refreshSubscription()
       }
       setRemoteStatus('saved')
       window.setTimeout(() => setRemoteStatus((status) => status === 'saved' ? 'idle' : status), 1800)
@@ -126,17 +124,13 @@ export default function InvoicePage() {
         updateDetails('status', savedStatus)
       }
       setRemoteStatus('error')
-      if (error instanceof Error && 'code' in error && (error as Error & { code?: string }).code === 'INVOICE_LIMIT_REACHED') {
-        setLimitDialogOpen(true)
-        return
-      }
       toast({
         title: 'Save failed',
         description: error instanceof Error ? error.message : 'Could not save this invoice.',
         variant: 'destructive',
       })
     }
-  }, [calculations.grandTotal, hasAnyData, invoice, isAuthenticated, navigate, recordId, refreshSubscription, savedStatus, toast])
+  }, [calculations.grandTotal, hasAnyData, invoice, isAuthenticated, navigate, recordId, savedStatus, toast])
 
   useEffect(() => {
     const params = new URLSearchParams(search)
@@ -276,12 +270,6 @@ export default function InvoicePage() {
 
   return (
     <InvoiceLayout>
-      <UpgradeDialog
-        open={limitDialogOpen}
-        onOpenChange={setLimitDialogOpen}
-        feature="You’ve reached your monthly invoice limit"
-        description="You've reached your monthly limit of 15 invoices. Upgrade to Pro for unlimited invoicing and additional business tools."
-      />
       <div className="mx-auto max-w-7xl px-6 py-8">
         {/* Top action bar */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">

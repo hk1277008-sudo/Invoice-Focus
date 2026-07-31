@@ -7,4 +7,4 @@ Application schema migrations for InvoiceFocus must be applied through the Supab
 
 **Why:** An attempted presentation migration returned `relation "public.user_settings" does not exist` against the Replit database, while the API is configured for Supabase via `VITE_SUPABASE_URL` and the Supabase service-role secret.
 
-**How to apply:** Use the Supabase SQL/migration deployment flow before production use, then verify the relevant tables through the Supabase API. For the current InvoiceFocus billing rollout, migration 010 is already present in the beta project; focus on migrations 017 and 018 and reload PostgREST afterward.
+**How to apply:** Use the Supabase SQL/migration deployment flow before production use, then apply the forward free-platform cleanup migration and verify the remaining tables through the Supabase API. Reload PostgREST afterward.

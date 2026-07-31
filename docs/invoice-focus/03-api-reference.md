@@ -162,7 +162,7 @@ Request:
 }
 ```
 
-The usage RPC is reserved before insertion. A Free user exceeding 15 invoices in the current month receives `402` with code `INVOICE_LIMIT_REACHED`.
+Invoice creation is unlimited. Authentication is required for cloud persistence, while guests can continue working with a browser-local draft and export it without an account.
 
 Response: `201 { "invoice": ... }`.
 
@@ -286,51 +286,7 @@ Authentication: required.
 
 Behavior: account deletion operation through the trusted server path. This is destructive and should be treated as an irreversible operation after confirmation in the UI.
 
-## 3.8 Subscriptions
-
-### `GET /api/subscriptions/catalog`
-
-Authentication: none.
-
-Response: `{ "plans": { "free": {}, "pro": {}, "premium": {} } }`.
-
-### `GET /api/subscriptions/me`
-
-Authentication: required.
-
-Response:
-
-```json
-{
-  "subscription": {
-    "plan": "free",
-    "planName": "Free",
-    "billingCycle": "monthly",
-    "status": "active",
-    "invoiceCountThisMonth": 0,
-    "invoiceLimit": 15,
-    "invoiceRemaining": 15,
-    "featurePermissions": {},
-    "catalog": {}
-  }
-}
-```
-
-### `POST /api/subscriptions/preview`
-
-Authentication: required.
-
-Request:
-
-```json
-{ "plan": "pro", "billingCycle": "monthly" }
-```
-
-Response includes selected plan, billing cycle, price, `paymentRequired`, and `checkoutReady`.
-
-This is a preview boundary; no payment transaction is created by this route.
-
-## 3.9 Recurring invoices
+## 3.8 Recurring invoices
 
 ### `GET /api/recurring-invoices`
 

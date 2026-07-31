@@ -19,8 +19,6 @@ import { useInvoice } from '@/components/invoice/useInvoice'
 import { InvoiceEditor } from '@/components/invoice/InvoiceEditor'
 import { InvoicePreview } from '@/components/invoice/InvoicePreview'
 import { useInvoiceValidation } from '@/components/invoice/useInvoiceValidation'
-import { useSubscription } from '@/providers/SubscriptionProvider'
-import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
 import { format } from 'date-fns'
 import { getSettings, type UserSettings } from '@/lib/settings'
 
@@ -32,8 +30,6 @@ interface Props {
 export function RecurringInvoiceForm({ initialData, isNew }: Props) {
   const [, navigate] = useLocation()
   const { toast } = useToast()
-  const { hasFeature } = useSubscription()
-  const hasRecurring = hasFeature('recurringInvoices')
   
   const {
     invoice,
@@ -185,17 +181,6 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
 
   return (
     <DashboardLayout>
-      {!hasRecurring && (
-        <UpgradeDialog
-          open
-          onOpenChange={(open) => {
-            if (!open) navigate('/dashboard/recurring')
-          }}
-          feature="Automate your billing"
-          description="Recurring invoices are available on the Pro plan. Schedule invoices for regular clients and keep every billing cycle on track."
-        />
-      )}
-      {hasRecurring && (
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -371,7 +356,6 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
           </div>
         </div>
       </div>
-      )}
     </DashboardLayout>
   )
 }

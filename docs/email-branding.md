@@ -30,8 +30,8 @@ In the Supabase project:
 
 ## Resend and future application mail
 
-Invoice and payment-reminder emails already use the shared sender. Future billing
-emails must use the same display name:
+Invoice and payment-reminder emails already use the shared sender. Future
+application emails must use the same display name:
 
 ```ts
 from: 'InvoiceFocus <hello@invoicefocus.com>'

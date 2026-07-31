@@ -19,11 +19,9 @@
 - Dashboard metrics and revenue/status summaries
 - Settings persistence and export
 - Account deletion path
-- Free/Pro/Premium catalog
-- Server-owned subscription usage
-- 15-invoice Free monthly limit
-- Monthly usage reset RPC
-- Pro/Premium recurring invoice feature gating
+- Permanently free product model with unlimited usage
+- Guest invoice editing with local draft persistence
+- Authenticated cloud saving and account history
 - Recurring invoice scheduling and lifecycle
 - Time-zone-aware recurring execution
 - Recurring defaults in Settings
@@ -32,33 +30,16 @@
 - Generated invoice relationship to recurring schedule
 - In-app generated-invoice notifications
 - Notification read state
-- Development-only plan simulation
 - RLS and user-isolation policies
 - Replit workflows and production frontend build
 
-## 7.2 Planned product features suggested by current catalog
+## 7.2 Planned product features suggested by the product direction
 
-These are represented in plan copy or permission models but are not complete modules in the inspected repository:
-
-- Payment processor integration and real checkout
-- Payment reminders
-- Multiple businesses
-- Team collaboration
-- Roles and permissions
-- Advanced analytics
-- Public API access
-- Third-party integrations
-- Audit logs
-- Early-access feature controls
-- Automated invoice email delivery
-
-They should be treated as roadmap items rather than currently available backend capabilities unless separately implemented.
+Future services may include custom websites, POS systems, business automation,
+software development, and digital marketing. These are intentionally separate
+from the core free invoicing product.
 
 ## 7.3 Extension points
-
-### Billing
-
-`subscriptions.ts` already centralizes catalog normalization, usage reservation, and feature checks. A Stripe/other provider adapter can be inserted around subscription checkout, webhook reconciliation, and plan lifecycle without changing invoice ownership rules.
 
 ### Notifications
 
@@ -104,14 +85,6 @@ Authentication helpers are repeated across route files, and the API uses a servi
 ### Route-level data access
 
 Routes directly construct Supabase queries. This makes small features fast to ship but increases testing and maintenance cost as the domain grows.
-
-### Subscription truth duplication
-
-Plan permissions exist in both TypeScript catalog logic and PostgreSQL permission functions. These sources can drift. A single canonical entitlement definition or generated contract is preferable.
-
-### Billing is not complete
-
-The subscription preview endpoint reports `paymentRequired` and `checkoutReady`, but there is no observed payment provider checkout/webhook reconciliation in this repository.
 
 ### Scheduler concurrency
 
@@ -159,8 +132,7 @@ The architecture is suitable for an early SaaS beta and small-to-moderate tenant
 2. Add scheduler locking/claiming.
 3. Add metrics and error tracking.
 4. Extract repositories/services for high-change domains.
-5. Add billing webhooks and entitlement reconciliation.
-6. Move heavy analytics to SQL aggregation or reporting jobs.
+5. Move heavy analytics to SQL aggregation or reporting jobs.
 
 ## 7.7 QA and verification posture
 
@@ -177,7 +149,7 @@ Recommended enduring test suites:
 
 - API contract tests for every route
 - RLS cross-user isolation tests
-- Subscription RPC concurrency tests
+- Unlimited authenticated invoice-save tests
 - Recurring DST/time-zone boundary tests
 - Scheduler replay/idempotency tests
 - Email template snapshot tests
@@ -187,4 +159,4 @@ Recommended enduring test suites:
 
 ## 7.8 Architecture decision summary
 
-The current modular monolith should be retained until actual scale or team boundaries require decomposition. The highest-value improvements are not microservices; they are centralized authorization, canonical entitlements, bounded queries, scheduler concurrency protection, billing reconciliation, and stronger operational observability.
+The current modular monolith should be retained until actual scale or team boundaries require decomposition. The highest-value improvements are not microservices; they are centralized authorization, bounded queries, scheduler concurrency protection, and stronger operational observability.

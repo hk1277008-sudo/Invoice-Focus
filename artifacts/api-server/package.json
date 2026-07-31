@@ -13,7 +13,6 @@
     "test:onboarding-feedback": "node ./scripts/test-onboarding-feedback.mjs"
   },
   "dependencies": {
-    "@paddle/paddle-node-sdk": "^3.8.0",
     "@supabase/supabase-js": "^2.110.8",
     "@workspace/api-zod": "workspace:*",
     "@workspace/db": "workspace:*",

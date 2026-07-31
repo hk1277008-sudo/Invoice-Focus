@@ -1,10 +1,9 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
-import { releaseInvoice, reserveInvoice } from './subscriptions';
 import { buildInvoiceEmail, sendEmail } from '../lib/email';
 import { canTransition, invoiceStatuses, recordActivity, refreshOverdueInvoices, remainingBalance, statusAfterPayment, withInvoicePayloadStatus, createSimplePdf, processDueReminders, type InvoiceStatus } from '../services/invoice-lifecycle';
-import { enforceInvoicePresentationEntitlement, invoicePresentationPayloadSchema } from '../lib/invoice-presentation';
+import { invoicePresentationPayloadSchema } from '../lib/invoice-presentation';
 
 const router: IRouter = Router();
 const statuses = invoiceStatuses;
@@ -179,27 +178,6 @@ router.post('/invoices', async (req, res) => {
     return;
   }
   const input = parsed.data;
-  try {
-    const presentationError = await enforceInvoicePresentationEntitlement(user.id, input.payload.presentation);
-    if (presentationError) { res.status(403).json(presentationError); return; }
-  } catch {
-    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
-    return;
-  }
-  let usage: Awaited<ReturnType<typeof reserveInvoice>>;
-  try {
-    usage = await reserveInvoice(user.id);
-  } catch {
-    res.status(503).json({ error: 'Invoice service is temporarily unavailable. Please try again.' });
-    return;
-  }
-  if (!usage.allowed) {
-    res.status(402).json({
-      error: "You've reached your monthly limit of 15 invoices. Upgrade to Pro for unlimited invoicing and additional business tools.",
-      code: 'INVOICE_LIMIT_REACHED', subscription: usage,
-    });
-    return;
-  }
   const { data, error } = await supabaseAdmin
     .from('invoices')
     .insert({
@@ -218,7 +196,6 @@ router.post('/invoices', async (req, res) => {
     .select('*')
     .single();
   if (error) {
-    await releaseInvoice(user.id);
     res.status(error.code === '23505' ? 409 : 500).json({ error: error.code === '23505' ? 'Invoice number already exists' : 'Failed to save invoice' });
     return;
   }
@@ -239,13 +216,6 @@ router.patch('/invoices/:id', async (req, res) => {
     return;
   }
   const input = parsed.data;
-  try {
-    const presentationError = await enforceInvoicePresentationEntitlement(user.id, input.payload?.presentation);
-    if (presentationError) { res.status(403).json(presentationError); return; }
-  } catch {
-    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
-    return;
-  }
   const updates: Record<string, unknown> = {};
   if (input.invoiceNumber !== undefined) updates.invoice_number = input.invoiceNumber;
   if (input.status !== undefined) {
@@ -454,8 +424,6 @@ router.delete('/invoices/:id/payments/:paymentId', async (req, res) => {
 
 router.post('/invoices/:id/reminders', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
-  const { hasSubscriptionFeature } = await import('./subscriptions');
-  if (!(await hasSubscriptionFeature(user.id, 'paymentReminders'))) { res.status(403).json({ error: 'Automatic payment reminders are available on Pro and Premium plans.', code: 'FEATURE_NOT_INCLUDED' }); return; }
   const parsed = reminderSchema.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Invalid reminder data', details: parsed.error.flatten() }); return; }
   const invoice = await supabaseAdmin.from('invoices').select('id,due_date').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
@@ -501,20 +469,6 @@ router.post('/invoices/:id/duplicate', async (req, res) => {
     res.status(404).json({ error: 'Invoice not found' });
     return;
   }
-  let usage: Awaited<ReturnType<typeof reserveInvoice>>;
-  try {
-    usage = await reserveInvoice(user.id);
-  } catch {
-    res.status(503).json({ error: 'Invoice service is temporarily unavailable. Please try again.' });
-    return;
-  }
-  if (!usage.allowed) {
-    res.status(402).json({
-      error: "You've reached your monthly limit of 15 invoices. Upgrade to Pro for unlimited invoicing and additional business tools.",
-      code: 'INVOICE_LIMIT_REACHED', subscription: usage,
-    });
-    return;
-  }
   const { data, error } = await supabaseAdmin
     .from('invoices')
     .insert({
@@ -533,7 +487,6 @@ router.post('/invoices/:id/duplicate', async (req, res) => {
     .select('*')
     .single();
   if (error) {
-    await releaseInvoice(user.id);
     res.status(500).json({ error: 'Failed to duplicate invoice' });
     return;
   }

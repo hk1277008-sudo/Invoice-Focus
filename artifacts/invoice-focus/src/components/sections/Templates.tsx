@@ -32,31 +32,37 @@ function TemplateMiniPreview({ accent }: { accent: string }) {
 
 const TEMPLATES = [
   {
+    id: 'modern',
     title: 'Classic Invoice',
     description: 'Clean, timeless layout with detailed line items and totals.',
     accent: 'bg-blue-500',
   },
   {
+    id: 'minimal',
     title: 'Minimal Invoice',
     description: 'Whitespace-forward design for a modern, boutique feel.',
     accent: 'bg-slate-700',
   },
   {
+    id: 'corporate',
     title: 'Bold Invoice',
     description: 'Strong typography and high-contrast sections for impact.',
     accent: 'bg-indigo-600',
   },
   {
+    id: 'executive',
     title: 'Professional Quote',
     description: 'Convert-ready quote format with approval summary.',
     accent: 'bg-emerald-500',
   },
   {
+    id: 'elegant',
     title: 'Project Estimate',
     description: 'Phase-based estimate ideal for agencies and retainers.',
     accent: 'bg-amber-500',
   },
   {
+    id: 'creative',
     title: 'Freelancer Invoice',
     description: 'Compact format perfect for solo professionals and consultants.',
     accent: 'bg-rose-500',
@@ -97,10 +103,10 @@ export function Templates() {
           whileInView="show"
           viewport={{ once: true, margin: '-80px' }}
         >
-          {TEMPLATES.map(({ title, description, accent }) => (
+          {TEMPLATES.map(({ id, title, description, accent }) => (
             <motion.a
               key={title}
-              href="/sign-up"
+              href={`/invoice?template=${id}`}
               variants={item}
               className="group flex h-full flex-col rounded-2xl bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg gradient-border"
             >

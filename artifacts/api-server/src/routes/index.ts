@@ -5,15 +5,12 @@ import invoicesRouter from "./invoices";
 import clientsRouter from "./clients";
 import dashboardRouter from "./dashboard";
 import settingsRouter from "./settings";
-import subscriptionsRouter from "./subscriptions";
 import recurringInvoicesRouter from "./recurring-invoices";
 import notificationsRouter from "./notifications";
-import billingRouter from "./billing";
 import reportsRouter from "./reports";
 import shareRouter from "./share";
 import onboardingRouter from "./onboarding";
 import feedbackRouter from "./feedback";
-import { handlePaddleWebhook } from "./billing";
 
 const router: IRouter = Router();
 
@@ -23,14 +20,11 @@ router.use(invoicesRouter);
 router.use(clientsRouter);
 router.use(dashboardRouter);
 router.use(settingsRouter);
-router.use(subscriptionsRouter);
 router.use(recurringInvoicesRouter);
 router.use(notificationsRouter);
-router.use(billingRouter);
 router.use(reportsRouter);
 router.use(shareRouter);
 router.use(onboardingRouter);
 router.use(feedbackRouter);
-router.post('/paddle/webhook', handlePaddleWebhook);
 
 export default router;

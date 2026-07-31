@@ -7,12 +7,24 @@ The application database is Supabase PostgreSQL. The SQL migration history is:
 1. `001_invoices.sql`
 2. `002_clients.sql`
 3. `003_settings.sql`
-4. `004_subscriptions.sql`
+4. `004_subscriptions.sql` (legacy subscription schema)
 5. `005_repair_application_schema.sql`
 6. `006_recurring_invoices.sql`
 7. `007_recurring_preferences_notifications.sql`
+8. `008_invoice_lifecycle.sql`
+9. `009_invoice_child_rls_hardening.sql`
+10. `010_billing_architecture.sql` (legacy billing schema)
+11. `011_invoice_presentation.sql`
+12. `012_invoice_share_tokens.sql`
+13. `013_settings_schema_repair.sql`
+14. `014_invoice_status_persistence.sql`
+15. `015_private_beta_settings.sql`
+16. `016_onboarding_feedback.sql`
+17. `017_settings_billing_completion.sql` (legacy billing schema)
+18. `018_billing_idempotency.sql` (legacy billing schema)
+19. `019_free_platform_cleanup.sql`
 
-Migration `007` has been verified against live Supabase. The schema cache exposes the new columns and `notifications` table, and a disposable authenticated persistence probe passed.
+Migration `007` was previously verified against live Supabase. Migration `019` is a forward cleanup migration that removes the legacy subscription and billing objects from that project and reloads PostgREST. It must be applied through the Supabase project migration mechanism before production use.
 
 ## 2.2 Entity relationship diagram
 
@@ -21,7 +33,6 @@ erDiagram
   AUTH_USERS ||--o| USER_SETTINGS : owns
   AUTH_USERS ||--o{ INVOICES : owns
   AUTH_USERS ||--o{ CLIENTS : owns
-  AUTH_USERS ||--o| SUBSCRIPTIONS : has
   AUTH_USERS ||--o{ RECURRING_INVOICES : owns
   AUTH_USERS ||--o{ NOTIFICATIONS : receives
   CLIENTS o|--o{ INVOICES : referenced_by
@@ -59,15 +70,6 @@ erDiagram
     text full_name
     text email
     text company_name
-  }
-  SUBSCRIPTIONS {
-    uuid user_id PK,FK
-    text plan
-    text billing_cycle
-    text status
-    integer invoice_count_this_month
-    date last_reset_date
-    jsonb feature_permissions
   }
   RECURRING_INVOICES {
     uuid id PK
@@ -205,34 +207,7 @@ The complete internal Supabase Auth schema is provider-owned and is not reproduc
 
 **RLS:** User-owned select, insert, and update. Account deletion is performed through the API/Auth flow.
 
-## 2.7 `public.subscriptions`
-
-**Purpose:** Server-owned plan entitlement and invoice usage state.
-
-| Column | Type | Constraint |
-|---|---|---|
-| `user_id` | `uuid` | PK/FK to `auth.users(id)`, cascade delete |
-| `plan` | `text` | `free`, `pro`, or `premium` |
-| `billing_cycle` | `text` | `monthly` or `yearly` |
-| `status` | `text` | `active`, `trialing`, `past_due`, `cancelled`, or `incomplete` |
-| `started_at` | `timestamptz` | Required UTC default |
-| `renewal_date` | `timestamptz` | Nullable |
-| `invoice_count_this_month` | `integer` | Required, nonnegative |
-| `last_reset_date` | `date` | Required UTC date default |
-| `feature_permissions` | `jsonb` | Required, default `{}` |
-| `created_at` / `updated_at` | `timestamptz` | UTC defaults |
-
-**Indexes:** `plan`, `renewal_date`.
-
-**Database functions:**
-
-- `subscription_permissions(plan)` returns the canonical permission JSON for Free, Pro, or Premium.
-- `reserve_invoice_usage(p_user_id)` creates a Free subscription record if absent, resets a stale monthly counter, locks the subscription row, and atomically reserves usage.
-- `release_invoice_usage(p_user_id)` releases a previously reserved invoice slot.
-
-**RLS:** Subscription RLS is enabled by the migration. Subscription mutations are intentionally server-owned; the application does not expose a client-side plan-write endpoint.
-
-## 2.8 `public.recurring_invoices`
+## 2.7 `public.recurring_invoices`
 
 **Purpose:** Scheduled invoice templates and lifecycle state.
 

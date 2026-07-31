@@ -27,17 +27,16 @@ export interface InvoicePresentation {
 export const invoiceTemplates: Array<{
   id: InvoiceTemplate
   name: string
-  tier: 'Free' | 'Pro' | 'Premium'
   description: string
 }> = [
-  { id: 'modern', name: 'Modern', tier: 'Free', description: 'Confident color rail with crisp metrics.' },
-  { id: 'minimal', name: 'Minimal', tier: 'Free', description: 'Quiet whitespace and editorial precision.' },
-  { id: 'corporate', name: 'Corporate', tier: 'Pro', description: 'Structured sections for larger teams.' },
-  { id: 'executive', name: 'Executive', tier: 'Pro', description: 'High-trust dark header and premium hierarchy.' },
-  { id: 'elegant', name: 'Elegant', tier: 'Pro', description: 'Serif-led details with refined contrast.' },
-  { id: 'creative', name: 'Creative', tier: 'Premium', description: 'Expressive blocks for studios and makers.' },
-  { id: 'clean', name: 'Clean', tier: 'Premium', description: 'Airy utility with an efficient table.' },
-  { id: 'professional', name: 'Professional', tier: 'Premium', description: 'Balanced all-rounder for every client.' },
+  { id: 'modern', name: 'Modern', description: 'Confident color rail with crisp metrics.' },
+  { id: 'minimal', name: 'Minimal', description: 'Quiet whitespace and editorial precision.' },
+  { id: 'corporate', name: 'Corporate', description: 'Structured sections for larger teams.' },
+  { id: 'executive', name: 'Executive', description: 'High-trust dark header and premium hierarchy.' },
+  { id: 'elegant', name: 'Elegant', description: 'Serif-led details with refined contrast.' },
+  { id: 'creative', name: 'Creative', description: 'Expressive blocks for studios and makers.' },
+  { id: 'clean', name: 'Clean', description: 'Airy utility with an efficient table.' },
+  { id: 'professional', name: 'Professional', description: 'Balanced all-rounder for every client.' },
 ]
 
 export const defaultPresentation: InvoicePresentation = {

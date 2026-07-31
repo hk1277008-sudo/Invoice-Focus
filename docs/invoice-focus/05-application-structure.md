@@ -16,10 +16,10 @@
 │   │       ├── 001_invoices.sql
 │   │       ├── 002_clients.sql
 │   │       ├── 003_settings.sql
-│   │       ├── 004_subscriptions.sql
 │   │       ├── 005_repair_application_schema.sql
 │   │       ├── 006_recurring_invoices.sql
-│   │       └── 007_recurring_preferences_notifications.sql
+│   │       ├── 007_recurring_preferences_notifications.sql
+│   │       └── 019_free_platform_cleanup.sql
 │   ├── invoice-focus/
 │   │   ├── src/
 │   │   │   ├── app/
@@ -69,7 +69,6 @@
 - `/dashboard/recurring/:id`
 - `/dashboard/settings`
 - `/dashboard/profile`
-- `/dashboard/upgrade`
 
 ### Invoice editor
 
@@ -94,13 +93,6 @@
 - Recurring list/detail pages
 - Recurring API client and schedule types
 
-### Subscription domain
-
-- `SubscriptionPlans`
-- `UpgradeDialog`
-- `UsageIndicator`
-- `SubscriptionProvider`
-
 ### Shared UI
 
 The `components/ui` directory contains Radix-based primitives including dialogs, dropdowns, forms, tables, tabs, toast, switch, and layout controls.
@@ -111,7 +103,6 @@ The `components/ui` directory contains Radix-based primitives including dialogs,
 - `use-mobile`: responsive breakpoint helper.
 - `use-toast`: shared toast state.
 - `AuthProvider`: session initialization, auth state subscription, sign-out, refresh.
-- `SubscriptionProvider`: plan load, feature checks, invoice-limit state.
 
 ## 5.5 Backend routes
 
@@ -123,7 +114,6 @@ The `components/ui` directory contains Radix-based primitives including dialogs,
 | `clients.ts` | Client CRUD |
 | `dashboard.ts` | Aggregated overview metrics |
 | `settings.ts` | User settings, export, account deletion |
-| `subscriptions.ts` | Catalog, current plan, preview, usage/feature helpers |
 | `recurring-invoices.ts` | Schedule CRUD, lifecycle, scheduler hook |
 | `notifications.ts` | Notification list and read state |
 

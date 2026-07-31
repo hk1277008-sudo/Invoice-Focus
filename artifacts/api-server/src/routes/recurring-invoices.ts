@@ -1,10 +1,9 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
-import { hasSubscriptionFeature } from './subscriptions';
 import { generateDueRecurringInvoices } from '../services/recurring-generator';
 import { processDueReminders } from '../services/invoice-lifecycle';
-import { enforceInvoicePresentationEntitlement, invoicePresentationSchema } from '../lib/invoice-presentation';
+import { invoicePresentationSchema } from '../lib/invoice-presentation';
 
 const router: IRouter = Router();
 const frequencies = ['daily', 'weekly', 'monthly', 'quarterly', 'yearly', 'custom'] as const;
@@ -66,18 +65,6 @@ async function requireUser(req: Request, res: Response) {
   if (error || !data.user) { res.status(401).json({ error: 'Invalid or expired session' }); return null; }
   return data.user;
 }
-async function requireFeature(userId: string, res: Response) {
-  try {
-    if (!(await hasSubscriptionFeature(userId, 'recurringInvoices'))) {
-      res.status(403).json({ error: 'Recurring invoices are available on Pro and Premium plans.', code: 'FEATURE_NOT_INCLUDED' });
-      return false;
-    }
-    return true;
-  } catch {
-    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
-    return false;
-  }
-}
 function idValid(id: string) { return z.string().uuid().safeParse(id).success; }
 function shape(input: z.infer<typeof inputSchema>, userId: string) {
   return {
@@ -122,16 +109,8 @@ router.get('/recurring-invoices/:id', async (req, res) => {
 
 router.post('/recurring-invoices', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
-  if (!(await requireFeature(user.id, res))) return;
   const parsed = inputSchema.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Invalid recurring invoice data', details: parsed.error.flatten() }); return; }
-  try {
-    const presentationError = await enforceInvoicePresentationEntitlement(user.id, parsed.data.template_data.presentation);
-    if (presentationError) { res.status(403).json(presentationError); return; }
-  } catch {
-    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
-    return;
-  }
   const { data, error } = await supabaseAdmin.from('recurring_invoices').insert(shape(parsed.data, user.id)).select('*').single();
   if (error) { res.status(500).json({ error: 'Failed to create recurring invoice' }); return; }
   res.status(201).json({ recurringInvoice: data });
@@ -139,19 +118,11 @@ router.post('/recurring-invoices', async (req, res) => {
 
 router.patch('/recurring-invoices/:id', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
-  if (!(await requireFeature(user.id, res))) return;
   const id = String(req.params.id);
   if (!idValid(id)) { res.status(400).json({ error: 'Invalid recurring invoice ID' }); return; }
   const parsed = patchSchema.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Invalid recurring invoice data', details: parsed.error.flatten() }); return; }
   const input = parsed.data as Partial<z.infer<typeof inputSchema>>;
-  try {
-    const presentationError = await enforceInvoicePresentationEntitlement(user.id, input.template_data?.presentation);
-    if (presentationError) { res.status(403).json(presentationError); return; }
-  } catch {
-    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
-    return;
-  }
   const existing = await supabaseAdmin
     .from('recurring_invoices')
     .select('start_date,end_date,next_run_date')
@@ -196,7 +167,6 @@ router.patch('/recurring-invoices/:id', async (req, res) => {
 
 async function updateStatus(req: Request, res: Response, status: 'paused' | 'active' | 'cancelled') {
   const user = await requireUser(req, res); if (!user) return;
-  if (!(await requireFeature(user.id, res))) return;
   const id = String(req.params.id);
   if (!idValid(id)) { res.status(400).json({ error: 'Invalid recurring invoice ID' }); return; }
   const { data, error } = await supabaseAdmin.from('recurring_invoices').update({ status }).eq('id', id).eq('user_id', user.id).select('*').maybeSingle();
@@ -210,7 +180,6 @@ router.post('/recurring-invoices/:id/cancel', (req, res) => updateStatus(req, re
 
 router.post('/recurring-invoices/:id/duplicate', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
-  if (!(await requireFeature(user.id, res))) return;
   if (!idValid(req.params.id)) { res.status(400).json({ error: 'Invalid recurring invoice ID' }); return; }
   const source = await supabaseAdmin.from('recurring_invoices').select('*').eq('id', req.params.id).eq('user_id', user.id).maybeSingle();
   if (source.error) { res.status(500).json({ error: 'Failed to load recurring invoice' }); return; }
@@ -224,7 +193,6 @@ router.post('/recurring-invoices/:id/duplicate', async (req, res) => {
 
 router.delete('/recurring-invoices/:id', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
-  if (!(await requireFeature(user.id, res))) return;
   if (!idValid(req.params.id)) { res.status(400).json({ error: 'Invalid recurring invoice ID' }); return; }
   const { count, error } = await supabaseAdmin.from('recurring_invoices').delete({ count: 'exact' }).eq('id', req.params.id).eq('user_id', user.id);
   if (error) { res.status(500).json({ error: 'Failed to delete recurring invoice' }); return; }

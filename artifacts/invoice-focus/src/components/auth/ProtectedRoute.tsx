@@ -15,7 +15,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate('/sign-in')
+      navigate(`/sign-in?next=${encodeURIComponent(location)}`)
     }
   }, [isAuthenticated, isLoading, navigate])
 
@@ -44,9 +44,9 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
 
   if (checkingOnboarding) {
     return fallback ?? (
-      <div className="flex min-h-svh items-center justify-center bg-background">
-        <div className="text-sm text-muted-foreground">Preparing your workspace...</div>
-      </div>
+        <div className="flex min-h-svh items-center justify-center bg-background">
+          <div className="text-sm text-muted-foreground">Loading workspace…</div>
+        </div>
     )
   }
 

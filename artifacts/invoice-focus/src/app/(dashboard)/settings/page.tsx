@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation } from 'wouter'
+import { useLocation } from 'wouter'
 import { AlertTriangle, Check, Download, Eye, LockKeyhole, LogOut, Moon, RotateCcw, Shield, Sun, Upload, UserRound } from 'lucide-react'
 import { DashboardLayout } from '../layout'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,6 @@ const tabs = [
   ['account', 'Account & Security'],
   ['notifications', 'Notifications'],
   ['workspace', 'Workspace'],
-  ['billing', 'Billing'],
   ['appearance', 'Appearance'],
   ['privacy', 'Data & Privacy'],
 ] as const
@@ -134,7 +133,6 @@ export default function SettingsPage() {
       {tab === 'account' && <AccountTab settings={settings} update={update} />}
       {tab === 'notifications' && <NotificationsTab settings={settings} update={update} />}
       {tab === 'workspace' && <WorkspaceTab settings={settings} update={update} uploadLogo={uploadLogo} />}
-      {tab === 'billing' && <BillingTab />}
       {tab === 'appearance' && <AppearanceTab settings={settings} update={update} />}
       {tab === 'privacy' && <PrivacyTab />}
     </div>
@@ -245,7 +243,7 @@ function AccountTab({ settings, update }: { settings: UserSettings; update: (key
     <Card><CardHeader><CardTitle>Password</CardTitle><CardDescription>Change your password. Your current password is required for sensitive changes.</CardDescription></CardHeader><CardContent className="grid gap-5 sm:grid-cols-3"><Field label="Current password" type="password" value={currentPassword} onChange={setCurrentPassword} /><Field label="New password" type="password" value={newPassword} onChange={setNewPassword} /><Field label="Confirm new password" type="password" value={confirmPassword} onChange={setConfirmPassword} /><p className="text-xs text-muted-foreground sm:col-span-3">Password last changed: {settings.passwordLastChangedAt ? new Date(settings.passwordLastChangedAt).toLocaleDateString() : 'Not recorded'}</p><div className="flex justify-end sm:col-span-3"><Button onClick={saveAccount} disabled={busy}>{busy ? 'Saving…' : 'Save password'}</Button></div></CardContent></Card>
     <Card><CardHeader><CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-primary" />Security</CardTitle><CardDescription>Review and revoke sessions connected to this account.</CardDescription></CardHeader><CardContent><div className="flex items-center justify-between border-b border-border py-4"><div><p className="text-sm font-medium">Active session</p><p className="mt-1 text-xs text-muted-foreground">{user?.email} · This device</p></div><LockKeyhole className="h-4 w-4 text-muted-foreground" /></div><div className="flex flex-wrap gap-3 pt-4"><Button variant="outline" className="gap-2" onClick={signOutOtherDevices} disabled={signingOutOthers}><LogOut className="h-4 w-4" />{signingOutOthers ? 'Signing out…' : 'Sign out all other devices'}</Button><Button variant="ghost" onClick={() => { void signOut(); navigate('/sign-in') }}>Sign out</Button></div></CardContent></Card>
     <Card><CardHeader><CardTitle>Onboarding</CardTitle><CardDescription>Review your business setup and workspace configuration again.</CardDescription></CardHeader><CardContent><Button variant="outline" className="gap-2" onClick={async () => { await saveOnboarding({ completed: false, skipped: false, currentStep: 1 }); navigate('/onboarding') }}><RotateCcw className="h-4 w-4" />Restart onboarding</Button></CardContent></Card>
-    <Card className="border-destructive/30"><CardHeader><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle className="h-5 w-5" />Danger zone</CardTitle><CardDescription>Permanently delete this account and all invoices, clients, settings, and billing data.</CardDescription></CardHeader><CardContent><Button variant="destructive" onClick={() => setDeleteOpen(true)}>Delete account</Button></CardContent></Card>
+     <Card className="border-destructive/30"><CardHeader><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle className="h-5 w-5" />Danger zone</CardTitle><CardDescription>Permanently delete this account and all invoices, clients, and settings.</CardDescription></CardHeader><CardContent><Button variant="destructive" onClick={() => setDeleteOpen(true)}>Delete account</Button></CardContent></Card>
     <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}><DialogContent><DialogHeader><DialogTitle>Delete account permanently?</DialogTitle><DialogDescription>This cannot be undone. Confirm with your current password and type DELETE MY ACCOUNT.</DialogDescription></DialogHeader><div className="space-y-4"><Field label="Current password" type="password" value={deletePassword} onChange={setDeletePassword} /><Field label="Confirmation" value={deleteConfirmation} onChange={setDeleteConfirmation} placeholder="DELETE MY ACCOUNT" /></div><DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleting}>Cancel</Button><Button variant="destructive" onClick={confirmDelete} disabled={deleting || deleteConfirmation !== 'DELETE MY ACCOUNT' || !deletePassword}>{deleting ? 'Deleting…' : 'Delete account'}</Button></DialogFooter></DialogContent></Dialog>
   </div>
 }
@@ -308,15 +306,11 @@ function WorkspaceTab({ settings, update, uploadLogo }: { settings: UserSettings
       <CardContent><div className="flex items-center gap-3 rounded-lg border border-border p-4"><UserRound className="h-5 w-5 text-primary" /><div><p className="text-sm font-medium">You are the workspace owner</p><p className="mt-1 text-xs text-muted-foreground">Account security and workspace deletion are managed from this Settings area.</p></div></div></CardContent>
     </Card>
     <Card className="border-destructive/30">
-      <CardHeader><CardTitle className="text-destructive">Delete workspace</CardTitle><CardDescription>Delete all invoices, clients, settings, and subscription records for this workspace.</CardDescription></CardHeader>
+       <CardHeader><CardTitle className="text-destructive">Delete workspace</CardTitle><CardDescription>Delete all invoices, clients, and settings for this workspace.</CardDescription></CardHeader>
       <CardContent><Button variant="destructive" onClick={() => setDeleteOpen(true)}>Delete workspace</Button></CardContent>
     </Card>
     <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}><DialogContent><DialogHeader><DialogTitle>Delete workspace permanently?</DialogTitle><DialogDescription>Type DELETE WORKSPACE to confirm. This cannot be undone.</DialogDescription></DialogHeader><Field label="Confirmation" value={confirmation} onChange={setConfirmation} placeholder="DELETE WORKSPACE" /><DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancel</Button><Button variant="destructive" onClick={deleteCurrentWorkspace} disabled={deleting || confirmation !== 'DELETE WORKSPACE'}>{deleting ? 'Deleting…' : 'Delete workspace'}</Button></DialogFooter></DialogContent></Dialog>
   </div>
-}
-
-function BillingTab() {
-  return <Card className="border-primary/30"><CardHeader><CardTitle>Billing</CardTitle><CardDescription>Manage your plan, payment methods, and billing history from the dedicated billing workspace.</CardDescription></CardHeader><CardContent><Button asChild><Link href="/dashboard/billing">Open billing</Link></Button></CardContent></Card>
 }
 
 function AppearanceTab({ settings, update }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean | UserSettings['invoicePresentation']) => void }) {

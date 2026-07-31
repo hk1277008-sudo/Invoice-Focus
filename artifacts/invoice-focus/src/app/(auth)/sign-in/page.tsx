@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast'
 import { logAuthDiagnostic } from '@/lib/dev-diagnostics'
 
 export default function SignInPage() {
-  const [, navigate] = useLocation()
+  const [location, navigate] = useLocation()
   const { toast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -153,7 +153,8 @@ export default function SignInPage() {
           staleErrorsCleared: true,
         })
         toast({ title: 'Signed in', description: 'Welcome back.' })
-        navigate('/dashboard')
+         const next = new URLSearchParams(location.split('?')[1] || '').get('next')
+         navigate(next && next.startsWith('/') ? next : '/dashboard')
       } else {
         logAuthDiagnostic('authentication returned without session', {
           source: 'Supabase signInWithPassword',

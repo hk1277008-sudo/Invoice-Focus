@@ -4,7 +4,7 @@ import { DEFAULT_CURRENCY, getCurrencyByCode } from './currencies'
 import { calculateInvoiceTotals, parseNumber } from './utils'
 import { loadDraft } from './useInvoiceDraft'
 import { getSettings } from '@/lib/settings'
-import { defaultPresentation, normalizePresentation } from './presentation'
+import { defaultPresentation, normalizePresentation, type InvoiceTemplate } from './presentation'
 
 function generateInvoiceNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
@@ -69,16 +69,17 @@ export function createEmptyInvoice(): InvoiceData {
   }
 }
 
-export function useInvoice() {
+export function useInvoice(selectedTemplate?: InvoiceTemplate) {
   const [invoice, setInvoice] = useState<InvoiceData>(() => {
     const draft = loadDraft()
-    return draft ?? createEmptyInvoice()
+    const initial = draft ?? createEmptyInvoice()
+    return selectedTemplate ? { ...initial, presentation: { ...normalizePresentation(initial.presentation), template: selectedTemplate } } : initial
   })
 
   useEffect(() => {
     const saved = loadDraft()
     if (saved) {
-      setInvoice(saved)
+      setInvoice(selectedTemplate ? { ...saved, presentation: { ...normalizePresentation(saved.presentation), template: selectedTemplate } } : saved)
       return
     }
     getSettings().then((settings) => {
@@ -123,7 +124,7 @@ export function useInvoice() {
             notes: settings.defaultNotes,
             terms: settings.defaultTerms,
           },
-          presentation: normalizePresentation(settings.invoicePresentation),
+          presentation: normalizePresentation({ ...settings.invoicePresentation, ...(selectedTemplate ? { template: selectedTemplate } : {}) }),
           items: current.items.map((item, index) =>
               index === 0 && (settings.defaultTaxRate > 0 || (settings.defaultDiscountBehavior === 'percentage' && settings.defaultDiscountPercent > 0))
                 ? {
@@ -136,7 +137,7 @@ export function useInvoice() {
         }
       })
     }).catch(() => undefined)
-  }, [])
+  }, [selectedTemplate])
 
   const updateBusiness = useCallback((field: keyof InvoiceData['business'], value: string) => {
     setInvoice((prev) => ({ ...prev, business: { ...prev.business, [field]: value } }))

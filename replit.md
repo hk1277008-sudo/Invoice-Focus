@@ -1,10 +1,10 @@
-# Invoice Focus
+# InvoiceFocus
 
-A streamlined invoicing and billing tool for freelancers and studios. Currently in scaffold/coming-soon state — no features implemented yet.
+InvoiceFocus is a permanently free, unlimited invoicing workspace for freelancers, agencies, and service businesses. Guests can create and export invoices immediately; signing in adds cloud saving, history, settings, and synchronized data.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/invoice-focus run dev` — Next.js dev server on port 3000
+- `pnpm --filter @workspace/invoice-focus run dev` — Vite dev server through the configured web workflow
 - `pnpm --filter @workspace/invoice-focus run typecheck` — TypeScript check
 - `pnpm --filter @workspace/invoice-focus run lint` — ESLint
 - `pnpm --filter @workspace/invoice-focus run format` — Prettier format
@@ -12,8 +12,8 @@ A streamlined invoicing and billing tool for freelancers and studios. Currently 
 
 ## Stack
 
-- Next.js 14.2 — App Router, TypeScript
-- React 18.3
+- React + Vite, TypeScript, and wouter routing
+- React 18
 - Tailwind CSS 3.4 — custom design system ("Cobalt & Parchment" palette)
 - shadcn/ui — base component library, design tokens customized
 - Lucide React — icon library
@@ -24,32 +24,14 @@ A streamlined invoicing and billing tool for freelancers and studios. Currently 
 
 ```
 artifacts/invoice-focus/
-├── app/
-│   ├── layout.tsx              ← root layout (fonts, metadata, globals.css)
-│   ├── globals.css             ← design tokens (CSS variables), base resets
-│   ├── (marketing)/            ← public-facing route group
-│   │   ├── layout.tsx          ← marketing shell (sticky nav, footer)
-│   │   └── page.tsx            ← / homepage (coming soon state)
-│   ├── (auth)/                 ← auth route group (bare, centered layout)
-│   │   ├── layout.tsx
-│   │   ├── sign-in/page.tsx    ← /sign-in
-│   │   └── sign-up/page.tsx    ← /sign-up
-│   └── (dashboard)/            ← app shell route group (sidebar layout)
-│       ├── layout.tsx          ← sidebar + topbar
-│       └── dashboard/
-│           └── page.tsx        ← /dashboard
-├── components/
-│   ├── ui/                     ← shadcn-managed components (Button, Input, Label)
-│   └── shared/
-│       └── logo.tsx            ← logomark + wordmark component
-├── lib/
-│   ├── fonts.ts                ← next/font declarations (Inter + Bricolage Grotesque)
-│   └── utils.ts                ← cn(), formatCurrency(), formatDate(), generateInvoiceRef()
-├── types/
-│   └── index.ts                ← Invoice, Client, User, Workspace, ApiResult types
-├── tailwind.config.ts          ← custom palette, font families, radius, animations
-├── components.json             ← shadcn config
-└── .prettierrc                 ← semi:false, singleQuote:true, tailwindcss plugin
+├── src/
+│   ├── app/                    ← marketing, auth, dashboard, and invoice pages
+│   ├── components/             ← invoice, recurring, shared, and UI components
+│   ├── providers/              ← Supabase authentication context
+│   ├── lib/                    ← typed API clients and local draft utilities
+│   └── App.tsx                 ← wouter route declarations
+├── vite.config.ts              ← artifact base path and dev-server configuration
+└── package.json
 ```
 
 ## Design system
@@ -65,7 +47,7 @@ artifacts/invoice-focus/
 **Typography**
 - Display/headings: Bricolage Grotesque (editorial, distinctive)
 - Body/UI: Inter (legible, reliable at small sizes)
-- Both loaded via `next/font/google` in `lib/fonts.ts`
+- Loaded through the frontend's font configuration and CSS tokens
 - Applied as CSS variables `--font-inter` and `--font-bricolage`
 
 **Utilities**
@@ -75,11 +57,11 @@ artifacts/invoice-focus/
 
 ## Architecture decisions
 
-- Route groups `(marketing)`, `(auth)`, `(dashboard)` isolate layout concerns; each group has its own layout shell. Route groups don't appear in URLs.
+- Route folders organize marketing, auth, dashboard, and invoice concerns; wouter owns the browser routes.
 - `(dashboard)` pages live under a `dashboard/` segment inside the group to avoid conflicting with the root `/` owned by `(marketing)`.
 - All CSS design tokens are defined as HSL components (without `hsl()`) so Tailwind opacity modifiers work: `bg-primary/60`, `text-foreground/80`.
 - `tailwindcss-animate` provides keyframe utilities for `fade-up`, `fade-in`, `accordion-*` animations — ready to use without custom CSS.
-- Fonts defined in `lib/fonts.ts` (not inline in `layout.tsx`) so they can be imported independently if needed.
+- Guest editing stays local until an authenticated user chooses a cloud-backed action.
 
 ## User preferences
 
@@ -87,6 +69,6 @@ _Populate as you build._
 
 ## Gotchas
 
-- Do NOT have a `page.tsx` at the root of `(dashboard)/` — it conflicts with `(marketing)/page.tsx` at `/`. Dashboard pages live under `(dashboard)/dashboard/`.
-- `tailwind.config.ts` uses `require('tailwindcss-animate')` — ensure the package is installed before running dev.
-- Next.js 14 App Router: event handlers (`onSubmit`, `onClick`) cannot be in Server Components. Any interactive form needs `'use client'` or must be extracted to a client component.
+- Frontend builds require `PORT` and `BASE_PATH` because `vite.config.ts` reads them during configuration.
+- The API liveness route is `/api/healthz` through the proxied workflow.
+- Supabase is the InvoiceFocus data source; do not substitute the separate Replit PostgreSQL database.

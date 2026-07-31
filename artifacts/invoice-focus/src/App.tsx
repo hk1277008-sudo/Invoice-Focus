@@ -26,12 +26,8 @@ import NewRecurringInvoicePage from '@/app/(dashboard)/recurring/new/page'
 import EditRecurringInvoicePage from '@/app/(dashboard)/recurring/[id]/page'
 import SettingsPage from '@/app/(dashboard)/settings/page'
 import FeedbackPage from '@/app/(dashboard)/feedback/page'
-import UpgradePage from '@/app/(dashboard)/upgrade/page'
-import BillingPage from '@/app/(dashboard)/billing/page'
-import BillingSuccessPage from '@/app/(dashboard)/billing/success/page'
 import ReportsPage from '@/app/(dashboard)/reports/page'
 import InvoiceDetailsPage from '@/components/invoice/InvoiceDetailsPage'
-import { SubscriptionProvider } from '@/providers/SubscriptionProvider'
 import SharedInvoicePage from '@/app/share/[token]/page'
 
 const InvoicePage = lazy(() => import('@/app/(invoice)/invoice/page'))
@@ -108,21 +104,6 @@ function Router() {
           <FeedbackPage />
         </ProtectedRoute>
       </Route>
-      <Route path="/dashboard/upgrade">
-        <ProtectedRoute>
-          <UpgradePage />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/dashboard/billing">
-        <ProtectedRoute>
-          <BillingPage />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/dashboard/billing/success">
-        <ProtectedRoute>
-          <BillingSuccessPage />
-        </ProtectedRoute>
-      </Route>
       <Route path="/dashboard/reports">
         <ProtectedRoute>
           <ReportsPage />
@@ -156,14 +137,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SubscriptionProvider>
           <TooltipProvider>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
               <Router />
             </WouterRouter>
             <Toaster />
           </TooltipProvider>
-        </SubscriptionProvider>
       </AuthProvider>
     </QueryClientProvider>
   )

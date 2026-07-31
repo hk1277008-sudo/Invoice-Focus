@@ -8,14 +8,14 @@ import {
 
 const FAQS = [
   {
-    question: 'What plans does InvoiceFocus offer?',
+    question: 'Is InvoiceFocus really free?',
     answer:
-      'InvoiceFocus offers a straightforward plan structure designed for freelancers, agencies, and businesses. Start with core invoicing tools, then upgrade for advanced features like saved clients, recurring invoices, and team collaboration.',
+      'Yes. InvoiceFocus is permanently free with unlimited invoices, templates, branding controls, recurring invoices, reminders, exports, and client management. There are no paid tiers or usage limits.',
   },
   {
     question: 'Do I need to install anything?',
     answer:
-      'InvoiceFocus runs entirely in your browser. Sign up and start creating invoices from any device with an internet connection.',
+      'InvoiceFocus runs entirely in your browser. Start creating an invoice immediately, or sign in when you want cloud saving, history, settings, and synchronized data.',
   },
   {
     question: 'Can I export invoices as PDFs?',

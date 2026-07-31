@@ -49,7 +49,7 @@ The API requires a valid numeric `PORT`.
 
 ## 6.4 Database deployment
 
-Apply migrations sequentially to the Supabase project. After migrations that add tables or columns:
+Apply migrations sequentially to the Supabase project. The current free-product cleanup is `019_free_platform_cleanup.sql`; it removes legacy subscription/billing tables and usage functions. After migrations that add tables or columns, or after this cleanup:
 
 ```sql
 notify pgrst, 'reload schema';
@@ -60,7 +60,7 @@ Verification should include:
 - PostgREST table/column visibility
 - Authenticated insert/read/update/delete probes
 - RLS cross-user isolation
-- RPC behavior for subscription usage
+- Guest invoice editing and authenticated cloud-save behavior
 - Cleanup of disposable QA users and rows
 
 ## 6.5 Custom domain, DNS, and SSL
@@ -104,7 +104,7 @@ Recommended production additions:
 
 - Error tracking with request correlation IDs
 - Metrics for invoice creation, usage denials, recurring generation, email failures, and scheduler latency
-- Structured audit events for account and subscription operations
+- Structured audit events for account and privileged operations
 - Database monitoring and slow-query inspection
 - Alerting on failed migrations, RLS regressions, and cron failures
 

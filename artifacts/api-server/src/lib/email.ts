@@ -246,32 +246,6 @@ export function buildMagicLinkEmail(link: string, fullName?: string) {
   };
 }
 
-export function buildSubscriptionEmail(input: {
-  title: string;
-  message: string;
-  dashboardUrl: string;
-  actionLabel?: string;
-}) {
-  const content = `${hero('Subscription update', escapeHtml(input.title))}<div class="body"><p>${escapeHtml(input.message)}</p><div class="cta-wrap">${button(input.dashboardUrl, input.actionLabel || 'Open Dashboard')}</div><p class="security-note">You’re receiving this because your InvoiceFocus subscription settings changed.</p></div>`;
-  return {
-    subject: `${input.title} – InvoiceFocus`,
-    html: emailDocument(input.message, content),
-  };
-}
-
-export function buildBillingEmail(input: {
-  title: string;
-  message: string;
-  billingUrl: string;
-  actionLabel?: string;
-}) {
-  const content = `${hero('Billing update', escapeHtml(input.title))}<div class="body"><p>${escapeHtml(input.message)}</p><div class="cta-wrap">${button(input.billingUrl, input.actionLabel || 'Review Billing')}</div><p class="security-note">If you don’t recognize this billing update, contact ${supportEmail}.</p></div>`;
-  return {
-    subject: `${input.title} – InvoiceFocus`,
-    html: emailDocument(input.message, content),
-  };
-}
-
 export function buildTeamInviteEmail(input: {
   inviteUrl: string;
   inviterName?: string;

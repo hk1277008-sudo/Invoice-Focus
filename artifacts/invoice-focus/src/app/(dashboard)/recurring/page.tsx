@@ -32,8 +32,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useSubscription } from '@/providers/SubscriptionProvider'
-import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
 import { Badge } from '@/components/ui/badge'
 import { format, parseISO } from 'date-fns'
 import { calculateInvoiceTotals } from '@/components/invoice/utils'
@@ -68,9 +66,6 @@ function StatusBadge({ status }: { status: RecurringInvoice['status'] }) {
 
 export default function RecurringInvoicesPage() {
   const [, navigate] = useLocation()
-  const { hasFeature } = useSubscription()
-  const hasRecurring = hasFeature('recurringInvoices')
-  const [upgradeOpen, setUpgradeOpen] = useState(!hasRecurring)
 
   const [invoices, setInvoices] = useState<RecurringInvoice[]>([])
   const [search, setSearch] = useState('')
@@ -86,10 +81,6 @@ export default function RecurringInvoicesPage() {
   const [cancelTarget, setCancelTarget] = useState<RecurringInvoice | null>(null)
 
   const load = useCallback(async () => {
-    if (!hasRecurring) {
-      setLoading(false)
-      return
-    }
     setLoading(true)
     try {
       const res = await listRecurringInvoices({ search, status: status as any, frequency: frequency as any, sort, direction })
@@ -100,7 +91,7 @@ export default function RecurringInvoicesPage() {
     } finally {
       setLoading(false)
     }
-  }, [search, status, frequency, sort, direction, hasRecurring])
+  }, [search, status, frequency, sort, direction])
 
   useEffect(() => {
     const timer = window.setTimeout(load, 200)
@@ -165,18 +156,7 @@ export default function RecurringInvoicesPage() {
 
   return (
     <DashboardLayout>
-      <UpgradeDialog
-        open={upgradeOpen}
-        onOpenChange={(open) => {
-          setUpgradeOpen(open)
-          if (!open && !hasRecurring) navigate('/dashboard')
-        }}
-        feature="Automate your billing"
-        description="Recurring invoices are available on the Pro plan. Schedule your invoices to send automatically and never miss a billing cycle."
-      />
-
-      {hasRecurring && (
-        <div className="space-y-8">
+      <div className="space-y-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                <p className="label-caps">Automated billing</p>
@@ -371,8 +351,7 @@ export default function RecurringInvoicesPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </div>
-      )}
+      </div>
     </DashboardLayout>
   )
 }

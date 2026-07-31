@@ -1,8 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
-import { hasSubscriptionFeature } from './subscriptions';
-import { PLAN_CATALOG } from './subscriptions';
 
 const router: IRouter = Router();
 const settingsSchema = z.object({
@@ -120,46 +118,14 @@ router.put('/settings', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
   const parsed = settingsSchema.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: 'Please check your settings', details: parsed.error.flatten() }); return; }
-  const plan = await currentPlan(user.id);
-  const presentation = parsed.data.invoicePresentation;
-  const freeTemplates = ['modern', 'minimal'];
-  const proTemplates = ['corporate', 'executive', 'elegant'];
-  const premiumTemplates = ['creative', 'clean', 'professional'];
-  const allowedTemplates = plan === 'free' ? freeTemplates : plan === 'pro' ? [...freeTemplates, ...proTemplates] : [...freeTemplates, ...proTemplates, ...premiumTemplates];
-  if (!allowedTemplates.includes(presentation.template)) {
-    res.status(403).json({ error: 'That invoice template is not included in your plan.', code: 'TEMPLATE_NOT_INCLUDED', requiredPlan: presentation.template === 'creative' || presentation.template === 'clean' || presentation.template === 'professional' ? 'premium' : 'pro' });
-    return;
-  }
-  const customBranding = presentation.primaryColor !== '#2e5bff' || presentation.accentColor !== '#13a6a6' || presentation.font !== 'Inter' || presentation.headerLayout !== 'Split' || presentation.footerLayout !== 'Simple' || presentation.titleStyle !== 'default';
-  if (customBranding && plan !== 'premium') {
-    res.status(403).json({ error: 'Full branding customization is available on Premium.', code: 'BRANDING_NOT_INCLUDED', requiredPlan: 'premium' });
-    return;
-  }
   const values = Object.fromEntries(Object.entries(columns).map(([key, column]) => [column, parsed.data[key as keyof typeof parsed.data]]));
   const { data, error } = await supabaseAdmin.from('user_settings').upsert({ user_id: user.id, ...values }, { onConflict: 'user_id' }).select('*').single();
   if (error) { res.status(500).json({ error: 'Failed to save settings', code: error.code, details: error.message }); return; }
   res.json({ settings: toClient(data) });
 });
 
-async function currentPlan(userId: string): Promise<'free' | 'pro' | 'premium'> {
-  const devPlan = process.env.NODE_ENV !== 'production' ? process.env.INVOICEFOCUS_DEV_PLAN : undefined;
-  if (devPlan === 'pro' || devPlan === 'premium') return devPlan;
-  const { data, error } = await supabaseAdmin.from('subscriptions').select('plan').eq('user_id', userId).maybeSingle();
-  if (error) throw error;
-  return data?.plan === 'pro' || data?.plan === 'premium' ? data.plan : 'free';
-}
-
 router.get('/settings/export', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
-  try {
-    if (!(await hasSubscriptionFeature(user.id, 'dataExport'))) {
-      res.status(403).json({ error: 'Data export is available on Pro and Premium plans.', code: 'FEATURE_NOT_INCLUDED' });
-      return;
-    }
-  } catch {
-    res.status(503).json({ error: 'Subscription service is temporarily unavailable. Please try again.' });
-    return;
-  }
   const [{ data: settings }, { data: clients }, { data: invoices }] = await Promise.all([
     supabaseAdmin.from('user_settings').select('*').eq('user_id', user.id).maybeSingle(),
     supabaseAdmin.from('clients').select('*').eq('user_id', user.id),
@@ -185,13 +151,7 @@ router.post('/settings/delete-workspace', async (req, res) => {
   const deletes = await Promise.all([
     supabaseAdmin.from('invoices').delete().eq('user_id', user.id),
     supabaseAdmin.from('clients').delete().eq('user_id', user.id),
-    supabaseAdmin.from('billing_payment_methods').delete().eq('user_id', user.id),
-    supabaseAdmin.from('billing_history').delete().eq('user_id', user.id),
-    supabaseAdmin.from('billing_payments').delete().eq('user_id', user.id),
-    supabaseAdmin.from('billing_transactions').delete().eq('user_id', user.id),
-    supabaseAdmin.from('billing_invoices').delete().eq('user_id', user.id),
     supabaseAdmin.from('user_settings').delete().eq('user_id', user.id),
-    supabaseAdmin.from('subscriptions').delete().eq('user_id', user.id),
   ]);
   const failed = deletes.find((result) => result.error);
   if (failed?.error) {
