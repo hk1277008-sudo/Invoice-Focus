@@ -29,7 +29,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}`, ...(init?.headers || {}) },
   })
   const body = await response.json().catch(() => null)
-  if (!response.ok) throw new Error(body?.error || 'Billing request failed')
+  if (!response.ok) {
+    const error = new Error(body?.error || 'Billing request failed') as Error & { code?: string; status?: number; transactionId?: string }
+    error.code = body?.code
+    error.status = response.status
+    error.transactionId = body?.transactionId
+    throw error
+  }
   return body as T
 }
 
@@ -74,11 +80,19 @@ export async function updateSubscriptionAction(action: 'upgrade' | 'downgrade' |
   return request<{ subscription: unknown; message?: string }>('/billing/actions', { method: 'POST', body: JSON.stringify({ action, plan: planId, billingCycle }) })
 }
 
-export async function verifyCheckoutTransaction(transactionId: string) {
-  return request<{ verified: boolean; subscription: unknown }>('/billing/transactions/verify', {
+export async function verifyCheckoutTransaction(transactionId: string, timeoutMs = 8000) {
+  const controller = new AbortController()
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs)
+  return request<{
+    status: 'active' | 'pending'
+    verified: boolean
+    subscription?: unknown
+    message?: string
+  }>('/billing/transactions/verify', {
     method: 'POST',
     body: JSON.stringify({ transactionId }),
-  })
+    signal: controller.signal,
+  }).finally(() => window.clearTimeout(timeout))
 }
 
 export async function createCheckout(plan: string, billingCycle: 'monthly' | 'yearly') {

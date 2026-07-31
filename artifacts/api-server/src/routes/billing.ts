@@ -4,7 +4,7 @@ import { subscriptionManager, type SubscriptionAction } from '../billing/subscri
 import { getBillingProvider, getPaddleBillingAvailability } from '../billing/provider';
 import { checkoutService, customerPortalService } from '../billing/services';
 import { billingEventHandler } from '../billing/events';
-import type { BillingCycle, BillingPlan } from '../billing/types';
+import { TransactionVerificationError, type BillingCycle, type BillingPlan } from '../billing/types';
 import { supabaseAdmin } from '../lib/supabase';
 
 const router: IRouter = Router();
@@ -31,17 +31,59 @@ router.post('/billing/checkout', async (req, res) => {
   if (plan === 'free') { res.status(400).json({ error: 'Free downgrades are handled from Billing without checkout.' }); return; }
    try {
      const current = await subscriptionManager.get(user.id);
-      if (current.plan === plan && current.status !== 'incomplete') {
-        res.status(409).json({ error: "You're already subscribed to this plan." }); return;
+       if (current.plan === plan && current.status !== 'incomplete') {
+         res.status(409).json({
+           error: `You already have an active ${current.plan === 'premium' ? 'Premium' : 'Pro'} subscription.`,
+           code: 'ACTIVE_SUBSCRIPTION',
+           subscription: current,
+         }); return;
       }
       if (current.providerSubscriptionId) {
-        res.status(409).json({ error: 'Use plan change from Billing to update your existing subscription.' }); return;
+         res.status(409).json({
+           error: `You already have an active ${current.plan === 'premium' ? 'Premium' : 'Pro'} subscription.`,
+           code: 'ACTIVE_SUBSCRIPTION',
+           subscription: current,
+         }); return;
       }
+       const pendingSince = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+       const { data: pendingCheckout, error: pendingCheckoutError } = await supabaseAdmin
+         .from('billing_transactions')
+         .select('provider_transaction_id')
+         .eq('user_id', user.id)
+         .eq('provider', 'paddle')
+         .eq('status', 'pending')
+         .gte('created_at', pendingSince)
+         .order('created_at', { ascending: false })
+         .limit(1)
+         .maybeSingle();
+       if (pendingCheckoutError && !pendingCheckoutError.message.includes('does not exist')) throw pendingCheckoutError;
+       if (pendingCheckout?.provider_transaction_id) {
+         res.status(409).json({
+           error: 'A payment is already being confirmed for this workspace.',
+           code: 'CHECKOUT_IN_PROGRESS',
+           transactionId: pendingCheckout.provider_transaction_id,
+         }); return;
+       }
       if (billingCycle === 'yearly' && !(await getPaddleBillingAvailability()).yearly) {
         res.status(409).json({ error: 'Yearly billing is not available yet.' }); return;
       }
      const result = await checkoutService.create(user.id, plan, billingCycle, req.body?.returnUrl || '/dashboard/billing');
      if (result.status === 'not_configured') { res.status(503).json({ ...result, error: result.message || 'Paddle checkout is not configured yet.' }); return; }
+      if (result.transactionId) {
+        const { error: transactionError } = await supabaseAdmin.from('billing_transactions').insert({
+          user_id: user.id,
+          provider: result.provider,
+          provider_transaction_id: result.transactionId,
+          transaction_type: 'charge',
+          status: 'pending',
+          amount: 0,
+          currency: 'USD',
+          metadata: { plan, billing_cycle: billingCycle, checkout_status: 'created' },
+        });
+        if (transactionError && !transactionError.message.includes('duplicate')) {
+          req.log.error({ err: transactionError, transactionId: result.transactionId }, 'Failed to persist Paddle checkout intent');
+        }
+      }
      res.json({ ...result });
    } catch (error) {
      res.status(502).json({ error: error instanceof Error ? error.message : 'Could not create Paddle checkout.' });
@@ -56,9 +98,33 @@ router.post('/billing/transactions/verify', async (req, res) => {
     const event = await getBillingProvider().verifyCompletedTransaction({ userId: user.id, transactionId });
     await billingEventHandler.handle(event);
     const subscription = await subscriptionManager.get(user.id);
-    res.json({ verified: true, subscription });
+    res.json({ status: 'active', verified: true, subscription });
   } catch (error) {
-    res.status(409).json({ verified: false, error: error instanceof Error ? error.message : 'Transaction is not ready to verify.' });
+    if (error instanceof TransactionVerificationError && error.outcome === 'pending') {
+      req.log.info({ transactionId, outcome: error.outcome }, 'Paddle checkout is still pending confirmation');
+      res.json({
+        status: 'pending',
+        verified: false,
+        message: 'Your payment was received and is still being verified.',
+      });
+      return;
+    }
+    if (error instanceof TransactionVerificationError && error.outcome === 'failed') {
+      req.log.warn({ transactionId, outcome: error.outcome }, 'Paddle checkout could not be confirmed');
+      res.status(422).json({
+        status: 'failed',
+        verified: false,
+        code: 'PAYMENT_FAILED',
+        error: 'We could not confirm the payment. No subscription was activated.',
+      });
+      return;
+    }
+    req.log.error({ err: error, transactionId }, 'Paddle checkout verification failed');
+    res.json({
+      status: 'pending',
+      verified: false,
+      message: 'Your payment was received and is still being verified.',
+    });
   }
 });
 

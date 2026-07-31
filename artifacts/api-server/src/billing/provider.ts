@@ -11,6 +11,7 @@ import type {
   VerifiedWebhook,
   WebhookVerificationInput,
 } from './types';
+import { TransactionVerificationError } from './types';
 import { Environment, Paddle } from '@paddle/paddle-node-sdk';
 import { supabaseAdmin } from '../lib/supabase';
 
@@ -262,12 +263,15 @@ class PaddleBillingProvider implements BillingProvider {
     const paddle = paddleClient();
     if (!paddle) throw new Error('Paddle API credentials are not configured.');
     const transaction = await paddle.transactions.get(input.transactionId);
-    if (!['paid', 'completed'].includes(transaction.status)) {
-      throw new Error(`Paddle transaction is not completed (status: ${transaction.status}).`);
+    if (transaction.status === 'canceled' || transaction.status === 'past_due') {
+      throw new TransactionVerificationError('The payment could not be completed.', 'failed');
+    }
+    if (!['billed', 'paid', 'completed'].includes(transaction.status)) {
+      throw new TransactionVerificationError('The payment is still being confirmed.', 'pending');
     }
     const customData = asRecord(transaction.customData);
     if (customData.user_id !== input.userId) {
-      throw new Error('Paddle transaction does not belong to the authenticated user.');
+      throw new TransactionVerificationError('The payment could not be matched to this workspace.', 'failed');
     }
     let data = transactionData(transaction, input.userId);
     if (transaction.subscriptionId) {
@@ -284,7 +288,12 @@ class PaddleBillingProvider implements BillingProvider {
         paymentMethod: data.paymentMethod,
       };
     }
-    if (data.plan !== 'pro' && data.plan !== 'premium') throw new Error('Paddle transaction is missing a valid InvoiceFocus plan.');
+    if (!transaction.subscriptionId) {
+      throw new TransactionVerificationError('The subscription is still being created.', 'pending');
+    }
+    if (data.plan !== 'pro' && data.plan !== 'premium') {
+      throw new TransactionVerificationError('The payment could not be matched to an InvoiceFocus plan.', 'failed');
+    }
     return {
       provider: this.name,
       eventId: `transaction:${transaction.id}`,

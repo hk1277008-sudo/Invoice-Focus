@@ -7,4 +7,4 @@ Billing provider adapters should own checkout sessions, completed-transaction ve
 
 **Why:** Paddle checkout and webhooks are provider-specific, while subscription access must remain server-owned and safe if a catalog interval or webhook configuration is missing.
 
-**How to apply:** Keep Paddle SDK calls in the adapter, resolve only active catalog prices, reject missing intervals instead of guessing, and allow unsigned webhook payloads only in Sandbox until `PADDLE_WEBHOOK_SECRET` is configured. Do not import provider SDKs into routes, subscription logic, or React components.
+**How to apply:** Keep Paddle SDK calls in the adapter, resolve only active catalog prices, reject missing intervals instead of guessing, and allow unsigned webhook payloads only in Sandbox until `PADDLE_WEBHOOK_SECRET` is configured. Do not import provider SDKs into routes, subscription logic, or React components. Always carry the server-created transaction ID through the success redirect; browser checkout callbacks are not a reliable source of the return identifier. Treat activation as a bounded foreground state machine with background retries rather than an endless spinner.

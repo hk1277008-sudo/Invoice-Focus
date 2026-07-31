@@ -1,57 +1,106 @@
-import { useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, Loader2, ArrowRight } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowRight, CheckCircle2, CircleAlert, Loader2, RefreshCw } from 'lucide-react'
 import { useLocation } from 'wouter'
 import { DashboardLayout } from '../../layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { useToast } from '@/hooks/use-toast'
 import { verifyCheckoutTransaction } from '@/lib/billing'
 import { useSubscription } from '@/providers/SubscriptionProvider'
 import { useAuth } from '@/hooks/useAuth'
+
+type VerificationState = 'verifying' | 'active' | 'pending' | 'failed'
 
 export default function BillingSuccessPage() {
   const [location, navigate] = useLocation()
   const { refreshSubscription } = useSubscription()
   const { refreshSession } = useAuth()
-  const { toast } = useToast()
   const transactionId = useMemo(
-    () => new URLSearchParams(location.split('?')[1] || '').get('transaction_id'),
+    () => {
+      const fromUrl = new URLSearchParams(location.split('?')[1] || '').get('transaction_id')
+      if (fromUrl) {
+        sessionStorage.setItem('invoicefocus_pending_transaction_id', fromUrl)
+        return fromUrl
+      }
+      return sessionStorage.getItem('invoicefocus_pending_transaction_id')
+    },
     [location],
   )
-  const [state, setState] = useState<'verifying' | 'active' | 'waiting' | 'error'>(
-    transactionId ? 'verifying' : 'waiting',
-  )
-  const [message, setMessage] = useState('')
+  const [state, setState] = useState<VerificationState>(transactionId ? 'verifying' : 'pending')
+  const [plan, setPlan] = useState<'pro' | 'premium' | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const startedAt = useRef(Date.now())
+  const foregroundTimer = useRef<number | null>(null)
+  const deadlineTimer = useRef<number | null>(null)
+  const stateRef = useRef<VerificationState>(transactionId ? 'verifying' : 'pending')
 
-  useEffect(() => {
+  const setVerificationState = useCallback((next: VerificationState) => {
+    stateRef.current = next
+    setState(next)
+  }, [])
+
+  const verify = useCallback(async (foreground = false) => {
     if (!transactionId) {
-      setState('waiting')
-      setMessage('Your payment was received. We are waiting for Paddle to provide the transaction reference.')
+      setVerificationState('pending')
       return
     }
-    let cancelled = false
-    let attempts = 0
-    const verify = async () => {
-      attempts += 1
-      try {
-        await verifyCheckoutTransaction(transactionId)
-        if (cancelled) return
+    if (foreground) setIsRefreshing(true)
+    try {
+      const result = await verifyCheckoutTransaction(transactionId)
+      if (result.status === 'active' && result.subscription) {
+        const verifiedPlan = (result.subscription as { plan?: string }).plan
+        if (verifiedPlan === 'pro' || verifiedPlan === 'premium') setPlan(verifiedPlan)
         await Promise.all([refreshSubscription(), refreshSession()])
-        if (!cancelled) setState('active')
-      } catch (error) {
-        if (cancelled) return
-        if (attempts < 8) {
-          setState('verifying')
-          window.setTimeout(verify, 1500)
-        } else {
-          setState('error')
-          setMessage(error instanceof Error ? error.message : 'We could not confirm the subscription yet.')
-        }
+        sessionStorage.removeItem('invoicefocus_pending_transaction_id')
+        setVerificationState('active')
+      } else {
+        if (!foreground) setVerificationState('pending')
       }
+    } catch (error) {
+      const verificationError = error as Error & { code?: string; status?: number }
+      if (verificationError.code === 'PAYMENT_FAILED') {
+        setVerificationState('failed')
+      } else if (!foreground) {
+        setVerificationState('pending')
+      }
+    } finally {
+      if (foreground) setIsRefreshing(false)
     }
-    void verify()
-    return () => { cancelled = true }
-  }, [refreshSession, refreshSubscription, transactionId])
+  }, [refreshSession, refreshSubscription, setVerificationState, transactionId])
+
+  useEffect(() => {
+    if (!transactionId) return
+    let cancelled = false
+    startedAt.current = Date.now()
+    stateRef.current = 'verifying'
+    setVerificationState('verifying')
+    deadlineTimer.current = window.setTimeout(() => {
+      if (!cancelled && stateRef.current === 'verifying') setVerificationState('pending')
+    }, 10_000)
+    const foregroundVerify = async () => {
+      if (cancelled) return
+      await verify(true)
+      if (cancelled || stateRef.current === 'active' || stateRef.current === 'failed') return
+      if (Date.now() - startedAt.current >= 10_000) {
+        setVerificationState('pending')
+        return
+      }
+      foregroundTimer.current = window.setTimeout(foregroundVerify, 1500)
+    }
+    void foregroundVerify()
+    return () => {
+      cancelled = true
+      if (foregroundTimer.current) window.clearTimeout(foregroundTimer.current)
+      if (deadlineTimer.current) window.clearTimeout(deadlineTimer.current)
+    }
+  }, [setVerificationState, transactionId, verify])
+
+  useEffect(() => {
+    if (!transactionId || state === 'active' || state === 'failed') return
+    const interval = window.setInterval(() => {
+      void verify()
+    }, 5000)
+    return () => window.clearInterval(interval)
+  }, [state, transactionId, verify])
 
   return (
     <DashboardLayout>
@@ -61,25 +110,39 @@ export default function BillingSuccessPage() {
             {state === 'active' ? (
               <>
                 <div className="rounded-full bg-emerald-500/10 p-4 text-emerald-600"><CheckCircle2 className="h-10 w-10" /></div>
-                <p className="label-caps mt-6">Subscription activated</p>
-                <h1 className="mt-2 text-3xl font-semibold tracking-tight">Welcome to InvoiceFocus</h1>
-                <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">Your subscription is now active and your workspace access has been updated.</p>
+                <p className="label-caps mt-6">Payment successful</p>
+                <h1 className="mt-2 text-3xl font-semibold tracking-tight">Welcome to InvoiceFocus {plan === 'premium' ? 'Premium' : 'Pro'}</h1>
+                <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">Your subscription is now active and your workspace has been upgraded.</p>
                 <Button className="mt-8 gap-2" onClick={() => navigate('/dashboard')}><span>Continue to Dashboard</span><ArrowRight className="h-4 w-4" /></Button>
               </>
-            ) : state === 'error' ? (
+            ) : state === 'failed' ? (
               <>
-                <div className="rounded-full bg-amber-500/10 p-4 text-amber-600"><CheckCircle2 className="h-10 w-10" /></div>
+                <div className="rounded-full bg-destructive/10 p-4 text-destructive"><CircleAlert className="h-10 w-10" /></div>
+                <p className="label-caps mt-6">Payment not confirmed</p>
+                <h1 className="mt-2 text-3xl font-semibold tracking-tight">We couldn’t activate your subscription</h1>
+                <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">No subscription was activated. You can return to Billing and try again or manage your existing plan.</p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <Button variant="outline" onClick={() => navigate('/dashboard')}>Return to Dashboard</Button>
+                  <Button onClick={() => navigate('/dashboard/billing')}>Open Billing</Button>
+                </div>
+              </>
+            ) : state === 'pending' ? (
+              <>
+                <div className="rounded-full bg-amber-500/10 p-4 text-amber-600"><CircleAlert className="h-10 w-10" /></div>
                 <p className="label-caps mt-6">Payment received</p>
-                <h1 className="mt-2 text-3xl font-semibold tracking-tight">We’re confirming your subscription</h1>
-                <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">{message}</p>
-                <Button className="mt-8" onClick={() => navigate('/dashboard/billing')}>Open Billing</Button>
+                <h1 className="mt-2 text-3xl font-semibold tracking-tight">Your subscription is being verified</h1>
+                <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">Your payment was received and is still being verified. This usually takes a few moments.</p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <Button onClick={() => void verify(true)} disabled={isRefreshing} className="gap-2">{isRefreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}Refresh Status</Button>
+                  <Button variant="outline" onClick={() => navigate('/dashboard')}>Return to Dashboard</Button>
+                </div>
               </>
             ) : (
               <>
                 <div className="rounded-full bg-primary/10 p-4 text-primary"><Loader2 className="h-10 w-10 animate-spin" /></div>
                 <p className="label-caps mt-6">Secure checkout</p>
                 <h1 className="mt-2 text-3xl font-semibold tracking-tight">Confirming your subscription</h1>
-                <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">{message || 'Your payment is complete. We are securely confirming the transaction and activating your plan.'}</p>
+                <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">Your payment is complete. We’re securely activating your plan.</p>
               </>
             )}
           </CardContent>

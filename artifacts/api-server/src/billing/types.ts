@@ -52,6 +52,18 @@ export interface VerifyTransactionInput {
   transactionId: string;
 }
 
+export type TransactionVerificationOutcome = 'pending' | 'failed';
+
+export class TransactionVerificationError extends Error {
+  constructor(
+    message: string,
+    readonly outcome: TransactionVerificationOutcome,
+  ) {
+    super(message);
+    this.name = 'TransactionVerificationError';
+  }
+}
+
 export interface UpdateSubscriptionInput {
   userId: string;
   subscriptionId: string;

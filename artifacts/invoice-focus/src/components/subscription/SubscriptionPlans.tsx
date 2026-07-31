@@ -45,7 +45,11 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
   }, [initialCycle])
   const choose = async (plan: PlanId) => {
     if (plan === subscription.plan && subscription.status !== 'cancelled') {
-      toast({ title: "You're already subscribed to this plan." })
+      toast({
+        title: `You already have an active ${plan === 'premium' ? 'Premium' : 'Pro'} subscription.`,
+        description: 'Manage your subscription, change plan, or cancel from Billing.',
+      })
+      navigate('/dashboard/billing')
       return
     }
     setBusy(plan)
@@ -72,7 +76,8 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
       if (!checkout.transactionId || !checkout.clientToken) throw new Error(checkout.message || 'Paddle checkout is not configured yet.')
       const open = () => {
         if (!window.Paddle) throw new Error('Paddle Checkout could not be loaded. Please try again.')
-        window.Paddle.Checkout.open({ transactionId: checkout.transactionId!, settings: { successUrl: `${window.location.origin}${import.meta.env.BASE_URL}dashboard/billing/success` } })
+         const successUrl = `${window.location.origin}${import.meta.env.BASE_URL}dashboard/billing/success?transaction_id=${encodeURIComponent(checkout.transactionId!)}`
+         window.Paddle.Checkout.open({ transactionId: checkout.transactionId!, settings: { successUrl } })
       }
       if (!window.Paddle) {
         await new Promise<void>((resolve, reject) => {
@@ -94,9 +99,27 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
         } })
         initializedPaddleToken = checkout.clientToken
       }
+       sessionStorage.setItem('invoicefocus_pending_transaction_id', checkout.transactionId!)
       open()
     } catch (error) {
-      toast({ title: 'Could not open secure checkout', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
+       const billingError = error as Error & { code?: string; transactionId?: string }
+       if (billingError.code === 'ACTIVE_SUBSCRIPTION') {
+         toast({
+           title: billingError.message,
+           description: 'Manage your subscription, change plans, or cancel from Billing.',
+         })
+         navigate('/dashboard/billing')
+       } else if (billingError.code === 'CHECKOUT_IN_PROGRESS') {
+         toast({
+           title: 'Payment already in progress',
+           description: 'We’re confirming your recent payment before starting another checkout.',
+         })
+         navigate(billingError.transactionId
+           ? `/dashboard/billing/success?transaction_id=${encodeURIComponent(billingError.transactionId)}`
+           : '/dashboard/billing')
+       } else {
+         toast({ title: 'Could not open secure checkout', description: 'Please try again in a moment.', variant: 'destructive' })
+       }
     } finally {
       setBusy(null)
     }
