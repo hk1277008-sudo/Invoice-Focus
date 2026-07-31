@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { supabase, getRememberMe, setRememberMe } from '@/lib/supabase'
+import { supabase, setRememberMe } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 import { logAuthDiagnostic } from '@/lib/dev-diagnostics'
 
@@ -14,12 +14,13 @@ export default function SignInPage() {
   const { toast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMeState] = useState(getRememberMe)
+  const [rememberMe, setRememberMeState] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const passwordRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    setRememberMe(false)
     logAuthDiagnostic('sign-in mounted', {
       rememberMeInitialState: rememberMe,
       rememberMeStorageDefault: false,
@@ -115,6 +116,7 @@ export default function SignInPage() {
             message: 'Please verify your email before signing in.',
             httpStatus: error.status,
           })
+          setRememberMe(false)
           setErrors({ email: 'Please verify your email before signing in.' })
           toast({ title: 'Sign in failed', description: 'Please verify your email before signing in.', variant: 'destructive' })
         } else if (
@@ -127,6 +129,7 @@ export default function SignInPage() {
             message: 'Invalid email or password',
             httpStatus: error.status,
           })
+          setRememberMe(false)
           setErrors({ password: 'Invalid email or password' })
           toast({ title: 'Sign in failed', description: 'Invalid email or password', variant: 'destructive' })
         } else {
@@ -136,6 +139,7 @@ export default function SignInPage() {
             message: 'Unable to sign in right now. Please try again.',
             httpStatus: error.status,
           })
+          setRememberMe(false)
           setErrors({ password: 'Unable to sign in right now. Please try again.' })
           toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please try again.', variant: 'destructive' })
         }
@@ -155,6 +159,7 @@ export default function SignInPage() {
           source: 'Supabase signInWithPassword',
           sessionPresent: false,
         })
+        setRememberMe(false)
         setErrors({ password: 'Unable to sign in right now. Please try again.' })
         toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please try again.', variant: 'destructive' })
       }
@@ -164,6 +169,7 @@ export default function SignInPage() {
         error,
         networkFailure: true,
       })
+      setRememberMe(false)
       setErrors({ password: 'Unable to sign in right now. Please check your connection and try again.' })
       toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please check your connection and try again.', variant: 'destructive' })
     } finally {
