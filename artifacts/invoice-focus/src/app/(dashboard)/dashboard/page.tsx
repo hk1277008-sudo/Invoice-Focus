@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'wouter'
 import {
   ArrowUpRight, CalendarDays, CheckCircle2, CircleDollarSign, Clock3, Copy, FileText,
-  Eye, MoreHorizontal, Plus, Receipt, TrendingUp, Users, XCircle,
+  Eye, MessageSquare, MoreHorizontal, Plus, Receipt, TrendingUp, Users, XCircle,
 } from 'lucide-react'
 import {
   Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer,
@@ -16,6 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from '@/hooks/use-toast'
 import { deleteInvoice, duplicateInvoice, type InvoiceStatus } from '@/lib/invoices'
 import { getDashboardOverview, type DashboardOverview } from '@/lib/dashboard'
+import { useAuth } from '@/hooks/useAuth'
 
 type Preset = 'today' | '7d' | '30d' | 'month' | 'year' | '12m' | 'custom'
 const statusColors: Record<InvoiceStatus, string> = {
@@ -64,6 +65,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const { toast } = useToast()
+  const { user } = useAuth()
+  const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false)
   const range = useMemo(() => getRange(preset, customStart, customEnd), [customEnd, customStart, preset])
 
   const load = useCallback(async () => {
@@ -74,6 +77,17 @@ export default function DashboardPage() {
   }, [range])
 
   useEffect(() => { void load(); const interval = window.setInterval(() => void load(), 30000); return () => window.clearInterval(interval) }, [load])
+
+  useEffect(() => {
+    if (!overview || !user || typeof window === 'undefined') return
+    const key = `invoice-focus-feedback-prompt:${user.id}`
+    if (window.localStorage.getItem(key)) return
+    const daysSinceSignup = (Date.now() - new Date(user.created_at).getTime()) / 86_400_000
+    if (overview.stats.totalInvoices >= 3 || daysSinceSignup >= 7) {
+      window.localStorage.setItem(key, 'shown')
+      setShowFeedbackPrompt(true)
+    }
+  }, [overview, user])
 
   const handleDuplicate = async (id: string) => {
     try { await duplicateInvoice(id); toast({ title: 'Invoice duplicated', description: 'A new draft invoice is ready.' }); void load() }
@@ -95,6 +109,7 @@ export default function DashboardPage() {
     </div>
     {preset === 'custom' && <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4"><div><label className="text-xs font-medium text-muted-foreground">From</label><input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} className="mt-1 block h-9 rounded-md border border-input bg-background px-3 text-sm" /></div><div><label className="text-xs font-medium text-muted-foreground">To</label><input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} className="mt-1 block h-9 rounded-md border border-input bg-background px-3 text-sm" /></div></div>}
     {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>}
+     {showFeedbackPrompt && <div className="flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/[0.03] p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><div><p className="text-sm font-semibold">How is Invoice Focus working for you?</p><p className="mt-1 text-sm text-muted-foreground">A quick note helps us shape the next release.</p></div></div><div className="flex shrink-0 gap-2"><Button asChild size="sm"><Link href="/dashboard/feedback">Share feedback</Link></Button><Button variant="ghost" size="sm" onClick={() => setShowFeedbackPrompt(false)}>Not now</Button></div></div>}
     {loading && !overview ? <DashboardSkeleton /> : overview ? <DashboardContent overview={overview} onDuplicate={handleDuplicate} onDelete={handleDelete} /> : null}
   </div></DashboardLayout>
 }

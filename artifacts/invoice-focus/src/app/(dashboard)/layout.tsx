@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter'
-import { FileText, Users, BarChart2, Settings, PlusCircle, LogOut, User, Repeat, Bell, Menu } from 'lucide-react'
+import { FileText, Users, BarChart2, Settings, PlusCircle, LogOut, User, Repeat, Bell, Menu, MessageSquare } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -23,6 +23,7 @@ const NAV_ITEMS = [
   { label: 'Recurring', href: '/dashboard/recurring', icon: Repeat },
   { label: 'Clients', href: '/dashboard/clients', icon: Users },
   { label: 'Reports', href: '/dashboard/reports', icon: BarChart2 },
+  { label: 'Feedback', href: '/dashboard/feedback', icon: MessageSquare },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
@@ -71,6 +72,12 @@ function UserMenu() {
           <Link href="/profile" className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard/feedback" className="cursor-pointer">
+            <MessageSquare className="mr-2 h-4 w-4" />
+            Feedback
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">

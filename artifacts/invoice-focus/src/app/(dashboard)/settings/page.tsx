@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'wouter'
-import { AlertTriangle, Check, Download, Eye, KeyRound, LockKeyhole, LogOut, Moon, Save, Shield, Sun, Upload, UserRound } from 'lucide-react'
+import { AlertTriangle, Check, Download, Eye, KeyRound, LockKeyhole, LogOut, Moon, Save, Shield, Sun, Upload, UserRound, RotateCcw } from 'lucide-react'
 import { DashboardLayout } from '../layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,6 +19,7 @@ import { useSubscription } from '@/providers/SubscriptionProvider'
 import { UpgradeDialog } from '@/components/subscription/UpgradeDialog'
 import { InvoicePresentationControls } from '@/components/invoice/InvoicePresentationControls'
 import type { InvoicePresentation } from '@/components/invoice/presentation'
+import { saveOnboarding } from '@/lib/onboarding'
 
 const tabs = [
   ['business', 'Business Profile'], ['invoice', 'Invoice Preferences'], ['account', 'Account & Security'],
@@ -106,6 +107,7 @@ function InvoiceTab({ settings, update }: { settings: UserSettings; update: (key
  function AccountTab({ settings, update }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean | InvoicePresentation) => void }) {
   const { user, refreshSession, signOut } = useAuth()
   const { toast } = useToast()
+  const [, navigate] = useLocation()
   const [name, setName] = useState((user?.user_metadata?.full_name as string) || '')
   const [email, setEmail] = useState(user?.email || '')
   const [password, setPassword] = useState('')
@@ -115,6 +117,7 @@ function InvoiceTab({ settings, update }: { settings: UserSettings; update: (key
    const [avatarUrl, setAvatarUrl] = useState((user?.user_metadata?.avatar_url as string) || '')
    const [uploadingAvatar, setUploadingAvatar] = useState(false)
    const avatarInputRef = useRef<HTMLInputElement>(null)
+   const [restartingOnboarding, setRestartingOnboarding] = useState(false)
   const saveAccount = async () => {
     setBusy(true)
     try {
@@ -181,8 +184,18 @@ function InvoiceTab({ settings, update }: { settings: UserSettings; update: (key
        if (avatarInputRef.current) avatarInputRef.current.value = ''
      }
    }
+   const handleRestartOnboarding = async () => {
+     setRestartingOnboarding(true)
+     try {
+       await saveOnboarding({ completed: false, skipped: false, currentStep: 1 })
+       navigate('/onboarding')
+     } catch (error) {
+       toast({ title: 'Could not restart onboarding', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
+       setRestartingOnboarding(false)
+     }
+   }
    const initials = name ? name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2) : user?.email?.slice(0, 2).toUpperCase() || 'IF'
-   return <div className="space-y-6"><Card><CardHeader><CardTitle>Account & Security</CardTitle><CardDescription>Update your identity and sign-in credentials. Sensitive changes require your current password.</CardDescription></CardHeader><CardContent className="space-y-5"><div className="flex items-center gap-4 rounded-xl border border-border p-4"><Avatar className="h-14 w-14"><AvatarImage src={avatarUrl} alt={name || 'Profile'} /><AvatarFallback className="bg-primary/10 font-semibold text-primary">{initials}</AvatarFallback></Avatar><div className="flex-1"><p className="text-sm font-medium">Profile picture</p><p className="mt-1 text-xs text-muted-foreground">JPG, PNG, or GIF up to 2MB.</p></div><input ref={avatarInputRef} type="file" accept="image/*" className="sr-only" onChange={uploadAvatar} /><Button type="button" variant="outline" onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar}>{uploadingAvatar ? 'Uploading...' : 'Upload photo'}</Button></div><div className="grid gap-5 sm:grid-cols-2"><Field label="Full Name" value={name} onChange={setName} /><Field label="Email Address" type="email" value={email} onChange={setEmail} /><Field label="Timezone" value={settings.accountTimezone} onChange={(value) => update('accountTimezone', value)} /><Field label="Country" value={settings.accountCountry} onChange={(value) => update('accountCountry', value)} /><Field label="New Password" type="password" value={password} onChange={setPassword} placeholder="Leave blank to keep current password" /><Field label="Current Password (for email/password changes)" type="password" value={currentPassword} onChange={setCurrentPassword} /></div><div className="flex justify-end"><Button onClick={saveAccount} disabled={busy}>{busy ? 'Updating...' : 'Update Account'}</Button></div></CardContent></Card><Card><CardHeader><CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-primary" />Security Controls</CardTitle><CardDescription>Use your profile and session controls to keep the account current.</CardDescription></CardHeader><CardContent><div className="flex items-center justify-between border-b border-border py-4"><div><p className="text-sm font-medium">Last Login</p><p className="mt-1 text-xs text-muted-foreground">Current session · {user?.email}</p></div><LockKeyhole className="h-4 w-4 text-muted-foreground" /></div><div className="flex flex-wrap gap-3 pt-4"><Button variant="outline" className="gap-2" onClick={signOutOtherDevices} disabled={signingOutOthers}><LogOut className="h-4 w-4" />{signingOutOthers ? 'Signing Out...' : 'Sign Out Other Devices'}</Button><Button variant="outline" className="gap-2" onClick={() => signOut()}><LogOut className="h-4 w-4" />Sign Out</Button></div></CardContent></Card></div>
+   return <div className="space-y-6"><Card><CardHeader><CardTitle>Account & Security</CardTitle><CardDescription>Update your identity and sign-in credentials. Sensitive changes require your current password.</CardDescription></CardHeader><CardContent className="space-y-5"><div className="flex items-center gap-4 rounded-xl border border-border p-4"><Avatar className="h-14 w-14"><AvatarImage src={avatarUrl} alt={name || 'Profile'} /><AvatarFallback className="bg-primary/10 font-semibold text-primary">{initials}</AvatarFallback></Avatar><div className="flex-1"><p className="text-sm font-medium">Profile picture</p><p className="mt-1 text-xs text-muted-foreground">JPG, PNG, or GIF up to 2MB.</p></div><input ref={avatarInputRef} type="file" accept="image/*" className="sr-only" onChange={uploadAvatar} /><Button type="button" variant="outline" onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar}>{uploadingAvatar ? 'Uploading...' : 'Upload photo'}</Button></div><div className="grid gap-5 sm:grid-cols-2"><Field label="Full Name" value={name} onChange={setName} /><Field label="Email Address" type="email" value={email} onChange={setEmail} /><Field label="Timezone" value={settings.accountTimezone} onChange={(value) => update('accountTimezone', value)} /><Field label="Country" value={settings.accountCountry} onChange={(value) => update('accountCountry', value)} /><Field label="New Password" type="password" value={password} onChange={setPassword} placeholder="Leave blank to keep current password" /><Field label="Current Password (for email/password changes)" type="password" value={currentPassword} onChange={setCurrentPassword} /></div><div className="flex justify-end"><Button onClick={saveAccount} disabled={busy}>{busy ? 'Updating...' : 'Update Account'}</Button></div></CardContent></Card><Card><CardHeader><CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-primary" />Security Controls</CardTitle><CardDescription>Use your profile and session controls to keep the account current.</CardDescription></CardHeader><CardContent><div className="flex items-center justify-between border-b border-border py-4"><div><p className="text-sm font-medium">Last Login</p><p className="mt-1 text-xs text-muted-foreground">Current session · {user?.email}</p></div><LockKeyhole className="h-4 w-4 text-muted-foreground" /></div><div className="flex flex-wrap gap-3 pt-4"><Button variant="outline" className="gap-2" onClick={signOutOtherDevices} disabled={signingOutOthers}><LogOut className="h-4 w-4" />{signingOutOthers ? 'Signing Out...' : 'Sign Out Other Devices'}</Button><Button variant="outline" className="gap-2" onClick={() => signOut()}><LogOut className="h-4 w-4" />Sign Out</Button></div></CardContent></Card><Card><CardHeader><CardTitle>Onboarding</CardTitle><CardDescription>Restart the setup wizard to review your business profile and workspace configuration.</CardDescription></CardHeader><CardContent><Button variant="outline" className="gap-2" onClick={handleRestartOnboarding} disabled={restartingOnboarding}><RotateCcw className="h-4 w-4" />{restartingOnboarding ? 'Restarting...' : 'Restart Onboarding'}</Button></CardContent></Card></div>
 }
 
 function NotificationsTab({ settings, update }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean) => void }) {

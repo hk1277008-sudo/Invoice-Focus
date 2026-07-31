@@ -11,6 +11,8 @@ import notificationsRouter from "./notifications";
 import billingRouter from "./billing";
 import reportsRouter from "./reports";
 import shareRouter from "./share";
+import onboardingRouter from "./onboarding";
+import feedbackRouter from "./feedback";
 
 const router: IRouter = Router();
 
@@ -26,5 +28,7 @@ router.use(notificationsRouter);
 router.use(billingRouter);
 router.use(reportsRouter);
 router.use(shareRouter);
+router.use(onboardingRouter);
+router.use(feedbackRouter);
 
 export default router;

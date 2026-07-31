@@ -17,6 +17,7 @@ import SignUpPage from '@/app/(auth)/sign-up/page'
 import ForgotPasswordPage from '@/app/(auth)/forgot-password/page'
 import ResetPasswordPage from '@/app/(auth)/reset-password/page'
 import VerifyEmailPage from '@/app/(auth)/verify-email/page'
+import OnboardingPage from '@/app/onboarding/page'
 import DashboardPage from '@/app/(dashboard)/dashboard/page'
 import ProfilePage from '@/app/(dashboard)/profile/page'
 import ClientsPage from '@/app/(dashboard)/clients/page'
@@ -24,6 +25,7 @@ import RecurringInvoicesPage from '@/app/(dashboard)/recurring/page'
 import NewRecurringInvoicePage from '@/app/(dashboard)/recurring/new/page'
 import EditRecurringInvoicePage from '@/app/(dashboard)/recurring/[id]/page'
 import SettingsPage from '@/app/(dashboard)/settings/page'
+import FeedbackPage from '@/app/(dashboard)/feedback/page'
 import UpgradePage from '@/app/(dashboard)/upgrade/page'
 import BillingPage from '@/app/(dashboard)/billing/page'
 import ReportsPage from '@/app/(dashboard)/reports/page'
@@ -65,6 +67,11 @@ function Router() {
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/verify-email" component={VerifyEmailPage} />
+      <Route path="/onboarding">
+        <ProtectedRoute>
+          <OnboardingPage />
+        </ProtectedRoute>
+      </Route>
       <Route path="/dashboard">
         <ProtectedRoute>
           <DashboardPage />
@@ -93,6 +100,11 @@ function Router() {
       <Route path="/dashboard/settings">
         <ProtectedRoute>
           <SettingsPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/feedback">
+        <ProtectedRoute>
+          <FeedbackPage />
         </ProtectedRoute>
       </Route>
       <Route path="/dashboard/upgrade">

@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
 import { useAuth } from '@/hooks/useAuth'
+import { getOnboarding } from '@/lib/onboarding'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -9,13 +10,27 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth()
-  const [, navigate] = useLocation()
+  const [location, navigate] = useLocation()
+  const [checkingOnboarding, setCheckingOnboarding] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       navigate('/sign-in')
     }
   }, [isAuthenticated, isLoading, navigate])
+
+  useEffect(() => {
+    if (isLoading || !isAuthenticated || location === '/onboarding' || location.startsWith('/onboarding/')) return
+    let active = true
+    setCheckingOnboarding(true)
+    getOnboarding()
+      .then(({ onboarding }) => {
+        if (active && onboarding.needsOnboarding) navigate('/onboarding')
+      })
+      .catch(() => undefined)
+      .finally(() => { if (active) setCheckingOnboarding(false) })
+    return () => { active = false }
+  }, [isAuthenticated, isLoading, location, navigate])
 
   if (isLoading) {
     return (
@@ -24,6 +39,14 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
           <div className="text-sm text-muted-foreground">Loading...</div>
         </div>
       )
+    )
+  }
+
+  if (checkingOnboarding) {
+    return fallback ?? (
+      <div className="flex min-h-svh items-center justify-center bg-background">
+        <div className="text-sm text-muted-foreground">Preparing your workspace...</div>
+      </div>
     )
   }
 

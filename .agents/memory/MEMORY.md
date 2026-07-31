@@ -12,3 +12,4 @@
 - [InvoiceFocus UI polish system](ui-polish-system.md) — Refine shared primitives and route rhythm while preserving the existing brand, workflows, auth, and invoice output.
 - [Invoice lifecycle status sync](invoice-lifecycle-status-sync.md) — Keep the invoice row status and embedded payload.details.status synchronized across every lifecycle and payment update.
 - [InvoiceFocus brand identity](invoicefocus-brand-identity.md) — The uploaded transparent logo is canonical across web, browser assets, metadata, and the shared transactional email shell.
+- [Onboarding and feedback persistence](onboarding-feedback-persistence.md) — Apply the Supabase schema and verify PostgREST/Storage before beta testing authenticated flows.
