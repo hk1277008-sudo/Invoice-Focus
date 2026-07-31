@@ -55,6 +55,15 @@ export async function getPaymentHistory(): Promise<PaymentHistoryItem[]> {
 type BillingOverview = {
   paymentMethods: PaymentMethod[]
   paymentHistory: Array<{ id: string; occurred_at: string; amount: number | null; currency: string | null; status: string; event_type: string; invoice_number?: string | null; plan?: string | null; receipt_url?: string | null }>
+  subscription: {
+    plan: string
+    billing_cycle: 'monthly' | 'yearly'
+    status: string
+    renewal_date: string | null
+    provider?: string | null
+    provider_customer_id?: string | null
+    provider_subscription_id?: string | null
+  }
 }
 
 export async function getBillingOverview(): Promise<BillingOverview> {
@@ -62,7 +71,14 @@ export async function getBillingOverview(): Promise<BillingOverview> {
 }
 
 export async function updateSubscriptionAction(action: 'upgrade' | 'downgrade' | 'cancel' | 'renew' | 'reactivate', planId?: string, billingCycle: 'monthly' | 'yearly' = 'monthly') {
-  return request<{ subscription: unknown }>('/billing/actions', { method: 'POST', body: JSON.stringify({ action, plan: planId, billingCycle }) })
+  return request<{ subscription: unknown; message?: string }>('/billing/actions', { method: 'POST', body: JSON.stringify({ action, plan: planId, billingCycle }) })
+}
+
+export async function verifyCheckoutTransaction(transactionId: string) {
+  return request<{ verified: boolean; subscription: unknown }>('/billing/transactions/verify', {
+    method: 'POST',
+    body: JSON.stringify({ transactionId }),
+  })
 }
 
 export async function createCheckout(plan: string, billingCycle: 'monthly' | 'yearly') {

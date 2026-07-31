@@ -28,11 +28,15 @@ router.post('/billing/checkout', async (req, res) => {
   const plan = req.body?.plan as BillingPlan;
   const billingCycle = req.body?.billingCycle === 'yearly' ? 'yearly' : 'monthly';
   if (!['free', 'pro', 'premium'].includes(plan)) { res.status(400).json({ error: 'Invalid billing plan' }); return; }
+  if (plan === 'free') { res.status(400).json({ error: 'Free downgrades are handled from Billing without checkout.' }); return; }
    try {
      const current = await subscriptionManager.get(user.id);
-     if (current.plan !== 'free' && current.status !== 'cancelled' && current.status !== 'incomplete') {
-       res.status(409).json({ error: 'You already have an active paid subscription. Manage it from the billing portal.' }); return;
-     }
+      if (current.plan === plan && current.status !== 'incomplete') {
+        res.status(409).json({ error: "You're already subscribed to this plan." }); return;
+      }
+      if (current.providerSubscriptionId) {
+        res.status(409).json({ error: 'Use plan change from Billing to update your existing subscription.' }); return;
+      }
       if (billingCycle === 'yearly' && !(await getPaddleBillingAvailability()).yearly) {
         res.status(409).json({ error: 'Yearly billing is not available yet.' }); return;
       }
@@ -42,6 +46,20 @@ router.post('/billing/checkout', async (req, res) => {
    } catch (error) {
      res.status(502).json({ error: error instanceof Error ? error.message : 'Could not create Paddle checkout.' });
    }
+});
+
+router.post('/billing/transactions/verify', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  const transactionId = typeof req.body?.transactionId === 'string' ? req.body.transactionId.trim() : '';
+  if (!transactionId) { res.status(400).json({ error: 'A Paddle transaction ID is required.' }); return; }
+  try {
+    const event = await getBillingProvider().verifyCompletedTransaction({ userId: user.id, transactionId });
+    await billingEventHandler.handle(event);
+    const subscription = await subscriptionManager.get(user.id);
+    res.json({ verified: true, subscription });
+  } catch (error) {
+    res.status(409).json({ verified: false, error: error instanceof Error ? error.message : 'Transaction is not ready to verify.' });
+  }
 });
 
 router.post('/billing/portal', async (req, res) => {
@@ -56,10 +74,38 @@ router.post('/billing/actions', async (req, res) => {
   const plan = req.body?.plan as BillingPlan | undefined;
   const cycle: BillingCycle = req.body?.billingCycle === 'yearly' ? 'yearly' : 'monthly';
   if (!['upgrade', 'downgrade', 'cancel', 'renew', 'reactivate'].includes(action)) { res.status(400).json({ error: 'Invalid billing action' }); return; }
-  try {
-    const subscription = await subscriptionManager.applySimulatedAction(user.id, action, plan, cycle);
-    res.json({ simulated: true, subscription, message: 'Subscription updated in simulation mode.' });
-  } catch { res.status(400).json({ error: 'Unable to update subscription' }); }
+   try {
+     const current = await subscriptionManager.get(user.id);
+     const provider = getBillingProvider();
+     let event;
+      if (action === 'cancel' || (action === 'downgrade' && plan === 'free')) {
+       if (!current.providerSubscriptionId) throw new Error('No active Paddle subscription is connected to this workspace.');
+       event = await provider.cancelSubscription({ userId: user.id, subscriptionId: current.providerSubscriptionId });
+     } else if (action === 'renew' || action === 'reactivate') {
+       if (!current.providerSubscriptionId) throw new Error('No Paddle subscription is connected to this workspace.');
+       event = await provider.resumeSubscription({ userId: user.id, subscriptionId: current.providerSubscriptionId });
+     } else if (plan && plan !== 'free') {
+       if (current.plan === plan && current.billingCycle === cycle && current.status !== 'cancelled') {
+         res.status(409).json({ error: "You're already subscribed to this plan." }); return;
+       }
+       if (!current.providerSubscriptionId) {
+         res.status(409).json({ error: 'Start secure checkout to activate your first paid subscription.' }); return;
+       }
+       event = await provider.updateSubscription({
+         userId: user.id,
+         subscriptionId: current.providerSubscriptionId,
+         plan,
+         billingCycle: cycle,
+         effectiveFrom: 'immediately',
+       });
+     } else {
+       throw new Error('Choose a valid paid plan or subscription action.');
+     }
+     await billingEventHandler.handle(event);
+     res.json({ subscription: await subscriptionManager.get(user.id), message: 'Subscription updated.' });
+   } catch (error) {
+     res.status(400).json({ error: error instanceof Error ? error.message : 'Unable to update subscription' });
+   }
 });
 
 router.post('/webhooks/billing/:provider', async (req, res) => {
@@ -78,8 +124,10 @@ export async function handlePaddleWebhook(req: Request, res: Response) {
   const provider = getBillingProvider();
   const signature = req.get('paddle-signature') || null;
   const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '';
+  let verifiedEventId: string | null = null;
   try {
     const event = await provider.verifyWebhook({ provider: 'paddle', rawBody, signature });
+    verifiedEventId = event.eventId;
     const { data: duplicate, error: duplicateError } = await supabaseAdmin
       .from('billing_webhook_events')
       .select('id,status')
@@ -95,11 +143,30 @@ export async function handlePaddleWebhook(req: Request, res: Response) {
       status: 'received',
       payload: event.data,
     });
-    if (receivedError) throw receivedError;
+    if (receivedError) {
+      const { data: concurrentEvent } = await supabaseAdmin
+        .from('billing_webhook_events')
+        .select('id')
+        .eq('provider', event.provider)
+        .eq('provider_event_id', event.eventId)
+        .maybeSingle();
+      if (concurrentEvent) { res.status(204).end(); return; }
+      throw receivedError;
+    }
     await billingEventHandler.handle(event);
     await supabaseAdmin.from('billing_webhook_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('provider', event.provider).eq('provider_event_id', event.eventId);
     res.status(204).end();
   } catch (error) {
+    if (verifiedEventId) {
+      await supabaseAdmin
+        .from('billing_webhook_events')
+        .update({
+          status: 'failed',
+          error_message: error instanceof Error ? error.message : 'Webhook processing failed.',
+        })
+        .eq('provider', 'paddle')
+        .eq('provider_event_id', verifiedEventId);
+    }
     res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid Paddle webhook.' });
   }
 }

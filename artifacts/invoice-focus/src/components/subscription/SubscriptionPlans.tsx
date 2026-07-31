@@ -44,13 +44,27 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
     return () => { mounted = false }
   }, [initialCycle])
   const choose = async (plan: PlanId) => {
-    if (plan === subscription.plan) return
+    if (plan === subscription.plan && subscription.status !== 'cancelled') {
+      toast({ title: "You're already subscribed to this plan." })
+      return
+    }
     setBusy(plan)
     try {
       if (plan === 'free') {
         await updateSubscriptionAction('downgrade', plan, cycle)
         await refreshSubscription()
-        toast({ title: 'Downgraded to Free', description: 'Your workspace access is now up to date.' })
+        toast({ title: 'Downgrade scheduled', description: 'Your current plan remains available through the end of this billing period.' })
+        navigate('/dashboard/billing')
+        return
+      }
+      if (subscription.plan !== 'free') {
+        const action = plan === 'premium' ? 'upgrade' : 'downgrade'
+        await updateSubscriptionAction(action, plan, cycle)
+        await refreshSubscription()
+        toast({
+          title: `${plan === 'premium' ? 'Upgraded' : 'Downgraded'} to ${plan === 'premium' ? 'Premium' : 'Pro'}`,
+          description: 'Your Paddle subscription and InvoiceFocus access are now synchronized.',
+        })
         navigate('/dashboard/billing')
         return
       }
@@ -58,7 +72,7 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
       if (!checkout.transactionId || !checkout.clientToken) throw new Error(checkout.message || 'Paddle checkout is not configured yet.')
       const open = () => {
         if (!window.Paddle) throw new Error('Paddle Checkout could not be loaded. Please try again.')
-        window.Paddle.Checkout.open({ transactionId: checkout.transactionId!, settings: { successUrl: `${window.location.origin}${import.meta.env.BASE_URL}dashboard/billing?checkout=success` } })
+        window.Paddle.Checkout.open({ transactionId: checkout.transactionId!, settings: { successUrl: `${window.location.origin}${import.meta.env.BASE_URL}dashboard/billing/success` } })
       }
       if (!window.Paddle) {
         await new Promise<void>((resolve, reject) => {
@@ -73,7 +87,10 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
       window.Paddle.Environment.set(checkout.environment === 'production' ? 'production' : 'sandbox')
       if (initializedPaddleToken !== checkout.clientToken) {
         window.Paddle.Initialize({ token: checkout.clientToken, eventCallback: (event) => {
-          if (event.name === 'checkout.completed') void refreshSubscription()
+          if (event.name === 'checkout.completed') {
+            const transactionId = (event as { data?: { transaction_id?: string } }).data?.transaction_id
+            navigate(transactionId ? `/dashboard/billing/success?transaction_id=${encodeURIComponent(transactionId)}` : '/dashboard/billing/success')
+          }
         } })
         initializedPaddleToken = checkout.clientToken
       }
@@ -85,6 +102,6 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
     }
   }
   return <div><div className="mb-8 flex items-center justify-center"><div className="flex rounded-lg border border-border bg-muted/40 p-1"><button type="button" onClick={() => setCycle('monthly')} className={`rounded-md px-4 py-2 text-sm font-medium ${cycle === 'monthly' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}>Monthly</button>{yearlyAvailable && <button type="button" onClick={() => setCycle('yearly')} className={`rounded-md px-4 py-2 text-sm font-medium ${cycle === 'yearly' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}>Yearly <span className="ml-1 text-xs text-emerald-600">Save 18%</span></button>}</div></div>
-    <div className="grid gap-5 lg:grid-cols-3">{plans.map((plan) => <Card key={plan.id} className={`relative flex flex-col ${plan.popular ? 'border-primary shadow-md shadow-primary/10' : ''}`}>{plan.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Most Popular</div>}<CardHeader><div className="flex items-center justify-between"><CardTitle>{plan.name}</CardTitle>{plan.id === subscription.plan && <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current</span>}</div><CardDescription>{plan.description}</CardDescription><p className="pt-3 font-display text-3xl font-semibold">{cycle === 'yearly' ? plan.yearly : plan.monthly}</p></CardHeader><CardContent className="flex flex-1 flex-col"><ul className="flex-1 space-y-3 text-sm text-muted-foreground">{plan.features.map((feature) => <li key={feature} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-emerald-600" />{feature}</li>)}</ul><Button className="mt-7 w-full" variant={plan.id === subscription.plan ? 'secondary' : plan.popular ? 'default' : 'outline'} disabled={plan.id === subscription.plan || busy !== null} onClick={() => void choose(plan.id)}>{busy === plan.id ? 'Updating…' : plan.id === subscription.plan ? 'Current Plan' : plan.id === 'free' ? 'Downgrade to Free' : `Choose ${plan.name}`}</Button></CardContent></Card>)}</div>
+     <div className="grid gap-5 lg:grid-cols-3">{plans.map((plan) => <Card key={plan.id} className={`relative flex flex-col ${plan.popular ? 'border-primary shadow-md shadow-primary/10' : ''}`}>{plan.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Most Popular</div>}<CardHeader><div className="flex items-center justify-between"><CardTitle>{plan.name}</CardTitle>{plan.id === subscription.plan && <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{subscription.status === 'cancelled' ? 'Scheduled to end' : 'Current'}</span>}</div><CardDescription>{plan.description}</CardDescription><p className="pt-3 font-display text-3xl font-semibold">{cycle === 'yearly' ? plan.yearly : plan.monthly}</p></CardHeader><CardContent className="flex flex-1 flex-col"><ul className="flex-1 space-y-3 text-sm text-muted-foreground">{plan.features.map((feature) => <li key={feature} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-emerald-600" />{feature}</li>)}</ul><Button className="mt-7 w-full" variant={plan.id === subscription.plan && subscription.status !== 'cancelled' ? 'secondary' : plan.popular ? 'default' : 'outline'} disabled={busy !== null} onClick={() => void choose(plan.id)}>{busy === plan.id ? 'Updating…' : plan.id === subscription.plan && subscription.status !== 'cancelled' ? 'Current Plan' : plan.id === 'free' ? 'Downgrade to Free' : subscription.plan === 'free' ? `Choose ${plan.name}` : `Switch to ${plan.name}`}</Button></CardContent></Card>)}</div>
   </div>
 }

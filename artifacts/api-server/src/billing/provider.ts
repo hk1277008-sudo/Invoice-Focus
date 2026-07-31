@@ -4,6 +4,10 @@ import type {
   CheckoutResult,
   CustomerPortalInput,
   CustomerPortalResult,
+  ManageSubscriptionInput,
+  PaymentMethodSnapshot,
+  UpdateSubscriptionInput,
+  VerifyTransactionInput,
   VerifiedWebhook,
   WebhookVerificationInput,
 } from './types';
@@ -38,6 +42,75 @@ function paddleMode() {
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' ? value as Record<string, unknown> : {};
+}
+
+function field(record: Record<string, unknown>, camel: string, snake: string) {
+  return record[camel] ?? record[snake];
+}
+
+function planFromName(name: unknown): PaidPlan | null {
+  if (typeof name !== 'string') return null;
+  const normalized = name.toLowerCase();
+  return normalized.includes('premium') ? 'premium' : normalized.includes('pro') ? 'pro' : null;
+}
+
+function cycleFromInterval(interval: unknown): 'monthly' | 'yearly' {
+  return interval === 'year' ? 'yearly' : 'monthly';
+}
+
+function transactionData(transaction: any, userId: string) {
+  const customData = asRecord(transaction.customData);
+  const item = transaction.items?.[0];
+  const price = item?.price;
+  const plan = customData.plan === 'pro' || customData.plan === 'premium' ? customData.plan : planFromName(price?.product?.name);
+  const billingCycle = customData.billing_cycle === 'yearly' || customData.billing_cycle === 'monthly'
+    ? customData.billing_cycle
+    : cycleFromInterval(price?.billingCycle?.interval);
+  const total = transaction.details?.totals?.total;
+  const payment = transaction.payments?.[0];
+  const card = payment?.methodDetails?.card;
+  return {
+    ...asRecord(transaction),
+    userId,
+    plan,
+    billingCycle,
+    providerCustomerId: transaction.customerId || null,
+    providerSubscriptionId: transaction.subscriptionId || null,
+    transactionId: transaction.id,
+    invoiceId: transaction.invoiceId || null,
+    invoiceNumber: transaction.invoiceNumber || null,
+    priceId: price?.id || null,
+    renewalDate: null,
+    amount: typeof total === 'string' ? Number(total) : null,
+    currency: transaction.currencyCode || 'USD',
+    paymentMethod: card ? {
+      providerPaymentMethodId: payment.storedPaymentMethodId || payment.paymentMethodId || null,
+      brand: card.type || 'card',
+      last4: card.last4,
+      expMonth: card.expiryMonth,
+      expYear: card.expiryYear,
+    } : null,
+  };
+}
+
+function subscriptionData(subscription: any, userId: string, planOverride?: PaidPlan, cycleOverride?: 'monthly' | 'yearly') {
+  const customData = asRecord(subscription.customData);
+  const item = subscription.items?.[0];
+  const plan = planOverride || (customData.plan === 'pro' || customData.plan === 'premium' ? customData.plan : planFromName(item?.price?.product?.name));
+  const billingCycle = cycleOverride || (customData.billing_cycle === 'yearly' || customData.billing_cycle === 'monthly'
+    ? customData.billing_cycle
+    : cycleFromInterval(subscription.billingCycle?.interval));
+  return {
+    ...asRecord(subscription),
+    userId,
+    plan,
+    billingCycle,
+    providerCustomerId: subscription.customerId || null,
+    providerSubscriptionId: subscription.id,
+    renewalDate: subscription.nextBilledAt || null,
+    status: subscription.status === 'canceled' ? 'cancelled' : subscription.status,
+    priceId: item?.price?.id || null,
+  };
 }
 
 async function resolvePriceId(plan: PaidPlan, billingCycle: 'monthly' | 'yearly') {
@@ -81,32 +154,57 @@ export async function getPaddleBillingAvailability() {
 
 function normalizeWebhookType(eventType: string): VerifiedWebhook['type'] | null {
   if (eventType === 'subscription.canceled') return 'subscription.cancelled';
-  if (eventType === 'transaction.completed') return 'payment.succeeded';
-  if (eventType === 'transaction.payment_failed') return 'payment.failed';
+  if (eventType === 'subscription.past_due') return 'payment.failed';
+  if (eventType === 'subscription.activated' || eventType === 'subscription.resumed' || eventType === 'subscription.trialing') return 'subscription.updated';
+  if (eventType === 'transaction.completed') return 'transaction.completed';
+  if (eventType === 'transaction.paid' || eventType === 'transaction.billed') return 'payment.succeeded';
+  if (eventType === 'transaction.payment_failed' || eventType === 'transaction.past_due') return 'payment.failed';
   if (eventType === 'subscription.created' || eventType === 'subscription.updated') return eventType;
   return null;
 }
 
 function webhookData(event: { data: object; eventType: string }) {
   const data = asRecord(event.data);
-  const customData = asRecord(data.customData);
+  const customData = asRecord(field(data, 'customData', 'custom_data'));
   const item = Array.isArray(data.items) ? asRecord(data.items[0]) : {};
   const price = asRecord(item.price);
-  const priceId = typeof item.priceId === 'string' ? item.priceId : typeof price.id === 'string' ? price.id : null;
-  const billingCycle = asRecord(data.billingCycle);
+  const priceIdValue = field(item, 'priceId', 'price_id');
+  const priceId = typeof priceIdValue === 'string' ? priceIdValue : typeof price.id === 'string' ? price.id : null;
+  const billingCycle = asRecord(field(data, 'billingCycle', 'billing_cycle'));
   const interval = billingCycle.interval === 'year' ? 'yearly' : 'monthly';
   const amount = asRecord(asRecord(data.details).totals).total;
+  const payment = Array.isArray(data.payments) ? asRecord(data.payments[0]) : {};
+  const methodDetails = asRecord(field(payment, 'methodDetails', 'method_details'));
+  const card = asRecord(methodDetails.card);
+  const userId = field(customData, 'user_id', 'user_id');
+  const providerCustomerId = field(data, 'customerId', 'customer_id');
+  const providerSubscriptionId = field(data, 'subscriptionId', 'subscription_id');
+  const nextBilledAt = field(data, 'nextBilledAt', 'next_billed_at');
+  const invoiceId = field(data, 'invoiceId', 'invoice_id');
+  const invoiceNumber = field(data, 'invoiceNumber', 'invoice_number');
   return {
     ...data,
-    userId: typeof customData.user_id === 'string' ? customData.user_id : null,
+    userId: typeof userId === 'string' ? userId : null,
     plan: customData.plan === 'pro' || customData.plan === 'premium' ? customData.plan : null,
     billingCycle: customData.billing_cycle === 'yearly' || customData.billing_cycle === 'monthly' ? customData.billing_cycle : interval,
     priceId,
-    providerCustomerId: typeof data.customerId === 'string' ? data.customerId : null,
-    providerSubscriptionId: typeof data.subscriptionId === 'string' ? data.subscriptionId : typeof data.id === 'string' && event.eventType.startsWith('subscription.') ? data.id : null,
-    renewalDate: typeof data.nextBilledAt === 'string' ? data.nextBilledAt : null,
+    transactionId: typeof data.id === 'string' && event.eventType.startsWith('transaction.') ? data.id : null,
+    invoiceId: typeof invoiceId === 'string' ? invoiceId : null,
+    invoiceNumber: typeof invoiceNumber === 'string' ? invoiceNumber : null,
+    providerCustomerId: typeof providerCustomerId === 'string' ? providerCustomerId : null,
+    providerSubscriptionId: typeof providerSubscriptionId === 'string' ? providerSubscriptionId : typeof data.id === 'string' && event.eventType.startsWith('subscription.') ? data.id : null,
+    renewalDate: typeof nextBilledAt === 'string' ? nextBilledAt : null,
     amount: typeof amount === 'string' ? Number(amount) : null,
     currency: typeof data.currencyCode === 'string' ? data.currencyCode : 'USD',
+    paymentMethod: card.last4 ? {
+      providerPaymentMethodId: typeof field(payment, 'storedPaymentMethodId', 'stored_payment_method_id') === 'string'
+        ? field(payment, 'storedPaymentMethodId', 'stored_payment_method_id') as string
+        : null,
+      brand: typeof card.type === 'string' ? card.type : 'card',
+      last4: card.last4,
+      expMonth: typeof card.expiryMonth === 'number' ? card.expiryMonth : null,
+      expYear: typeof card.expiryYear === 'number' ? card.expiryYear : null,
+    } : null,
   };
 }
 
@@ -160,6 +258,111 @@ class PaddleBillingProvider implements BillingProvider {
     return { provider: this.name, portalUrl: session.urls.general.overview, status: 'ready' };
   }
 
+  async verifyCompletedTransaction(input: VerifyTransactionInput): Promise<VerifiedWebhook> {
+    const paddle = paddleClient();
+    if (!paddle) throw new Error('Paddle API credentials are not configured.');
+    const transaction = await paddle.transactions.get(input.transactionId);
+    if (!['paid', 'completed'].includes(transaction.status)) {
+      throw new Error(`Paddle transaction is not completed (status: ${transaction.status}).`);
+    }
+    const customData = asRecord(transaction.customData);
+    if (customData.user_id !== input.userId) {
+      throw new Error('Paddle transaction does not belong to the authenticated user.');
+    }
+    let data = transactionData(transaction, input.userId);
+    if (transaction.subscriptionId) {
+      const subscription = await paddle.subscriptions.get(transaction.subscriptionId);
+      if (subscription.customerId) await paddle.customers.get(subscription.customerId);
+      data = {
+        ...data,
+        ...subscriptionData(subscription, input.userId, data.plan || undefined, data.billingCycle),
+        transactionId: transaction.id,
+        invoiceId: transaction.invoiceId || null,
+        invoiceNumber: transaction.invoiceNumber || null,
+        amount: data.amount,
+        currency: data.currency,
+        paymentMethod: data.paymentMethod,
+      };
+    }
+    if (data.plan !== 'pro' && data.plan !== 'premium') throw new Error('Paddle transaction is missing a valid InvoiceFocus plan.');
+    return {
+      provider: this.name,
+      eventId: `transaction:${transaction.id}`,
+      type: 'transaction.completed',
+      occurredAt: transaction.billedAt || transaction.updatedAt || transaction.createdAt,
+      data,
+    };
+  }
+
+  async updateSubscription(input: UpdateSubscriptionInput): Promise<VerifiedWebhook> {
+    const paddle = paddleClient();
+    if (!paddle) throw new Error('Paddle API credentials are not configured.');
+    const priceId = await resolvePriceId(input.plan, input.billingCycle);
+    if (!priceId) throw new Error(`The ${input.plan} ${input.billingCycle} Paddle price is not configured.`);
+    const subscription = await paddle.subscriptions.update(input.subscriptionId, {
+      items: [{ priceId, quantity: 1 }],
+      scheduledChange: null,
+      customData: { user_id: input.userId, plan: input.plan, billing_cycle: input.billingCycle },
+      prorationBillingMode: input.effectiveFrom === 'immediately' ? 'prorated_immediately' : 'prorated_next_billing_period',
+    });
+    return {
+      provider: this.name,
+      eventId: `subscription:${subscription.id}:${subscription.updatedAt}`,
+      type: 'subscription.updated',
+      occurredAt: subscription.updatedAt,
+      data: subscriptionData(subscription, input.userId, input.plan, input.billingCycle),
+    };
+  }
+
+  async cancelSubscription(input: ManageSubscriptionInput): Promise<VerifiedWebhook> {
+    const paddle = paddleClient();
+    if (!paddle) throw new Error('Paddle API credentials are not configured.');
+    const subscription = await paddle.subscriptions.cancel(input.subscriptionId, { effectiveFrom: 'next_billing_period' });
+    return {
+      provider: this.name,
+      eventId: `subscription:${subscription.id}:${subscription.updatedAt}`,
+      type: 'subscription.updated',
+      occurredAt: subscription.updatedAt,
+      data: subscriptionData(subscription, input.userId),
+    };
+  }
+
+  async resumeSubscription(input: ManageSubscriptionInput): Promise<VerifiedWebhook> {
+    const paddle = paddleClient();
+    if (!paddle) throw new Error('Paddle API credentials are not configured.');
+    const subscription = await paddle.subscriptions.resume(input.subscriptionId, { effectiveFrom: 'immediately' });
+    return {
+      provider: this.name,
+      eventId: `subscription:${subscription.id}:${subscription.updatedAt}`,
+      type: 'subscription.updated',
+      occurredAt: subscription.updatedAt,
+      data: subscriptionData(subscription, input.userId),
+    };
+  }
+
+  async listPaymentMethods(input: ManageSubscriptionInput): Promise<PaymentMethodSnapshot[]> {
+    const paddle = paddleClient();
+    if (!paddle) throw new Error('Paddle API credentials are not configured.');
+    const subscription = await paddle.subscriptions.get(input.subscriptionId);
+    const methods: PaymentMethodSnapshot[] = [];
+    for await (const method of paddle.paymentMethods.list(subscription.customerId, {
+      addressId: [subscription.addressId],
+      supportsCheckout: true,
+      perPage: 100,
+    })) {
+      if (!method.card) continue;
+      methods.push({
+        providerPaymentMethodId: method.id,
+        brand: method.card.type,
+        last4: method.card.last4,
+        expMonth: method.card.expiryMonth,
+        expYear: method.card.expiryYear,
+        isDefault: methods.length === 0,
+      });
+    }
+    return methods;
+  }
+
   async verifyWebhook(input: WebhookVerificationInput): Promise<VerifiedWebhook> {
     const paddle = paddleClient();
     if (!paddle) throw new Error('Paddle API credentials are not configured.');
@@ -195,6 +398,21 @@ export const unconfiguredBillingProvider: BillingProvider = {
   },
   async verifyWebhook(_input: WebhookVerificationInput): Promise<VerifiedWebhook> {
     throw new Error('Billing provider webhook verification is not configured.');
+  },
+  async verifyCompletedTransaction(_input: VerifyTransactionInput): Promise<VerifiedWebhook> {
+    throw new Error('Billing provider transaction verification is not configured.');
+  },
+  async updateSubscription(_input: UpdateSubscriptionInput): Promise<VerifiedWebhook> {
+    throw new Error('Billing provider subscription updates are not configured.');
+  },
+  async cancelSubscription(_input: ManageSubscriptionInput): Promise<VerifiedWebhook> {
+    throw new Error('Billing provider subscription cancellation is not configured.');
+  },
+  async resumeSubscription(_input: ManageSubscriptionInput): Promise<VerifiedWebhook> {
+    throw new Error('Billing provider subscription resumption is not configured.');
+  },
+  async listPaymentMethods(_input: ManageSubscriptionInput): Promise<PaymentMethodSnapshot[]> {
+    return [];
   },
 };
 

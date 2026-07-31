@@ -3,6 +3,7 @@ export type BillingCycle = 'monthly' | 'yearly';
 export type BillingStatus = 'active' | 'trialing' | 'past_due' | 'cancelled' | 'incomplete';
 
 export type BillingEventType =
+  | 'transaction.completed'
   | 'subscription.created'
   | 'subscription.updated'
   | 'subscription.cancelled'
@@ -15,6 +16,11 @@ export interface BillingProvider {
   readonly name: string;
   createCheckoutSession(input: CheckoutInput): Promise<CheckoutResult>;
   createCustomerPortalSession(input: CustomerPortalInput): Promise<CustomerPortalResult>;
+  verifyCompletedTransaction(input: VerifyTransactionInput): Promise<VerifiedWebhook>;
+  updateSubscription(input: UpdateSubscriptionInput): Promise<VerifiedWebhook>;
+  cancelSubscription(input: ManageSubscriptionInput): Promise<VerifiedWebhook>;
+  resumeSubscription(input: ManageSubscriptionInput): Promise<VerifiedWebhook>;
+  listPaymentMethods(input: ManageSubscriptionInput): Promise<PaymentMethodSnapshot[]>;
   verifyWebhook(input: WebhookVerificationInput): Promise<VerifiedWebhook>;
 }
 
@@ -39,6 +45,33 @@ export interface CheckoutResult {
 export interface CustomerPortalInput {
   userId: string;
   returnUrl: string;
+}
+
+export interface VerifyTransactionInput {
+  userId: string;
+  transactionId: string;
+}
+
+export interface UpdateSubscriptionInput {
+  userId: string;
+  subscriptionId: string;
+  plan: Exclude<BillingPlan, 'free'>;
+  billingCycle: BillingCycle;
+  effectiveFrom: 'immediately' | 'next_billing_period';
+}
+
+export interface ManageSubscriptionInput {
+  userId: string;
+  subscriptionId: string;
+}
+
+export interface PaymentMethodSnapshot {
+  providerPaymentMethodId: string;
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
+  isDefault: boolean;
 }
 
 export interface CustomerPortalResult {

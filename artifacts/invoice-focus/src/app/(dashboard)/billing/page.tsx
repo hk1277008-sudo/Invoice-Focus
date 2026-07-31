@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'wouter'
 import { ArrowUpRight, Check, CreditCard, ExternalLink, FileText, History, Info, AlertCircle, ShieldCheck } from 'lucide-react'
 import { DashboardLayout } from '../layout'
@@ -28,6 +28,11 @@ export default function BillingPage() {
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [history, setHistory] = useState<PaymentHistoryItem[]>([])
+  const [providerDetails, setProviderDetails] = useState<{
+    provider?: string | null
+    customerId?: string | null
+    subscriptionId?: string | null
+  }>({})
   const [loadingExtras, setLoadingExtras] = useState(true)
   const [yearlyAvailable, setYearlyAvailable] = useState(false)
   const selectedCycle = requestedCycle === 'yearly' && yearlyAvailable ? 'yearly' : 'monthly'
@@ -36,36 +41,47 @@ export default function BillingPage() {
   const [portalBusy, setPortalBusy] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; action: 'cancel' | 'reactivate' | 'renew' | 'downgrade'; title: string; desc: string } | null>(null)
 
+  const loadBillingDetails = useCallback(async () => {
+    setLoadingExtras(true)
+    try {
+      const { paymentMethods: methods, paymentHistory: rows, subscription: billingSubscription } = await getBillingOverview()
+      setPaymentMethods(methods)
+      setProviderDetails({
+        provider: billingSubscription.provider,
+        customerId: billingSubscription.provider_customer_id,
+        subscriptionId: billingSubscription.provider_subscription_id,
+      })
+      setHistory(rows.map((item) => ({
+        id: item.id,
+        date: item.occurred_at,
+        invoiceNumber: item.invoice_number || `IF-${item.id.slice(0, 8).toUpperCase()}`,
+        plan: item.plan || 'InvoiceFocus',
+        amount: item.amount || 0,
+        currency: item.currency || 'USD',
+        status: (['paid', 'failed', 'pending', 'refunded'].includes(item.status) ? item.status : 'pending') as PaymentHistoryItem['status'],
+        description: item.event_type,
+        invoiceUrl: item.receipt_url || undefined,
+      })))
+    } catch {
+      toast({ title: 'Could not load billing details', variant: 'destructive' })
+    } finally {
+      setLoadingExtras(false)
+    }
+  }, [toast])
+
   useEffect(() => {
     void getBillingAvailability()
       .then(({ yearly }) => setYearlyAvailable(yearly))
       .catch(() => setYearlyAvailable(false))
-    getBillingOverview()
-      .then(({ paymentMethods: methods, paymentHistory: rows }) => {
-        setPaymentMethods(methods)
-        setHistory(rows.map((item) => ({
-          id: item.id,
-          date: item.occurred_at,
-          invoiceNumber: item.invoice_number || `IF-${item.id.slice(0, 8).toUpperCase()}`,
-          plan: item.plan || 'InvoiceFocus',
-          amount: item.amount || 0,
-          currency: item.currency || 'USD',
-          status: (['paid', 'failed', 'pending', 'refunded'].includes(item.status) ? item.status : 'pending') as PaymentHistoryItem['status'],
-          description: item.event_type,
-          invoiceUrl: item.receipt_url || undefined,
-        })))
-      })
-      .catch(() => {
-        toast({ title: 'Could not load billing details', variant: 'destructive' })
-      })
-      .finally(() => setLoadingExtras(false))
-  }, [toast])
+    void loadBillingDetails()
+  }, [loadBillingDetails])
 
   const handleAction = async (action: 'cancel' | 'reactivate' | 'renew' | 'downgrade') => {
     setIsProcessing(true)
     try {
-      await updateSubscriptionAction(action)
+      await updateSubscriptionAction(action, action === 'downgrade' ? 'free' : undefined, subscription.billingCycle)
       await refreshSubscription()
+      await loadBillingDetails()
       toast({
         title: 'Action completed',
         description: 'Your subscription preferences are now up to date.',
@@ -202,6 +218,18 @@ export default function BillingPage() {
                     <p className="text-base">{subscription.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString() : 'N/A'}</p>
                   </div>
                 </div>
+                {(providerDetails.customerId || providerDetails.subscriptionId) && (
+                  <div className="mt-6 grid gap-3 border-t border-border pt-5 text-xs sm:grid-cols-2">
+                    <div>
+                      <p className="font-medium text-muted-foreground">Paddle customer ID</p>
+                      <p className="mt-1 break-all font-mono text-foreground/80">{providerDetails.customerId || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-muted-foreground">Paddle subscription ID</p>
+                      <p className="mt-1 break-all font-mono text-foreground/80">{providerDetails.subscriptionId || '—'}</p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   <div className="rounded-lg border border-border p-4 bg-background">
