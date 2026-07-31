@@ -23,7 +23,10 @@ not present in the Paddle catalog, checkout fails clearly rather than using a
 different price. The current Sandbox API key can read existing monthly prices
 but does not have permission to create yearly prices, so yearly IDs must be
 created in Paddle and supplied through those overrides before yearly checkout
-is enabled.
+is enabled. The public pricing page and authenticated plan selector consume a
+server-owned availability flag; they show only Monthly until both paid yearly
+prices resolve to active Paddle catalog entries. This means configuring the
+yearly IDs automatically reveals yearly billing without a UI code change.
 
 ## Future provider integration points
 

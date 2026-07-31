@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { supabaseAdmin } from '../lib/supabase';
+import { getPaddleBillingAvailability } from '../billing/provider';
 
 const router: IRouter = Router();
 
@@ -50,7 +51,10 @@ function normalize(row: Record<string, unknown> | null) {
   };
 }
 
-router.get('/subscriptions/catalog', (_req, res) => res.json({ plans: PLAN_CATALOG }));
+router.get('/subscriptions/catalog', async (_req, res) => {
+  const billing = await getPaddleBillingAvailability();
+  res.json({ plans: PLAN_CATALOG, billing });
+});
 
 router.get('/subscriptions/me', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
@@ -69,6 +73,9 @@ router.post('/subscriptions/preview', async (req, res) => {
   const plan = req.body?.plan as keyof typeof PLAN_CATALOG;
   const billingCycle = req.body?.billingCycle === 'yearly' ? 'yearly' : 'monthly';
   if (!PLAN_CATALOG[plan] || plan === 'free') { res.status(400).json({ error: 'Choose a paid plan to continue.' }); return; }
+  if (billingCycle === 'yearly' && !(await getPaddleBillingAvailability()).yearly) {
+    res.status(409).json({ error: 'Yearly billing is not available yet.' }); return;
+  }
   res.json({ plan, billingCycle, price: billingCycle === 'yearly' ? PLAN_CATALOG[plan].yearlyPrice : PLAN_CATALOG[plan].monthlyPrice, paymentRequired: true, checkoutReady: true });
 });
 

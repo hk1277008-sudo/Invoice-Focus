@@ -41,11 +41,9 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 async function resolvePriceId(plan: PaidPlan, billingCycle: 'monthly' | 'yearly') {
-  const configured = configuredPriceIds[`${plan}_${billingCycle}`];
-  if (configured) return configured;
-
   const paddle = paddleClient();
   if (!paddle) return null;
+  const configured = configuredPriceIds[`${plan}_${billingCycle}`];
 
   const products = [];
   for await (const product of paddle.products.list({ perPage: 100 })) products.push(product);
@@ -56,7 +54,29 @@ async function resolvePriceId(plan: PaidPlan, billingCycle: 'monthly' | 'yearly'
   const prices = [];
   for await (const price of paddle.prices.list({ perPage: 100, productId: [product.id], recurring: true })) prices.push(price);
   const expectedInterval = billingCycle === 'yearly' ? 'year' : 'month';
-  return prices.find((price) => price.status === 'active' && price.billingCycle?.interval === expectedInterval)?.id || null;
+  return prices.find((price) => price.status === 'active'
+    && (configured ? price.id === configured : price.billingCycle?.interval === expectedInterval))?.id || null;
+}
+
+let billingAvailabilityCache: { expiresAt: number; yearly: boolean } | null = null;
+
+export async function getPaddleBillingAvailability() {
+  if (!paddleClient()) return { monthly: true, yearly: false };
+  if (billingAvailabilityCache && billingAvailabilityCache.expiresAt > Date.now()) {
+    return { monthly: true, yearly: billingAvailabilityCache.yearly };
+  }
+  try {
+    const [proYearly, premiumYearly] = await Promise.all([
+      resolvePriceId('pro', 'yearly'),
+      resolvePriceId('premium', 'yearly'),
+    ]);
+    const yearly = Boolean(proYearly && premiumYearly);
+    billingAvailabilityCache = { expiresAt: Date.now() + 60_000, yearly };
+    return { monthly: true, yearly };
+  } catch {
+    billingAvailabilityCache = { expiresAt: Date.now() + 15_000, yearly: false };
+    return { monthly: true, yearly: false };
+  }
 }
 
 function normalizeWebhookType(eventType: string): VerifiedWebhook['type'] | null {

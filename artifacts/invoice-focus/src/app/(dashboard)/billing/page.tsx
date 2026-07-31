@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { useSubscription } from '@/providers/SubscriptionProvider'
 import { UsageIndicator } from '@/components/subscription/UsageIndicator'
 import { getBillingOverview, openBillingPortal, updateSubscriptionAction, type PaymentHistoryItem, type PaymentMethod } from '@/lib/billing'
-import type { PlanId } from '@/lib/subscription'
+import { getBillingAvailability, type PlanId } from '@/lib/subscription'
 import { useToast } from '@/hooks/use-toast'
 import { SubscriptionPlans } from '@/components/subscription/SubscriptionPlans'
 import {
@@ -24,17 +24,22 @@ export default function BillingPage() {
   const { toast } = useToast()
   const [location, navigate] = useLocation()
   const selectedPlan = new URLSearchParams(location.split('?')[1] || '').get('plan')
-  const selectedCycle = new URLSearchParams(location.split('?')[1] || '').get('cycle') === 'yearly' ? 'yearly' : 'monthly'
+  const requestedCycle = new URLSearchParams(location.split('?')[1] || '').get('cycle') === 'yearly' ? 'yearly' : 'monthly'
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [history, setHistory] = useState<PaymentHistoryItem[]>([])
   const [loadingExtras, setLoadingExtras] = useState(true)
+  const [yearlyAvailable, setYearlyAvailable] = useState(false)
+  const selectedCycle = requestedCycle === 'yearly' && yearlyAvailable ? 'yearly' : 'monthly'
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [portalBusy, setPortalBusy] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; action: 'cancel' | 'reactivate' | 'renew' | 'downgrade'; title: string; desc: string } | null>(null)
 
   useEffect(() => {
+    void getBillingAvailability()
+      .then(({ yearly }) => setYearlyAvailable(yearly))
+      .catch(() => setYearlyAvailable(false))
     getBillingOverview()
       .then(({ paymentMethods: methods, paymentHistory: rows }) => {
         setPaymentMethods(methods)

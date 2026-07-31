@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { getBillingAvailability } from '@/lib/subscription'
 
 type PricingPlan = {
   name: string
@@ -99,6 +101,17 @@ const cardMotion = {
 }
 
 export function Pricing() {
+  const [yearlyAvailable, setYearlyAvailable] = useState(false)
+  useEffect(() => {
+    let mounted = true
+    void getBillingAvailability().then(({ yearly }) => {
+      if (mounted) setYearlyAvailable(yearly)
+    }).catch(() => {
+      if (mounted) setYearlyAvailable(false)
+    })
+    return () => { mounted = false }
+  }, [])
+
   return (
     <section id="pricing" className="bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
@@ -154,7 +167,7 @@ export function Pricing() {
                       </span>
                       <span className="text-sm text-muted-foreground">{plan.billing}</span>
                     </div>
-                    {plan.annualPrice && (
+                    {yearlyAvailable && plan.annualPrice && (
                       <p className="mt-1 text-xs font-medium text-primary">
                         {plan.annualPrice}{' '}
                         <span className="text-muted-foreground">({plan.savings})</span>

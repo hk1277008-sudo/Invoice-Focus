@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 
 export type PlanId = 'free' | 'pro' | 'premium'
 export type BillingCycle = 'monthly' | 'yearly'
+export type BillingAvailability = { monthly: true; yearly: boolean }
 export type FeatureKey =
   | 'unlimitedInvoices' | 'unlimitedClients' | 'recurringInvoices' | 'advancedTemplates'
   | 'invoiceStatusTracking' | 'paymentReminders' | 'businessInsights' | 'dataExport'
@@ -66,6 +67,13 @@ export async function getSubscription() {
 }
 export async function getPlanCatalog() {
   return request<{ plans: Record<PlanId, Subscription['catalog']> }>('/subscriptions/catalog')
+}
+
+export async function getBillingAvailability(): Promise<BillingAvailability> {
+  const response = await fetch('/api/subscriptions/catalog')
+  const body = await response.json().catch(() => null)
+  if (!response.ok || !body?.billing) throw new Error('Billing availability is unavailable')
+  return body.billing as BillingAvailability
 }
 export async function previewUpgrade(plan: PlanId, billingCycle: BillingCycle) {
   return request<{ plan: PlanId; billingCycle: BillingCycle; price: number; paymentRequired: boolean; checkoutReady: boolean }>('/subscriptions/preview', {

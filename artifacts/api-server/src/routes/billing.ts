@@ -1,7 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { invoiceBillingService } from '../billing/invoice-billing-service';
 import { subscriptionManager, type SubscriptionAction } from '../billing/subscription-manager';
-import { getBillingProvider } from '../billing/provider';
+import { getBillingProvider, getPaddleBillingAvailability } from '../billing/provider';
 import { checkoutService, customerPortalService } from '../billing/services';
 import { billingEventHandler } from '../billing/events';
 import type { BillingCycle, BillingPlan } from '../billing/types';
@@ -33,6 +33,9 @@ router.post('/billing/checkout', async (req, res) => {
      if (current.plan !== 'free' && current.status !== 'cancelled' && current.status !== 'incomplete') {
        res.status(409).json({ error: 'You already have an active paid subscription. Manage it from the billing portal.' }); return;
      }
+      if (billingCycle === 'yearly' && !(await getPaddleBillingAvailability()).yearly) {
+        res.status(409).json({ error: 'Yearly billing is not available yet.' }); return;
+      }
      const result = await checkoutService.create(user.id, plan, billingCycle, req.body?.returnUrl || '/dashboard/billing');
      if (result.status === 'not_configured') { res.status(503).json({ ...result, error: result.message || 'Paddle checkout is not configured yet.' }); return; }
      res.json({ ...result });
