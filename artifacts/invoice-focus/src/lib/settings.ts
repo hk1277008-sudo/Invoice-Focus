@@ -126,21 +126,41 @@ async function request<T>(path: string, init: RequestInit = {}) {
   return response.status === 204 ? undefined as T : response.json() as Promise<T>
 }
 
+const settingsCache = new Map<string, UserSettings>()
+const settingsRequests = new Map<string, Promise<UserSettings>>()
+
 export async function getSettings() {
-  const result = await request<{ settings: UserSettings | null }>('/settings')
-  return result.settings ? {
-    ...defaultSettings,
-    ...result.settings,
-    invoicePresentation: normalizePresentation(result.settings.invoicePresentation),
-  } : defaultSettings
+  const { data } = await supabase.auth.getSession()
+  const userId = data.session?.user.id
+  if (!userId) throw new Error('Your session has expired. Please sign in again.')
+  const cached = settingsCache.get(userId)
+  if (cached) return cached
+  const existingRequest = settingsRequests.get(userId)
+  if (existingRequest) return existingRequest
+  const requestPromise = request<{ settings: UserSettings | null }>('/settings')
+    .then((result) => {
+      const normalized = result.settings ? {
+        ...defaultSettings,
+        ...result.settings,
+        invoicePresentation: normalizePresentation(result.settings.invoicePresentation),
+      } : defaultSettings
+      settingsCache.set(userId, normalized)
+      return normalized
+    })
+    .finally(() => settingsRequests.delete(userId))
+  settingsRequests.set(userId, requestPromise)
+  return requestPromise
 }
 export async function saveSettings(settings: UserSettings) {
   const result = await request<{ settings: UserSettings }>('/settings', { method: 'PUT', body: JSON.stringify(settings) })
-  return {
+  const normalized = {
     ...defaultSettings,
     ...result.settings,
     invoicePresentation: normalizePresentation(result.settings?.invoicePresentation ?? defaultPresentation),
   }
+  const { data } = await supabase.auth.getSession()
+  if (data.session?.user.id) settingsCache.set(data.session.user.id, normalized)
+  return normalized
 }
 export function exportSettingsData() {
   return request<Record<string, unknown>>('/settings/export')

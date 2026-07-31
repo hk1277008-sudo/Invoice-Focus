@@ -17,6 +17,19 @@ async function requireUser(req: Request, res: Response) {
   return data.user;
 }
 
+async function closeCheckoutIntent(userId: string, transactionId: string, status: 'failed' | 'expired') {
+  const { error } = await supabaseAdmin
+    .from('billing_transactions')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .eq('provider', 'paddle')
+    .eq('provider_transaction_id', transactionId)
+    .eq('status', 'pending');
+  if (error && !error.message.includes('does not exist')) {
+    throw error;
+  }
+}
+
 router.get('/billing/overview', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
   try { res.json(await invoiceBillingService.getOverview(user.id)); }
@@ -105,12 +118,28 @@ router.post('/billing/transactions/verify', async (req, res) => {
       res.json({
         status: 'pending',
         verified: false,
-        message: 'Your payment was received and is still being verified.',
+        message: 'Paddle has not confirmed this checkout yet.',
+      });
+      return;
+    }
+    if (error instanceof TransactionVerificationError && error.outcome === 'expired') {
+      req.log.info({ transactionId, outcome: error.outcome }, 'Paddle checkout expired');
+      await closeCheckoutIntent(user.id, transactionId, 'expired').catch((closeError) => {
+        req.log.warn({ err: closeError, transactionId }, 'Failed to close expired checkout intent');
+      });
+      res.status(422).json({
+        status: 'expired',
+        verified: false,
+        code: 'PAYMENT_EXPIRED',
+        error: 'This checkout session expired before payment was confirmed. No subscription was activated.',
       });
       return;
     }
     if (error instanceof TransactionVerificationError && error.outcome === 'failed') {
       req.log.warn({ transactionId, outcome: error.outcome }, 'Paddle checkout could not be confirmed');
+      await closeCheckoutIntent(user.id, transactionId, 'failed').catch((closeError) => {
+        req.log.warn({ err: closeError, transactionId }, 'Failed to close failed checkout intent');
+      });
       res.status(422).json({
         status: 'failed',
         verified: false,
@@ -120,11 +149,25 @@ router.post('/billing/transactions/verify', async (req, res) => {
       return;
     }
     req.log.error({ err: error, transactionId }, 'Paddle checkout verification failed');
-    res.json({
-      status: 'pending',
+    res.status(503).json({
+      status: 'failed',
       verified: false,
-      message: 'Your payment was received and is still being verified.',
+      code: 'VERIFICATION_UNAVAILABLE',
+      error: 'We could not confirm the checkout right now. No subscription was activated.',
     });
+  }
+});
+
+router.post('/billing/transactions/abandon', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  const transactionId = typeof req.body?.transactionId === 'string' ? req.body.transactionId.trim() : '';
+  if (!transactionId) { res.status(400).json({ error: 'A Paddle transaction ID is required.' }); return; }
+  try {
+    await closeCheckoutIntent(user.id, transactionId, 'failed');
+    res.status(204).end();
+  } catch (error) {
+    req.log.warn({ err: error, transactionId }, 'Failed to abandon Paddle checkout intent');
+    res.status(503).json({ error: 'Could not close the checkout session.' });
   }
 });
 

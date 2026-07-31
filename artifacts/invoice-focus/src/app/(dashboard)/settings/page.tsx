@@ -47,8 +47,8 @@ function ToggleRow({ title, description, checked, onCheckedChange }: { title: st
   return <div className="flex items-center justify-between gap-5 border-b border-border py-4 last:border-0"><div><p className="text-sm font-medium">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p></div><Switch checked={checked} onCheckedChange={onCheckedChange} /></div>
 }
 
-function SavedStatus({ saving, error }: { saving: boolean; error: string }) {
-  return <span className={`text-xs transition-opacity ${error ? 'text-destructive' : 'text-muted-foreground'}`}>{error || (saving ? 'Saving…' : 'Changes saved')}</span>
+function SavedStatus({ saving, saved, error }: { saving: boolean; saved: boolean; error: string }) {
+  return <span className={`text-xs transition-opacity ${error ? 'text-destructive' : 'text-muted-foreground'}`} aria-live="polite">{error || (saving ? 'Saving changes…' : saved ? 'All changes saved' : '')}</span>
 }
 
 export default function SettingsPage() {
@@ -56,15 +56,19 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<UserSettings>(defaultSettings)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [logoPreview, setLogoPreview] = useState('')
   const hydrated = useRef(false)
+  const lastPersisted = useRef('')
+  const savedStatusTimer = useRef<number | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
     getSettings().then((value) => {
       setSettings(value)
       setLogoPreview(value.businessLogo)
+      lastPersisted.current = JSON.stringify(value)
       hydrated.current = true
     }).catch((error) => {
       toast({ title: 'Could not load settings', description: error.message, variant: 'destructive' })
@@ -75,12 +79,19 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!hydrated.current) return
+    const serialized = JSON.stringify(settings)
+    if (serialized === lastPersisted.current) return
     const timer = window.setTimeout(async () => {
       setSaving(true)
+      setSaved(false)
       setSaveError('')
       try {
         const saved = await saveSettings(settings)
-        if (JSON.stringify(saved) !== JSON.stringify(settings)) setSettings(saved)
+        lastPersisted.current = JSON.stringify(saved)
+        if (JSON.stringify(saved) !== serialized) setSettings(saved)
+        setSaved(true)
+        if (savedStatusTimer.current) window.clearTimeout(savedStatusTimer.current)
+        savedStatusTimer.current = window.setTimeout(() => setSaved(false), 2400)
       } catch (error) {
         setSaveError(error instanceof Error ? error.message : 'Could not save changes')
       } finally {
@@ -113,7 +124,7 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-6xl space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div><p className="label-caps">Workspace configuration</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Settings</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">Manage your business, invoice defaults, workspace, and account security.</p></div>
-        <div className="flex items-center gap-2"><SavedStatus saving={saving} error={saveError} /></div>
+         <div className="flex items-center gap-2"><SavedStatus saving={saving} saved={saved} error={saveError} /></div>
       </div>
       <div role="tablist" aria-label="Settings sections" className="-mx-1 flex gap-1 overflow-x-auto border-b border-border px-1 pb-px">
         {tabs.map(([key, label]) => <button key={key} role="tab" aria-selected={tab === key} onClick={() => setTab(key)} className={`min-h-10 shrink-0 whitespace-nowrap rounded-t-lg border-b-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${tab === key ? 'border-primary bg-primary/5 text-primary' : 'border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground'}`}>{label}</button>)}

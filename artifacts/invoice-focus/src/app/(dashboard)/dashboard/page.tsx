@@ -76,7 +76,14 @@ export default function DashboardPage() {
     finally { setLoading(false) }
   }, [range])
 
-  useEffect(() => { void load(); const interval = window.setInterval(() => void load(), 30000); return () => window.clearInterval(interval) }, [load])
+  useEffect(() => {
+    void load()
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') void load()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [load])
 
   useEffect(() => {
     if (!overview || !user || typeof window === 'undefined') return

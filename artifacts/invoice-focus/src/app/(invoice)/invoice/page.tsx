@@ -55,7 +55,7 @@ export default function InvoicePage() {
     reset,
   } = useInvoice()
 
-  const { draftStatus } = useInvoiceDraft(invoice)
+  useInvoiceDraft(invoice)
   const { fieldErrors: validationErrors, isValid } = useInvoiceValidation(invoice)
   const { toast } = useToast()
   const { refreshSubscription } = useSubscription()
@@ -294,13 +294,10 @@ export default function InvoicePage() {
               Build and preview your invoice in real time.
             </p>
           </div>
-          <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3">
-            {remoteStatus === 'saved' && (
-              <span className="text-xs text-muted-foreground" aria-live="polite">
-                Saved
-              </span>
-            )}
-            {remoteStatus === 'error' && <span className="text-xs text-destructive" aria-live="polite">Could not save</span>}
+          <div className="relative grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3">
+            <span className="pointer-events-none absolute -top-6 right-0 min-h-4 text-xs text-muted-foreground sm:right-0" aria-live="polite">
+              {remoteStatus === 'saved' ? 'All changes saved' : remoteStatus === 'error' ? 'Could not save' : ''}
+            </span>
 
             <input
               ref={fileInputRef}
@@ -364,12 +361,10 @@ export default function InvoicePage() {
                 <Eye className="h-4 w-4" />
                 Preview
               </Button>
-              {hasAnyData && (
-                <Button type="button" variant="secondary" onClick={handleMakeRecurring} className="w-full gap-2 sm:w-auto">
+              <Button type="button" variant="secondary" onClick={handleMakeRecurring} disabled={!hasAnyData} className="w-full gap-2 sm:w-auto">
                   <Repeat className="h-4 w-4" />
                   Make Recurring
-                </Button>
-              )}
+              </Button>
           </div>
         </div>
 

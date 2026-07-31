@@ -84,7 +84,7 @@ export async function verifyCheckoutTransaction(transactionId: string, timeoutMs
   const controller = new AbortController()
   const timeout = window.setTimeout(() => controller.abort(), timeoutMs)
   return request<{
-    status: 'active' | 'pending'
+    status: 'active' | 'pending' | 'failed' | 'expired'
     verified: boolean
     subscription?: unknown
     message?: string
@@ -93,6 +93,13 @@ export async function verifyCheckoutTransaction(transactionId: string, timeoutMs
     body: JSON.stringify({ transactionId }),
     signal: controller.signal,
   }).finally(() => window.clearTimeout(timeout))
+}
+
+export async function abandonCheckoutTransaction(transactionId: string) {
+  return request<void>('/billing/transactions/abandon', {
+    method: 'POST',
+    body: JSON.stringify({ transactionId }),
+  })
 }
 
 export async function createCheckout(plan: string, billingCycle: 'monthly' | 'yearly') {

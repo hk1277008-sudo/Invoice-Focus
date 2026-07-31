@@ -52,7 +52,7 @@ export interface VerifyTransactionInput {
   transactionId: string;
 }
 
-export type TransactionVerificationOutcome = 'pending' | 'failed';
+export type TransactionVerificationOutcome = 'pending' | 'failed' | 'expired';
 
 export class TransactionVerificationError extends Error {
   constructor(

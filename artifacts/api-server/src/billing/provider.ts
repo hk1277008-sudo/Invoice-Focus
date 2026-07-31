@@ -263,8 +263,13 @@ class PaddleBillingProvider implements BillingProvider {
     const paddle = paddleClient();
     if (!paddle) throw new Error('Paddle API credentials are not configured.');
     const transaction = await paddle.transactions.get(input.transactionId);
-    if (transaction.status === 'canceled' || transaction.status === 'past_due') {
-      throw new TransactionVerificationError('The payment could not be completed.', 'failed');
+    const createdAt = transaction.createdAt ? new Date(transaction.createdAt).getTime() : Date.now();
+    const isExpired = Number.isFinite(createdAt) && Date.now() - createdAt > 30 * 60 * 1000;
+    if (isExpired && !['billed', 'paid', 'completed'].includes(transaction.status)) {
+      throw new TransactionVerificationError('The checkout session has expired. Please start a new checkout.', 'expired');
+    }
+    if (transaction.status === 'ready' || transaction.status === 'canceled' || transaction.status === 'past_due') {
+      throw new TransactionVerificationError('The checkout was not completed.', 'failed');
     }
     if (!['billed', 'paid', 'completed'].includes(transaction.status)) {
       throw new TransactionVerificationError('The payment is still being confirmed.', 'pending');

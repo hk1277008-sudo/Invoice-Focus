@@ -54,6 +54,16 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
     }
     setBusy(plan)
     try {
+      if (plan === subscription.plan && subscription.status === 'cancelled') {
+        await updateSubscriptionAction('reactivate')
+        await refreshSubscription()
+        toast({
+          title: `${plan === 'premium' ? 'Premium' : 'Pro'} subscription reactivated`,
+          description: 'Your current plan will continue without interruption.',
+        })
+        navigate('/dashboard/billing')
+        return
+      }
       if (plan === 'free') {
         await updateSubscriptionAction('downgrade', plan, cycle)
         await refreshSubscription()
@@ -76,7 +86,7 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
       if (!checkout.transactionId || !checkout.clientToken) throw new Error(checkout.message || 'Paddle checkout is not configured yet.')
       const open = () => {
         if (!window.Paddle) throw new Error('Paddle Checkout could not be loaded. Please try again.')
-         const successUrl = `${window.location.origin}${import.meta.env.BASE_URL}dashboard/billing/success?transaction_id=${encodeURIComponent(checkout.transactionId!)}`
+         const successUrl = `${window.location.origin}${import.meta.env.BASE_URL}dashboard/billing/success?transaction_id=${encodeURIComponent(checkout.transactionId!)}&checkout_state=completed`
          window.Paddle.Checkout.open({ transactionId: checkout.transactionId!, settings: { successUrl } })
       }
       if (!window.Paddle) {
@@ -94,7 +104,11 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
         window.Paddle.Initialize({ token: checkout.clientToken, eventCallback: (event) => {
           if (event.name === 'checkout.completed') {
             const transactionId = (event as { data?: { transaction_id?: string } }).data?.transaction_id
-            navigate(transactionId ? `/dashboard/billing/success?transaction_id=${encodeURIComponent(transactionId)}` : '/dashboard/billing/success')
+             navigate(transactionId ? `/dashboard/billing/success?transaction_id=${encodeURIComponent(transactionId)}&checkout_state=completed` : '/dashboard/billing/success?checkout_state=failed')
+           } else if (event.name === 'checkout.closed') {
+             navigate(`/dashboard/billing/success?transaction_id=${encodeURIComponent(checkout.transactionId!)}&checkout_state=cancelled`)
+           } else if (event.name === 'checkout.payment.failed') {
+             navigate(`/dashboard/billing/success?transaction_id=${encodeURIComponent(checkout.transactionId!)}&checkout_state=failed`)
           }
         } })
         initializedPaddleToken = checkout.clientToken
@@ -115,7 +129,7 @@ export function SubscriptionPlans({ initialCycle = 'monthly' }: { initialCycle?:
            description: 'We’re confirming your recent payment before starting another checkout.',
          })
          navigate(billingError.transactionId
-           ? `/dashboard/billing/success?transaction_id=${encodeURIComponent(billingError.transactionId)}`
+            ? `/dashboard/billing/success?transaction_id=${encodeURIComponent(billingError.transactionId)}&checkout_state=verification`
            : '/dashboard/billing')
        } else {
          toast({ title: 'Could not open secure checkout', description: 'Please try again in a moment.', variant: 'destructive' })

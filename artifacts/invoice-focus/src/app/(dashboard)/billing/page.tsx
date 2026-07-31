@@ -207,10 +207,10 @@ export default function BillingPage() {
             <CardContent className="flex-1 pt-6">
               <div className="grid gap-8 sm:grid-cols-2">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Monthly Price</p>
+                   <p className="text-sm font-medium text-muted-foreground mb-1">Billing Cycle</p>
                   <div className="flex items-baseline gap-1">
-                    <span className="font-display text-3xl font-semibold tracking-tight">{subscription.catalog.price}</span>
-                    {subscription.catalog.monthlyPrice > 0 && <span className="text-sm text-muted-foreground">/{subscription.billingCycle === 'yearly' ? 'yr' : 'mo'}</span>}
+                     <span className="font-display text-3xl font-semibold tracking-tight capitalize">{subscription.billingCycle}</span>
+                     {subscription.catalog.monthlyPrice > 0 && <span className="text-sm text-muted-foreground">{subscription.billingCycle === 'yearly' ? 'annual billing' : 'monthly billing'}</span>}
                   </div>
                   
                   <div className="mt-6">

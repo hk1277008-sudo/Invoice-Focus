@@ -51,11 +51,6 @@ export function InvoiceEditor({
     invoice.items.some((item) => Number.parseFloat(item.taxPercent) > 0 || Number.parseFloat(item.discountPercent) > 0),
   )
   useEffect(() => {
-    if (invoice.items.some((item) => Number.parseFloat(item.taxPercent) > 0 || Number.parseFloat(item.discountPercent) > 0)) {
-      setAdvancedOptionsOpen(true)
-    }
-  }, [invoice.items])
-  useEffect(() => {
     const currentIds = invoice.items.map((item) => item.id)
     const addedId = currentIds.find((id) => !previousItemIds.current.includes(id))
     previousItemIds.current = currentIds
