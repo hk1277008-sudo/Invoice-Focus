@@ -28,6 +28,8 @@ const settingsSchema = z.object({
   startingInvoiceNumber: z.coerce.number().int().min(1).max(999999999).default(1),
   defaultNotes: z.string().max(4000).default(''),
   defaultTerms: z.string().max(4000).default(''),
+  defaultDiscountBehavior: z.enum(['none', 'percentage']).default('none'),
+  defaultDiscountPercent: z.coerce.number().finite().min(0).max(100).default(0),
   invoiceSentEmails: z.boolean().default(true),
   invoiceViewedEmails: z.boolean().default(true),
   invoicePaidEmails: z.boolean().default(true),
@@ -45,6 +47,7 @@ const settingsSchema = z.object({
   workspaceLogo: z.string().max(2_000_000).default(''),
   dateFormat: z.enum(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']).default('MM/dd/yyyy'),
   numberFormat: z.enum(['1,234.56', '1.234,56', '1 234,56']).default('1,234.56'),
+  passwordLastChangedAt: z.string().datetime().nullable().default(null),
   compactMode: z.boolean().default(false),
   fontSize: z.enum(['small', 'medium', 'large']).default('medium'),
   workspaceAccentColor: z.string().regex(/^#[0-9a-f]{6}$/i).default('#2e5bff'),
@@ -73,12 +76,14 @@ const columns: Record<keyof z.infer<typeof settingsSchema>, string> = {
   defaultPaymentTerms: 'default_payment_terms', defaultDueDays: 'default_due_days', invoiceNumberFormat: 'invoice_number_format',
   invoicePrefix: 'invoice_prefix', startingInvoiceNumber: 'starting_invoice_number', defaultNotes: 'default_notes',
   defaultTerms: 'default_terms', invoiceSentEmails: 'invoice_sent_emails',
+  defaultDiscountBehavior: 'default_discount_behavior', defaultDiscountPercent: 'default_discount_percent',
   invoiceViewedEmails: 'invoice_viewed_emails', invoicePaidEmails: 'invoice_paid_emails',
   weeklySummaryEmails: 'weekly_summary_emails', paymentReminderEmails: 'payment_reminder_emails',
   productUpdates: 'product_updates', securityAlerts: 'security_alerts', marketingEmails: 'marketing_emails',
   invoiceOverdueEmails: 'invoice_overdue_emails', betaAnnouncements: 'beta_announcements', theme: 'theme',
   accountTimezone: 'account_timezone', accountCountry: 'account_country', workspaceName: 'workspace_name',
   workspaceLogo: 'workspace_logo', dateFormat: 'date_format', numberFormat: 'number_format',
+  passwordLastChangedAt: 'password_last_changed_at',
   compactMode: 'compact_mode',
   fontSize: 'font_size', workspaceAccentColor: 'workspace_accent_color',
   recurringDefaultTimezone: 'recurring_default_timezone',
@@ -168,6 +173,31 @@ router.post('/settings/delete-account', async (req, res) => {
   if (req.body?.confirmation !== 'DELETE MY ACCOUNT') { res.status(400).json({ error: 'Type DELETE MY ACCOUNT to confirm' }); return; }
   const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
   if (error) { res.status(500).json({ error: 'Could not delete your account' }); return; }
+  res.status(204).send();
+});
+
+router.post('/settings/delete-workspace', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  if (req.body?.confirmation !== 'DELETE WORKSPACE') {
+    res.status(400).json({ error: 'Type DELETE WORKSPACE to confirm' });
+    return;
+  }
+  const deletes = await Promise.all([
+    supabaseAdmin.from('invoices').delete().eq('user_id', user.id),
+    supabaseAdmin.from('clients').delete().eq('user_id', user.id),
+    supabaseAdmin.from('billing_payment_methods').delete().eq('user_id', user.id),
+    supabaseAdmin.from('billing_history').delete().eq('user_id', user.id),
+    supabaseAdmin.from('billing_payments').delete().eq('user_id', user.id),
+    supabaseAdmin.from('billing_transactions').delete().eq('user_id', user.id),
+    supabaseAdmin.from('billing_invoices').delete().eq('user_id', user.id),
+    supabaseAdmin.from('user_settings').delete().eq('user_id', user.id),
+    supabaseAdmin.from('subscriptions').delete().eq('user_id', user.id),
+  ]);
+  const failed = deletes.find((result) => result.error);
+  if (failed?.error) {
+    res.status(500).json({ error: 'Could not delete the workspace' });
+    return;
+  }
   res.status(204).send();
 });
 

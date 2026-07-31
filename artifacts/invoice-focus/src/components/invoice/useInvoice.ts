@@ -125,8 +125,12 @@ export function useInvoice() {
           },
           presentation: normalizePresentation(settings.invoicePresentation),
           items: current.items.map((item, index) =>
-            index === 0 && settings.defaultTaxRate > 0
-              ? { ...item, taxPercent: String(settings.defaultTaxRate) }
+              index === 0 && (settings.defaultTaxRate > 0 || (settings.defaultDiscountBehavior === 'percentage' && settings.defaultDiscountPercent > 0))
+                ? {
+                    ...item,
+                    ...(settings.defaultTaxRate > 0 ? { taxPercent: String(settings.defaultTaxRate) } : {}),
+                    ...(settings.defaultDiscountBehavior === 'percentage' && settings.defaultDiscountPercent > 0 ? { discountPercent: String(settings.defaultDiscountPercent) } : {}),
+                  }
               : item,
           ),
         }

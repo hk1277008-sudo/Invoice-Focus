@@ -5,7 +5,18 @@ alter table public.user_settings
   add column if not exists workspace_name text not null default '',
   add column if not exists workspace_logo text not null default '',
   add column if not exists date_format text not null default 'MM/dd/yyyy',
-  add column if not exists number_format text not null default '1,234.56';
+  add column if not exists number_format text not null default '1,234.56',
+  add column if not exists password_last_changed_at timestamptz;
+
+alter table public.user_settings
+  add column if not exists default_discount_behavior text not null default 'none',
+  add column if not exists default_discount_percent numeric(8, 3) not null default 0;
+
+alter table public.user_settings
+  drop constraint if exists user_settings_default_discount_behavior_check;
+alter table public.user_settings
+  add constraint user_settings_default_discount_behavior_check
+  check (default_discount_behavior in ('none', 'percentage'));
 
 alter table public.user_settings
   drop constraint if exists user_settings_date_format_check;

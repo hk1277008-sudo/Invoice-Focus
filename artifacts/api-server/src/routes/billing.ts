@@ -29,13 +29,13 @@ router.post('/billing/checkout', async (req, res) => {
   const billingCycle = req.body?.billingCycle === 'yearly' ? 'yearly' : 'monthly';
   if (!['free', 'pro', 'premium'].includes(plan)) { res.status(400).json({ error: 'Invalid billing plan' }); return; }
   const result = await checkoutService.create(user.id, plan, billingCycle, req.body?.returnUrl || '/dashboard/billing');
-  res.json({ ...result, message: 'Secure checkout will be available after production deployment.' });
+  res.json({ ...result });
 });
 
 router.post('/billing/portal', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
   const result = await customerPortalService.create(user.id, req.body?.returnUrl || '/dashboard/billing');
-  res.json({ ...result, message: 'Secure checkout will be available after production deployment.' });
+  res.json({ ...result });
 });
 
 router.post('/billing/actions', async (req, res) => {

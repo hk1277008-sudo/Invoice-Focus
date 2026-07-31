@@ -27,17 +27,26 @@ export interface UserSettings {
   startingInvoiceNumber: number
   defaultNotes: string
   defaultTerms: string
+  defaultDiscountBehavior: 'none' | 'percentage'
+  defaultDiscountPercent: number
   invoiceSentEmails: boolean
   invoiceViewedEmails: boolean
   invoicePaidEmails: boolean
+  invoiceOverdueEmails: boolean
   weeklySummaryEmails: boolean
   paymentReminderEmails: boolean
   productUpdates: boolean
+  betaAnnouncements: boolean
   securityAlerts: boolean
   marketingEmails: boolean
   theme: ThemeMode
   accountTimezone: string
   accountCountry: string
+  workspaceName: string
+  workspaceLogo: string
+  dateFormat: 'MM/dd/yyyy' | 'dd/MM/yyyy' | 'yyyy-MM-dd'
+  numberFormat: '1,234.56' | '1.234,56' | '1 234,56'
+  passwordLastChangedAt: string | null
   compactMode: boolean
   fontSize: FontSize
   workspaceAccentColor: string
@@ -54,10 +63,12 @@ export const defaultSettings: UserSettings = {
   taxId: '', registrationNumber: '', address: '', city: '', state: '', postalCode: '', country: '',
   defaultCurrency: 'USD', defaultLanguage: 'English', defaultTaxRate: 0, defaultPaymentTerms: 'Net 30',
   defaultDueDays: 30, invoiceNumberFormat: 'INV-{number}', invoicePrefix: 'INV',
-  startingInvoiceNumber: 1, defaultNotes: '', defaultTerms: '', invoiceSentEmails: true,
-  invoiceViewedEmails: true, invoicePaidEmails: true, weeklySummaryEmails: true,
-  paymentReminderEmails: true, productUpdates: true, securityAlerts: true, marketingEmails: false, theme: 'system',
-  accountTimezone: 'UTC', accountCountry: '', compactMode: false, fontSize: 'medium', workspaceAccentColor: '#2e5bff',
+  startingInvoiceNumber: 1, defaultNotes: '', defaultTerms: '', defaultDiscountBehavior: 'none', defaultDiscountPercent: 0, invoiceSentEmails: true,
+  invoiceViewedEmails: true, invoicePaidEmails: true, invoiceOverdueEmails: true, weeklySummaryEmails: true,
+  paymentReminderEmails: true, productUpdates: true, betaAnnouncements: true, securityAlerts: true, marketingEmails: false, theme: 'system',
+  accountTimezone: 'UTC', accountCountry: '', workspaceName: '', workspaceLogo: '', dateFormat: 'MM/dd/yyyy', numberFormat: '1,234.56',
+  compactMode: false, fontSize: 'medium', workspaceAccentColor: '#2e5bff',
+  passwordLastChangedAt: null,
   recurringDefaultTimezone: 'UTC', recurringDefaultFrequency: 'monthly', recurringDefaultDueDateOffset: 14,
   recurringDefaultInvoiceStatus: 'Draft', recurringDefaultAutoGeneration: true,
   invoicePresentation: {
@@ -136,4 +147,7 @@ export function exportSettingsData() {
 }
 export function deleteAccount() {
   return request<void>('/settings/delete-account', { method: 'POST', body: JSON.stringify({ confirmation: 'DELETE MY ACCOUNT' }) })
+}
+export function deleteWorkspace() {
+  return request<void>('/settings/delete-workspace', { method: 'POST', body: JSON.stringify({ confirmation: 'DELETE WORKSPACE' }) })
 }

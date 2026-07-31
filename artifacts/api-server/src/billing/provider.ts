@@ -27,5 +27,8 @@ export const unconfiguredBillingProvider: BillingProvider = {
 };
 
 export function getBillingProvider(): BillingProvider {
+  // Paddle credentials alone are not enough to safely create a session.
+  // Keep the provider unconfigured until catalog IDs, API calls, and
+  // signature verification are implemented together.
   return unconfiguredBillingProvider;
 }

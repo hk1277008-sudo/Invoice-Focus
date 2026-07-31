@@ -172,6 +172,9 @@ importers:
 
   artifacts/api-server:
     dependencies:
+      '@paddle/paddle-node-sdk':
+        specifier: ^3.8.0
+        version: 3.8.0
       '@supabase/supabase-js':
         specifier: ^2.110.8
         version: 2.110.8
@@ -870,6 +873,10 @@ packages:
 
   '@orval/zod@8.22.0':
     resolution: {integrity: sha512-briHtUTz79fvCeIFfGW3IbmUIF9DOotUoWFa/sKUjRUG8PMGDWSjQzO8QdLzLoETVGo9g4TfGwp5Xjcs81GZTA==}
+
+  '@paddle/paddle-node-sdk@3.8.0':
+    resolution: {integrity: sha512-4RS6AhZisloYaT2jiFgx9hwm22qwLRUx4EgIVb1gS3bS96lhDBQWq8BC1/Zow2i3CuxMkehXQUc3qKSBS77ozA==}
+    engines: {node: '>=20'}
 
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
@@ -3528,6 +3535,8 @@ snapshots:
       - '@faker-js/faker'
       - supports-color
       - typescript
+
+  '@paddle/paddle-node-sdk@3.8.0': {}
 
   '@pinojs/redact@0.4.0': {}
 

@@ -12,8 +12,10 @@ record. Billing is an independent domain:
 - `BillingEventHandler` — translates verified provider events into subscription state and history.
 
 The current provider is intentionally `unconfigured`. It returns a safe
-`not_configured` response and never accepts a webhook. There is no gateway
-credential or real payment flow in this release.
+`not_configured` response and never accepts a webhook. Paddle credentials are
+present in the environment, but credentials alone do not activate billing:
+valid catalog price IDs, hosted-session API calls, and signature verification
+must be implemented together before the provider can be registered.
 
 ## Future provider integration points
 
@@ -39,8 +41,8 @@ adapter should know provider event names, signatures, or IDs.
 4. `BillingEventHandler` updates the server-owned subscription.
 5. A billing history record is written for the customer timeline.
 
-Webhook secrets and provider credentials belong in the environment-secrets
-flow after production deployment.
+Provider credentials belong in the environment-secrets flow. Catalog IDs and
+webhook verification must be validated before enabling a production adapter.
 
 ## Schema rollout
 
