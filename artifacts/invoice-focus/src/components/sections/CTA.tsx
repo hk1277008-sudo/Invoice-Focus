@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
+import { Link } from 'wouter'
 
 export function CTA() {
   return (
@@ -29,10 +30,10 @@ export function CTA() {
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="secondary" asChild>
-                <a href="/invoice">
+                <Link href="/invoice">
                   Get Started
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </a>
+                </Link>
               </Button>
               <Button
                 size="lg"
@@ -40,7 +41,7 @@ export function CTA() {
                 className="border-gray-200 bg-white text-[#111827] shadow-sm hover:-translate-y-0.5 hover:shadow-md"
                 asChild
               >
-                <a href="/sign-in">Sign In</a>
+                <Link href="/sign-in">Sign In</Link>
               </Button>
             </div>
           </div>

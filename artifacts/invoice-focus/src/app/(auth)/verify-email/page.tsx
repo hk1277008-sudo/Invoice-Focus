@@ -61,9 +61,7 @@ export default function VerifyEmailPage() {
               fullName: data.user.user_metadata?.full_name,
             }),
           })
-        } catch (error) {
-          console.error('Failed to send welcome email:', error)
-        }
+        } catch { /* Verification is complete even if the welcome email is unavailable. */ }
       }
 
       setStatus('success')

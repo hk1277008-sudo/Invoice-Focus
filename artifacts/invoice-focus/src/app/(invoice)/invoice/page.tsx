@@ -174,7 +174,9 @@ export default function InvoicePage() {
       toast({ title: 'Nothing to print', description: 'Add some invoice details before printing.' })
       return
     }
-    printInvoice(invoice)
+    if (!printInvoice(invoice)) {
+      toast({ title: 'Unable to open print preview', description: 'Please allow pop-ups for InvoiceFocus and try again.', variant: 'destructive' })
+    }
   }
 
   const handleDownloadPDF = () => {
@@ -183,7 +185,9 @@ export default function InvoicePage() {
       toast({ title: 'Nothing to export', description: 'Add some invoice details before exporting.' })
       return
     }
-    printInvoice(invoice)
+    if (!printInvoice(invoice)) {
+      toast({ title: 'Unable to open PDF preview', description: 'Please allow pop-ups for InvoiceFocus and try again.', variant: 'destructive' })
+    }
   }
 
   const handleExportJSON = () => {

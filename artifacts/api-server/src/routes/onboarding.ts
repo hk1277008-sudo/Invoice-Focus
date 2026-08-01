@@ -88,8 +88,8 @@ router.get('/onboarding', async (req, res) => {
       clientCount || 0,
     );
     res.json({ onboarding: { ...onboarding, needsOnboarding } });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to load onboarding', details: error instanceof Error ? error.message : undefined });
+  } catch {
+    res.status(500).json({ error: 'Failed to load onboarding' });
   }
 });
 
@@ -113,8 +113,8 @@ router.put('/onboarding', async (req, res) => {
       .single();
     if (error) throw error;
     res.json({ onboarding: toClient(data) });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to save onboarding', details: error instanceof Error ? error.message : undefined });
+  } catch {
+    res.status(500).json({ error: 'Failed to save onboarding' });
   }
 });
 

@@ -137,7 +137,7 @@ router.get('/invoices/:id/details', async (req, res) => {
   ]);
   if (payments.error || activity.error || emails.error || reminders.error) {
     const schemaMissing = [payments.error, activity.error, emails.error, reminders.error].some((error) => error?.code === 'PGRST205');
-    res.status(schemaMissing ? 503 : 500).json({ error: schemaMissing ? 'Invoice lifecycle storage is not available yet. Apply migration 008.' : 'Failed to load invoice history' });
+    res.status(schemaMissing ? 503 : 500).json({ error: 'Invoice history is temporarily unavailable. Please try again later.' });
     return;
   }
   res.json({ invoice: invoice.data, payments: payments.data ?? [], activity: activity.data ?? [], emails: emails.data ?? [], reminders: reminders.data ?? [] });

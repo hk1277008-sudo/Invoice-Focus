@@ -71,37 +71,13 @@ export function GuidesPage() {
     <PageShell eyebrow="Guides" title="Practical Help for Better Invoicing." description="Short, useful guidance for creating polished invoices, keeping client details organized, and building a calmer billing workflow.">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {guides.map(([title, copy, meta], index) => (
-          <a href={`#guide-${index}`} key={title} className="group rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg">
+          <article key={title} className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm">
             <BookOpen className="h-5 w-5 text-primary" aria-hidden="true" />
             <h2 className="mt-5 font-display text-xl font-semibold tracking-tight">{title}</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{copy}</p>
             <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">{meta}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
-          </a>
+          </article>
         ))}
-      </div>
-      <p className="mt-8 text-center text-sm text-muted-foreground">Guides are being published as part of the InvoiceFocus knowledge base.</p>
-    </PageShell>
-  )
-}
-
-export function AIDocsPage() {
-  return (
-    <PageShell eyebrow="AI Docs" title="A Thoughtful Foundation for Future AI Workflows." description="InvoiceFocus is exploring ways intelligent assistance can reduce repetitive invoice work while keeping people in control. These capabilities are upcoming and are not available today.">
-      <div className="grid gap-6 md:grid-cols-3">
-        {[
-          ['Draft Assistance', 'Upcoming: turn notes and project context into a suggested invoice draft for your review.'],
-          ['Payment Follow-Up Ideas', 'Upcoming: get helpful, editable suggestions for clear and respectful client follow-ups.'],
-          ['Business Insights', 'Upcoming: surface patterns in invoice activity so you can make better-informed decisions.'],
-        ].map(([title, copy]) => (
-          <Card key={title} className="h-full">
-            <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
-            <CardContent><p className="text-sm leading-relaxed text-muted-foreground">{copy}</p></CardContent>
-          </Card>
-        ))}
-      </div>
-      <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/5 p-6 text-center">
-        <p className="font-semibold">Accuracy and User Control Come First.</p>
-        <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Any future AI feature will be clearly labeled, reviewable before it changes your work, and designed to support—not replace—your judgment.</p>
       </div>
     </PageShell>
   )

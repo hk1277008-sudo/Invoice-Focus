@@ -50,8 +50,8 @@ router.post('/feedback/screenshot', upload.single('screenshot'), async (req, res
   try {
     const result = await uploadFeedbackScreenshot(user.id, req.file);
     res.json(result);
-  } catch (error) {
-    res.status(400).json({ error: error instanceof Error ? error.message : 'Could not upload screenshot' });
+  } catch {
+    res.status(400).json({ error: 'Could not upload screenshot. Please use a JPG, PNG, GIF, or WEBP image up to 5MB.' });
   }
 });
 
@@ -76,7 +76,7 @@ router.post('/feedback', async (req, res) => {
     current_page: metadata.currentPage || '',
     app_version: metadata.appVersion || process.env.APP_VERSION || 'private-beta',
   }).select('id, created_at').single();
-  if (error) { res.status(500).json({ error: 'Could not save feedback', details: error.message }); return; }
+  if (error) { res.status(500).json({ error: 'Could not save feedback' }); return; }
   res.status(201).json({ feedback: data });
 });
 

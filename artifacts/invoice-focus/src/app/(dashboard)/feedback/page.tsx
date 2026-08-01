@@ -119,7 +119,7 @@ export default function FeedbackPage() {
           <p className="label-caps">Feedback Center</p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight">Help us improve Invoice Focus</h1>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Your feedback directly shapes upcoming releases.
+             Your feedback helps us improve InvoiceFocus.
           </p>
         </div>
 

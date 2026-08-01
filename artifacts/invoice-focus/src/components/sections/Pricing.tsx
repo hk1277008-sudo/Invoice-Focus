@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Link } from 'wouter'
 
 const cardMotion = {
   hidden: { opacity: 0, y: 20 },
@@ -53,7 +54,7 @@ export function Pricing() {
               ))}
             </ul>
             <Button asChild className="mt-8 w-full">
-              <a href="/invoice">Create an invoice</a>
+              <Link href="/invoice">Create an invoice</Link>
             </Button>
           </motion.article>
         </motion.div>

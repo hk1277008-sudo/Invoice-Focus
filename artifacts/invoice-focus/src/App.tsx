@@ -11,7 +11,7 @@ import PrivacyPage from '@/app/(marketing)/privacy/page'
 import TermsPage from '@/app/(marketing)/terms/page'
 import HelpPage from '@/app/(marketing)/help/page'
 import PricingPage from '@/app/(marketing)/pricing/page'
-import { AboutPage, AIDocsPage, BlogPage, ContactPage, GuidesPage, StatusPage } from '@/app/(marketing)/saas-pages'
+import { AboutPage, BlogPage, ContactPage, GuidesPage, StatusPage } from '@/app/(marketing)/saas-pages'
 import SignInPage from '@/app/(auth)/sign-in/page'
 import SignUpPage from '@/app/(auth)/sign-up/page'
 import ForgotPasswordPage from '@/app/(auth)/forgot-password/page'
@@ -51,14 +51,10 @@ function Router() {
       <Route path="/help" component={HelpPage} />
       <Route path="/pricing" component={PricingPage} />
       <Route path="/guides" component={GuidesPage} />
-      <Route path="/developers" component={AIDocsPage} />
       <Route path="/status" component={StatusPage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/contact" component={ContactPage} />
-      <Route path="/cookies">
-        <PrivacyPage />
-      </Route>
       <Route path="/sign-in" component={SignInPage} />
       <Route path="/sign-up" component={SignUpPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
@@ -107,11 +103,6 @@ function Router() {
       <Route path="/dashboard/reports">
         <ProtectedRoute>
           <ReportsPage />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/dashboard/:rest*">
-        <ProtectedRoute>
-          <DashboardPage />
         </ProtectedRoute>
       </Route>
       <Route path="/profile">

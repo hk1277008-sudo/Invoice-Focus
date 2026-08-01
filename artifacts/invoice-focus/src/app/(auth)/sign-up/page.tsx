@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { getApiBaseUrl } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
-import { logSignupDiagnostic } from '@/lib/dev-diagnostics'
 
 export default function SignUpPage() {
   const [, navigate] = useLocation()
@@ -29,13 +28,6 @@ export default function SignUpPage() {
     if (password !== confirmPassword) nextErrors.confirmPassword = 'Passwords do not match'
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) {
-      logSignupDiagnostic('client-side validation failed', {
-        fields: nextErrors,
-        emailPresent: Boolean(email.trim()),
-        emailDomain: email.includes('@') ? email.split('@').at(-1) : undefined,
-        passwordLength: password.length,
-        fullNamePresent: Boolean(fullName.trim()),
-      })
     }
     return Object.keys(nextErrors).length === 0
   }
@@ -46,14 +38,6 @@ export default function SignUpPage() {
 
     setIsLoading(true)
     const signupUrl = `${getApiBaseUrl()}/api/auth/signup`
-    logSignupDiagnostic('signup request started', {
-      method: 'POST',
-      url: signupUrl,
-      emailDomain: email.includes('@') ? email.split('@').at(-1) : undefined,
-      fullNamePresent: Boolean(fullName.trim()),
-      passwordLength: password.length,
-    })
-
     try {
       const response = await fetch(signupUrl, {
         method: 'POST',
@@ -65,22 +49,9 @@ export default function SignUpPage() {
       let data: { error?: string; [key: string]: unknown }
       try {
         data = responseText ? JSON.parse(responseText) : {}
-      } catch (parseError) {
-        logSignupDiagnostic('signup response JSON parse failed', {
-          status: response.status,
-          statusText: response.statusText,
-          responseBody: responseText,
-          parseError,
-        })
+      } catch {
         data = { error: 'Something went wrong' }
       }
-      logSignupDiagnostic('signup response received', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        responseBody: data,
-        rawResponseBody: responseText,
-      })
 
       if (!response.ok) {
         setErrors({ email: data.error || 'Sign up failed' })
@@ -90,12 +61,9 @@ export default function SignUpPage() {
 
       setIsSuccess(true)
       toast({ title: 'Account created', description: 'Check your email to verify your account.' })
-    } catch (error) {
-      logSignupDiagnostic('signup fetch exception', {
-        url: signupUrl,
-        error,
-      })
-      throw error
+    } catch {
+      setErrors({ email: 'Unable to create your account right now. Please check your connection and try again.' })
+      toast({ title: 'Sign up failed', description: 'Please check your connection and try again.', variant: 'destructive' })
     } finally {
       setIsLoading(false)
     }

@@ -14,7 +14,7 @@ export function Services() {
       <div className="mx-auto max-w-5xl px-6 py-12 lg:py-14">
         <div className="flex flex-col gap-5 rounded-2xl border border-border/70 bg-card/70 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
           <div>
-            <span className="label-caps">Coming next</span>
+            <span className="label-caps">Additional services</span>
             <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-foreground">
               More ways to build your business
             </h2>

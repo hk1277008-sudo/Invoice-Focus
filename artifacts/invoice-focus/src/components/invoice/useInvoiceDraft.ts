@@ -11,9 +11,7 @@ export function useInvoiceDraft(invoice: InvoiceData) {
     timeoutRef.current = setTimeout(() => {
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(invoice))
-      } catch (error) {
-        console.error('Failed to save draft:', error)
-      }
+      } catch { /* Local storage may be unavailable in private browsing. */ }
     }, 800)
 
     return () => {
@@ -27,8 +25,7 @@ export function loadDraft(): InvoiceData | null {
     const data = localStorage.getItem(DRAFT_KEY)
     if (!data) return null
     return JSON.parse(data) as InvoiceData
-  } catch (error) {
-    console.error('Failed to load draft:', error)
+  } catch {
     return null
   }
 }
@@ -36,7 +33,5 @@ export function loadDraft(): InvoiceData | null {
 export function clearDraft(): void {
   try {
     localStorage.removeItem(DRAFT_KEY)
-  } catch (error) {
-    console.error('Failed to clear draft:', error)
-  }
+  } catch { /* Local storage may be unavailable in private browsing. */ }
 }

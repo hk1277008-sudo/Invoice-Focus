@@ -1,4 +1,5 @@
 import { supabaseAdmin } from './supabase';
+import { logger } from './logger';
 
 const AVATAR_BUCKET = 'avatars';
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
@@ -23,8 +24,8 @@ export async function ensureAvatarBucket() {
         fileSizeLimit: MAX_AVATAR_SIZE,
       });
     }
-  } catch (error) {
-    console.error('Failed to ensure avatar bucket:', error);
+  } catch {
+    logger.warn('Failed to ensure avatar bucket');
   }
 }
 
@@ -73,13 +74,13 @@ export async function uploadFeedbackScreenshot(userId: string, file: Express.Mul
         fileSizeLimit: MAX_FEEDBACK_SIZE,
       });
     }
-  } catch (error) {
-    throw new Error(`Could not prepare screenshot storage: ${error instanceof Error ? error.message : 'unknown error'}`);
+  } catch {
+    throw new Error('Could not prepare screenshot storage');
   }
   const extension = file.mimetype.split('/')[1] || 'png';
   const path = `${userId}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
   const { error } = await supabaseAdmin.storage.from(FEEDBACK_BUCKET).upload(path, file.buffer, { contentType: file.mimetype, upsert: false });
-  if (error) throw new Error(`Screenshot upload failed: ${error.message}`);
+  if (error) throw new Error('Screenshot upload failed');
   const { data } = supabaseAdmin.storage.from(FEEDBACK_BUCKET).getPublicUrl(path);
   return { url: data.publicUrl };
 }

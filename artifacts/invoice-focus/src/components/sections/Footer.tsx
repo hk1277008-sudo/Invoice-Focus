@@ -1,4 +1,5 @@
 import { Logo } from '@/components/shared/Logo'
+import { Link } from 'wouter'
 
 const FOOTER_GROUPS = [
   {
@@ -24,7 +25,6 @@ const FOOTER_GROUPS = [
     links: [
       { text: 'Help', href: '/help' },
       { text: 'Guides', href: '/guides' },
-      { text: 'AI Docs', href: '/developers' },
       { text: 'Status', href: '/status' },
     ],
   },
@@ -41,7 +41,6 @@ const FOOTER_GROUPS = [
     links: [
       { text: 'Privacy Policy', href: '/privacy' },
       { text: 'Terms', href: '/terms' },
-      { text: 'Cookie Policy', href: '/cookies' },
     ],
   },
 ]
@@ -53,9 +52,9 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-6">
           {/* Brand column */}
           <div className="lg:col-span-2">
-            <a href="/" aria-label="InvoiceFocus home">
+            <Link href="/" aria-label="InvoiceFocus home">
               <Logo size="md" />
-            </a>
+            </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Professional invoicing made simple for freelancers, agencies, and businesses.
             </p>
@@ -70,12 +69,17 @@ export function Footer() {
               <ul className="mt-4 space-y-2.5">
                 {group.links.map((link) => (
                   <li key={link.text}>
-                    <a
+                    {link.href.startsWith('#') ? <a
                       href={link.href}
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {link.text}
-                    </a>
+                    </a> : <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {link.text}
+                    </Link>}
                   </li>
                 ))}
               </ul>
@@ -88,15 +92,12 @@ export function Footer() {
             © 2026 InvoiceFocus. All Rights Reserved.
           </p>
           <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <a href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">
               Privacy Policy
-            </a>
-            <a href="/terms" className="text-xs text-muted-foreground hover:text-foreground">
+            </Link>
+            <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground">
               Terms
-            </a>
-            <a href="/cookies" className="text-xs text-muted-foreground hover:text-foreground">
-              Cookie Policy
-            </a>
+            </Link>
           </nav>
         </div>
       </div>

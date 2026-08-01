@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Check } from 'lucide-react'
+import { Link } from 'wouter'
 
 const TRUST_POINTS = [
   'Professional Invoicing Made Simple',
@@ -29,10 +30,10 @@ export function Hero() {
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
             <Button size="lg" asChild>
-              <a href="/invoice">
+              <Link href="/invoice">
                 Create Invoice
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </a>
+              </Link>
             </Button>
             <Button variant="outline" size="lg" asChild>
               <a href="#templates">Browse Templates</a>

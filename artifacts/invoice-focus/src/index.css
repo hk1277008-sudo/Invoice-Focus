@@ -407,7 +407,7 @@ html[data-font-size='large'] { font-size: 18px; }
     box-shadow: 0 0 80px -20px hsl(var(--primary) / 0.25);
   }
 
-  /* Animated gradient border for premium cards */
+  /* Animated gradient border for featured cards */
   .gradient-border {
     position: relative;
     background: linear-gradient(var(--color-card), var(--color-card)) padding-box,

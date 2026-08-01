@@ -93,11 +93,10 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
 }
 
-export function printInvoice(invoice: InvoiceData): void {
+export function printInvoice(invoice: InvoiceData): boolean {
   const printWindow = window.open('', '_blank')
   if (!printWindow) {
-    console.error('Unable to open print window')
-    return
+    return false
   }
   const preview = document.querySelector<HTMLElement>('.invoice-preview-container')
   if (preview) {
@@ -123,6 +122,7 @@ export function printInvoice(invoice: InvoiceData): void {
   printWindow.document.close()
   printWindow.focus()
   setTimeout(() => printWindow.print(), 250)
+  return true
 }
 
 export function downloadPDF(invoice: InvoiceData): void {

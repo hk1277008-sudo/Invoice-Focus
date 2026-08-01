@@ -11,7 +11,31 @@ import { uploadAvatar } from "../lib/storage";
 import { z } from "zod";
 
 const router: IRouter = Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 },
+});
+const authRequestCounts = new Map<string, { count: number; resetAt: number }>();
+const AUTH_WINDOW_MS = 60_000;
+const AUTH_MAX_REQUESTS = 12;
+
+function rateLimitAuth(req: Request, res: Response, next: () => void) {
+  const key = req.ip || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const current = authRequestCounts.get(key);
+  if (!current || current.resetAt <= now) {
+    authRequestCounts.set(key, { count: 1, resetAt: now + AUTH_WINDOW_MS });
+    next();
+    return;
+  }
+  current.count += 1;
+  if (current.count > AUTH_MAX_REQUESTS) {
+    res.setHeader('Retry-After', Math.ceil((current.resetAt - now) / 1000));
+    res.status(429).json({ error: 'Too many requests. Please try again shortly.' });
+    return;
+  }
+  next();
+}
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -47,7 +71,6 @@ function normalizeBaseUrl(value: string | undefined) {
 }
 
 const configuredClientBaseUrl = normalizeBaseUrl(process.env.CLIENT_BASE_URL);
-console.log("CLIENT_BASE_URL configured:", Boolean(configuredClientBaseUrl));
 function isAuthClientError(
   error: unknown,
 ): { status: number; message: string } | null {
@@ -77,9 +100,7 @@ function handleAuthError(error: unknown, res: Response, defaultStatus = 500) {
     res.status(clientError.status).json({ error: clientError.message });
     return;
   }
-  const message =
-    error instanceof Error ? error.message : "An unexpected error occurred";
-  res.status(defaultStatus).json({ error: message });
+  res.status(defaultStatus).json({ error: "Unable to complete this request right now." });
 }
 
 async function requireUser(req: Request, res: Response) {
@@ -100,16 +121,10 @@ async function requireUser(req: Request, res: Response) {
 }
 
 function getRequestBaseUrl(req: Request) {
-  if (configuredClientBaseUrl) return configuredClientBaseUrl;
-
-  const forwardedProto = req.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  const forwardedHost = req.get("x-forwarded-host")?.split(",")[0]?.trim();
-
-  if (forwardedHost) {
-    return normalizeBaseUrl(`${forwardedProto || req.protocol}://${forwardedHost}`) || "http://localhost";
+  if (!configuredClientBaseUrl) {
+    throw new Error("CLIENT_BASE_URL is not configured");
   }
-
-  return normalizeBaseUrl(`${req.protocol}://${req.get("host")}`) || "http://localhost";
+  return configuredClientBaseUrl;
 }
 
 function buildCallbackUrl(
@@ -132,7 +147,7 @@ function getDisplayName(user: { user_metadata?: Record<string, unknown> }) {
   return undefined;
 }
 
-router.post("/auth/signup", async (req, res) => {
+router.post("/auth/signup", rateLimitAuth, async (req, res) => {
   const parse = signupSchema.safeParse(req.body);
   if (!parse.success) {
     res
@@ -191,7 +206,7 @@ router.post("/auth/signup", async (req, res) => {
   }
 });
 
-router.post("/auth/resend-verification", async (req, res) => {
+router.post("/auth/resend-verification", rateLimitAuth, async (req, res) => {
   const parse = resendVerificationSchema.safeParse(req.body);
   if (!parse.success) {
     res
@@ -244,7 +259,7 @@ router.post("/auth/resend-verification", async (req, res) => {
   }
 });
 
-router.post("/auth/forgot-password", async (req, res) => {
+router.post("/auth/forgot-password", rateLimitAuth, async (req, res) => {
   const parse = emailSchema.safeParse(req.body);
   if (!parse.success) {
     res
@@ -366,9 +381,7 @@ router.post("/auth/avatar", upload.single("avatar"), async (req, res) => {
     const { url } = await uploadAvatar(userId, req.file);
     res.json({ url });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to upload avatar";
-    res.status(500).json({ error: message });
+    res.status(500).json({ error: "Unable to upload avatar right now." });
   }
 });
 

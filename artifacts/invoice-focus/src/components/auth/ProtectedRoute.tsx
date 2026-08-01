@@ -17,7 +17,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
     if (!isLoading && !isAuthenticated) {
       navigate(`/sign-in?next=${encodeURIComponent(location)}`)
     }
-  }, [isAuthenticated, isLoading, navigate])
+  }, [isAuthenticated, isLoading, location, navigate])
 
   useEffect(() => {
     if (isLoading || !isAuthenticated || location === '/onboarding' || location.startsWith('/onboarding/')) return

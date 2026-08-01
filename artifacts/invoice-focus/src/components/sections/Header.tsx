@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/shared/Logo'
 import { cn } from '@/lib/utils'
+import { Link } from 'wouter'
 
 const NAV_ITEMS = ['Features', 'Templates', 'How It Works', 'FAQ']
 
@@ -29,9 +30,9 @@ export function Header() {
     >
       <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-6 lg:px-8">
         {/* Logo + brand */}
-        <a href="/" aria-label="InvoiceFocus home">
+        <Link href="/" aria-label="InvoiceFocus home">
           <Logo size="md" />
-        </a>
+        </Link>
 
         {/* Desktop navigation */}
         <nav className="hidden items-center gap-1 md:flex">
@@ -49,10 +50,10 @@ export function Header() {
         {/* Desktop actions */}
         <div className="hidden items-center gap-2 md:flex">
           <Button variant="ghost" size="sm" asChild>
-            <a href="/sign-in">Sign In</a>
+            <Link href="/sign-in">Sign In</Link>
           </Button>
           <Button size="sm" asChild>
-            <a href="/invoice">Get Started</a>
+            <Link href="/invoice">Get Started</Link>
           </Button>
         </div>
 
@@ -92,14 +93,14 @@ export function Header() {
             </nav>
             <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4">
               <Button variant="ghost" size="default" asChild className="w-full justify-center">
-                <a href="/sign-in" onClick={() => setMenuOpen(false)}>
+                <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
                   Sign In
-                </a>
+                </Link>
               </Button>
               <Button size="default" asChild className="w-full justify-center">
-                <a href="/invoice" onClick={() => setMenuOpen(false)}>
+                <Link href="/invoice" onClick={() => setMenuOpen(false)}>
                   Get Started
-                </a>
+                </Link>
               </Button>
             </div>
           </motion.div>

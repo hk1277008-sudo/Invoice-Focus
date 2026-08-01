@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { supabase, setRememberMe } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
-import { logAuthDiagnostic } from '@/lib/dev-diagnostics'
 
 export default function SignInPage() {
   const [location, navigate] = useLocation()
@@ -21,45 +20,7 @@ export default function SignInPage() {
 
   useEffect(() => {
     setRememberMe(false)
-    logAuthDiagnostic('sign-in mounted', {
-      rememberMeInitialState: rememberMe,
-      rememberMeStorageDefault: false,
-    })
   }, [])
-
-  useEffect(() => {
-    logAuthDiagnostic('React auth state updated', {
-      email,
-      passwordLength: password.length,
-      controlledPasswordValue: '[redacted]',
-      rememberMe,
-      isLoading,
-      errors,
-      passwordDom: passwordRef.current
-        ? {
-            value: '[redacted]',
-            valueLength: passwordRef.current.value.length,
-            focused: document.activeElement === passwordRef.current,
-            disabled: passwordRef.current.disabled,
-            readOnly: passwordRef.current.readOnly,
-          }
-        : null,
-    })
-  }, [email, password, rememberMe, isLoading, errors])
-
-  const logPasswordEvent = (event: string, details: Record<string, unknown> = {}) => {
-    const input = passwordRef.current
-    logAuthDiagnostic(event, {
-      ...details,
-      inputValue: '[redacted]',
-      inputValueLength: input?.value.length ?? 0,
-      controlledComponentValue: '[redacted]',
-      controlledValueLength: password.length,
-      focused: input ? document.activeElement === input : false,
-      disabled: input?.disabled ?? false,
-      readOnly: input?.readOnly ?? false,
-    })
-  }
 
   const validate = () => {
     const nextErrors: Record<string, string> = {}
@@ -77,45 +38,11 @@ export default function SignInPage() {
     setIsLoading(true)
     setErrors({})
     setRememberMe(rememberMe)
-    logAuthDiagnostic('sign-in submit started', {
-      email,
-      rememberMe,
-      passwordLength: password.length,
-    })
-
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-      logAuthDiagnostic('Supabase signInWithPassword response', {
-        data: {
-          session: data.session
-            ? {
-                hasAccessToken: Boolean(data.session.access_token),
-                hasRefreshToken: Boolean(data.session.refresh_token),
-                expiresAt: data.session.expires_at,
-                userId: data.session.user?.id,
-              }
-            : null,
-          user: data.user ? { id: data.user.id, email: data.user.email } : null,
-        },
-        error: error
-          ? {
-              name: error.name,
-              message: error.message,
-              status: error.status,
-              code: error.code,
-            }
-          : null,
-        httpStatus: error?.status ?? 200,
-      })
 
       if (error) {
         if (error.message.toLowerCase().includes('email not confirmed')) {
-          logAuthDiagnostic('frontend auth error source', {
-            source: 'Supabase signInWithPassword',
-            category: 'email-not-confirmed',
-            message: 'Please verify your email before signing in.',
-            httpStatus: error.status,
-          })
           setRememberMe(false)
           setErrors({ email: 'Please verify your email before signing in.' })
           toast({ title: 'Sign in failed', description: 'Please verify your email before signing in.', variant: 'destructive' })
@@ -123,22 +50,10 @@ export default function SignInPage() {
           error.code === 'invalid_credentials' ||
           error.message.toLowerCase().includes('invalid login credentials')
         ) {
-          logAuthDiagnostic('frontend auth error source', {
-            source: 'Supabase signInWithPassword',
-            category: 'invalid-credentials',
-            message: 'Invalid email or password',
-            httpStatus: error.status,
-          })
           setRememberMe(false)
           setErrors({ password: 'Invalid email or password' })
           toast({ title: 'Sign in failed', description: 'Invalid email or password', variant: 'destructive' })
         } else {
-          logAuthDiagnostic('frontend auth error source', {
-            source: 'Supabase signInWithPassword',
-            category: 'unexpected-auth-error',
-            message: 'Unable to sign in right now. Please try again.',
-            httpStatus: error.status,
-          })
           setRememberMe(false)
           setErrors({ password: 'Unable to sign in right now. Please try again.' })
           toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please try again.', variant: 'destructive' })
@@ -147,37 +62,20 @@ export default function SignInPage() {
       }
 
       if (data.session) {
-        logAuthDiagnostic('authentication succeeded', {
-          source: 'Supabase signInWithPassword',
-          sessionPresent: true,
-          staleErrorsCleared: true,
-        })
         toast({ title: 'Signed in', description: 'Welcome back.' })
-         const next = new URLSearchParams(location.split('?')[1] || '').get('next')
-         navigate(next && next.startsWith('/') ? next : '/dashboard')
+        const next = new URLSearchParams(location.split('?')[1] || '').get('next')
+        navigate(next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard')
       } else {
-        logAuthDiagnostic('authentication returned without session', {
-          source: 'Supabase signInWithPassword',
-          sessionPresent: false,
-        })
         setRememberMe(false)
         setErrors({ password: 'Unable to sign in right now. Please try again.' })
         toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please try again.', variant: 'destructive' })
       }
     } catch (error) {
-      logAuthDiagnostic('authentication exception', {
-        source: 'Supabase signInWithPassword',
-        error,
-        networkFailure: true,
-      })
       setRememberMe(false)
       setErrors({ password: 'Unable to sign in right now. Please check your connection and try again.' })
       toast({ title: 'Sign in failed', description: 'Unable to sign in right now. Please check your connection and try again.', variant: 'destructive' })
     } finally {
       setIsLoading(false)
-      logAuthDiagnostic('sign-in submit finished', {
-        isLoadingAfterSubmit: false,
-      })
     }
   }
 
@@ -221,27 +119,7 @@ export default function SignInPage() {
               autoComplete="current-password"
               value={password}
               ref={passwordRef}
-              onFocus={() => logPasswordEvent('password focus')}
-              onBlur={() => logPasswordEvent('password blur')}
-              onKeyDown={(e) =>
-                logPasswordEvent('password keydown', {
-                  key: e.key,
-                  code: e.code,
-                  ctrlKey: e.ctrlKey,
-                  metaKey: e.metaKey,
-                  shiftKey: e.shiftKey,
-                  altKey: e.altKey,
-                })
-              }
-              onInput={(e) =>
-                logPasswordEvent('password input', {
-                  inputType: e.nativeEvent instanceof InputEvent ? e.nativeEvent.inputType : undefined,
-                })
-              }
               onChange={(e) => {
-                logPasswordEvent('password React onChange', {
-                  nextValueLength: e.target.value.length,
-                })
                 setPassword(e.target.value)
                 setErrors({})
               }}

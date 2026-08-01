@@ -21,7 +21,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshSession = useCallback(async () => {
     const { data, error } = await supabase.auth.getSession()
     if (error) {
-      console.error('Failed to restore session:', error)
       setSession(null)
       setUser(null)
       return
@@ -52,7 +51,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      console.error('Sign out failed:', error)
       throw error
     }
     setSession(null)

@@ -110,7 +110,7 @@ function toClient(row: Record<string, unknown>) {
 router.get('/settings', async (req, res) => {
   const user = await requireUser(req, res); if (!user) return;
   const { data, error } = await supabaseAdmin.from('user_settings').select('*').eq('user_id', user.id).maybeSingle();
-  if (error) { res.status(500).json({ error: 'Failed to load settings', code: error.code, details: error.message }); return; }
+  if (error) { res.status(500).json({ error: 'Failed to load settings' }); return; }
   res.json({ settings: data ? toClient(data) : null });
 });
 
@@ -120,7 +120,7 @@ router.put('/settings', async (req, res) => {
   if (!parsed.success) { res.status(400).json({ error: 'Please check your settings', details: parsed.error.flatten() }); return; }
   const values = Object.fromEntries(Object.entries(columns).map(([key, column]) => [column, parsed.data[key as keyof typeof parsed.data]]));
   const { data, error } = await supabaseAdmin.from('user_settings').upsert({ user_id: user.id, ...values }, { onConflict: 'user_id' }).select('*').single();
-  if (error) { res.status(500).json({ error: 'Failed to save settings', code: error.code, details: error.message }); return; }
+  if (error) { res.status(500).json({ error: 'Failed to save settings' }); return; }
   res.json({ settings: toClient(data) });
 });
 

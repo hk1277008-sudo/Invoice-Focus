@@ -53,10 +53,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const body = await response.json().catch(() => null)
     const error = new Error(body?.error || 'Invoice request failed') as Error & {
       code?: string
-      subscription?: unknown
     }
     error.code = body?.code
-    error.subscription = body?.subscription
     throw error
   }
   return response.status === 204 ? (undefined as T) : response.json()
