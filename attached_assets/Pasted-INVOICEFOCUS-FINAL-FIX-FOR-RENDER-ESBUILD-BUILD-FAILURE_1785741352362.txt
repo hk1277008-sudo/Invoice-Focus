@@ -1,0 +1,124 @@
+INVOICEFOCUS — FINAL FIX FOR RENDER ESBUILD BUILD FAILURE
+
+We need to fix the Render deployment failure now.
+
+Render is deploying the latest GitHub commit, but the build still fails with:
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /opt/render/project/src/artifacts/api-server/build.mjs
+
+The failing file is:
+
+artifacts/api-server/build.mjs
+
+Current Render configuration:
+
+Root Directory:
+.
+
+Current Build Command:
+pnpm --filter @workspace/api-server run build
+
+Current Start Command:
+pnpm --filter @workspace/api-server run start
+
+The repository is a pnpm monorepo.
+
+IMPORTANT:
+Do not make speculative changes.
+Do not modify unrelated application functionality.
+Do not modify frontend UI.
+Do not modify logo.
+Do not modify authentication.
+Do not modify invoice functionality.
+Do not modify Supabase migrations.
+Do not reapply or modify migration 019_free_platform_cleanup.sql.
+
+The previous investigation claimed esbuild is declared in:
+
+artifacts/api-server/package.json
+
+and that a clean production-only install works, but Render still cannot resolve esbuild.
+
+We need a definitive deployment-safe fix.
+
+TASK:
+
+1. Inspect the current repository.
+
+2. Confirm exactly how artifacts/api-server/build.mjs imports esbuild.
+
+3. Confirm the exact location where esbuild is declared.
+
+4. Confirm the exact pnpm workspace dependency resolution behavior.
+
+5. Make the smallest reliable change that guarantees esbuild is available when Render executes:
+
+artifacts/api-server/build.mjs
+
+6. If the current architecture requires esbuild to be a direct dependency of @workspace/api-server, ensure it is explicitly declared there and the pnpm lockfile is correctly updated.
+
+7. If the problem is caused by pnpm workspace dependency resolution, fix the workspace dependency declaration rather than relying on hoisted/root dependencies.
+
+8. Ensure the dependency is available after a completely fresh install using pnpm-lock.yaml.
+
+9. If necessary, update the packageManager declaration so the repository consistently uses the verified pnpm version.
+
+10. Do NOT rely on a globally installed esbuild.
+
+11. Do NOT use npx esbuild as a workaround.
+
+12. Do NOT install esbuild manually inside the Render build command as a permanent workaround.
+
+13. Do NOT change the Render Build Command unless the repository's package configuration has first been proven correct.
+
+14. Do NOT duplicate esbuild unnecessarily across unrelated packages.
+
+15. Preserve the existing monorepo architecture.
+
+After making the fix, completely remove node_modules and perform a fresh lockfile-based install.
+
+Then verify the exact production sequence:
+
+pnpm install --frozen-lockfile
+
+pnpm --filter @workspace/api-server run build
+
+The build must successfully execute:
+
+artifacts/api-server/build.mjs
+
+and resolve esbuild without any global installation.
+
+Also verify:
+
+pnpm --filter @workspace/api-server run start
+
+Frontend typecheck
+Frontend production build
+API typecheck
+API production build
+git diff --check
+
+Confirm the API starts and:
+
+GET /api/healthz
+
+returns HTTP 200 with:
+
+{"status":"ok"}
+
+FINAL RESPONSE MUST INCLUDE:
+
+1. Exact root cause.
+2. Exact files changed.
+3. Exact dependency declaration for esbuild after the fix.
+4. Exact pnpm-lockfile change.
+5. Exact Render Build Command.
+6. Exact Render Start Command.
+7. Whether Root Directory remains ".".
+8. Proof that the build was tested after deleting node_modules and performing a fresh frozen-lockfile install.
+9. Full verification results.
+
+Do not claim success unless the exact clean-install build command succeeds.
+
+Make ONLY the minimum changes required to permanently resolve the Render esbuild error.
