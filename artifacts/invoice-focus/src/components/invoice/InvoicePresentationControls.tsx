@@ -1,23 +1,42 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { invoiceTemplates, normalizePresentation, type InvoicePresentation } from './presentation'
+import { documentTypes, normalizeDocumentType, type InvoiceDocumentType } from './document-types'
 
 export function InvoicePresentationControls({
   value,
+  documentType,
+  onDocumentTypeChange,
   onChange,
 }: {
   value?: InvoicePresentation
+  documentType?: InvoiceDocumentType
+  onDocumentTypeChange: (value: InvoiceDocumentType) => void
   onChange: (field: keyof InvoicePresentation, value: string) => void
 }) {
   const presentation = normalizePresentation(value)
+  const selectedDocumentType = normalizeDocumentType(documentType)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Invoice design</CardTitle>
-        <CardDescription>Choose a layout and keep your brand consistent across preview and export.</CardDescription>
+        <CardTitle>Document setup</CardTitle>
+        <CardDescription>Choose what you are sending, then select a visual design for the preview and PDF.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
+        <div>
+          <Label>Document type</Label>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {documentTypes.map((type) => (
+              <button key={type.id} type="button" onClick={() => onDocumentTypeChange(type.id)} aria-pressed={selectedDocumentType === type.id} className={`rounded-lg border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selectedDocumentType === type.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}>
+                <span className="block text-sm font-semibold">{type.name}</span>
+                <span className="mt-1 block text-xs text-muted-foreground">{type.description}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Label>Visual design</Label>
         <div className="grid gap-2 sm:grid-cols-2">
           {invoiceTemplates.map((template) => {
             return (
@@ -30,6 +49,7 @@ export function InvoicePresentationControls({
               </button>
             )
           })}
+        </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <ColorField label="Primary color" value={presentation.primaryColor} onChange={(value) => onChange('primaryColor', value)} />

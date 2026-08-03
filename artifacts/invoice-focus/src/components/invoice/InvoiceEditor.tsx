@@ -11,6 +11,8 @@ import type { ClientRecord } from '@/lib/clients'
 import { calculateItemValues } from './utils'
 import { InvoicePresentationControls } from './InvoicePresentationControls'
 import type { InvoicePresentation } from './presentation'
+import type { InvoiceDocumentType } from './document-types'
+import { normalizeDocumentType } from './document-types'
 
 interface InvoiceEditorProps {
   invoice: InvoiceData
@@ -27,6 +29,7 @@ interface InvoiceEditorProps {
   clients?: ClientRecord[]
   onSelectClient?: (client: ClientRecord | null) => void
   onUpdatePresentation: (field: keyof InvoicePresentation, value: string) => void
+  onUpdateDocumentType: (value: InvoiceDocumentType) => void
 }
 
 export function InvoiceEditor({
@@ -44,7 +47,9 @@ export function InvoiceEditor({
   clients = [],
   onSelectClient,
   onUpdatePresentation,
+  onUpdateDocumentType,
 }: InvoiceEditorProps) {
+  const documentType = normalizeDocumentType(invoice.documentType)
   const [clientSearch, setClientSearch] = useState('')
   const previousItemIds = useRef(invoice.items.map((item) => item.id))
   const [advancedOptionsOpen, setAdvancedOptionsOpen] = useState(() =>
@@ -76,15 +81,15 @@ export function InvoiceEditor({
 
   return (
     <div className="space-y-6">
-      <InvoicePresentationControls value={invoice.presentation} onChange={onUpdatePresentation} />
+      <InvoicePresentationControls value={invoice.presentation} documentType={invoice.documentType} onDocumentTypeChange={onUpdateDocumentType} onChange={onUpdatePresentation} />
       {/* Invoice Details */}
       <Card>
         <CardHeader>
-          <CardTitle>Invoice Details</CardTitle>
-          <CardDescription>Enter the invoice number, dates, and terms.</CardDescription>
+          <CardTitle>{invoice.documentType === 'receipt' ? 'Receipt Details' : invoice.documentType === 'estimate' ? 'Estimate Details' : invoice.documentType === 'quote' ? 'Quote Details' : 'Invoice Details'}</CardTitle>
+          <CardDescription>Enter the document number, dates, and terms.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <FormField label="Invoice Number" htmlFor="invoice-number" error={errors['invoice-number']}>
+           <FormField label={invoice.documentType === 'receipt' ? 'Receipt Number' : invoice.documentType === 'estimate' ? 'Estimate Number' : invoice.documentType === 'quote' ? 'Quote Number' : 'Invoice Number'} htmlFor="invoice-number" error={errors['invoice-number']}>
             <Input
               id="invoice-number"
               value={invoice.details.number}
@@ -96,7 +101,7 @@ export function InvoiceEditor({
           <FormField label="Currency" htmlFor="currency" error={errors['currency']}>
             <CurrencySelector value={invoice.details.currency} onChange={onUpdateCurrency} />
           </FormField>
-           <FormField label="Invoice Date" htmlFor="issue-date" error={errors['issue-date']}>
+            <FormField label={invoice.documentType === 'receipt' ? 'Payment Date' : invoice.documentType === 'estimate' ? 'Estimate Date' : invoice.documentType === 'quote' ? 'Quote Date' : 'Invoice Date'} htmlFor="issue-date" error={errors['issue-date']}>
             <Input
               id="issue-date"
               type="date"
@@ -105,7 +110,7 @@ export function InvoiceEditor({
                aria-invalid={!!errors['issue-date']}
             />
           </FormField>
-          <FormField label="Due Date" htmlFor="due-date" error={errors['due-date']}>
+          <FormField label={invoice.documentType === 'receipt' ? 'Original Invoice Date / Reference' : invoice.documentType === 'estimate' ? 'Expiration Date' : invoice.documentType === 'quote' ? 'Valid Until' : 'Due Date'} htmlFor="due-date" error={errors['due-date']}>
             <Input
               id="due-date"
               type="date"
@@ -114,15 +119,15 @@ export function InvoiceEditor({
               aria-invalid={!!errors['due-date']}
             />
           </FormField>
-          <FormField label="Payment Terms" htmlFor="payment-terms">
+          <FormField label={invoice.documentType === 'receipt' ? 'Payment Method' : 'Terms'} htmlFor="payment-terms">
             <Input
               id="payment-terms"
               value={invoice.details.paymentTerms}
               onChange={(e) => onUpdateDetails('paymentTerms', e.target.value)}
-              placeholder="Net 30"
+              placeholder={invoice.documentType === 'receipt' ? 'Card, bank transfer, cash...' : 'Net 30'}
             />
           </FormField>
-          <FormField label="Invoice Status" htmlFor="status">
+          <FormField label={`${documentType === 'receipt' ? 'Receipt' : documentType[0].toUpperCase() + documentType.slice(1)} Status`} htmlFor="status">
             <select
               id="status"
               value={invoice.details.status}
@@ -136,7 +141,7 @@ export function InvoiceEditor({
             </select>
             <p className="mt-1 text-xs text-muted-foreground">Only valid lifecycle transitions can be saved. You can also manage status from the invoice details page.</p>
           </FormField>
-          <FormField label="Purchase Order Number (optional)" htmlFor="po-number" className="sm:col-span-2">
+          <FormField label={`${invoice.documentType === 'receipt' ? 'Reference' : 'Reference / PO Number'} (optional)`} htmlFor="po-number" className="sm:col-span-2">
             <Input
               id="po-number"
               value={invoice.details.poNumber}
@@ -358,8 +363,8 @@ export function InvoiceEditor({
       {/* Invoice Items */}
       <Card>
         <CardHeader>
-          <CardTitle>Invoice Items</CardTitle>
-          <CardDescription>Add products or services to the invoice.</CardDescription>
+          <CardTitle>{invoice.documentType === 'receipt' ? 'Paid Items' : invoice.documentType === 'estimate' ? 'Estimated Items' : invoice.documentType === 'quote' ? 'Quoted Items' : 'Invoice Items'}</CardTitle>
+          <CardDescription>Add products or services to this document.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg border border-border" data-invoice-items>

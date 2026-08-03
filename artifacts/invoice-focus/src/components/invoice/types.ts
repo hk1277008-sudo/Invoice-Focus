@@ -66,6 +66,7 @@ export interface InvoiceAdditional {
 }
 
 export interface InvoiceData {
+  documentType?: import('./document-types').InvoiceDocumentType
   business: InvoiceBusiness
   client: InvoiceClient
   details: InvoiceDetails

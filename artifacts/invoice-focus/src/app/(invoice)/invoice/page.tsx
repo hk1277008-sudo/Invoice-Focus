@@ -30,13 +30,16 @@ import { useToast } from '@/hooks/use-toast'
 import { createInvoice, getInvoice, invoiceInput, updateInvoice, type InvoiceStatus } from '@/lib/invoices'
 import { listClients, type ClientRecord } from '@/lib/clients'
 import { useAuth } from '@/hooks/useAuth'
-import { invoiceTemplates, type InvoiceTemplate } from '@/components/invoice/presentation'
+import { invoiceTemplates, normalizeTemplate, type InvoiceTemplate } from '@/components/invoice/presentation'
+import { normalizeDocumentType, type InvoiceDocumentType } from '@/components/invoice/document-types'
 
 export default function InvoicePage() {
   const search = useSearch()
   const [, navigate] = useLocation()
   const templateParam = new URLSearchParams(search).get('template')
-  const selectedTemplate = invoiceTemplates.some((template) => template.id === templateParam) ? templateParam as InvoiceTemplate : undefined
+  const selectedTemplate = templateParam ? normalizeTemplate(templateParam) as InvoiceTemplate : undefined
+  const documentTypeParam = new URLSearchParams(search).get('documentType')
+  const selectedDocumentType = normalizeDocumentType(documentTypeParam)
   const {
     invoice,
     currency,
@@ -46,6 +49,7 @@ export default function InvoicePage() {
     updateClient,
     updateDetails,
     updateCurrency,
+    updateDocumentType,
     updateAdditional,
     updatePresentation,
     updateItem,
@@ -55,6 +59,12 @@ export default function InvoicePage() {
     loadFromData,
     reset,
   } = useInvoice(selectedTemplate)
+
+  useEffect(() => {
+    if (documentTypeParam) {
+      updateDocumentType(selectedDocumentType as InvoiceDocumentType)
+    }
+  }, [documentTypeParam, selectedDocumentType, updateDocumentType])
 
   useInvoiceDraft(invoice)
   const { fieldErrors: validationErrors, isValid } = useInvoiceValidation(invoice)
@@ -382,6 +392,7 @@ export default function InvoicePage() {
               clients={clients}
               onSelectClient={selectClient}
               onUpdatePresentation={updatePresentation}
+              onUpdateDocumentType={updateDocumentType}
             />
           </div>
           <div id="invoice-preview" className="order-1 lg:order-2 print:m-0 print:p-0">

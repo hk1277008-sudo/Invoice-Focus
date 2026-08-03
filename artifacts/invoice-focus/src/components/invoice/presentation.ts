@@ -7,11 +7,13 @@ export type InvoiceTemplate =
   | 'creative'
   | 'clean'
   | 'professional'
+  | 'enterprise'
 
 export type InvoiceFont = 'Inter' | 'Fraunces' | 'DM Mono'
 export type InvoiceHeaderLayout = 'Split' | 'Centered' | 'Band'
 export type InvoiceFooterLayout = 'Simple' | 'Detailed' | 'Bar'
 export type InvoicePaperSize = 'A4' | 'Letter'
+export type InvoiceTemplateFamily = 'minimal' | 'professional' | 'enterprise'
 
 export interface InvoicePresentation {
   template: InvoiceTemplate
@@ -29,15 +31,12 @@ export const invoiceTemplates: Array<{
   name: string
   description: string
 }> = [
-  { id: 'modern', name: 'Modern', description: 'Confident color rail with crisp metrics.' },
-  { id: 'minimal', name: 'Minimal', description: 'Quiet whitespace and editorial precision.' },
-  { id: 'corporate', name: 'Corporate', description: 'Structured sections for larger teams.' },
-  { id: 'executive', name: 'Executive', description: 'High-trust dark header and premium hierarchy.' },
-  { id: 'elegant', name: 'Elegant', description: 'Serif-led details with refined contrast.' },
-  { id: 'creative', name: 'Creative', description: 'Expressive blocks for studios and makers.' },
-  { id: 'clean', name: 'Clean', description: 'Airy utility with an efficient table.' },
-  { id: 'professional', name: 'Professional', description: 'Balanced all-rounder for every client.' },
+  { id: 'minimal', name: 'Minimal', description: 'Quiet whitespace, light rules, and editorial precision.' },
+  { id: 'professional', name: 'Professional', description: 'Balanced hierarchy, polished tables, and clear totals.' },
+  { id: 'enterprise', name: 'Enterprise', description: 'Structured corporate sections with detailed metadata.' },
 ]
+
+const allTemplateIds: InvoiceTemplate[] = ['modern', 'minimal', 'corporate', 'executive', 'elegant', 'creative', 'clean', 'professional', 'enterprise']
 
 export const defaultPresentation: InvoicePresentation = {
   template: 'modern',
@@ -54,7 +53,7 @@ const hexColor = /^#[0-9a-f]{6}$/i
 
 export function normalizePresentation(value: unknown): InvoicePresentation {
   const candidate = (value && typeof value === 'object' ? value : {}) as Partial<InvoicePresentation>
-  const template = invoiceTemplates.some((item) => item.id === candidate.template) ? candidate.template! : defaultPresentation.template
+  const template = allTemplateIds.includes(candidate.template as InvoiceTemplate) ? candidate.template! : defaultPresentation.template
   return {
     ...defaultPresentation,
     ...candidate,
@@ -69,6 +68,16 @@ export function normalizePresentation(value: unknown): InvoicePresentation {
   }
 }
 
+export function normalizeTemplate(value: unknown): InvoiceTemplate {
+  return normalizePresentation({ template: value }).template
+}
+
 export function presentationFontFamily(font: InvoiceFont): string {
   return font === 'Fraunces' ? "'Fraunces', Georgia, serif" : font === 'DM Mono' ? "'DM Mono', monospace" : "'Inter', system-ui, sans-serif"
+}
+
+export function templateFamily(template: InvoiceTemplate): InvoiceTemplateFamily {
+  if (template === 'minimal' || template === 'clean' || template === 'elegant') return 'minimal'
+  if (template === 'corporate' || template === 'executive' || template === 'enterprise') return 'enterprise'
+  return 'professional'
 }

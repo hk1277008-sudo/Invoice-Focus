@@ -11,6 +11,7 @@ const statuses = ['active', 'paused', 'completed', 'cancelled'] as const;
 const frequencySchema = z.enum(frequencies);
 const statusSchema = z.enum(statuses);
 const templateSchema = z.object({
+  documentType: z.enum(['invoice', 'receipt', 'estimate', 'quote']).optional(),
   business: z.record(z.string(), z.unknown()).optional(),
   client: z.record(z.string(), z.unknown()).optional(),
   details: z.record(z.string(), z.unknown()).optional(),

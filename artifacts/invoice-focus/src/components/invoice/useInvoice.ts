@@ -5,6 +5,7 @@ import { calculateInvoiceTotals, parseNumber } from './utils'
 import { loadDraft } from './useInvoiceDraft'
 import { getSettings } from '@/lib/settings'
 import { defaultPresentation, normalizePresentation, type InvoiceTemplate } from './presentation'
+import { defaultDocumentType, normalizeDocumentType } from './document-types'
 
 function generateInvoiceNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
@@ -31,6 +32,7 @@ function createEmptyItem(): InvoiceItem {
 
 export function createEmptyInvoice(): InvoiceData {
   return {
+    documentType: defaultDocumentType,
     business: {
       logo: null,
       name: '',
@@ -73,13 +75,21 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
   const [invoice, setInvoice] = useState<InvoiceData>(() => {
     const draft = loadDraft()
     const initial = draft ?? createEmptyInvoice()
-    return selectedTemplate ? { ...initial, presentation: { ...normalizePresentation(initial.presentation), template: selectedTemplate } } : initial
+    return {
+      ...initial,
+      documentType: normalizeDocumentType(initial.documentType),
+      ...(selectedTemplate ? { presentation: { ...normalizePresentation(initial.presentation), template: selectedTemplate } } : { presentation: normalizePresentation(initial.presentation) }),
+    }
   })
 
   useEffect(() => {
     const saved = loadDraft()
     if (saved) {
-      setInvoice(selectedTemplate ? { ...saved, presentation: { ...normalizePresentation(saved.presentation), template: selectedTemplate } } : saved)
+       setInvoice({
+         ...saved,
+         documentType: normalizeDocumentType(saved.documentType),
+         ...(selectedTemplate ? { presentation: { ...normalizePresentation(saved.presentation), template: selectedTemplate } } : { presentation: normalizePresentation(saved.presentation) }),
+       })
       return
     }
     getSettings().then((settings) => {
@@ -124,7 +134,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
             notes: settings.defaultNotes,
             terms: settings.defaultTerms,
           },
-          presentation: normalizePresentation({ ...settings.invoicePresentation, ...(selectedTemplate ? { template: selectedTemplate } : {}) }),
+           presentation: normalizePresentation({ ...settings.invoicePresentation, ...(selectedTemplate ? { template: selectedTemplate } : {}) }),
           items: current.items.map((item, index) =>
               index === 0 && (settings.defaultTaxRate > 0 || (settings.defaultDiscountBehavior === 'percentage' && settings.defaultDiscountPercent > 0))
                 ? {
@@ -153,6 +163,10 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
 
   const updateCurrency = useCallback((currency: CurrencyCode) => {
     setInvoice((prev) => ({ ...prev, details: { ...prev.details, currency } }))
+  }, [])
+
+  const updateDocumentType = useCallback((documentType: InvoiceData['documentType']) => {
+    setInvoice((prev) => ({ ...prev, documentType: normalizeDocumentType(documentType) }))
   }, [])
 
   const updateAdditional = useCallback((field: keyof InvoiceData['additional'], value: string) => {
@@ -192,7 +206,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
   }, [])
 
   const loadFromData = useCallback((data: InvoiceData) => {
-    setInvoice({ ...data, presentation: normalizePresentation(data.presentation) })
+    setInvoice({ ...data, documentType: normalizeDocumentType(data.documentType), presentation: normalizePresentation(data.presentation) })
   }, [])
 
   const reset = useCallback(() => {
@@ -248,6 +262,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
     updateClient,
     updateDetails,
     updateCurrency,
+    updateDocumentType,
     updateAdditional,
     updatePresentation,
     updateItem,

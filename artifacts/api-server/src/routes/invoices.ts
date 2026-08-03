@@ -10,6 +10,7 @@ const statuses = invoiceStatuses;
 const statusSchema = z.enum(statuses);
 
 const invoicePayloadSchema = z.object({
+  documentType: z.enum(['invoice', 'receipt', 'estimate', 'quote']).optional(),
   business: z.record(z.string(), z.unknown()).optional(),
   client: z.record(z.string(), z.unknown()).optional(),
   details: z.record(z.string(), z.unknown()).optional(),

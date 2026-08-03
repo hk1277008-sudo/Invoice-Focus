@@ -1,0 +1,478 @@
+# INVOICEFOCUS — FULLY FUNCTIONAL DOCUMENT TYPES & PROFESSIONAL TEMPLATE SYSTEM
+
+You are continuing work on the existing InvoiceFocus application.
+
+This is a focused implementation task.
+
+The current problem is that when users select different invoice templates/designs, the generated documents appear identical. Selecting a different template does not produce a genuinely different visual design.
+
+This must be fixed properly.
+
+Follow the existing InvoiceFocus project Skill and all existing project rules.
+
+Do not redesign unrelated pages.
+
+Do not modify unrelated functionality.
+
+Do not create fake template selection.
+
+Do not simply change template names while keeping the same underlying design.
+
+The selected document type and selected visual template must genuinely affect the generated document and PDF output.
+
+---
+
+# PRIMARY OBJECTIVE
+
+Build a genuinely functional document type and template system.
+
+The system must distinguish between:
+
+1. **Document Type**
+2. **Visual Design Template**
+
+These are separate concepts and should be implemented accordingly.
+
+The user's selection must be persisted and respected when generating the final document/PDF.
+
+---
+
+# 1. DOCUMENT TYPES
+
+Support the document types that are already intended or exposed by the existing application.
+
+At minimum, evaluate and implement these document types if they are currently part of the product scope:
+
+* Invoice
+* Receipt
+* Estimate
+* Quote
+
+Do not automatically add additional document types beyond the existing intended product scope unless explicitly requested.
+
+Each document type must have a meaningful purpose and appropriate terminology.
+
+---
+
+## INVOICE
+
+The Invoice document should include appropriate invoice information such as:
+
+* Business information
+* Client information
+* Invoice number
+* Issue date
+* Due date
+* Line items
+* Quantity
+* Unit price
+* Subtotal
+* Discount where supported
+* Tax where supported
+* Total
+* Notes
+* Payment information where supported
+
+The final output must clearly look like an invoice.
+
+---
+
+## RECEIPT
+
+The Receipt document should clearly communicate that payment has been received.
+
+Use appropriate terminology and fields such as:
+
+* Receipt number
+* Business information
+* Customer/client information
+* Payment date
+* Payment method where supported
+* Reference to the original invoice where applicable
+* Paid items
+* Amount paid
+* Total paid
+* Notes where applicable
+
+Do not simply rename an Invoice to "Receipt."
+
+The visual hierarchy and terminology must communicate that it is a receipt.
+
+---
+
+## ESTIMATE
+
+The Estimate document should clearly communicate that it is an estimated cost and not a final invoice.
+
+Use appropriate terminology such as:
+
+* Estimate number
+* Estimate date
+* Expiration date where supported
+* Business information
+* Client information
+* Estimated line items
+* Estimated subtotal
+* Estimated tax
+* Estimated total
+* Notes
+* Terms where supported
+
+The final output must clearly look like an estimate.
+
+---
+
+## QUOTE
+
+The Quote document should clearly communicate that it is a formal quotation or proposal for a customer.
+
+Use appropriate terminology such as:
+
+* Quote number
+* Quote date
+* Valid until
+* Business information
+* Client information
+* Quoted items
+* Subtotal
+* Discount where supported
+* Tax where supported
+* Quoted total
+* Terms
+* Notes
+
+The final output must clearly look like a quote.
+
+Do not simply rename an Invoice to "Quote."
+
+---
+
+# 2. VISUAL DESIGN TEMPLATES
+
+The application should support genuinely different visual designs.
+
+At minimum, implement or correctly connect these visual design categories if they are already part of the existing product:
+
+### Minimal
+
+Design characteristics:
+
+* Clean
+* Large whitespace
+* Minimal borders
+* Simple typography
+* Strong hierarchy
+* Few decorative elements
+* Highly readable
+* Modern and understated
+
+The design should feel lightweight and elegant.
+
+---
+
+### Professional
+
+Design characteristics:
+
+* Polished business appearance
+* Clear section hierarchy
+* Balanced spacing
+* Strong but restrained branding
+* Professional table structure
+* Clear totals section
+* Suitable for freelancers, consultants, and agencies
+
+The design should feel more structured than Minimal.
+
+---
+
+### Enterprise
+
+Design characteristics:
+
+* Structured corporate layout
+* More detailed information hierarchy
+* Strong section separation
+* More comprehensive business information
+* Clear document metadata
+* Detailed totals and terms areas
+* Suitable for larger businesses and corporate clients
+
+The design should feel more formal and information-dense than Minimal and Professional.
+
+---
+
+# 3. TEMPLATES MUST ACTUALLY BE DIFFERENT
+
+This is critical.
+
+If a user selects:
+
+* Minimal
+* Professional
+* Enterprise
+
+the generated document must visibly change.
+
+Do not create three template names that all render the same layout.
+
+The differences should include meaningful changes such as:
+
+* Typography
+* Spacing
+* Header structure
+* Logo placement
+* Table styling
+* Section hierarchy
+* Borders
+* Totals presentation
+* Business information placement
+* Footer structure
+* Terms and notes layout
+
+The differences must be visible in both:
+
+1. The document preview
+2. The generated PDF
+
+---
+
+# 4. DOCUMENT TYPE + TEMPLATE COMBINATION
+
+The architecture should treat document type and visual template as separate properties.
+
+Conceptually:
+
+Document Type:
+
+`Invoice`
+
+Visual Template:
+
+`Minimal`
+
+or:
+
+Document Type:
+
+`Invoice`
+
+Visual Template:
+
+`Professional`
+
+or:
+
+Document Type:
+
+`Estimate`
+
+Visual Template:
+
+`Enterprise`
+
+The selected combination must determine the final document output.
+
+For example:
+
+* Invoice + Minimal
+* Invoice + Professional
+* Invoice + Enterprise
+* Receipt + Minimal
+* Receipt + Professional
+* Receipt + Enterprise
+* Estimate + Minimal
+* Estimate + Professional
+* Estimate + Enterprise
+* Quote + Minimal
+* Quote + Professional
+* Quote + Enterprise
+
+Do not create unnecessary duplicate code for every combination.
+
+Prefer a reusable rendering architecture where:
+
+* Document type controls content and terminology.
+* Template controls visual presentation.
+
+---
+
+# 5. TEMPLATE SELECTION MUST PERSIST
+
+When a user selects a template:
+
+* Save the selected template with the document/invoice data where appropriate.
+* Reloading the document must preserve the selected template.
+* Editing the document must preserve the selected template.
+* Duplicating a document should handle the template correctly.
+* PDF generation must use the saved template.
+* Preview must use the selected template.
+
+Do not rely only on temporary frontend state.
+
+---
+
+# 6. TEMPLATE PREVIEW
+
+When users view templates in the Templates section:
+
+* Each template preview must genuinely represent the actual template.
+* Do not show identical previews with different names.
+* Do not use fake preview cards.
+* Selecting a template must actually apply it.
+
+If preview images or preview components are used, they should accurately represent the generated output.
+
+---
+
+# 7. PDF GENERATION
+
+Verify the entire PDF pipeline.
+
+For every supported document type and template combination:
+
+1. Select document type.
+2. Enter document information.
+3. Select visual template.
+4. Preview the document.
+5. Generate PDF.
+6. Open the PDF.
+7. Confirm the PDF matches the selected document type.
+8. Confirm the PDF matches the selected visual template.
+9. Confirm all invoice/document data is correct.
+10. Confirm currency is correct.
+
+The PDF must not always use the same template.
+
+---
+
+# 8. CURRENCY
+
+The document template system must work with the existing dynamic currency system.
+
+The selected currency must be correctly displayed in:
+
+* Document preview
+* Invoice
+* Receipt
+* Estimate
+* Quote
+* PDF
+
+Do not hardcode `$`.
+
+Use the currency associated with the document.
+
+---
+
+# 9. RESPONSIVE DESIGN
+
+Template previews and document editors must work correctly on:
+
+* Desktop
+* Tablet
+* Mobile
+
+The generated PDF should remain professionally formatted regardless of screen size.
+
+Do not allow template selection or document editing to cause layout instability.
+
+---
+
+# 10. DO NOT BREAK EXISTING FUNCTIONALITY
+
+Before changing the template system:
+
+1. Inspect the existing template architecture.
+2. Identify why all templates currently render the same.
+3. Determine whether the problem is:
+
+   * Template selection state
+   * Template persistence
+   * Rendering logic
+   * PDF generation
+   * Database storage
+   * Preview implementation
+   * Incorrect conditional rendering
+4. Fix the root cause.
+
+Do not rewrite the entire invoice system unless absolutely necessary.
+
+Do not change unrelated functionality.
+
+---
+
+# 11. TESTING REQUIREMENTS
+
+Test every supported document type.
+
+Test every supported visual template.
+
+At minimum verify:
+
+### Invoice
+
+* Minimal
+* Professional
+* Enterprise
+
+### Receipt
+
+* Minimal
+* Professional
+* Enterprise
+
+### Estimate
+
+* Minimal
+* Professional
+* Enterprise
+
+### Quote
+
+* Minimal
+* Professional
+* Enterprise
+
+For each combination verify:
+
+* Preview changes correctly.
+* Document terminology is correct.
+* Template design is visibly different.
+* Selected currency is correct.
+* Data is persisted.
+* Page refresh preserves selection.
+* PDF uses correct document type.
+* PDF uses correct template.
+* PDF contains correct data.
+
+Do not claim completion if only the template name changes.
+
+---
+
+# 12. ACCEPTANCE CRITERIA
+
+This task is complete only when:
+
+1. Selecting a different document type changes the document's content and terminology.
+2. Selecting a different visual template changes the actual visual design.
+3. Template selection persists.
+4. Preview reflects the selected template.
+5. Generated PDF reflects the selected template.
+6. Invoice, Receipt, Estimate, and Quote are meaningfully different document types.
+7. Minimal, Professional, and Enterprise are meaningfully different visual designs.
+8. Currency is dynamically displayed.
+9. No template selection is fake.
+10. No two templates appear identical unless intentionally designed that way.
+11. Existing invoice functionality continues to work.
+12. The production build succeeds.
+
+---
+
+# FINAL RULE
+
+Do not solve this task by changing labels only.
+
+The user must be able to select a document type and a visual template and see a genuinely different, professionally designed result in both the preview and final PDF.
+
+The final experience should feel like a real production invoice/document generation platform, not a collection of placeholder template buttons.

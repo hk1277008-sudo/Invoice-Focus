@@ -3,7 +3,8 @@ import { FileText } from 'lucide-react'
 import type { InvoiceData, InvoiceCalculations, Currency } from './types'
 import { formatCurrency, getCurrencyDecimals } from './currencies'
 import { calculateItemValues } from './utils'
-import { normalizePresentation, presentationFontFamily } from './presentation'
+import { normalizePresentation, presentationFontFamily, templateFamily } from './presentation'
+import { documentTypeMeta, normalizeDocumentType } from './document-types'
 
 interface InvoicePreviewProps {
   invoice: InvoiceData
@@ -32,10 +33,13 @@ export const InvoicePreview = memo(function InvoicePreview({
   }
 
   const presentation = normalizePresentation(invoice.presentation)
-  const dark = presentation.template === 'executive'
-  const serif = presentation.template === 'elegant'
-  const band = presentation.headerLayout === 'Band'
-  const centered = presentation.headerLayout === 'Centered'
+  const documentType = normalizeDocumentType(invoice.documentType)
+  const documentMeta = documentTypeMeta(documentType)
+  const family = templateFamily(presentation.template)
+  const dark = family === 'enterprise'
+  const serif = family === 'minimal' || presentation.template === 'elegant'
+  const band = family === 'enterprise' || presentation.headerLayout === 'Band'
+  const centered = family === 'minimal' || presentation.headerLayout === 'Centered'
   const titleClass = presentation.titleStyle === 'editorial' ? 'font-serif tracking-[0.12em]' : presentation.titleStyle === 'compact' ? 'text-xl tracking-tight' : 'text-2xl tracking-tight'
   const visibleItems = invoice.items.filter((item) => {
     const values = calculateItemValues(item)
@@ -48,17 +52,19 @@ export const InvoicePreview = memo(function InvoicePreview({
 
   return (
     <div
-      className={`invoice-preview-container relative overflow-hidden rounded-xl border shadow-sm print:rounded-none print:border-0 print:shadow-none ${dark ? 'bg-[#182337] text-white' : 'bg-white text-foreground'} ${serif ? 'font-serif' : ''}`}
+      className={`invoice-preview-container relative overflow-hidden ${family === 'minimal' ? 'rounded-none border-0 shadow-none' : 'rounded-xl border shadow-sm'} print:rounded-none print:border-0 print:shadow-none ${dark ? 'bg-[#182337] text-white' : 'bg-white text-foreground'} ${serif ? 'font-serif' : ''}`}
       data-invoice-template={presentation.template}
+      data-document-type={documentType}
       style={{
         '--invoice-primary': presentation.primaryColor,
         '--invoice-accent': presentation.accentColor,
         fontFamily: presentationFontFamily(presentation.font),
       } as React.CSSProperties}
     >
-      {presentation.template === 'corporate' && <div className="absolute inset-x-0 top-0 h-1.5" style={{ backgroundColor: presentation.primaryColor }} aria-hidden="true" />}
-      {presentation.template === 'creative' && <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full opacity-20" style={{ backgroundColor: presentation.accentColor }} aria-hidden="true" />}
-      <div className="min-w-0 p-4 sm:p-10">
+      {family === 'enterprise' && <div className="absolute inset-x-0 top-0 h-2" style={{ backgroundColor: presentation.primaryColor }} aria-hidden="true" />}
+      {family === 'professional' && <div className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: presentation.primaryColor }} aria-hidden="true" />}
+      {family === 'minimal' && <div className="absolute right-8 top-8 h-16 w-16 rounded-full opacity-10" style={{ backgroundColor: presentation.accentColor }} aria-hidden="true" />}
+      <div className={`relative min-w-0 ${family === 'minimal' ? 'p-5 sm:p-14' : family === 'enterprise' ? 'p-4 sm:p-8' : 'p-4 sm:p-10'}`}>
         {/* Header */}
         <div className={`relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between ${centered ? 'text-center' : ''} ${band ? 'rounded-xl p-5 text-white' : ''}`} style={band ? { backgroundColor: presentation.primaryColor } : undefined}>
           <div className={`${centered ? 'mx-auto' : ''} space-y-2`}>
@@ -92,8 +98,9 @@ export const InvoicePreview = memo(function InvoicePreview({
             </div>
           </div>
 
-          <div className={`text-left sm:text-right ${centered ? 'hidden' : ''}`}>
-            <h1 className={`font-bold ${titleClass} ${dark || band ? 'text-white' : 'text-foreground'}`}>INVOICE</h1>
+          <div className={`text-left sm:text-right ${centered ? 'mx-auto text-center sm:text-center' : ''}`}>
+            <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${dark || band ? 'text-white/60' : 'text-muted-foreground'}`}>{documentMeta.numberLabel}</p>
+            <h1 className={`font-bold ${titleClass} ${dark || band ? 'text-white' : 'text-foreground'}`}>{documentMeta.title}</h1>
             {invoice.details.number && (
               <p className={dark || band ? 'text-sm font-medium text-white/65' : 'text-sm font-medium text-muted-foreground'}>{invoice.details.number}</p>
             )}
@@ -106,9 +113,9 @@ export const InvoicePreview = memo(function InvoicePreview({
         </div>
 
         {/* Bill To & Invoice Meta */}
-        <div className={`relative mt-10 grid gap-8 border-y py-5 sm:grid-cols-2 ${dark ? 'border-white/10' : 'border-border'}`}>
+        <div className={`relative mt-10 grid gap-8 ${family === 'minimal' ? 'border-0 py-2' : 'border-y py-5'} sm:grid-cols-2 ${dark ? 'border-white/10' : 'border-border'}`}>
           <div>
-            <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Bill To</p>
+            <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>{documentMeta.billToLabel}</p>
             <div className="mt-2">
                 <p className={`font-semibold ${dark ? 'text-white' : 'text-foreground'}`}>
                 {invoice.client.name || invoice.client.companyName || 'Client Name'}
@@ -130,25 +137,25 @@ export const InvoicePreview = memo(function InvoicePreview({
 
           <div className="grid grid-cols-2 gap-4 sm:text-right">
             <div>
-              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Issue Date</p>
+               <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>{documentMeta.issueDateLabel}</p>
               <p className={`text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>
                 {invoice.details.issueDate || '—'}
               </p>
             </div>
             <div>
-              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Due Date</p>
+               <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>{documentMeta.dueDateLabel}</p>
               <p className={`text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>
                 {invoice.details.dueDate || '—'}
               </p>
             </div>
             <div>
-              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Payment Terms</p>
+               <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>{documentMeta.termsLabel}</p>
               <p className={`text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>
                 {invoice.details.paymentTerms || '—'}
               </p>
             </div>
             <div>
-              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>PO Number</p>
+               <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>{documentMeta.referenceLabel}</p>
               <p className={`text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>
                 {invoice.details.poNumber || '—'}
               </p>
@@ -157,7 +164,7 @@ export const InvoicePreview = memo(function InvoicePreview({
         </div>
 
         {/* Items Table */}
-        <div className={`mt-10 max-w-full overflow-hidden ${presentation.template === 'corporate' || presentation.template === 'professional' ? 'border-t-2' : ''}`} style={{ borderColor: presentation.primaryColor }}>
+        <div className={`mt-10 max-w-full overflow-hidden ${family === 'enterprise' ? 'border-t-2' : family === 'professional' ? 'border-t' : ''}`} style={{ borderColor: presentation.primaryColor }}>
           <table className="hidden w-full min-w-0 table-fixed border-separate border-spacing-0 text-left text-xs sm:table sm:text-sm print:table" aria-label="Invoice items">
             <colgroup>
               <col className={showAdjustments ? 'w-[36%]' : 'w-[46%]'} />
@@ -168,7 +175,7 @@ export const InvoicePreview = memo(function InvoicePreview({
             </colgroup>
             <thead>
               <tr className={`border-b ${dark ? 'border-white/10' : 'border-border'}`}>
-                <th className="break-words px-2.5 py-3 text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Description</th>
+                 <th className="break-words px-2.5 py-3 text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">{documentMeta.itemsLabel}</th>
                 <th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Qty</th>
                 <th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Price</th>
                 {showAdjustments && <><th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Tax</th><th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Discount</th></>}
@@ -223,7 +230,7 @@ export const InvoicePreview = memo(function InvoicePreview({
         <div className="mt-8 flex justify-end">
           <div className="w-full min-w-0 max-w-xs space-y-2">
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span className="min-w-0">Subtotal</span>
+              <span className="min-w-0">{documentMeta.subtotalLabel}</span>
               <span className="min-w-0 break-all text-right tabular-nums">{formatCurrency(calculations.subtotal, currency)}</span>
             </div>
             {calculations.discount > 0 && (
@@ -234,12 +241,12 @@ export const InvoicePreview = memo(function InvoicePreview({
             )}
             {calculations.tax > 0 && (
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span className="min-w-0">Tax</span>
+               <span className="min-w-0">{documentMeta.taxLabel}</span>
                 <span className="min-w-0 break-all text-right tabular-nums">{formatCurrency(calculations.tax, currency)}</span>
               </div>
             )}
-            <div className={`flex justify-between border-t pt-2 text-base font-bold ${dark ? 'border-white/15 text-white' : 'border-border text-foreground'}`}>
-              <span className="min-w-0">Grand Total</span>
+             <div className={`flex justify-between border-t pt-2 text-base font-bold ${family === 'enterprise' ? 'rounded-lg border-0 px-3 py-3' : ''} ${dark ? 'border-white/15 bg-white/[0.06] text-white' : 'border-border text-foreground'}`}>
+               <span className="min-w-0">{documentMeta.totalLabel}</span>
               <span className="min-w-0 break-all text-right tabular-nums" style={{ color: dark ? '#fff' : presentation.primaryColor }}>{formatCurrency(calculations.grandTotal, currency)}</span>
             </div>
           </div>
@@ -250,7 +257,7 @@ export const InvoicePreview = memo(function InvoicePreview({
           <div className={`mt-10 space-y-4 border-t pt-6 ${dark ? 'border-white/10' : 'border-border'}`}>
             {invoice.additional.notes && (
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Notes</p>
+               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{documentMeta.notesLabel}</p>
                 <p className="mt-1 whitespace-pre-line text-sm text-foreground">{invoice.additional.notes}</p>
               </div>
             )}
