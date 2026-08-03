@@ -80,7 +80,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card lg:flex">
         <div className="flex h-16 items-center border-b border-border px-5">
            <Link href="/dashboard">
-            <Logo size="sm" />
+             <Logo size="md" />
           </Link>
         </div>
 
@@ -135,7 +135,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       >
         <div className="flex h-16 items-center border-b border-border px-5">
            <Link href="/dashboard" onClick={() => setMobileNavOpen(false)}>
-            <Logo size="sm" />
+             <Logo size="md" />
           </Link>
         </div>
         <nav className="flex-1 overflow-y-auto p-3">
@@ -184,7 +184,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1 lg:hidden">
-             <Link href="/dashboard" aria-label="InvoiceFocus dashboard"><Logo size="sm" /></Link>
+             <Link href="/dashboard" aria-label="InvoiceFocus dashboard"><Logo size="md" /></Link>
           </div>
           <div className="flex-1 hidden lg:block" />
           <div className="flex items-center gap-2"><UserMenu /></div>

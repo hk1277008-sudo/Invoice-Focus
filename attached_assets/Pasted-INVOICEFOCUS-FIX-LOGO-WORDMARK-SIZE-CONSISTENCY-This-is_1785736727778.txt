@@ -1,0 +1,83 @@
+INVOICEFOCUS — FIX LOGO/WORDMARK SIZE CONSISTENCY
+
+This is a small UI consistency fix only.
+
+The InvoiceFocus logo + wordmark becomes noticeably smaller after a user logs in.
+
+The logo/wordmark size must remain visually consistent across the entire application.
+
+REQUIREMENT:
+
+Use the same intended logo/wordmark size everywhere.
+
+The logo must NOT automatically become smaller when the user logs in.
+
+Check all application layouts and authenticated/unauthenticated states, including:
+
+- Homepage
+- Login
+- Signup
+- Forgot Password
+- Password Reset
+- Dashboard
+- Invoices
+- Clients
+- Templates
+- Help
+- Any authenticated application shell/header/sidebar
+
+The authenticated layout currently appears to render the InvoiceFocus logo/wordmark at a smaller size than the public layout.
+
+Fix this inconsistency.
+
+IMPORTANT:
+
+- Do not redesign the logo.
+- Do not change the InvoiceFocus branding.
+- Do not change the logo's appearance.
+- Do not create multiple arbitrary logo sizes.
+- Do not make the logo responsive in a way that causes it to unexpectedly shrink after login.
+- Do not change the overall layout unnecessarily.
+- Do not modify unrelated UI.
+- Do not change the homepage design.
+
+Use a single consistent intended logo/wordmark sizing system across the application wherever the same brand logo is displayed.
+
+If different layout contexts genuinely require different dimensions, the visual size should still appear intentionally consistent and should not suddenly shrink simply because the user authenticated.
+
+Check for:
+
+- Different CSS classes.
+- Different width/height values.
+- Different max-width values.
+- Different Tailwind classes.
+- Different logo components.
+- Authenticated vs unauthenticated layout components.
+- Sidebar/header-specific sizing.
+- Responsive CSS causing unexpected shrinking.
+- CSS overrides applied only after login.
+
+Prefer reusing a single shared Logo/Brand component if one already exists.
+
+Do not perform a large refactor if a small CSS/component change solves the issue.
+
+After the fix:
+
+1. Verify the logo on the public homepage.
+2. Verify the logo on Login.
+3. Verify the logo after successful login.
+4. Verify Dashboard.
+5. Verify Invoices.
+6. Verify Clients.
+7. Verify Templates.
+8. Verify Help.
+9. Verify desktop layout.
+10. Verify mobile/responsive layout.
+
+The key requirement is:
+
+> The InvoiceFocus logo and wordmark must NOT become smaller automatically after the user logs in. Keep the intended brand size visually consistent throughout the application.
+
+Run the frontend typecheck and production build after the change.
+
+Do not change anything else.

@@ -286,7 +286,7 @@ export default function OnboardingPage() {
   return (
     <div className="flex min-h-svh flex-col bg-background">
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-border px-4 sm:px-6">
-        <Logo size="sm" />
+        <Logo size="md" />
         {step < 5 && (
           <Button variant="ghost" size="sm" onClick={handleSkip}>
             Skip setup
