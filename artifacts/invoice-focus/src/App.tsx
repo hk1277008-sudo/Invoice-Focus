@@ -18,12 +18,10 @@ import ResetPasswordPage from '@/app/(auth)/reset-password/page'
 import VerifyEmailPage from '@/app/(auth)/verify-email/page'
 import OnboardingPage from '@/app/onboarding/page'
 import DashboardPage from '@/app/(dashboard)/dashboard/page'
-import ProfilePage from '@/app/(dashboard)/profile/page'
 import ClientsPage from '@/app/(dashboard)/clients/page'
 import RecurringInvoicesPage from '@/app/(dashboard)/recurring/page'
 import NewRecurringInvoicePage from '@/app/(dashboard)/recurring/new/page'
 import EditRecurringInvoicePage from '@/app/(dashboard)/recurring/[id]/page'
-import SettingsPage from '@/app/(dashboard)/settings/page'
 import FeedbackPage from '@/app/(dashboard)/feedback/page'
 import ReportsPage from '@/app/(dashboard)/reports/page'
 import InvoiceDetailsPage from '@/components/invoice/InvoiceDetailsPage'
@@ -88,11 +86,6 @@ function Router() {
           <EditRecurringInvoicePage />
         </ProtectedRoute>
       </Route>
-      <Route path="/dashboard/settings">
-        <ProtectedRoute>
-          <SettingsPage />
-        </ProtectedRoute>
-      </Route>
       <Route path="/dashboard/feedback">
         <ProtectedRoute>
           <FeedbackPage />
@@ -101,11 +94,6 @@ function Router() {
       <Route path="/dashboard/reports">
         <ProtectedRoute>
           <ReportsPage />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/profile">
-        <ProtectedRoute>
-          <ProfilePage />
         </ProtectedRoute>
       </Route>
       <Route path="/invoice">

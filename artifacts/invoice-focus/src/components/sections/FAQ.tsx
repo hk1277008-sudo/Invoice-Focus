@@ -15,7 +15,7 @@ const FAQS = [
   {
     question: 'Do I need to install anything?',
     answer:
-      'InvoiceFocus runs entirely in your browser. Start creating an invoice immediately, or sign in when you want cloud saving, history, settings, and synchronized data.',
+      'InvoiceFocus runs entirely in your browser. Start creating an invoice immediately, or sign in when you want cloud saving, history, and synchronized data.',
   },
   {
     question: 'Can I export invoices as PDFs?',

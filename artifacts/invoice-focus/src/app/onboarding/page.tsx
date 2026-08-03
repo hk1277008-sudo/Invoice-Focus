@@ -319,7 +319,7 @@ export default function OnboardingPage() {
                 </div>
                  <CardTitle className="text-2xl">Welcome to Invoice Focus 👋</CardTitle>
                 <CardDescription className="mt-2 text-base">
-                  Let's get you set up in just a few steps. We'll help you create your business profile, add your first client, and generate your first invoice.
+                   Let's get you set up in just a few steps. We'll help you add your business details, add your first client, and generate your first invoice.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -327,7 +327,7 @@ export default function OnboardingPage() {
                   <div className="flex items-start gap-3 rounded-lg border border-border p-4">
                     <Building2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                     <div>
-                      <p className="font-medium">Business Profile</p>
+                       <p className="font-medium">Business Details</p>
                       <p className="mt-1 text-sm text-muted-foreground">Add your business information for invoices</p>
                     </div>
                   </div>
@@ -359,8 +359,8 @@ export default function OnboardingPage() {
           {step === 2 && (
             <Card>
               <CardHeader>
-                <CardTitle>Business Profile</CardTitle>
-                <CardDescription>This information will appear on your invoices. You can update it anytime in Settings.</CardDescription>
+                 <CardTitle>Business Details</CardTitle>
+                 <CardDescription>This information will appear on your invoices.</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

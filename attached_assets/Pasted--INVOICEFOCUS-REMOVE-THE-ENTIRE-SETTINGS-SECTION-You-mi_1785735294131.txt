@@ -1,0 +1,205 @@
+# INVOICEFOCUS — REMOVE THE ENTIRE SETTINGS SECTION
+
+You misunderstood my previous instruction.
+
+I do NOT want to keep any Settings sections.
+
+The entire Settings feature is currently nonfunctional and must be completely removed from the user-facing application.
+
+## REMOVE THE ENTIRE SETTINGS SECTION
+
+Remove the complete Settings section, including ALL of the following:
+
+* Settings navigation item
+* Settings page
+* Settings route
+* Settings submenu
+* Business Profile
+* Workspace
+* Configuration
+* Billing
+* Account
+* Security
+* Any other Settings subsection
+* Any Settings cards
+* Any Settings forms
+* Any Settings tabs
+* Any Settings buttons
+* Any Settings toggles
+* Any Settings links
+* Any Settings placeholder content
+
+Do NOT preserve any of these sections.
+
+Do NOT attempt to fix them.
+
+Do NOT partially implement them.
+
+Do NOT leave them accessible through direct URLs.
+
+The requirement is:
+
+> **REMOVE THE ENTIRE SETTINGS FEATURE FROM THE USER-FACING APPLICATION.**
+
+---
+
+# NAVIGATION
+
+After removal, the primary application navigation should contain only genuinely functional MVP sections.
+
+The intended navigation should be:
+
+* Dashboard
+* Invoices
+* Clients
+* Templates
+* Help
+
+Remove:
+
+* Settings
+
+Do not replace Settings with another placeholder page.
+
+---
+
+# ROUTES
+
+Remove the frontend Settings route and all Settings-only child routes.
+
+Remove routes related to:
+
+* `/settings`
+* `/settings/business-profile`
+* `/settings/workspace`
+* `/settings/configuration`
+* `/settings/billing`
+* `/settings/account`
+* `/settings/security`
+
+Also search for any alternate routes that expose these same Settings pages.
+
+If a user directly visits a removed Settings URL, it must not display the old Settings UI.
+
+Use the application's normal 404/not-found behavior or another appropriate existing fallback.
+
+---
+
+# DO NOT REMOVE FUNCTIONAL CORE FEATURES
+
+This task is ONLY about removing the Settings feature.
+
+Do NOT remove or break:
+
+* Authentication
+* Login
+* Signup
+* Logout
+* Forgot password
+* Password reset
+* Email verification
+* Dashboard
+* Invoices
+* Clients
+* Templates
+* Help
+* PDF generation
+* Currency selection
+* Invoice creation
+* Invoice editing
+* Invoice deletion
+* Invoice duplication
+
+Authentication must continue working even though the Settings UI is removed.
+
+---
+
+# REMOVE USER-FACING SETTINGS REFERENCES
+
+Search the application for user-facing links and buttons that open Settings.
+
+Remove them where appropriate.
+
+Examples:
+
+* "Settings"
+* "Manage Settings"
+* "Account Settings"
+* "Business Profile"
+* "Security Settings"
+* "Billing Settings"
+* "Workspace Settings"
+* "Configuration"
+
+Do not leave dead links.
+
+Do not leave buttons that lead nowhere.
+
+Do not leave Settings icons that open an empty menu.
+
+---
+
+# BACKEND AND DATABASE
+
+Do NOT unnecessarily delete backend APIs, database tables, or Supabase fields.
+
+The goal is to remove the nonfunctional Settings experience from the user-facing application.
+
+Preserve backend compatibility where necessary.
+
+Do not create destructive database migrations.
+
+Do not modify the Supabase schema unless absolutely necessary.
+
+Do not break existing invoice, client, authentication, or user-data functionality.
+
+---
+
+# VERIFICATION
+
+After removing the entire Settings section, verify:
+
+1. Settings is no longer visible in the main navigation.
+2. Settings page is removed.
+3. Business Profile is removed.
+4. Workspace is removed.
+5. Configuration is removed.
+6. Billing is removed.
+7. Account is removed.
+8. Security is removed.
+9. All other Settings subsections are removed.
+10. No Settings routes remain accessible through normal navigation.
+11. No dead Settings links remain.
+12. Dashboard works.
+13. Invoices work.
+14. Clients work.
+15. Templates work.
+16. Help works.
+17. Authentication still works.
+18. Frontend typecheck passes.
+19. API typecheck passes.
+20. Frontend production build passes.
+21. API production build passes.
+22. No browser console errors are introduced.
+
+---
+
+# CRITICAL CLARIFICATION
+
+My previous instruction was NOT:
+
+"Remove only Workspace and Configuration while keeping Business Profile, Billing, Account, and Security."
+
+My instruction is:
+
+> **REMOVE THE ENTIRE SETTINGS SECTION BECAUSE THE SETTINGS FUNCTIONALITY IS NOT FUNCTIONAL.**
+
+Therefore, remove the entire Settings feature and all of its subsections from the user-facing application.
+
+Do not attempt to implement or repair Settings.
+
+Do not preserve any Settings tabs.
+
+Keep the application focused on the functional MVP.
+
+After completing this task, report exactly what Settings routes, navigation items, and user-facing components were removed.

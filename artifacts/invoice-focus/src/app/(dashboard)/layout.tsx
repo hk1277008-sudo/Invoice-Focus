@@ -1,29 +1,19 @@
 import { Link, useLocation } from 'wouter'
-import { FileText, Users, BarChart2, Settings, PlusCircle, LogOut, User, Repeat, Bell, Menu, MessageSquare } from 'lucide-react'
+import { FileText, Users, LayoutDashboard, CircleHelp, PlusCircle, LogOut, Menu } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
-import { getNotifications, markNotificationRead, type NotificationRecord } from '@/lib/notifications'
-import { applySettingsAppearance, getSettings } from '@/lib/settings'
 import { useEffect, useState } from 'react'
-import { formatDistanceToNow } from 'date-fns'
 
 const NAV_ITEMS = [
-  { label: 'Invoices', href: '/dashboard', icon: FileText },
-  { label: 'Recurring', href: '/dashboard/recurring', icon: Repeat },
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Invoices', href: '/dashboard#invoices', icon: FileText },
   { label: 'Clients', href: '/dashboard/clients', icon: Users },
-  { label: 'Reports', href: '/dashboard/reports', icon: BarChart2 },
-  { label: 'Feedback', href: '/dashboard/feedback', icon: MessageSquare },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { label: 'Templates', href: '/#templates', icon: FileText },
+  { label: 'Help', href: '/help', icon: CircleHelp },
 ]
 
 function UserMenu() {
@@ -67,18 +57,6 @@ function UserMenu() {
           <p className="text-xs text-muted-foreground">{user?.email}</p>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/profile" className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            Profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard/feedback" className="cursor-pointer">
-            <MessageSquare className="mr-2 h-4 w-4" />
-            Feedback
-          </Link>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
           <LogOut className="mr-2 h-4 w-4" />
           Sign out
@@ -88,41 +66,9 @@ function UserMenu() {
   )
 }
 
-function NotificationMenu() {
-  const [notifications, setNotifications] = useState<NotificationRecord[]>([])
-  useEffect(() => {
-    getNotifications().then(({ notifications: rows }) => setNotifications(rows)).catch(() => undefined)
-  }, [])
-  const unread = notifications.filter((notification) => !notification.read_at).length
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button type="button" aria-label={`${unread} unread notifications`} className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          <Bell className="h-4 w-4" />
-          {unread > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">{unread > 9 ? '9+' : unread}</span>}
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
-        <div className="px-2 py-2 font-medium">Notifications</div>
-        <DropdownMenuSeparator />
-        {notifications.length === 0 ? <p className="px-2 py-4 text-sm text-muted-foreground">You’re all caught up.</p> : notifications.slice(0, 8).map((notification) => (
-          <DropdownMenuItem key={notification.id} className="items-start gap-2 py-3" onClick={() => { if (!notification.read_at) { void markNotificationRead(notification.id); setNotifications((rows) => rows.map((row) => row.id === notification.id ? { ...row, read_at: new Date().toISOString() } : row)) } }}>
-            <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${notification.read_at ? 'bg-muted' : 'bg-primary'}`} />
-            <span className="min-w-0"><span className="block text-sm font-medium">{notification.title}</span><span className="mt-0.5 block text-xs text-muted-foreground">{notification.message}</span><span className="mt-1 block text-[11px] text-muted-foreground">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</span></span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
-
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-
-  useEffect(() => {
-    getSettings().then(applySettingsAppearance).catch(() => undefined)
-  }, [])
 
   useEffect(() => {
     setMobileNavOpen(false)
@@ -241,7 +187,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
              <Link href="/dashboard" aria-label="InvoiceFocus dashboard"><Logo size="sm" /></Link>
           </div>
           <div className="flex-1 hidden lg:block" />
-          <div className="flex items-center gap-2"><NotificationMenu /><UserMenu /></div>
+          <div className="flex items-center gap-2"><UserMenu /></div>
         </header>
          <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</main>
       </div>

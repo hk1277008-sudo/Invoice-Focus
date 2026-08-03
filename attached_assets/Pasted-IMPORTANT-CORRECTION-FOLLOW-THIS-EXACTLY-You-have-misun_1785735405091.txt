@@ -1,0 +1,134 @@
+IMPORTANT CORRECTION — FOLLOW THIS EXACTLY
+
+You have misunderstood my requirement again.
+
+For the current InvoiceFocus MVP, I want the ENTIRE SETTINGS FEATURE REMOVED from the user-facing application.
+
+There must be NO Settings section at all.
+
+REMOVE ALL OF THESE:
+
+- Settings navigation item
+- Settings page
+- Business Profile
+- Workspace
+- Configuration
+- Billing
+- Account
+- Security
+- Every other Settings tab or subsection
+- Every Settings-related button, card, form, toggle, link, and menu
+
+DO NOT KEEP ANY SETTINGS SUBSECTION.
+
+DO NOT TRY TO FIX SETTINGS.
+
+DO NOT IMPLEMENT SETTINGS.
+
+DO NOT PRESERVE SETTINGS BECAUSE OF "BACKEND COMPATIBILITY."
+
+Backend/database fields may remain internally if they are required by existing working functionality. However, NONE of those settings may be exposed as a user-facing Settings UI.
+
+The final user-facing MVP navigation must be:
+
+1. Dashboard
+2. Invoices
+3. Clients
+4. Templates
+5. Help
+
+There must be NO "Settings" item in the navigation.
+
+There must be NO Settings page accessible through direct URLs.
+
+There must be NO Business Profile page.
+
+There must be NO Workspace page.
+
+There must be NO Configuration page.
+
+There must be NO Billing page.
+
+There must be NO Account page.
+
+There must be NO Security page.
+
+If any of these routes exist only for Settings, remove them from the frontend routing.
+
+If someone directly visits an old Settings URL, show the application's normal 404/not-found page.
+
+IMPORTANT DISTINCTION:
+
+DO NOT REMOVE AUTHENTICATION.
+
+Keep these working:
+
+- Signup
+- Login
+- Logout
+- Forgot Password
+- Password Reset
+- Email Verification
+- Session Persistence
+
+Authentication is core MVP functionality.
+
+Only remove the NONFUNCTIONAL SETTINGS USER INTERFACE.
+
+DO NOT REMOVE:
+
+- Dashboard
+- Invoices
+- Clients
+- Templates
+- Help
+- Invoice creation
+- Invoice editing
+- Invoice deletion
+- Invoice duplication
+- PDF export
+- Currency selection
+- Authentication
+
+Do not modify unrelated functionality.
+
+Do not redesign any page.
+
+Do not add new features.
+
+Do not create a replacement Settings page.
+
+FINAL ACCEPTANCE CRITERIA:
+
+After your changes, the main application navigation must contain ONLY:
+
+Dashboard
+Invoices
+Clients
+Templates
+Help
+
+Settings must be completely absent from the user-facing application.
+
+Before finishing, search the entire frontend codebase for all Settings-related navigation items, routes, pages, tabs, and links and remove them.
+
+Then verify:
+
+- Frontend typecheck passes.
+- API typecheck passes.
+- Frontend production build passes.
+- API production build passes.
+- No dead Settings links remain.
+- No Settings route remains accessible.
+- No Business Profile route remains accessible.
+- No Workspace route remains accessible.
+- No Configuration route remains accessible.
+- No Billing route remains accessible.
+- No Account route remains accessible.
+- No Security route remains accessible.
+
+Report exactly what was removed.
+
+DO NOT interpret this task as "remove only Workspace and Configuration."
+
+THE REQUIREMENT IS TO REMOVE THE ENTIRE SETTINGS FEATURE FROM THE USER-FACING MVP.
