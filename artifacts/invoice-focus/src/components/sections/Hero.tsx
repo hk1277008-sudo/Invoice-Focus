@@ -24,7 +24,7 @@ export function Hero() {
             Create Professional Invoices In Under A Minute
           </h1>
           <p className="max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
-            Create polished invoices, quotes, and estimates from one modern workspace built for
+            Create polished invoices, quotes, and estimates from one modern invoicing tool built for
             freelancers, agencies, and businesses.
           </p>
 

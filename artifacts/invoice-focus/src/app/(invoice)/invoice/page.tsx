@@ -288,7 +288,7 @@ export default function InvoicePage() {
         {/* Top action bar */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <div>
-            <p className="label-caps">Invoice workspace</p>
+            <p className="label-caps">Invoice editor</p>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
               {recordId ? 'Edit Invoice' : 'Create Invoice'}
             </h1>

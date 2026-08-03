@@ -109,7 +109,7 @@ export default function DashboardPage() {
 
   return <DashboardLayout><div className="mx-auto max-w-[1600px] space-y-6">
      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-       <div><p className="label-caps">Workspace overview</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Business Overview</h1><p className="mt-1 text-sm leading-6 text-muted-foreground">Track your invoicing activity and business performance.</p></div>
+       <div><p className="label-caps">Business overview</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Business Overview</h1><p className="mt-1 text-sm leading-6 text-muted-foreground">Track your invoicing activity and business performance.</p></div>
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1"><CalendarDays className="ml-2 h-4 w-4 text-muted-foreground" /><select value={preset} onChange={(event) => setPreset(event.target.value as Preset)} className="h-8 bg-transparent px-2 text-sm outline-none"><option value="today">Today</option><option value="7d">Last 7 Days</option><option value="30d">Last 30 Days</option><option value="month">This Month</option><option value="year">This Year</option><option value="12m">Last 12 Months</option><option value="custom">Custom Range</option></select></div>
         <Button asChild className="gap-2"><Link href="/invoice"><Plus className="h-4 w-4" /> Create Invoice</Link></Button>

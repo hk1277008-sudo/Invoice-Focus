@@ -615,7 +615,7 @@ export default function OnboardingPage() {
                 </div>
                 <CardTitle className="text-2xl">You’re all set!</CardTitle>
                 <CardDescription className="mt-2 text-base">
-                  Your workspace is ready. You can now manage invoices, track payments, and grow your business.
+                  Your account is ready. You can now manage invoices, track payments, and grow your business.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -629,7 +629,7 @@ export default function OnboardingPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                        <span>Add more clients to your workspace</span>
+                        <span>Add more clients to your account</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />

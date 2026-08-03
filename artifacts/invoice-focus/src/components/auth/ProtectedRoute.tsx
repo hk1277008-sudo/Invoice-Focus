@@ -45,7 +45,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
   if (checkingOnboarding) {
     return fallback ?? (
         <div className="flex min-h-svh items-center justify-center bg-background">
-          <div className="text-sm text-muted-foreground">Loading workspace…</div>
+          <div className="text-sm text-muted-foreground">Loading account…</div>
         </div>
     )
   }

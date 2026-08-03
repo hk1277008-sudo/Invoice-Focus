@@ -1,0 +1,351 @@
+# INVOICEFOCUS — REMOVE NONFUNCTIONAL PRICING UI, WORKSPACE & CONFIGURATION
+
+This is a cleanup and removal task only.
+
+Do not add new features.
+
+Do not redesign the application.
+
+Do not modify working functionality.
+
+Do not perform unnecessary refactoring.
+
+The goal is to remove nonfunctional or misleading user-facing UI from InvoiceFocus.
+
+---
+
+# TASK 1 — REMOVE THE "$0 / FREE FOREVER" PRICING-STYLE CONTAINER
+
+The application currently displays a large pricing-style container similar to:
+
+* "Free forever"
+* "$0 always"
+* "Unlimited invoices"
+* "All templates and branding"
+* "Recurring invoices and reminders"
+* "Clients and invoice history"
+* "PDF, print, and data exports"
+* "Cloud sync when you sign in"
+* "Create an invoice"
+
+This entire pricing-style container must be removed from the user-facing application.
+
+Remove:
+
+* "Free forever" badge
+* "$0" pricing display
+* "always" pricing text
+* The entire pricing card/container
+* The feature checklist inside this container
+* Any unnecessary "Create an invoice" CTA that exists only inside this pricing container
+
+Do not replace it with:
+
+* "100% Free"
+* "Free Forever"
+* "$0"
+* "No credit card"
+* "Unlimited free"
+* Pricing badges
+* Pricing cards
+* Subscription plans
+* Billing plans
+
+The application should simply function as a free product without repeatedly advertising its price.
+
+The absence of a pricing section should communicate the product's simplicity.
+
+IMPORTANT:
+
+Do not remove actual invoice functionality just because it was listed inside the pricing card.
+
+For example, if the application genuinely supports:
+
+* Invoice creation
+* Templates
+* Clients
+* PDF export
+* Cloud sync
+
+those features must remain available through their proper application pages.
+
+Only remove the redundant pricing-style presentation.
+
+---
+
+# TASK 2 — REMOVE WORKSPACE COMPLETELY
+
+The current InvoiceFocus application contains a Workspace area that has repeatedly been requested to be made functional but remains nonfunctional.
+
+At this point, do NOT attempt another partial implementation.
+
+Remove the Workspace feature completely from the user-facing application.
+
+Remove:
+
+* Workspace navigation item
+* Workspace page
+* Workspace settings
+* Workspace cards
+* Workspace configuration UI
+* Workspace-related buttons
+* Workspace-related links
+* Workspace-related empty states
+* Workspace-related placeholder content
+
+If there are routes dedicated exclusively to Workspace, remove those routes from the frontend.
+
+If a user directly navigates to an old Workspace route, it should no longer display a fake or nonfunctional Workspace page.
+
+Use the application's appropriate fallback behavior for removed routes.
+
+---
+
+# TASK 3 — REMOVE CONFIGURATION COMPLETELY
+
+The Configuration section has also remained nonfunctional despite previous attempts to implement it.
+
+Do not attempt to partially fix it.
+
+Remove the Configuration feature completely from the user-facing application.
+
+Remove:
+
+* Configuration navigation
+* Configuration page
+* Configuration forms
+* Configuration cards
+* Configuration controls
+* Configuration buttons
+* Configuration-related links
+* Configuration placeholders
+
+If Configuration exists only as a separate route, remove the route.
+
+If Configuration is shown as a subsection inside Settings and is nonfunctional, remove that subsection.
+
+---
+
+# TASK 4 — REMOVE OTHER NONFUNCTIONAL SETTINGS
+
+Perform a careful audit of the entire Settings area.
+
+For every visible setting, use this rule:
+
+> If it is fully functional and genuinely useful for the MVP, keep it.
+
+> If it is nonfunctional, fake, placeholder, or does nothing, remove it.
+
+Do not leave a setting visible just because it already exists.
+
+Remove any nonfunctional sections such as, where applicable:
+
+* Workspace
+* Organization
+* Configuration
+* Billing
+* Notifications
+* Security controls that do not actually work
+* Privacy controls that do not actually work
+* Fake integrations
+* Fake preferences
+* Placeholder account features
+* Nonfunctional toggles
+* Nonfunctional save buttons
+* Empty configuration panels
+
+IMPORTANT:
+
+Do not blindly delete the entire Settings page.
+
+Keep Settings functionality that genuinely works.
+
+For example, if the application has functional:
+
+* Profile settings
+* Business information
+* Invoice defaults
+* Default currency
+* Account settings
+
+keep them.
+
+Only remove nonfunctional sections.
+
+---
+
+# TASK 5 — REMOVE DEAD NAVIGATION
+
+After removing Workspace and Configuration, audit the entire navigation.
+
+Remove navigation links that lead to:
+
+* Deleted pages
+* Empty pages
+* Nonfunctional pages
+* Placeholder pages
+* Fake features
+
+Every navigation item that remains must lead to a real, working page.
+
+Do not leave dead links.
+
+Do not leave links that produce blank pages.
+
+Do not leave links that show "Coming soon" unless explicitly required.
+
+---
+
+# TASK 6 — REMOVE DEAD ROUTES SAFELY
+
+Audit frontend routes after removing the features.
+
+Remove routes that are exclusively used by:
+
+* Workspace
+* Configuration
+* Deleted fake settings
+* Deleted fake features
+
+Do not remove routes required by:
+
+* Authentication
+* Dashboard
+* Invoices
+* Clients
+* Templates
+* Settings
+* Help
+* Password reset
+* Email verification
+
+Do not remove backend API routes unless they are clearly unused and removing them is safe.
+
+Do not perform destructive database changes.
+
+Do not create a new database migration for this cleanup unless absolutely necessary.
+
+The goal is primarily to clean the user-facing application.
+
+---
+
+# TASK 7 — SEARCH FOR DUPLICATE UI
+
+Search the codebase for other instances of:
+
+* "$0"
+* "Free forever"
+* "always"
+* Pricing cards
+* Pricing badges
+* Workspace
+* Configuration
+
+Remove duplicate user-facing versions of the same nonfunctional UI where appropriate.
+
+Do not remove legitimate references that are part of documentation or internal code comments unless necessary.
+
+Do not remove actual invoice currency handling involving `$`.
+
+Only remove the pricing-related `$0` UI.
+
+---
+
+# TASK 8 — PRESERVE THE EXISTING DESIGN
+
+Do not redesign the homepage.
+
+Do not redesign completed pages.
+
+Do not change the InvoiceFocus branding.
+
+Do not change the primary color.
+
+Do not change the existing visual language.
+
+Only remove the specified nonfunctional or unnecessary UI.
+
+After removal, ensure the surrounding layout remains clean.
+
+Do not leave:
+
+* Large empty spaces
+* Broken card grids
+* Misaligned sections
+* Empty containers
+* Broken navigation spacing
+
+The UI should naturally reflow after the removed components are gone.
+
+---
+
+# TASK 9 — DO NOT REINTRODUCE BILLING
+
+InvoiceFocus is currently a free product.
+
+Do not add:
+
+* Stripe
+* Paddle
+* Checkout
+* Subscription plans
+* Pricing tiers
+* Billing portal
+* Payment processing
+
+Future monetization may be introduced later, but it is explicitly outside the current MVP scope.
+
+---
+
+# TASK 10 — VERIFY THE CLEANUP
+
+After completing the cleanup, verify:
+
+1. The "$0 / Free forever" pricing container is completely removed.
+2. Workspace is completely removed from the user-facing UI.
+3. Configuration is completely removed from the user-facing UI.
+4. Nonfunctional Settings sections are removed.
+5. Working Settings functionality remains intact.
+6. No dead navigation links remain.
+7. No removed page is still displayed through normal navigation.
+8. No broken UI appears after removing the sections.
+9. Dashboard still works.
+10. Invoices still work.
+11. Clients still work.
+12. Templates still work.
+13. Settings still works for the remaining functional settings.
+14. Help still works.
+15. Authentication still works.
+16. Production build succeeds.
+17. Frontend typecheck succeeds.
+18. API typecheck succeeds.
+
+---
+
+# IMPORTANT RULE
+
+Do not attempt to fix Workspace or Configuration again.
+
+They have already been repeatedly attempted and remain nonfunctional.
+
+For this task:
+
+> **Remove Workspace completely.**
+
+> **Remove Configuration completely.**
+
+> **Remove every other nonfunctional user-facing setting or feature.**
+
+> **Remove the "$0 / Free forever" pricing-style container completely.**
+
+Keep only functionality that actually works.
+
+The final InvoiceFocus MVP should be smaller, cleaner, and more trustworthy.
+
+A user should never see a feature and wonder:
+
+"Does this actually work?"
+
+If it is visible, it must work.
+
+Otherwise, remove it.

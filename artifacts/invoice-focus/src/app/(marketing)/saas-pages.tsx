@@ -43,7 +43,7 @@ export function AboutPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {[
           ['Our Mission', 'Make the business side of meaningful work feel straightforward, professional, and calm.'],
-          ['Why People Choose Us', 'InvoiceFocus brings the essential invoice workflow into one focused workspace, with thoughtful defaults that save time.'],
+          ['Why People Choose Us', 'InvoiceFocus brings the essential invoice workflow into one focused experience, with thoughtful defaults that save time.'],
           ['Our Philosophy', 'Good software should make the right action obvious, keep information legible, and stay out of the way when the work matters most.'],
         ].map(([title, copy]) => (
           <Card key={title} className="h-full">

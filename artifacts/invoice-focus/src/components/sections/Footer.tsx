@@ -8,7 +8,6 @@ const FOOTER_GROUPS = [
       { text: 'Features', href: '#features' },
       { text: 'Templates', href: '#templates' },
       { text: 'How It Works', href: '#how-it-works' },
-      { text: 'Free forever', href: '/pricing' },
     ],
   },
   {

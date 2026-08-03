@@ -12,3 +12,4 @@
 - [InvoiceFocus brand identity](invoicefocus-brand-identity.md) — The uploaded transparent logo is canonical across web, browser assets, metadata, and the shared transactional email shell.
 - [Onboarding and feedback persistence](onboarding-feedback-persistence.md) — Apply the Supabase schema and verify PostgREST/Storage before beta testing authenticated flows.
 - [Document and template rendering](document-template-rendering.md) — Keep document semantics separate from visual families and drive preview/PDF from shared metadata.
+- [Workspace UI cleanup boundary](workspace-ui-cleanup-boundary.md) — Remove nonfunctional workspace surfaces from the UI while preserving backend compatibility until safe usage is proven.

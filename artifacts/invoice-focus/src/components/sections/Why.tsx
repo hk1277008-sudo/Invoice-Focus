@@ -61,7 +61,7 @@ export function Why() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Why InvoiceFocus</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            The Workspace That Helps You Look Professional
+            The Invoicing Tool That Helps You Look Professional
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Focus on your work, not your billing. InvoiceFocus handles the details so you can get paid.

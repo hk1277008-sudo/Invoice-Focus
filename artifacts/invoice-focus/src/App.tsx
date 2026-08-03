@@ -10,7 +10,6 @@ import HomePage from '@/app/(marketing)/page'
 import PrivacyPage from '@/app/(marketing)/privacy/page'
 import TermsPage from '@/app/(marketing)/terms/page'
 import HelpPage from '@/app/(marketing)/help/page'
-import PricingPage from '@/app/(marketing)/pricing/page'
 import { AboutPage, BlogPage, ContactPage, GuidesPage, StatusPage } from '@/app/(marketing)/saas-pages'
 import SignInPage from '@/app/(auth)/sign-in/page'
 import SignUpPage from '@/app/(auth)/sign-up/page'
@@ -49,7 +48,6 @@ function Router() {
       <Route path="/privacy" component={PrivacyPage} />
       <Route path="/terms" component={TermsPage} />
       <Route path="/help" component={HelpPage} />
-      <Route path="/pricing" component={PricingPage} />
       <Route path="/guides" component={GuidesPage} />
       <Route path="/status" component={StatusPage} />
       <Route path="/about" component={AboutPage} />

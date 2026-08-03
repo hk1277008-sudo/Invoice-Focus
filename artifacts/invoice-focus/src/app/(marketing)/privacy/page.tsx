@@ -36,7 +36,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">Contact Us</h2>
             <p>
-              If you have questions about this Privacy Policy, please contact us through your account dashboard or at the support email associated with your workspace.
+              If you have questions about this Privacy Policy, please contact us through your account dashboard or at the support email associated with your account.
             </p>
           </section>
         </div>

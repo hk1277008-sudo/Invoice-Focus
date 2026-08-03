@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'wouter'
-import { AlertTriangle, Check, Download, Eye, LockKeyhole, LogOut, Moon, RotateCcw, Shield, Sun, Upload, UserRound } from 'lucide-react'
+import { AlertTriangle, Download, Eye, LockKeyhole, LogOut, Moon, RotateCcw, Shield, Sun, Upload } from 'lucide-react'
 import { DashboardLayout } from '../layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { applySettingsAppearance, deleteAccount, defaultSettings, deleteWorkspace, exportSettingsData, getSettings, saveSettings, type FontSize, type ThemeMode, type UserSettings } from '@/lib/settings'
+import { applySettingsAppearance, deleteAccount, defaultSettings, exportSettingsData, getSettings, saveSettings, type FontSize, type ThemeMode, type UserSettings } from '@/lib/settings'
 import { useLocation as useNavigateLocation } from 'wouter'
 import { saveOnboarding } from '@/lib/onboarding'
 
@@ -22,7 +22,6 @@ const tabs = [
   ['invoice', 'Invoice Preferences'],
   ['account', 'Account & Security'],
   ['notifications', 'Notifications'],
-  ['workspace', 'Workspace'],
   ['appearance', 'Appearance'],
   ['privacy', 'Data & Privacy'],
 ] as const
@@ -101,7 +100,7 @@ export default function SettingsPage() {
   }, [settings])
 
   const update = (key: keyof UserSettings, value: string | number | boolean | UserSettings['invoicePresentation']) => setSettings((current) => ({ ...current, [key]: value }))
-  const uploadLogo = (event: React.ChangeEvent<HTMLInputElement>, key: 'businessLogo' | 'workspaceLogo') => {
+  const uploadLogo = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/') || file.size > 2_000_000) {
@@ -111,8 +110,8 @@ export default function SettingsPage() {
     const reader = new FileReader()
     reader.onload = () => {
       const value = String(reader.result)
-      if (key === 'businessLogo') setLogoPreview(value)
-      update(key, value)
+      setLogoPreview(value)
+      update('businessLogo', value)
     }
     reader.readAsDataURL(file)
   }
@@ -122,7 +121,7 @@ export default function SettingsPage() {
   return <DashboardLayout>
     <div className="mx-auto max-w-6xl space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div><p className="label-caps">Workspace configuration</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Settings</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">Manage your business, invoice defaults, workspace, and account security.</p></div>
+        <div><p className="label-caps">Account settings</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Settings</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">Manage your business, invoice defaults, account security, and data preferences.</p></div>
          <div className="flex items-center gap-2"><SavedStatus saving={saving} saved={saved} error={saveError} /></div>
       </div>
       <div role="tablist" aria-label="Settings sections" className="-mx-1 flex gap-1 overflow-x-auto border-b border-border px-1 pb-px">
@@ -132,16 +131,15 @@ export default function SettingsPage() {
       {tab === 'invoice' && <InvoiceTab settings={settings} update={update} />}
       {tab === 'account' && <AccountTab settings={settings} update={update} />}
       {tab === 'notifications' && <NotificationsTab settings={settings} update={update} />}
-      {tab === 'workspace' && <WorkspaceTab settings={settings} update={update} uploadLogo={uploadLogo} />}
       {tab === 'appearance' && <AppearanceTab settings={settings} update={update} />}
       {tab === 'privacy' && <PrivacyTab />}
     </div>
   </DashboardLayout>
 }
 
-function BusinessTab({ settings, update, logoPreview, uploadLogo }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean | UserSettings['invoicePresentation']) => void; logoPreview: string; uploadLogo: (event: React.ChangeEvent<HTMLInputElement>, key: 'businessLogo' | 'workspaceLogo') => void }) {
+function BusinessTab({ settings, update, logoPreview, uploadLogo }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean | UserSettings['invoicePresentation']) => void; logoPreview: string; uploadLogo: (event: React.ChangeEvent<HTMLInputElement>) => void }) {
   return <Card><CardHeader><CardTitle>Business Profile</CardTitle><CardDescription>This information appears on new invoices and client-facing documents.</CardDescription></CardHeader><CardContent className="space-y-6">
-    <div className="flex flex-wrap items-center gap-5"><div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/40">{logoPreview ? <img src={logoPreview} alt="Business logo preview" className="h-full w-full object-contain" /> : <Upload className="h-7 w-7 text-muted-foreground" />}</div><div><input id="business-logo" type="file" accept="image/*" className="sr-only" onChange={(event) => uploadLogo(event, 'businessLogo')} /><Button asChild variant="outline"><label htmlFor="business-logo" className="cursor-pointer"><Upload className="mr-2 h-4 w-4" />Upload logo</label></Button><p className="mt-1 text-xs text-muted-foreground">PNG, JPG, or SVG. Max 2MB.</p></div></div>
+    <div className="flex flex-wrap items-center gap-5"><div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/40">{logoPreview ? <img src={logoPreview} alt="Business logo preview" className="h-full w-full object-contain" /> : <Upload className="h-7 w-7 text-muted-foreground" />}</div><div><input id="business-logo" type="file" accept="image/*" className="sr-only" onChange={uploadLogo} /><Button asChild variant="outline"><label htmlFor="business-logo" className="cursor-pointer"><Upload className="mr-2 h-4 w-4" />Upload logo</label></Button><p className="mt-1 text-xs text-muted-foreground">PNG, JPG, or SVG. Max 2MB.</p></div></div>
     <div className="grid gap-5 sm:grid-cols-2"><Field label="Business name" value={settings.businessName} onChange={(value) => update('businessName', value)} className="sm:col-span-2" /><Field label="Business email" type="email" value={settings.businessEmail} onChange={(value) => update('businessEmail', value)} /><Field label="Business phone" type="tel" value={settings.businessPhone} onChange={(value) => update('businessPhone', value)} /><Field label="Website" type="url" value={settings.website} onChange={(value) => update('website', value)} placeholder="https://example.com" /><Field label="Tax ID / VAT number" value={settings.taxId} onChange={(value) => update('taxId', value)} /><Field label="Registration number" value={settings.registrationNumber} onChange={(value) => update('registrationNumber', value)} /><Field label="Address" value={settings.address} onChange={(value) => update('address', value)} className="sm:col-span-2" /><Field label="City" value={settings.city} onChange={(value) => update('city', value)} /><Field label="State / Province" value={settings.state} onChange={(value) => update('state', value)} /><Field label="Postal code" value={settings.postalCode} onChange={(value) => update('postalCode', value)} /><Field label="Country" value={settings.country} onChange={(value) => update('country', value)} /></div>
   </CardContent></Card>
 }
@@ -239,10 +237,10 @@ function AccountTab({ settings, update }: { settings: UserSettings; update: (key
   }
 
   return <div className="space-y-6">
-    <Card><CardHeader><CardTitle>Profile</CardTitle><CardDescription>Update the identity used across your InvoiceFocus workspace.</CardDescription></CardHeader><CardContent className="space-y-5"><div className="flex items-center gap-4 rounded-xl border border-border p-4"><Avatar className="h-14 w-14"><AvatarImage src={avatarUrl} alt={name || 'Profile'} /><AvatarFallback className="bg-primary/10 font-semibold text-primary">{initials}</AvatarFallback></Avatar><div className="flex-1"><p className="text-sm font-medium">Profile photo</p><p className="mt-1 text-xs text-muted-foreground">JPG, PNG, or GIF up to 2MB.</p></div><input ref={inputRef} type="file" accept="image/*" className="sr-only" onChange={uploadAvatar} /><Button variant="outline" onClick={() => inputRef.current?.click()}>Upload photo</Button></div><div className="grid gap-5 sm:grid-cols-2"><Field label="Name" value={name} onChange={setName} /><Field label="Email" type="email" value={email} onChange={setEmail} disabled={busy} /></div><div className="flex justify-end"><Button onClick={saveAccount} disabled={busy}>{busy ? 'Updating…' : 'Update profile'}</Button></div></CardContent></Card>
+    <Card><CardHeader><CardTitle>Profile</CardTitle><CardDescription>Update the identity used across your InvoiceFocus account.</CardDescription></CardHeader><CardContent className="space-y-5"><div className="flex items-center gap-4 rounded-xl border border-border p-4"><Avatar className="h-14 w-14"><AvatarImage src={avatarUrl} alt={name || 'Profile'} /><AvatarFallback className="bg-primary/10 font-semibold text-primary">{initials}</AvatarFallback></Avatar><div className="flex-1"><p className="text-sm font-medium">Profile photo</p><p className="mt-1 text-xs text-muted-foreground">JPG, PNG, or GIF up to 2MB.</p></div><input ref={inputRef} type="file" accept="image/*" className="sr-only" onChange={uploadAvatar} /><Button variant="outline" onClick={() => inputRef.current?.click()}>Upload photo</Button></div><div className="grid gap-5 sm:grid-cols-2"><Field label="Name" value={name} onChange={setName} /><Field label="Email" type="email" value={email} onChange={setEmail} disabled={busy} /></div><div className="flex justify-end"><Button onClick={saveAccount} disabled={busy}>{busy ? 'Updating…' : 'Update profile'}</Button></div></CardContent></Card>
     <Card><CardHeader><CardTitle>Password</CardTitle><CardDescription>Change your password. Your current password is required for sensitive changes.</CardDescription></CardHeader><CardContent className="grid gap-5 sm:grid-cols-3"><Field label="Current password" type="password" value={currentPassword} onChange={setCurrentPassword} /><Field label="New password" type="password" value={newPassword} onChange={setNewPassword} /><Field label="Confirm new password" type="password" value={confirmPassword} onChange={setConfirmPassword} /><p className="text-xs text-muted-foreground sm:col-span-3">Password last changed: {settings.passwordLastChangedAt ? new Date(settings.passwordLastChangedAt).toLocaleDateString() : 'Not recorded'}</p><div className="flex justify-end sm:col-span-3"><Button onClick={saveAccount} disabled={busy}>{busy ? 'Saving…' : 'Save password'}</Button></div></CardContent></Card>
     <Card><CardHeader><CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-primary" />Security</CardTitle><CardDescription>Review and revoke sessions connected to this account.</CardDescription></CardHeader><CardContent><div className="flex items-center justify-between border-b border-border py-4"><div><p className="text-sm font-medium">Active session</p><p className="mt-1 text-xs text-muted-foreground">{user?.email} · This device</p></div><LockKeyhole className="h-4 w-4 text-muted-foreground" /></div><div className="flex flex-wrap gap-3 pt-4"><Button variant="outline" className="gap-2" onClick={signOutOtherDevices} disabled={signingOutOthers}><LogOut className="h-4 w-4" />{signingOutOthers ? 'Signing out…' : 'Sign out all other devices'}</Button><Button variant="ghost" onClick={() => { void signOut(); navigate('/sign-in') }}>Sign out</Button></div></CardContent></Card>
-    <Card><CardHeader><CardTitle>Onboarding</CardTitle><CardDescription>Review your business setup and workspace configuration again.</CardDescription></CardHeader><CardContent><Button variant="outline" className="gap-2" onClick={async () => { await saveOnboarding({ completed: false, skipped: false, currentStep: 1 }); navigate('/onboarding') }}><RotateCcw className="h-4 w-4" />Restart onboarding</Button></CardContent></Card>
+    <Card><CardHeader><CardTitle>Onboarding</CardTitle><CardDescription>Review your business setup again.</CardDescription></CardHeader><CardContent><Button variant="outline" className="gap-2" onClick={async () => { await saveOnboarding({ completed: false, skipped: false, currentStep: 1 }); navigate('/onboarding') }}><RotateCcw className="h-4 w-4" />Restart onboarding</Button></CardContent></Card>
      <Card className="border-destructive/30"><CardHeader><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle className="h-5 w-5" />Danger zone</CardTitle><CardDescription>Permanently delete this account and all invoices, clients, and settings.</CardDescription></CardHeader><CardContent><Button variant="destructive" onClick={() => setDeleteOpen(true)}>Delete account</Button></CardContent></Card>
     <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}><DialogContent><DialogHeader><DialogTitle>Delete account permanently?</DialogTitle><DialogDescription>This cannot be undone. Confirm with your current password and type DELETE MY ACCOUNT.</DialogDescription></DialogHeader><div className="space-y-4"><Field label="Current password" type="password" value={deletePassword} onChange={setDeletePassword} /><Field label="Confirmation" value={deleteConfirmation} onChange={setDeleteConfirmation} placeholder="DELETE MY ACCOUNT" /></div><DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleting}>Cancel</Button><Button variant="destructive" onClick={confirmDelete} disabled={deleting || deleteConfirmation !== 'DELETE MY ACCOUNT' || !deletePassword}>{deleting ? 'Deleting…' : 'Delete account'}</Button></DialogFooter></DialogContent></Dialog>
   </div>
@@ -254,7 +252,7 @@ function NotificationsTab({ settings, update }: { settings: UserSettings; update
     <ToggleRow title="Invoice viewed" description="Know when a client opens a shared invoice." checked={settings.invoiceViewedEmails} onCheckedChange={(value) => update('invoiceViewedEmails', value)} />
     <ToggleRow title="Invoice paid" description="Receive a confirmation when an invoice is marked paid." checked={settings.invoicePaidEmails} onCheckedChange={(value) => update('invoicePaidEmails', value)} />
     <ToggleRow title="Invoice overdue" description="Get notified when an invoice passes its due date." checked={settings.invoiceOverdueEmails} onCheckedChange={(value) => update('invoiceOverdueEmails', value)} />
-    <ToggleRow title="Weekly summary" description="Receive a weekly overview of invoice activity and workspace performance." checked={settings.weeklySummaryEmails} onCheckedChange={(value) => update('weeklySummaryEmails', value)} />
+    <ToggleRow title="Weekly summary" description="Receive a weekly overview of invoice activity and business performance." checked={settings.weeklySummaryEmails} onCheckedChange={(value) => update('weeklySummaryEmails', value)} />
     <ToggleRow title="Payment reminders" description="Receive reminders about upcoming and overdue client payments." checked={settings.paymentReminderEmails} onCheckedChange={(value) => update('paymentReminderEmails', value)} />
     <ToggleRow title="Security alerts" description="Receive important sign-in and account security notifications." checked={settings.securityAlerts} onCheckedChange={(value) => update('securityAlerts', value)} />
     <ToggleRow title="Product updates" description="Hear about useful new InvoiceFocus features." checked={settings.productUpdates} onCheckedChange={(value) => update('productUpdates', value)} />
@@ -263,58 +261,8 @@ function NotificationsTab({ settings, update }: { settings: UserSettings; update
   </CardContent></Card>
 }
 
-function WorkspaceTab({ settings, update, uploadLogo }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean | UserSettings['invoicePresentation']) => void; uploadLogo: (event: React.ChangeEvent<HTMLInputElement>, key: 'businessLogo' | 'workspaceLogo') => void }) {
-  const { toast } = useToast()
-  const [, navigate] = useLocation()
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const [confirmation, setConfirmation] = useState('')
-  const [deleting, setDeleting] = useState(false)
-  const deleteCurrentWorkspace = async () => {
-    if (confirmation !== 'DELETE WORKSPACE') return
-    setDeleting(true)
-    try {
-      await deleteWorkspace()
-      toast({ title: 'Workspace deleted' })
-      await supabase.auth.signOut()
-      navigate('/sign-in')
-    } catch (error) {
-      toast({ title: 'Could not delete workspace', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
-      setDeleting(false)
-    }
-  }
-  return <div className="space-y-6">
-    <Card>
-      <CardHeader><CardTitle>Workspace</CardTitle><CardDescription>Control the shared identity and regional display defaults for this workspace.</CardDescription></CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Workspace name" value={settings.workspaceName || settings.businessName} onChange={(value) => update('workspaceName', value)} />
-          <SelectField label="Timezone" value={settings.accountTimezone} onChange={(value) => update('accountTimezone', value)} options={['UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London', 'Europe/Paris', 'Asia/Kolkata', 'Australia/Sydney']} />
-          <SelectField label="Country" value={settings.accountCountry} onChange={(value) => update('accountCountry', value)} options={['United States', 'Canada', 'United Kingdom', 'Australia', 'India', 'Germany', 'France', 'South Africa']} />
-          <SelectField label="Date format" value={settings.dateFormat} onChange={(value) => update('dateFormat', value)} options={['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']} />
-          <SelectField label="Number format" value={settings.numberFormat} onChange={(value) => update('numberFormat', value)} options={['1,234.56', '1.234,56', '1 234,56']} />
-        </div>
-        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border p-4">
-          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg bg-muted">{settings.workspaceLogo ? <img src={settings.workspaceLogo} alt="Workspace logo" className="h-full w-full object-contain" /> : <UserRound className="h-6 w-6 text-muted-foreground" />}</div>
-          <div><p className="text-sm font-medium">Workspace logo</p><p className="mt-1 text-xs text-muted-foreground">Shown in workspace navigation and shared context.</p></div>
-          <input id="workspace-logo" type="file" accept="image/*" className="sr-only" onChange={(event) => uploadLogo(event, 'workspaceLogo')} />
-          <Button asChild variant="outline"><label htmlFor="workspace-logo" className="cursor-pointer"><Upload className="mr-2 h-4 w-4" />Upload logo</label></Button>
-        </div>
-      </CardContent>
-    </Card>
-    <Card>
-      <CardHeader><CardTitle>Workspace ownership</CardTitle><CardDescription>Ownership and access are controlled by the signed-in workspace owner.</CardDescription></CardHeader>
-      <CardContent><div className="flex items-center gap-3 rounded-lg border border-border p-4"><UserRound className="h-5 w-5 text-primary" /><div><p className="text-sm font-medium">You are the workspace owner</p><p className="mt-1 text-xs text-muted-foreground">Account security and workspace deletion are managed from this Settings area.</p></div></div></CardContent>
-    </Card>
-    <Card className="border-destructive/30">
-       <CardHeader><CardTitle className="text-destructive">Delete workspace</CardTitle><CardDescription>Delete all invoices, clients, and settings for this workspace.</CardDescription></CardHeader>
-      <CardContent><Button variant="destructive" onClick={() => setDeleteOpen(true)}>Delete workspace</Button></CardContent>
-    </Card>
-    <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}><DialogContent><DialogHeader><DialogTitle>Delete workspace permanently?</DialogTitle><DialogDescription>Type DELETE WORKSPACE to confirm. This cannot be undone.</DialogDescription></DialogHeader><Field label="Confirmation" value={confirmation} onChange={setConfirmation} placeholder="DELETE WORKSPACE" /><DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>Cancel</Button><Button variant="destructive" onClick={deleteCurrentWorkspace} disabled={deleting || confirmation !== 'DELETE WORKSPACE'}>{deleting ? 'Deleting…' : 'Delete workspace'}</Button></DialogFooter></DialogContent></Dialog>
-  </div>
-}
-
 function AppearanceTab({ settings, update }: { settings: UserSettings; update: (key: keyof UserSettings, value: string | number | boolean | UserSettings['invoicePresentation']) => void }) {
-  return <Card><CardHeader><CardTitle>Appearance</CardTitle><CardDescription>Choose how InvoiceFocus looks across your workspace.</CardDescription></CardHeader><CardContent className="space-y-6"><div className="grid gap-4 sm:grid-cols-3">{([['system', 'System theme', Eye], ['light', 'Light mode', Sun], ['dark', 'Dark mode', Moon]] as const).map(([value, label, Icon]) => <button key={value} onClick={() => update('theme', value as ThemeMode)} className={`rounded-xl border p-5 text-left transition-colors ${settings.theme === value ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}><Icon className={`h-5 w-5 ${settings.theme === value ? 'text-primary' : 'text-muted-foreground'}`} /><p className="mt-4 font-medium">{label}</p><p className="mt-1 text-xs text-muted-foreground">{value === 'system' ? 'Follow your device preference' : `Use ${value} colors throughout the app`}</p></button>)}</div><div className="grid gap-5 border-t border-border pt-5 sm:grid-cols-3"><div className="space-y-1.5"><Label>Accent color</Label><div className="flex gap-2"><Input type="color" value={settings.workspaceAccentColor} onChange={(event) => update('workspaceAccentColor', event.target.value)} className="h-10 w-14 cursor-pointer p-1" /><Input aria-label="Accent color hex value" value={settings.workspaceAccentColor} onChange={(event) => update('workspaceAccentColor', event.target.value)} /></div></div><SelectField label="Font size" value={settings.fontSize} onChange={(value) => update('fontSize', value as FontSize)} options={['small', 'medium', 'large']} /><div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5"><div><Label>Compact mode</Label><p className="mt-1 text-xs text-muted-foreground">Use tighter workspace spacing.</p></div><Switch checked={settings.compactMode} onCheckedChange={(value) => update('compactMode', value)} /></div></div></CardContent></Card>
+  return <Card><CardHeader><CardTitle>Appearance</CardTitle><CardDescription>Choose how InvoiceFocus looks across the app.</CardDescription></CardHeader><CardContent className="space-y-6"><div className="grid gap-4 sm:grid-cols-3">{([['system', 'System theme', Eye], ['light', 'Light mode', Sun], ['dark', 'Dark mode', Moon]] as const).map(([value, label, Icon]) => <button key={value} onClick={() => update('theme', value as ThemeMode)} className={`rounded-xl border p-5 text-left transition-colors ${settings.theme === value ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}><Icon className={`h-5 w-5 ${settings.theme === value ? 'text-primary' : 'text-muted-foreground'}`} /><p className="mt-4 font-medium">{label}</p><p className="mt-1 text-xs text-muted-foreground">{value === 'system' ? 'Follow your device preference' : `Use ${value} colors throughout the app`}</p></button>)}</div><div className="grid gap-5 border-t border-border pt-5 sm:grid-cols-3"><div className="space-y-1.5"><Label>Accent color</Label><div className="flex gap-2"><Input type="color" value={settings.workspaceAccentColor} onChange={(event) => update('workspaceAccentColor', event.target.value)} className="h-10 w-14 cursor-pointer p-1" /><Input aria-label="Accent color hex value" value={settings.workspaceAccentColor} onChange={(event) => update('workspaceAccentColor', event.target.value)} /></div></div><SelectField label="Font size" value={settings.fontSize} onChange={(value) => update('fontSize', value as FontSize)} options={['small', 'medium', 'large']} /><div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5"><div><Label>Compact mode</Label><p className="mt-1 text-xs text-muted-foreground">Use tighter app spacing.</p></div><Switch checked={settings.compactMode} onCheckedChange={(value) => update('compactMode', value)} /></div></div></CardContent></Card>
 }
 
 function PrivacyTab() {
@@ -330,5 +278,5 @@ function PrivacyTab() {
     } catch (error) { toast({ title: 'Export failed', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' }) }
     finally { setExporting(false) }
   }
-  return <Card><CardHeader><CardTitle>Data & Privacy</CardTitle><CardDescription>Download a portable copy of your InvoiceFocus account data.</CardDescription></CardHeader><CardContent className="space-y-4"><p className="text-sm leading-6 text-muted-foreground">Your export includes workspace settings, clients, invoices, and account metadata in a portable JSON file.</p><Button variant="outline" className="gap-2" onClick={download} disabled={exporting}><Download className="h-4 w-4" />{exporting ? 'Preparing export…' : 'Export account data'}</Button></CardContent></Card>
+  return <Card><CardHeader><CardTitle>Data & Privacy</CardTitle><CardDescription>Download a portable copy of your InvoiceFocus account data.</CardDescription></CardHeader><CardContent className="space-y-4"><p className="text-sm leading-6 text-muted-foreground">Your export includes business settings, clients, invoices, and account metadata in a portable JSON file.</p><Button variant="outline" className="gap-2" onClick={download} disabled={exporting}><Download className="h-4 w-4" />{exporting ? 'Preparing export…' : 'Export account data'}</Button></CardContent></Card>
 }
