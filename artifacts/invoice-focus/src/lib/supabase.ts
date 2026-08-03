@@ -48,6 +48,12 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 })
 
 export function getApiBaseUrl(): string {
-  // For artifact-routed apps, use the current origin with the base path.
+  const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+  if (configuredApiBaseUrl) {
+    return configuredApiBaseUrl.replace(/\/+$/, '')
+  }
+
+  // Keep Replit's artifact proxy working locally while allowing Vercel to
+  // point directly at the separately hosted Express API in production.
   return import.meta.env.BASE_URL.replace(/\/$/, '')
 }

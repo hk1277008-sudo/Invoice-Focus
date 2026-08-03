@@ -13,3 +13,4 @@
 - [Onboarding and feedback persistence](onboarding-feedback-persistence.md) — Apply the Supabase schema and verify PostgREST/Storage before beta testing authenticated flows.
 - [Document and template rendering](document-template-rendering.md) — Keep document semantics separate from visual families and drive preview/PDF from shared metadata.
 - [Settings UI removal boundary](workspace-ui-cleanup-boundary.md) — Remove all Settings/Profile UI and routes; retain only internal settings reads required by onboarding and invoice defaults.
+- [Independent production deployment](invoice-focus-production-deployment.md) — Vercel hosts the SPA, a separate Node host runs Express, and the browser API origin must be configured explicitly.

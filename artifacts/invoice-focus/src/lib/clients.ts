@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { getApiBaseUrl, supabase } from './supabase'
 import type { CurrencyAmount } from './dashboard'
 
 export interface ClientRecord {
@@ -35,7 +35,7 @@ export interface ClientInput {
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const { data } = await supabase.auth.getSession()
   if (!data.session?.access_token) throw new Error('Your session has expired. Please sign in again.')
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api${path}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}`, ...(init.headers || {}) },
   })

@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { getApiBaseUrl, supabase } from './supabase'
 import type { InvoiceData } from '@/components/invoice/types'
 
 export type RecurringFrequency = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom'
@@ -57,7 +57,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = data.session?.access_token
   if (!token) throw new Error('Your session has expired. Please sign in again.')
 
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',

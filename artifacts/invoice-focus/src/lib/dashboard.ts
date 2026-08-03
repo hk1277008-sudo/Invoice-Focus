@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { getApiBaseUrl, supabase } from './supabase'
 import type { InvoiceStatus, InvoiceRecord } from './invoices'
 
 export interface CurrencyAmount {
@@ -43,7 +43,7 @@ export async function getDashboardOverview(range: { start?: string; end?: string
   const params = new URLSearchParams()
   if (range.start) params.set('start', range.start)
   if (range.end) params.set('end', range.end)
-  const response = await fetch(`/api/dashboard/overview?${params}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/dashboard/overview?${params}`, {
     headers: { Authorization: `Bearer ${data.session.access_token}` },
   })
   if (!response.ok) {

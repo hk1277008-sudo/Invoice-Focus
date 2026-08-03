@@ -1,4 +1,5 @@
 import type { InvoiceData } from '@/components/invoice/types'
+import { getApiBaseUrl } from './supabase'
 
 export interface PublicSharedInvoice {
   invoice_number: string
@@ -21,7 +22,7 @@ export interface ShareTokenRecord {
 }
 
 async function request<T>(path: string, init: RequestInit = {}) {
-  const response = await fetch(`/api${path}`, { ...init, headers: { 'Content-Type': 'application/json', ...(init.headers || {}) } })
+  const response = await fetch(`${getApiBaseUrl()}/api${path}`, { ...init, headers: { 'Content-Type': 'application/json', ...(init.headers || {}) } })
   const body = await response.json().catch(() => null)
   if (!response.ok) throw new Error(body?.error || 'Share link request failed')
   return body as T

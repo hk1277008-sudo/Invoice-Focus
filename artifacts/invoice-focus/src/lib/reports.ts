@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { getApiBaseUrl, supabase } from './supabase'
 
 export type ReportPeriod = 'week' | 'month' | 'year'
 export interface CurrencyAmount { currency: string; amount: number }
@@ -22,7 +22,7 @@ export async function getReportsOverview(range: { start?: string; end?: string; 
   if (!data.session?.access_token) throw new Error('Your session has expired. Please sign in again.')
   const params = new URLSearchParams()
   Object.entries(range).forEach(([key, value]) => { if (value) params.set(key, value) })
-  const response = await fetch(`/api/reports/overview?${params}`, { headers: { Authorization: `Bearer ${data.session.access_token}` } })
+  const response = await fetch(`${getApiBaseUrl()}/api/reports/overview?${params}`, { headers: { Authorization: `Bearer ${data.session.access_token}` } })
   if (!response.ok) {
     const body = await response.json().catch(() => null)
     throw new Error(body?.error || 'Could not load reports')

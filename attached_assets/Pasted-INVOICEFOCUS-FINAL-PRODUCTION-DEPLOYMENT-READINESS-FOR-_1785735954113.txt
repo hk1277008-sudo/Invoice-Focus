@@ -1,0 +1,679 @@
+INVOICEFOCUS — FINAL PRODUCTION DEPLOYMENT READINESS FOR VERCEL
+
+IMPORTANT: This is a DEPLOYMENT READINESS task only.
+
+Do not add new product features.
+Do not redesign the UI.
+Do not change the MVP scope.
+Do not reintroduce Settings.
+Do not reintroduce Workspace.
+Do not reintroduce Configuration.
+Do not reintroduce pricing or subscription functionality.
+Do not modify completed invoice functionality unless a deployment issue directly requires it.
+Do not perform unnecessary refactoring.
+
+Use the existing InvoiceFocus project Skill as the source of truth for the project's architecture, MVP scope, design principles, and development rules.
+
+The objective is to prepare the existing InvoiceFocus application for production deployment.
+
+==================================================
+CURRENT PROJECT STATUS
+==================================================
+
+The following work is already complete and verified:
+
+- Frontend typecheck passes.
+- API typecheck passes.
+- Frontend production build passes.
+- API production build passes.
+- Renderer matrix passes.
+- git diff --check passes.
+- Frontend workflow runs cleanly.
+- API workflow runs cleanly.
+- Homepage renders correctly.
+- Nonfunctional Settings feature has been removed.
+- Business Profile has been removed.
+- Workspace has been removed.
+- Configuration has been removed.
+- Billing has been removed.
+- Account has been removed.
+- Security has been removed.
+- Settings navigation has been removed.
+- Profile navigation has been removed.
+- No dead Settings links remain.
+- No dead Profile links remain.
+- /dashboard/settings returns the normal 404 page.
+- /profile returns the normal 404 page.
+- Pricing UI has been removed.
+- Pricing route has been removed.
+- $0 / Free Forever pricing messaging has been removed.
+- Pricing navigation has been removed.
+- The Supabase migration 019_free_platform_cleanup.sql has ALREADY been successfully applied.
+
+IMPORTANT:
+
+DO NOT reapply migration 019_free_platform_cleanup.sql.
+
+DO NOT recreate migration 019.
+
+DO NOT modify migration 019.
+
+DO NOT spend credits investigating or reapplying this migration.
+
+It is already complete.
+
+==================================================
+TARGET PRODUCTION ARCHITECTURE
+==================================================
+
+Prepare the project for this architecture:
+
+Frontend:
+
+React
+TypeScript
+Vite
+Hosted on Vercel
+
+Backend:
+
+Node.js
+Express
+Hosted separately on a production Node.js hosting platform such as Render or Railway
+
+Database and Authentication:
+
+Supabase
+
+Domain:
+
+invoicefocus.com
+
+Expected architecture:
+
+User
+  ↓
+invoicefocus.com
+  ↓
+Vercel
+React + Vite Frontend
+  ↓ HTTPS API requests
+Production Express API
+  ↓
+Supabase
+Database + Authentication
+
+Do NOT force the Express API into Vercel serverless functions.
+
+Do NOT rewrite the Express API just to make everything run on Vercel.
+
+Keep the current frontend/backend architecture unless a real deployment blocker requires a change.
+
+The priority is the smallest safe production deployment architecture.
+
+==================================================
+TASK 1 — AUDIT THE CURRENT MONOREPO
+==================================================
+
+Inspect the current repository structure.
+
+Identify:
+
+- Frontend root directory.
+- API root directory.
+- Root package.json.
+- Frontend package.json.
+- API package.json.
+- Frontend build command.
+- Frontend output directory.
+- API build command.
+- API production start command.
+- API port configuration.
+- Frontend environment variables.
+- Backend environment variables.
+- Supabase configuration.
+- Existing Vercel configuration.
+- Existing Replit-specific configuration.
+
+Do not change anything until the current architecture is understood.
+
+After the audit, make only the minimum changes required for production deployment.
+
+==================================================
+TASK 2 — PREPARE FRONTEND FOR VERCEL
+==================================================
+
+Ensure the Vite frontend can be deployed independently to Vercel.
+
+Verify:
+
+- Correct Vercel root directory.
+- Correct build command.
+- Correct output directory.
+- Correct install command if required.
+- Production build succeeds.
+- Frontend environment variables are correctly configured.
+- Production API URL is configurable.
+- No production API requests point to localhost.
+- No production API requests point to Replit.
+- No sensitive backend secrets are exposed to the browser.
+
+If the frontend is located inside the monorepo, configure Vercel to build the correct frontend directory.
+
+Do not accidentally deploy the API as the Vercel frontend.
+
+Do not add unnecessary Vercel configuration.
+
+==================================================
+TASK 3 — VERCEL SPA ROUTING
+==================================================
+
+Verify all valid React frontend routes work correctly when deployed to Vercel.
+
+The following should not incorrectly return Vercel 404 responses:
+
+- /
+- /login
+- /signup
+- /dashboard
+- /invoices
+- /clients
+- /templates
+- /help
+
+If Vercel SPA rewrite configuration is required, add the smallest correct configuration.
+
+Do not create rewrites that interfere with Express API requests.
+
+Remember:
+
+Settings and Profile routes were intentionally removed.
+
+Do not restore them.
+
+==================================================
+TASK 4 — EXPRESS API PRODUCTION READINESS
+==================================================
+
+Prepare the existing Express API to run independently from Replit.
+
+Verify:
+
+- Production build command.
+- Production start command.
+- Port handling.
+- Environment variable handling.
+- CORS.
+- Supabase connection.
+- Authentication.
+- API routes.
+- Error handling.
+- Health endpoint.
+
+The Express API must listen on the hosting provider's assigned PORT.
+
+Do not hardcode a Replit port.
+
+Do not hardcode localhost for production.
+
+The API must be capable of running independently of Replit.
+
+Do not rewrite the API architecture unless absolutely necessary.
+
+==================================================
+TASK 5 — REMOVE REPLIT DEPLOYMENT DEPENDENCIES
+==================================================
+
+Audit the project for Replit-specific deployment assumptions.
+
+Check for:
+
+- Replit-only environment variables.
+- Replit URLs.
+- Replit ports.
+- Replit-specific deployment scripts.
+- Replit-specific filesystem assumptions.
+- Replit-only packages.
+- Replit deployment configuration.
+
+For every Replit dependency:
+
+1. Determine whether it is required.
+2. Remove only unnecessary deployment dependencies.
+3. Preserve anything required for local development if appropriate.
+4. Replace production-only Replit assumptions with standard environment-based configuration.
+
+The application must be deployable outside Replit.
+
+Do not blindly delete Replit configuration.
+
+Do not break the application.
+
+==================================================
+TASK 6 — ENVIRONMENT VARIABLES
+==================================================
+
+Separate frontend and backend environment variables correctly.
+
+Frontend variables may contain only values safe for browser exposure.
+
+Backend variables must contain private secrets.
+
+Never expose:
+
+- Supabase service-role key.
+- Private API keys.
+- Database credentials.
+- Server secrets.
+- Other sensitive credentials.
+
+Verify that the Supabase public URL and public anonymous key are configured correctly for the frontend if required.
+
+Verify that private Supabase credentials remain server-side.
+
+If .env.example exists, update it.
+
+If useful, create a safe .env.example.
+
+Never include real secrets.
+
+Never commit real .env files.
+
+==================================================
+TASK 7 — FRONTEND TO API CONNECTION
+==================================================
+
+Verify that the frontend can communicate with the production Express API.
+
+The API base URL must be configurable through an environment variable.
+
+Development:
+
+Local Vite Frontend
+↓
+Local Express API
+
+Production:
+
+Vercel Frontend
+↓
+Production Express API
+
+Do not hardcode environment-specific URLs into application logic.
+
+Do not leave localhost URLs in production configuration.
+
+Do not leave Replit URLs in production configuration.
+
+==================================================
+TASK 8 — CORS
+==================================================
+
+Configure Express CORS correctly for production.
+
+The production frontend domain will be:
+
+invoicefocus.com
+
+Also account for:
+
+www.invoicefocus.com
+
+if the chosen canonical domain strategy requires it.
+
+Do not use unrestricted wildcard CORS for authenticated production API requests.
+
+Do not use:
+
+Access-Control-Allow-Origin: *
+
+for the authenticated production API unless there is a documented technical reason.
+
+Use environment-based CORS configuration where appropriate.
+
+Ensure local development remains possible without compromising production security.
+
+==================================================
+TASK 9 — SUPABASE AUTHENTICATION PRODUCTION READINESS
+==================================================
+
+Verify the existing Supabase authentication architecture for production.
+
+Do not change authentication unnecessarily.
+
+Verify:
+
+- Signup.
+- Login.
+- Logout.
+- Session persistence.
+- Email verification.
+- Forgot password.
+- Password reset.
+
+Pay special attention to production redirect URLs.
+
+The production application must support:
+
+invoicefocus.com
+
+and the chosen www/non-www canonical domain.
+
+Verify that password reset redirects correctly to the production frontend.
+
+The previous password reset HTTP 502 issue must not return in production.
+
+Do not assume authentication is production-ready merely because the frontend builds.
+
+Verify the configuration and flow.
+
+==================================================
+TASK 10 — PASSWORD RESET PRODUCTION FLOW
+==================================================
+
+Verify the intended production flow:
+
+User
+↓
+Forgot Password
+↓
+Supabase sends reset email
+↓
+User clicks reset email
+↓
+Production frontend opens
+↓
+Recovery session is established
+↓
+User enters new password
+↓
+Password is updated
+↓
+User can log in again
+
+Ensure all redirect URLs are compatible with production deployment.
+
+If a real issue is discovered, identify and fix the root cause.
+
+Do not hide errors.
+
+==================================================
+TASK 11 — API HEALTH ENDPOINT
+==================================================
+
+Ensure the Express API has a reliable public health endpoint suitable for hosting provider health checks.
+
+The health endpoint must:
+
+- Return HTTP 200 when healthy.
+- Not require authentication.
+- Not expose secrets.
+- Work in production.
+
+Document the endpoint path.
+
+==================================================
+TASK 12 — VERCEL CONFIGURATION
+==================================================
+
+Determine exactly how the frontend should be configured in Vercel.
+
+Provide:
+
+- Root directory.
+- Framework preset.
+- Build command.
+- Output directory.
+- Install command if required.
+- Required environment variables.
+- SPA routing configuration if required.
+
+If configuration files are required, create only the minimum necessary files.
+
+Do not add unnecessary deployment complexity.
+
+==================================================
+TASK 13 — EXPRESS API HOSTING CONFIGURATION
+==================================================
+
+The Express API will remain separate from Vercel.
+
+Evaluate the existing API and provide the recommended production deployment configuration for:
+
+- Render
+OR
+- Railway
+
+Choose the simplest option based on the current project architecture.
+
+Provide:
+
+- Build command.
+- Start command.
+- Port requirements.
+- Environment variables.
+- Health check endpoint.
+- CORS requirements.
+
+Do not actually migrate the API to another framework.
+
+Do not convert Express to serverless.
+
+Do not rewrite working API routes.
+
+==================================================
+TASK 14 — CUSTOM DOMAIN READINESS
+==================================================
+
+Prepare the frontend for:
+
+invoicefocus.com
+
+Determine the recommended canonical domain:
+
+- invoicefocus.com
+OR
+- www.invoicefocus.com
+
+Use one canonical domain and redirect the other appropriately.
+
+Document the DNS records required to connect the domain to Vercel.
+
+Do not make up DNS values.
+
+If Vercel-specific DNS values depend on the actual Vercel project, clearly state that the values must be copied from the Vercel dashboard after project creation.
+
+==================================================
+TASK 15 — PRODUCTION SECURITY CHECK
+==================================================
+
+Before declaring deployment readiness, verify:
+
+- No secrets committed to the repository.
+- No Supabase service-role key exposed to frontend code.
+- No database passwords exposed.
+- No localhost production API URLs.
+- No Replit production URLs.
+- No unrestricted production CORS.
+- No debug secrets in client bundles.
+- Authentication remains protected.
+- User data remains isolated by Supabase RLS where applicable.
+
+Do not weaken security to make deployment easier.
+
+==================================================
+TASK 16 — FINAL BUILD VERIFICATION
+==================================================
+
+After all deployment-related changes:
+
+Run and verify:
+
+- Frontend typecheck.
+- API typecheck.
+- Frontend production build.
+- API production build.
+- JSON validation.
+- git diff --check.
+- API health endpoint.
+- Frontend route verification.
+- Renderer matrix if available.
+
+Do not modify unrelated functionality.
+
+==================================================
+TASK 17 — DO NOT TOUCH COMPLETED MVP CLEANUP
+==================================================
+
+The following decisions are FINAL for the current MVP:
+
+There is no user-facing Settings section.
+
+There is no:
+
+- Business Profile.
+- Workspace.
+- Configuration.
+- Billing.
+- Account.
+- Security.
+
+Do not restore any of these.
+
+There is no pricing UI.
+
+There is no:
+
+- $0 pricing card.
+- Free Forever pricing card.
+- Pricing route.
+- Pricing navigation.
+
+Do not restore pricing UI.
+
+The product remains completely free for the current MVP.
+
+Do not add:
+
+- Stripe.
+- Paddle.
+- Checkout.
+- Subscription plans.
+- Paid tiers.
+
+These are outside the current MVP scope.
+
+==================================================
+TASK 18 — FINAL DEPLOYMENT REPORT
+==================================================
+
+At the end, provide a concise report using exactly these sections:
+
+1. VERCEL FRONTEND
+
+State:
+
+- Ready or not ready.
+- Root directory.
+- Build command.
+- Output directory.
+- Required environment variables.
+- SPA routing status.
+
+2. EXPRESS API
+
+State:
+
+- Recommended hosting platform.
+- Ready or not ready.
+- Build command.
+- Start command.
+- Required environment variables.
+- Health endpoint.
+
+3. FRONTEND → API
+
+State:
+
+- Production API URL configuration.
+- CORS status.
+- Any remaining blockers.
+
+4. SUPABASE AUTHENTICATION
+
+State:
+
+- Production redirect requirements.
+- Email verification status.
+- Password reset status.
+- Any remaining blockers.
+
+5. DOMAIN
+
+State:
+
+- Recommended canonical domain.
+- DNS configuration steps.
+- www redirect recommendation.
+
+6. REPLIT INDEPENDENCE
+
+List any remaining Replit-specific dependencies.
+
+7. VERIFICATION
+
+Report the result of:
+
+- Frontend typecheck.
+- API typecheck.
+- Frontend production build.
+- API production build.
+- API health.
+- SPA routing.
+- Environment configuration.
+
+8. REMAINING BLOCKERS
+
+List only genuine blockers preventing deployment.
+
+If there are no blockers, explicitly state:
+
+"NO CODE-LEVEL DEPLOYMENT BLOCKERS FOUND."
+
+==================================================
+FINAL RULE
+==================================================
+
+Do not claim "ready for Vercel" simply because the local build passes.
+
+The application is considered deployment-ready only when:
+
+- The frontend can be built by Vercel.
+- The frontend has correct production environment variables.
+- The frontend can communicate with the separately hosted Express API.
+- The Express API can run independently of Replit.
+- CORS is correctly configured.
+- Supabase authentication supports the production domain.
+- Password reset works with production redirects.
+- No secrets are exposed.
+- No Replit-only dependency blocks production.
+- The existing MVP functionality remains intact.
+
+Make the smallest safe changes necessary.
+
+Do not add features.
+
+Do not redesign.
+
+Do not reapply migration 019_free_platform_cleanup.sql.
+
+Do not restore removed Settings, Profile, Workspace, Configuration, Billing, Account, Security, or Pricing functionality.
+
+The final goal is:
+
+InvoiceFocus frontend → Vercel
+InvoiceFocus Express API → Render/Railway
+InvoiceFocus database/authentication → Supabase
+InvoiceFocus domain → invoicefocus.com
+
+Prepare the project for this production architecture and report any genuine blockers clearly.

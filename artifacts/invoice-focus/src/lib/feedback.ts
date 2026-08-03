@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { getApiBaseUrl, supabase } from './supabase'
 
 export type FeedbackCategory = 'bug' | 'feature_request' | 'general_feedback' | 'improvement'
 
@@ -20,7 +20,7 @@ export interface FeedbackInput {
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const { data } = await supabase.auth.getSession()
   if (!data.session?.access_token) throw new Error('Your session has expired. Please sign in again.')
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api${path}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}`, ...(init.headers || {}) },
   })
@@ -54,7 +54,7 @@ export async function uploadFeedbackScreenshot(file: File): Promise<string> {
   if (!data.session?.access_token) throw new Error('Your session has expired. Please sign in again.')
   const formData = new FormData()
   formData.append('screenshot', file)
-  const response = await fetch('/api/feedback/screenshot', {
+  const response = await fetch(`${getApiBaseUrl()}/api/feedback/screenshot`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${data.session.access_token}` },
     body: formData,
