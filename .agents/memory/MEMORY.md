@@ -14,3 +14,4 @@
 - [Document and template rendering](document-template-rendering.md) — Keep document semantics separate from visual families and drive preview/PDF from shared metadata.
 - [Settings UI removal boundary](workspace-ui-cleanup-boundary.md) — Remove all Settings/Profile UI and routes; retain only internal settings reads required by onboarding and invoice defaults.
 - [Independent production deployment](invoice-focus-production-deployment.md) — Vercel hosts the SPA, a separate Node host runs Express, and the browser API origin must be configured explicitly.
+- [Render API build dependencies](render-api-build-dependencies.md) — Bundlers and build plugins invoked by the API production build must be regular dependencies, not dev-only packages.

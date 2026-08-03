@@ -1,0 +1,91 @@
+INVOICEFOCUS — FIX RENDER PRODUCTION BUILD ERROR: MISSING ESBUILD
+
+The current Render deployment of the Express API fails during the build.
+
+Exact error:
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /opt/render/project/src/artifacts/api-server/build.mjs
+
+The failing file is:
+
+artifacts/api-server/build.mjs
+
+The API is part of the pnpm workspace package:
+
+@workspace/api-server
+
+Current Render configuration:
+
+Root Directory:
+.
+
+Build Command:
+pnpm --filter @workspace/api-server run build
+
+Start Command:
+pnpm --filter @workspace/api-server run start
+
+IMPORTANT:
+
+Investigate the CURRENT repository and determine why esbuild is unavailable during the Render production build.
+
+Do not guess.
+
+Check:
+
+1. Root package.json
+2. artifacts/api-server/package.json
+3. pnpm-workspace.yaml
+4. pnpm-lock.yaml
+5. artifacts/api-server/build.mjs
+6. The @workspace/api-server build script
+7. Whether esbuild is declared in the correct package dependencies
+8. Whether Render's production dependency installation excludes esbuild
+9. Whether the current pnpm workspace configuration correctly installs all build-time dependencies
+
+Fix the ROOT CAUSE using the smallest safe change.
+
+The production build must work with:
+
+pnpm --filter @workspace/api-server run build
+
+Do not replace the current architecture.
+
+Do not rewrite the Express API.
+
+Do not move the API out of the monorepo.
+
+Do not add unnecessary dependencies.
+
+Do not modify the frontend.
+
+Do not modify the logo.
+
+Do not modify authentication.
+
+Do not modify invoice functionality.
+
+Do not reapply or modify migration 019_free_platform_cleanup.sql.
+
+Do not add new features.
+
+After fixing the issue, verify:
+
+1. pnpm install / dependency installation succeeds.
+2. pnpm --filter @workspace/api-server run build succeeds.
+3. pnpm --filter @workspace/api-server run start can start successfully.
+4. Frontend typecheck still passes.
+5. Frontend production build still passes.
+6. API typecheck still passes.
+7. API production build passes.
+8. git diff --check passes.
+
+Finally, explain:
+
+- Root cause of the missing esbuild error.
+- Exact files changed.
+- Why the fix works on Render.
+- Whether Render Build Command should remain:
+  pnpm --filter @workspace/api-server run build
+
+Do not make any unrelated changes.
