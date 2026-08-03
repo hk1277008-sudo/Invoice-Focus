@@ -7,11 +7,13 @@ import { Link } from 'wouter'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip as Hint, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { getReportsOverview, type ReportPeriod, type ReportsOverview } from '@/lib/reports'
+import { getReportsOverview, type CurrencyAmount, type CurrencyRate, type ReportPeriod, type ReportsOverview } from '@/lib/reports'
+import { formatCurrencyCode } from '@/components/invoice/currencies'
 
 type Preset = 'today' | '7d' | '30d' | '90d' | 'month' | 'lastMonth' | 'year' | 'custom'
 const statusColors: Record<string, string> = { Draft: '#94a3b8', Sent: '#3b82f6', Viewed: '#8b5cf6', 'Partially Paid': '#f59e0b', Paid: '#10b981', Overdue: '#f43f5e', Cancelled: '#cbd5e1' }
-const money = (value: number) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
+const money = (values: CurrencyAmount[]) => values.length ? values.map(({ currency, amount }) => formatCurrencyCode(amount, currency)).join(' · ') : '—'
+const rates = (values: CurrencyRate[]) => values.length ? values.map(({ currency, value }) => `${currency} ${value.toFixed(1)}%`).join(' · ') : '—'
 const dateString = (date: Date) => date.toISOString().slice(0, 10)
 
 function rangeFor(preset: Preset, customStart: string, customEnd: string) {
@@ -34,42 +36,42 @@ function ReportsSkeleton() {
 function exportCsv(report: ReportsOverview) {
   const rows = [
     ['Metric', 'Value'],
-    ['Total Revenue', report.summary.totalRevenue],
-    ['Outstanding Revenue', report.summary.outstandingRevenue],
-    ['Paid Revenue', report.summary.paidRevenue],
-    ['Overdue Revenue', report.summary.overdueRevenue],
+    ['Total Revenue', money(report.summary.totalRevenue)],
+    ['Outstanding Revenue', money(report.summary.outstandingRevenue)],
+    ['Paid Revenue', money(report.summary.paidRevenue)],
+    ['Overdue Revenue', money(report.summary.overdueRevenue)],
     ['Total Invoices', report.summary.totalInvoices],
     ['Paid Invoices', report.summary.paidInvoices],
     ['Outstanding Invoices', report.summary.outstandingInvoices],
     ['Overdue Invoices', report.summary.overdueInvoices],
     ['Active Clients', report.summary.activeClients],
-    ['Average Invoice Value', report.summary.averageInvoiceValue],
-    ['Average Client Revenue', report.summary.averageClientRevenue],
+    ['Average Invoice Value', money(report.summary.averageInvoiceValue)],
+    ['Average Client Revenue', money(report.summary.averageClientRevenue)],
     ['New Clients', report.summary.newClients],
     ['Returning Clients', report.summary.returningClients],
-    ['Collection Rate', report.payments.collectionRate],
-    ['Outstanding Balance', report.payments.outstandingBalance],
-    ['Paid Amount', report.payments.paidAmount],
+    ['Collection Rate', rates(report.payments.collectionRate)],
+    ['Outstanding Balance', money(report.payments.outstandingBalance)],
+    ['Paid Amount', money(report.payments.paidAmount)],
     ['Partial Payments', report.payments.partialPayments],
-    ['Monthly Revenue', report.kpis.monthlyRevenue],
-    ['Annual Revenue', report.kpis.annualRevenue],
+    ['Monthly Revenue', money(report.kpis.monthlyRevenue)],
+    ['Annual Revenue', money(report.kpis.annualRevenue)],
     ['Average Payment Time', report.kpis.averagePaymentTime],
     ['Invoice Conversion Rate', report.kpis.invoiceConversionRate],
-    ['Collection Percentage', report.kpis.collectionPercentage],
+    ['Collection Percentage', rates(report.kpis.collectionPercentage)],
     ['Client Growth', report.kpis.clientGrowth],
-    ['Revenue Growth', report.kpis.revenueGrowth],
+    ['Revenue Growth', rates(report.kpis.revenueGrowth)],
     [],
     ['Revenue Period', 'Amount'],
-    ...report.revenue.map((item) => [item.label, item.value]),
+    ...report.revenue.map((item) => [item.label, item.currency, item.value]),
     [],
     ['Monthly Collection Period', 'Amount'],
-    ...report.payments.monthlyCollections.map((item) => [item.label, item.value]),
+    ...report.payments.monthlyCollections.map((item) => [item.label, item.currency, item.value]),
     [],
     ['Invoice Status', 'Count'],
     ...report.invoiceStatus.map((item) => [item.status, item.count]),
     [],
     ['Client', 'Revenue', 'Invoices', 'Paid Invoices'],
-    ...report.topClients.map((client) => [client.name, client.revenue, client.invoices, client.paidInvoices]),
+    ...report.topClients.map((client) => [client.name, money(client.revenue), client.invoices, client.paidInvoices]),
   ]
   const csv = rows.map((row) => row.map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\n')
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
@@ -101,7 +103,8 @@ function ReportContent({ report, period, setPeriod }: { report: ReportsOverview;
 }
 
 function RevenuePanel({ report, period, setPeriod }: { report: ReportsOverview; period: ReportPeriod; setPeriod: (period: ReportPeriod) => void }) {
-  return <Card><CardHeader className="flex flex-row items-start justify-between"><div><CardTitle>Revenue Analytics</CardTitle><p className="mt-1 text-sm text-muted-foreground">Collected revenue for the selected date range.</p></div><div className="flex rounded-lg border p-1 text-xs"><button className={`rounded px-2 py-1 ${period === 'week' ? 'bg-primary text-primary-foreground' : ''}`} onClick={() => setPeriod('week')}>Week</button><button className={`rounded px-2 py-1 ${period === 'month' ? 'bg-primary text-primary-foreground' : ''}`} onClick={() => setPeriod('month')}>Month</button><button className={`rounded px-2 py-1 ${period === 'year' ? 'bg-primary text-primary-foreground' : ''}`} onClick={() => setPeriod('year')}>Year</button></div></CardHeader><CardContent><div className="h-[310px]">{report.revenue.length ? <ResponsiveContainer width="100%" height="100%"><AreaChart data={report.revenue}><defs><linearGradient id="reportsRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#1c51d8" stopOpacity={0.26} /><stop offset="95%" stopColor="#1c51d8" stopOpacity={0} /></linearGradient></defs><CartesianGrid vertical={false} strokeDasharray="3 3" /><XAxis dataKey="label" tickLine={false} axisLine={false} minTickGap={24} /><YAxis tickFormatter={(value) => `$${value}`} tickLine={false} axisLine={false} width={58} /><Tooltip formatter={(value) => [money(Number(value)), 'Revenue']} /><Area type="monotone" dataKey="value" stroke="#1c51d8" strokeWidth={2.5} fill="url(#reportsRevenue)" /></AreaChart></ResponsiveContainer> : <ChartEmpty label="No revenue in this period." />}</div></CardContent></Card>
+  const currencies = [...new Set(report.revenue.map((item) => item.currency))].sort()
+  return <Card><CardHeader className="flex flex-row items-start justify-between"><div><CardTitle>Revenue Analytics</CardTitle><p className="mt-1 text-sm text-muted-foreground">Collected revenue for the selected date range, grouped by currency.</p></div><div className="flex rounded-lg border p-1 text-xs"><button className={`rounded px-2 py-1 ${period === 'week' ? 'bg-primary text-primary-foreground' : ''}`} onClick={() => setPeriod('week')}>Week</button><button className={`rounded px-2 py-1 ${period === 'month' ? 'bg-primary text-primary-foreground' : ''}`} onClick={() => setPeriod('month')}>Month</button><button className={`rounded px-2 py-1 ${period === 'year' ? 'bg-primary text-primary-foreground' : ''}`} onClick={() => setPeriod('year')}>Year</button></div></CardHeader><CardContent>{report.revenue.length ? <div className="space-y-5">{currencies.map((currency) => { const points = report.revenue.filter((item) => item.currency === currency); return <div key={currency}><p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{currency}</p><div className="h-[220px]"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points}><defs><linearGradient id={`reportsRevenue-${currency}`} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#1c51d8" stopOpacity={0.26} /><stop offset="95%" stopColor="#1c51d8" stopOpacity={0} /></linearGradient></defs><CartesianGrid vertical={false} strokeDasharray="3 3" /><XAxis dataKey="label" tickLine={false} axisLine={false} minTickGap={24} /><YAxis tickFormatter={(value) => formatCurrencyCode(Number(value), currency)} tickLine={false} axisLine={false} width={78} /><Tooltip formatter={(value) => [formatCurrencyCode(Number(value), currency), 'Revenue']} /><Area type="monotone" dataKey="value" stroke="#1c51d8" strokeWidth={2.5} fill={`url(#reportsRevenue-${currency})`} /></AreaChart></ResponsiveContainer></div></div> })}</div> : <div className="h-[310px]"><ChartEmpty label="No revenue in this period." /></div>}</CardContent></Card>
 }
 
 function StatusPanel({ report }: { report: ReportsOverview }) {
@@ -109,9 +112,9 @@ function StatusPanel({ report }: { report: ReportsOverview }) {
 }
 
 function KpiPanel({ kpis, payments, summary }: { kpis: ReportsOverview['kpis']; payments: ReportsOverview['payments']; summary: ReportsOverview['summary'] }) {
-  const items = [['Monthly Revenue', money(kpis.monthlyRevenue), 'Collected this month'], ['Annual Revenue', money(kpis.annualRevenue), 'Collected in selected range'], ['Collection Rate', `${payments.collectionRate.toFixed(1)}%`, 'Paid against billed'], ['Conversion Rate', `${kpis.invoiceConversionRate.toFixed(1)}%`, 'Invoices sent beyond draft'], ['Avg. Payment Time', `${Math.round(kpis.averagePaymentTime)} days`, 'Based on invoice issue to payment dates'], ['Client Growth', `+${kpis.clientGrowth}`, 'New clients in range']]
+  const items = [['Monthly Revenue', money(kpis.monthlyRevenue), 'Collected this month'], ['Annual Revenue', money(kpis.annualRevenue), 'Collected in selected range'], ['Collection Rate', rates(payments.collectionRate), 'Paid against billed, grouped by currency'], ['Conversion Rate', `${kpis.invoiceConversionRate.toFixed(1)}%`, 'Invoices sent beyond draft'], ['Avg. Payment Time', `${Math.round(kpis.averagePaymentTime)} days`, 'Based on invoice issue to payment dates'], ['Client Growth', `+${kpis.clientGrowth}`, 'New clients in range']]
   const clientItems = [['Average Client Revenue', money(summary.averageClientRevenue), 'Average collected revenue per active client'], ['New Clients', String(summary.newClients), 'New clients in the selected range'], ['Returning Clients', String(summary.returningClients), 'Clients with repeat invoice activity']]
-  return <Card><CardHeader><CardTitle>Executive KPIs</CardTitle><p className="mt-1 text-sm text-muted-foreground">Signals to help you make better billing decisions.</p></CardHeader><CardContent className="grid gap-3 sm:grid-cols-2">{[...items, ['Revenue Growth', `${kpis.revenueGrowth >= 0 ? '+' : ''}${kpis.revenueGrowth.toFixed(1)}%`, 'Compared with the previous matching range'], ['Collection Percentage', `${kpis.collectionPercentage.toFixed(1)}%`, 'Paid amount against billed amount'], ...clientItems].map(([label, value, hint]) => <Hint key={label}><TooltipTrigger asChild><div className="rounded-lg border bg-muted/20 p-4"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-xl font-semibold">{value}</p><p className="mt-1 text-xs text-muted-foreground">{hint}</p></div></TooltipTrigger><TooltipContent>{hint}</TooltipContent></Hint>)}</CardContent></Card>
+  return <Card><CardHeader><CardTitle>Executive KPIs</CardTitle><p className="mt-1 text-sm text-muted-foreground">Signals to help you make better billing decisions.</p></CardHeader><CardContent className="grid gap-3 sm:grid-cols-2">{[...items, ['Revenue Growth', rates(kpis.revenueGrowth), 'Compared with the previous matching range, grouped by currency'], ['Collection Percentage', rates(kpis.collectionPercentage), 'Paid amount against billed amount, grouped by currency'], ...clientItems].map(([label, value, hint]) => <Hint key={label}><TooltipTrigger asChild><div className="rounded-lg border bg-muted/20 p-4"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-xl font-semibold">{value}</p><p className="mt-1 text-xs text-muted-foreground">{hint}</p></div></TooltipTrigger><TooltipContent>{hint}</TooltipContent></Hint>)}</CardContent></Card>
 }
 
 function ClientsPanel({ clients }: { clients: ReportsOverview['topClients'] }) {

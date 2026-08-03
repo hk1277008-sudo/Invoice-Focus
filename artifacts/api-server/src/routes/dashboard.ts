@@ -34,6 +34,20 @@ function dateKey(value: string) {
   return value.slice(0, 10);
 }
 
+function currencyCode(value: string | null | undefined) {
+  return (value || 'USD').toUpperCase();
+}
+
+function addCurrencyAmount(map: Map<string, number>, currency: string, amount: number) {
+  map.set(currency, (map.get(currency) ?? 0) + amount);
+}
+
+function currencyAmounts(map: Map<string, number>) {
+  return [...map.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([currency, amount]) => ({ currency, amount }));
+}
+
 router.get('/dashboard/overview', async (req, res) => {
   const user = await requireUser(req, res);
   if (!user) return;
@@ -78,21 +92,41 @@ router.get('/dashboard/overview', async (req, res) => {
   }));
   const paidRows = invoiceRows.filter((invoice) => invoice.status === 'Paid');
   const outstandingRows = invoiceRows.filter((invoice) => ['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status));
-  const totalRevenue = invoiceRows.reduce((sum, invoice) => sum + Number(invoice.amount_paid || 0), 0);
-  const outstandingAmount = outstandingRows.reduce((sum, invoice) => sum + Math.max(Number(invoice.total || 0) - Number(invoice.amount_paid || 0), 0), 0);
-
-  const revenueMap = new Map<string, number>();
-  for (const invoice of paidRows) {
-    const key = dateKey(invoice.issue_date);
-    revenueMap.set(key, (revenueMap.get(key) ?? 0) + Number(invoice.total || 0));
+  const totalRevenueByCurrency = new Map<string, number>();
+  const outstandingAmountByCurrency = new Map<string, number>();
+  for (const invoice of invoiceRows) {
+    const currency = currencyCode(invoice.currency);
+    addCurrencyAmount(totalRevenueByCurrency, currency, Number(invoice.amount_paid || 0));
+    if (outstandingRows.includes(invoice)) {
+      addCurrencyAmount(
+        outstandingAmountByCurrency,
+        currency,
+        Math.max(Number(invoice.total || 0) - Number(invoice.amount_paid || 0), 0),
+      );
+    }
   }
 
-  const invoiceCountsByClient = new Map<string, { count: number; outstanding: number }>();
+  const revenueMap = new Map<string, { currency: string; amount: number }>();
+  for (const invoice of paidRows) {
+    const key = dateKey(invoice.issue_date);
+    const currency = currencyCode(invoice.currency);
+    const current = revenueMap.get(`${key}:${currency}`) ?? { currency, amount: 0 };
+    current.amount += Number(invoice.amount_paid || 0);
+    revenueMap.set(`${key}:${currency}`, current);
+  }
+
+  const invoiceCountsByClient = new Map<string, { count: number; outstanding: Map<string, number> }>();
   for (const invoice of invoiceRows) {
     if (!invoice.client_id) continue;
-    const current = invoiceCountsByClient.get(invoice.client_id) ?? { count: 0, outstanding: 0 };
+    const current = invoiceCountsByClient.get(invoice.client_id) ?? { count: 0, outstanding: new Map<string, number>() };
     current.count += 1;
-    if (['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status)) current.outstanding += Math.max(Number(invoice.total || 0) - Number(invoice.amount_paid || 0), 0);
+    if (['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status)) {
+      addCurrencyAmount(
+        current.outstanding,
+        currencyCode(invoice.currency),
+        Math.max(Number(invoice.total || 0) - Number(invoice.amount_paid || 0), 0),
+      );
+    }
     invoiceCountsByClient.set(invoice.client_id, current);
   }
 
@@ -108,17 +142,19 @@ router.get('/dashboard/overview', async (req, res) => {
       paidInvoices: invoiceRows.filter((invoice) => invoice.status === 'Paid').length,
       overdueInvoices: invoiceRows.filter((invoice) => invoice.status === 'Overdue').length,
       cancelledInvoices: invoiceRows.filter((invoice) => invoice.status === 'Cancelled').length,
-      totalRevenue,
-      outstandingAmount,
+       totalRevenue: currencyAmounts(totalRevenueByCurrency),
+       outstandingAmount: currencyAmounts(outstandingAmountByCurrency),
       totalClients: clientRows.length,
     },
-    revenue: [...revenueMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, amount]) => ({ date, amount })),
+     revenue: [...revenueMap.entries()]
+       .sort(([a], [b]) => a.localeCompare(b))
+       .map(([key, value]) => ({ date: key.slice(0, 10), currency: value.currency, amount: value.amount })),
     statusDistribution,
     recentActivity: recentActivity ?? [],
     recentInvoices: invoiceRows.slice(0, 8),
     recentClients: clientRows.slice(0, 6).map((client) => {
-      const metrics = invoiceCountsByClient.get(client.id) ?? { count: 0, outstanding: 0 };
-      return { ...client, invoice_count: metrics.count, outstanding: metrics.outstanding };
+       const metrics = invoiceCountsByClient.get(client.id) ?? { count: 0, outstanding: new Map<string, number>() };
+       return { ...client, invoice_count: metrics.count, outstanding: currencyAmounts(metrics.outstanding) };
     }),
   });
 });

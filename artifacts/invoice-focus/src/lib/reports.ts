@@ -1,18 +1,20 @@
 import { supabase } from './supabase'
 
 export type ReportPeriod = 'week' | 'month' | 'year'
+export interface CurrencyAmount { currency: string; amount: number }
+export interface CurrencyRate { currency: string; value: number }
 export interface ReportsOverview {
   range: { start: string | null; end: string | null; period: ReportPeriod }
   summary: {
-    totalRevenue: number; outstandingRevenue: number; paidRevenue: number; overdueRevenue: number
+    totalRevenue: CurrencyAmount[]; outstandingRevenue: CurrencyAmount[]; paidRevenue: CurrencyAmount[]; overdueRevenue: CurrencyAmount[]
     totalInvoices: number; paidInvoices: number; outstandingInvoices: number; overdueInvoices: number
-    activeClients: number; averageInvoiceValue: number; averageClientRevenue: number; newClients: number; returningClients: number
+    activeClients: number; averageInvoiceValue: CurrencyAmount[]; averageClientRevenue: CurrencyAmount[]; newClients: number; returningClients: number
   }
-  revenue: Array<{ label: string; value: number }>
+  revenue: Array<{ label: string; currency: string; value: number }>
   invoiceStatus: Array<{ status: string; count: number }>
-  topClients: Array<{ name: string; revenue: number; invoices: number; paidInvoices: number }>
-  payments: { collectionRate: number; outstandingBalance: number; paidAmount: number; partialPayments: number; monthlyCollections: Array<{ label: string; value: number }> }
-  kpis: { monthlyRevenue: number; annualRevenue: number; averageInvoiceValue: number; averagePaymentTime: number; invoiceConversionRate: number; collectionPercentage: number; clientGrowth: number; revenueGrowth: number }
+  topClients: Array<{ name: string; revenue: CurrencyAmount[]; invoices: number; paidInvoices: number }>
+  payments: { collectionRate: CurrencyRate[]; outstandingBalance: CurrencyAmount[]; paidAmount: CurrencyAmount[]; partialPayments: number; monthlyCollections: Array<{ label: string; currency: string; value: number }> }
+  kpis: { monthlyRevenue: CurrencyAmount[]; annualRevenue: CurrencyAmount[]; averageInvoiceValue: CurrencyAmount[]; averagePaymentTime: number; invoiceConversionRate: number; collectionPercentage: CurrencyRate[]; clientGrowth: number; revenueGrowth: CurrencyRate[] }
 }
 
 export async function getReportsOverview(range: { start?: string; end?: string; period?: ReportPeriod } = {}) {

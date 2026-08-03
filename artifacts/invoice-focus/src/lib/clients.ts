@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import type { CurrencyAmount } from './dashboard'
 
 export interface ClientRecord {
   id: string
@@ -56,7 +57,7 @@ export function listClients(filters: { search?: string; sort?: string; direction
 export function getClient(id: string) {
   return request<{
     client: ClientRecord
-    stats: { invoiceCount: number; totalInvoiced: number; totalPaid: number; outstanding: number }
+    stats: { invoiceCount: number; totalInvoiced: CurrencyAmount[]; totalPaid: CurrencyAmount[]; outstanding: CurrencyAmount[] }
     recentInvoices: Array<{ id: string; invoice_number: string; status: string; issue_date: string; total: number; currency: string }>
   }>(`/clients/${id}`)
 }

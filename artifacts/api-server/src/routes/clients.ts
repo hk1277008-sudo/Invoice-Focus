@@ -25,6 +25,20 @@ const listSchema = z.object({
 });
 const clientIdSchema = z.string().uuid();
 
+function currencyCode(value: string | null | undefined) {
+  return (value || 'USD').toUpperCase();
+}
+
+function addCurrencyAmount(map: Map<string, number>, currency: string, amount: number) {
+  map.set(currency, (map.get(currency) ?? 0) + amount);
+}
+
+function currencyAmounts(map: Map<string, number>) {
+  return [...map.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([currency, amount]) => ({ currency, amount }));
+}
+
 function getToken(req: Request) {
   const header = req.get('authorization');
   return header?.startsWith('Bearer ') ? header.slice(7) : null;
@@ -112,17 +126,26 @@ router.get('/clients/:id', async (req, res) => {
     return;
   }
   const history = [...(invoices ?? [])].sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
-  const totalInvoiced = history.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
-  const totalPaid = history
-    .filter((invoice) => invoice.status === 'Paid')
-    .reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
+  const totalInvoicedByCurrency = new Map<string, number>();
+  const totalPaidByCurrency = new Map<string, number>();
+  for (const invoice of history) {
+    const currency = currencyCode(invoice.currency);
+    addCurrencyAmount(totalInvoicedByCurrency, currency, Number(invoice.total || 0));
+    if (invoice.status === 'Paid') {
+      addCurrencyAmount(totalPaidByCurrency, currency, Number(invoice.total || 0));
+    }
+  }
+  const outstandingByCurrency = new Map<string, number>();
+  for (const [currency, amount] of totalInvoicedByCurrency) {
+    addCurrencyAmount(outstandingByCurrency, currency, amount - (totalPaidByCurrency.get(currency) ?? 0));
+  }
   res.json({
     client,
     stats: {
       invoiceCount: history.length,
-      totalInvoiced,
-      totalPaid,
-      outstanding: totalInvoiced - totalPaid,
+      totalInvoiced: currencyAmounts(totalInvoicedByCurrency),
+      totalPaid: currencyAmounts(totalPaidByCurrency),
+      outstanding: currencyAmounts(outstandingByCurrency),
     },
     recentInvoices: history.slice(0, 10),
   });

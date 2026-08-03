@@ -1,0 +1,786 @@
+# INVOICEFOCUS — MVP FULL FUNCTIONALITY, UX CLEANUP & VERCEL DEPLOYMENT TASK
+
+You are working on the existing **InvoiceFocus** project.
+
+Your task is to take the current codebase and make the existing web application **fully functional, stable, production-ready, and deployable to Vercel**.
+
+This is an implementation task.
+
+Do not create a demo.
+
+Do not create fake functionality.
+
+Do not add unnecessary new features.
+
+Do not redesign completed pages.
+
+Do not rewrite the application unnecessarily.
+
+Follow the existing InvoiceFocus project Skill and the instructions below.
+
+---
+
+# PRIMARY OBJECTIVE
+
+Make the current InvoiceFocus application a **fully functional production-ready MVP**.
+
+Every visible page, button, form, menu, setting, action, dashboard metric, and user workflow must follow this rule:
+
+> **If it is visible to the user, it must either work completely or be removed from the UI.**
+
+There must be no fake, placeholder, misleading, or nonfunctional functionality remaining.
+
+Do not leave UI that appears to work but does nothing.
+
+Do not show fake success messages.
+
+Do not use mock data as a substitute for real application data.
+
+Do not leave buttons that do nothing.
+
+Do not leave settings that appear configurable but cannot actually be changed.
+
+If functionality is not required for the MVP and cannot be implemented safely, remove it from the user interface instead of leaving broken functionality.
+
+---
+
+# IMPORTANT: CREDIT-EFFICIENCY RULE
+
+The project has previously consumed excessive Replit AI credits because of unnecessary changes and repeated attempts.
+
+You MUST work carefully and efficiently.
+
+Before modifying anything:
+
+1. Inspect the existing implementation.
+2. Identify the relevant files.
+3. Understand the current data flow.
+4. Identify the root cause.
+5. Make the smallest safe change.
+6. Test the result.
+
+Do not:
+
+* Rewrite entire pages unnecessarily.
+* Rebuild working components.
+* Refactor unrelated code.
+* Install unnecessary dependencies.
+* Create duplicate components.
+* Create duplicate API endpoints.
+* Create duplicate database tables.
+* Change the design without a functional reason.
+* Make speculative changes.
+
+Only modify code relevant to the requested tasks.
+
+---
+
+# TASK 1 — REMOVE UNSTABLE "SAVED DRAFTS" UI FROM INVOICE CREATION
+
+When a user is filling out the **Create Invoice** form, there is currently a visible "Saved drafts" or similar autosave/draft status element that repeatedly changes position or content every second.
+
+This creates visual instability.
+
+The element appears to move or change location while the user is typing.
+
+This must be fixed.
+
+## Required behavior
+
+Keep autosave functionality if it is working correctly, but make it completely silent.
+
+Remove the constantly changing visible "Saved drafts" UI from the invoice editor.
+
+Do NOT show:
+
+* A "Saved" message after every keystroke.
+* Repeated autosave notifications.
+* A draft counter that moves.
+* A status element that causes layout shifting.
+* Any UI element that changes the position of the invoice editor controls.
+
+The invoice editor layout must remain stable while the user types.
+
+The **Download PDF** button and all important invoice controls must remain in a fixed, predictable position.
+
+If autosave fails, show a clear error only when necessary.
+
+Do not display a constantly changing autosave status.
+
+Verify that:
+
+* Invoice data is still safely persisted.
+* Autosave does not create excessive API requests.
+* Autosave does not overwrite newer data with older data.
+* Refreshing the page does not unexpectedly lose saved invoice data.
+
+---
+
+# TASK 2 — REMOVE THE "$0" CONTAINER IF IT ONLY COMMUNICATES THAT THE APP IS FREE
+
+Inspect the `$0` container currently displayed in the application.
+
+If the `$0` container exists only to communicate that InvoiceFocus is free, remove it.
+
+Do not replace it with:
+
+* "100% Free"
+* "Free Forever"
+* "No Credit Card"
+* Another pricing badge
+* Another unnecessary promotional container
+
+The application should not repeatedly advertise that it is free through badges or containers.
+
+The product should focus on the actual invoice workflow.
+
+IMPORTANT:
+
+InvoiceFocus is currently launching as a free product.
+
+However, the business may introduce subscription plans in the future.
+
+Do NOT implement subscription infrastructure now.
+
+Do NOT add:
+
+* Stripe subscriptions
+* Paddle
+* Checkout
+* Pricing plans
+* Billing infrastructure
+
+The current MVP should remain simple.
+
+Future monetization will be implemented separately when explicitly requested.
+
+---
+
+# TASK 3 — CURRENCY SYSTEM MUST BE USER-SELECTED
+
+The application currently has areas after login such as:
+
+* Reports
+* Insights
+* Dashboard metrics
+* Total Revenue
+* Other financial summaries
+
+These areas currently display currency using `$` / US Dollars by default.
+
+This is not acceptable for an international invoice application.
+
+The currency used throughout financial summaries must be based on the user's selected invoice currency.
+
+## Required behavior
+
+During invoice creation, the user chooses the invoice currency.
+
+For example:
+
+* USD
+* EUR
+* GBP
+* PKR
+* AED
+* SAR
+* INR
+* CAD
+* AUD
+* Other currencies already supported by the application
+
+Use the application's existing currency system if one already exists.
+
+Do not create duplicate currency systems.
+
+The selected currency must be stored with the invoice.
+
+The selected currency must be available when calculating and displaying financial metrics.
+
+## Dashboard / Reports / Insights behavior
+
+When displaying:
+
+* Total Revenue
+* Revenue summaries
+* Invoice totals
+* Reports
+* Insights
+* Financial metrics
+* Other monetary values
+
+Do not hardcode `$`.
+
+Do not assume USD.
+
+Use the currency associated with the relevant invoice data.
+
+If the dashboard is displaying a combined total containing invoices with different currencies, DO NOT incorrectly add different currencies together.
+
+Instead, use one of these safe approaches:
+
+1. Group totals by currency.
+
+Example:
+
+USD $1,000
+EUR €500
+PKR Rs. 100,000
+
+OR
+
+2. If the application already has a reliable currency conversion system, use it correctly.
+
+Do NOT implement fake currency conversion or use hardcoded exchange rates.
+
+For the MVP, grouping totals by currency is safer than incorrectly combining different currencies.
+
+## Important
+
+The currency symbol and formatting must be dynamically determined.
+
+Examples:
+
+USD → `$`
+
+EUR → `€`
+
+GBP → `£`
+
+PKR → `Rs` or the existing appropriate locale format
+
+AED → `د.إ` or the appropriate supported format
+
+Do not hardcode `$` anywhere that should dynamically reflect invoice currency.
+
+Search the codebase for hardcoded dollar currency formatting and fix relevant financial displays.
+
+Do not change unrelated text that legitimately uses `$`.
+
+---
+
+# TASK 4 — SETTINGS / WORKSPACE / CONFIGURATION MUST BE FUNCTIONAL OR REMOVED
+
+The current application contains areas under Settings and/or Workspace/Configuration that appear to exist but are not functional.
+
+This issue has reportedly been attempted multiple times without being properly resolved.
+
+This time, investigate the existing implementation carefully.
+
+The rule is simple:
+
+> **Either make the functionality genuinely work, or completely remove it from the user interface.**
+
+Do not leave nonfunctional settings visible.
+
+Do not create fake settings functionality.
+
+Do not show a toggle that does not actually change anything.
+
+Do not show a form that cannot save.
+
+Do not show configuration options that are not connected to the application.
+
+---
+
+## STEP 4A — AUDIT SETTINGS
+
+Inspect all Settings pages and sections.
+
+For each visible setting, determine:
+
+1. What is the setting supposed to do?
+2. Is it connected to real data?
+3. Is it persisted?
+4. Does changing it affect the application?
+5. Does it work after page refresh?
+6. Does it work for the authenticated user?
+7. Is it secure?
+
+---
+
+## STEP 4B — FUNCTIONAL SETTINGS
+
+Any setting that is necessary for the MVP should be made genuinely functional.
+
+Examples may include:
+
+* Profile information
+* Business information
+* Business name
+* Business address
+* Business email
+* Business phone
+* Invoice defaults
+* Default currency
+* Default invoice settings
+
+Only implement settings that are already part of the intended application or clearly required for existing workflows.
+
+Do not expand the Settings page into a large account-management system.
+
+---
+
+## STEP 4C — WORKSPACE / CONFIGURATION
+
+Inspect:
+
+* Workspace
+* Organization
+* Configuration
+* Similar administrative pages
+
+If they are required by the current architecture and user workflows, make them genuinely functional.
+
+If they are not required for the MVP and are currently nonfunctional:
+
+**Remove them completely from the user-facing navigation and UI.**
+
+Also remove:
+
+* Dead navigation links
+* Broken routes
+* Empty pages
+* Placeholder cards
+* Fake configuration controls
+
+Do not leave dead pages accessible through direct URLs unless there is a clear reason.
+
+If removing a page requires removing unused components or routes, do so safely.
+
+Do not delete database tables or backend infrastructure blindly.
+
+Only remove unused code when it is safe and clearly no longer referenced.
+
+---
+
+# TASK 5 — AUDIT EVERY PAGE AND EVERY USER-FACING FEATURE
+
+Perform a systematic audit of the entire application.
+
+Do not only inspect the pages mentioned in this prompt.
+
+Inspect every user-facing route and major workflow.
+
+For every page, check:
+
+* Does it load correctly?
+* Does it use real data?
+* Does it display accurate data?
+* Do buttons work?
+* Do forms save?
+* Does editing work?
+* Does deleting work?
+* Do search and filters work?
+* Does sorting work?
+* Do links work?
+* Are loading states correct?
+* Are empty states correct?
+* Are error states correct?
+* Does data persist after refresh?
+* Does it respect authentication?
+* Does it respect user ownership?
+* Does it work on mobile?
+* Does it work on desktop?
+
+The core pages include:
+
+* Dashboard
+* Invoices
+* Clients
+* Templates
+* Settings
+* Help
+
+Also inspect any additional pages currently exposed to users.
+
+---
+
+# TASK 6 — CORE INVOICE WORKFLOW
+
+Verify the complete invoice workflow.
+
+The following must genuinely work:
+
+## Create
+
+* Create invoice
+* Add client
+* Add line items
+* Set quantity
+* Set price
+* Calculate subtotal
+* Calculate totals
+* Apply supported taxes
+* Apply supported discounts
+* Add notes
+* Select currency
+* Save invoice
+
+## Edit
+
+* Open invoice
+* Edit invoice
+* Save changes
+* Verify persisted changes
+
+## Delete
+
+* Delete invoice
+* Confirm deletion if appropriate
+* Verify it disappears from the user's invoice list
+
+## Duplicate
+
+* Duplicate invoice
+* Create a new independent invoice
+* Ensure original remains unchanged
+
+## History
+
+* View invoice history
+* Search
+* Filter
+* Sort
+
+## PDF
+
+* Generate PDF
+* Verify correct invoice data
+* Verify correct currency
+* Verify selected template
+* Verify professional layout
+
+Do not mark this task complete until the complete workflow is tested.
+
+---
+
+# TASK 7 — CLIENT MANAGEMENT
+
+Verify that client management is fully functional.
+
+Users should be able to:
+
+* Create client
+* Edit client
+* Delete client where appropriate
+* Search clients
+* Select a client while creating an invoice
+* Reuse saved client information
+
+Verify that client data is persisted correctly.
+
+Verify that users cannot access another user's private clients.
+
+---
+
+# TASK 8 — TEMPLATES
+
+Verify that the Templates page is functional.
+
+The user must be able to:
+
+* View templates
+* Select a template
+* Use the selected template for invoice generation
+* See the selected template reflected in the PDF/output
+
+If a template appears selectable but does not actually affect the invoice output, fix it.
+
+If a template is not functional and is not required for MVP, remove it rather than leaving fake functionality.
+
+---
+
+# TASK 9 — DASHBOARD, REPORTS AND INSIGHTS
+
+Inspect all dashboard metrics and financial summaries.
+
+Ensure that:
+
+* Metrics use real database data.
+* No fake data is displayed.
+* No hardcoded currency symbols are used where currency should be dynamic.
+* Revenue calculations are accurate.
+* Invoice counts are accurate.
+* Data belongs only to the authenticated user.
+* Empty states are handled correctly.
+
+If reports or insights are visible but not genuinely functional:
+
+Either:
+
+1. Make them functional using real invoice data.
+
+OR:
+
+2. Remove them from the user interface.
+
+Do not leave fake analytics.
+
+Do not display fake charts.
+
+Do not show hardcoded numbers.
+
+---
+
+# TASK 10 — AUTHENTICATION
+
+Verify:
+
+* Signup
+* Login
+* Logout
+* Forgot password
+* Reset password
+* Email verification
+* Session persistence
+* Protected routes
+
+Pay special attention to the known password reset HTTP 502 issue.
+
+Find the root cause.
+
+Fix it properly.
+
+Test the complete flow.
+
+Do not simply hide the error.
+
+---
+
+# TASK 11 — USER DATA ISOLATION
+
+Verify that authenticated users can only access their own:
+
+* Invoices
+* Clients
+* Business settings
+* Dashboard metrics
+* Reports
+* Insights
+
+Check Supabase Row Level Security and backend authorization.
+
+Do not weaken security policies.
+
+---
+
+# TASK 12 — REMOVE DEAD OR FAKE UI
+
+After auditing the application, remove user-facing elements that are:
+
+* Fake
+* Nonfunctional
+* Unused
+* Misleading
+* Duplicate
+* Placeholder
+* Broken
+
+Examples include:
+
+* Fake billing
+* Fake workspace settings
+* Fake organization settings
+* Fake notifications
+* Fake security controls
+* Fake privacy controls
+* Fake reports
+* Fake insights
+* Dead buttons
+* Dead navigation items
+
+Do not remove genuine MVP functionality.
+
+---
+
+# TASK 13 — PRESERVE EXISTING DESIGN
+
+The InvoiceFocus branding and completed page designs are already established.
+
+Do not redesign the application.
+
+Do not change the homepage unnecessarily.
+
+Do not change layouts simply for personal preference.
+
+Focus on:
+
+* Functionality
+* Reliability
+* Stability
+* UX issues
+* Performance
+
+Preserve the existing visual language.
+
+---
+
+# TASK 14 — VERCEL DEPLOYMENT READINESS
+
+The final application must be ready to deploy to Vercel.
+
+Inspect the project for:
+
+* Replit-specific dependencies
+* Replit-specific environment variables
+* Replit-specific server assumptions
+* Incorrect build commands
+* Incorrect start commands
+* Vite configuration problems
+* API routing issues
+* Environment variable issues
+* Frontend/backend deployment architecture
+* SPA routing problems
+* Authentication redirect problems
+* Password reset redirect problems
+* CORS configuration
+* Production API URLs
+
+The application must build successfully for production.
+
+Do not assume that because development mode works, Vercel deployment will work.
+
+Verify the production build.
+
+If the architecture currently requires a separate backend, identify the correct deployment approach.
+
+Do not force an Express backend into Vercel serverless functions unless that is actually appropriate for the existing architecture.
+
+The goal is:
+
+> **A clean, repeatable production deployment architecture that works outside Replit.**
+
+---
+
+# TASK 15 — ROOT PACKAGE.JSON ISSUE
+
+There is a known root `package.json` error:
+
+`Bad control character in string literal in JSON at position 644 (line 17 column 29)`
+
+Inspect and fix the exact JSON syntax problem.
+
+Do not rewrite the entire package.json unnecessarily.
+
+After fixing:
+
+* Validate JSON.
+* Install dependencies if required.
+* Run the production build.
+* Verify there are no new dependency issues.
+
+---
+
+# FINAL ACCEPTANCE CRITERIA
+
+Do not consider this task complete merely because the application starts.
+
+The task is complete only when:
+
+### Functionality
+
+* Every visible feature works.
+* Every important button works.
+* Every form works.
+* Every CRUD workflow works.
+* No fake functionality remains.
+* No dead navigation remains.
+* No misleading UI remains.
+
+### Invoice
+
+* Create works.
+* Edit works.
+* Delete works.
+* Duplicate works.
+* History works.
+* Search works.
+* Filtering works.
+* Sorting works.
+* PDF export works.
+* Templates work.
+* Currency selection works.
+
+### Currency
+
+* Invoice currency is saved.
+* Invoice currency is displayed correctly.
+* Dashboard financial data respects currency.
+* Reports respect currency.
+* Insights respect currency.
+* No incorrect hardcoded `$` remains.
+* Mixed currencies are not incorrectly added together.
+
+### Settings
+
+Every visible setting is functional.
+
+OR
+
+Nonfunctional settings are removed.
+
+### Autosave
+
+* Autosave works silently.
+* No repeated "Saved drafts" UI.
+* No layout shifting.
+* No moving controls.
+* No data loss.
+
+### Authentication
+
+* Signup works.
+* Login works.
+* Logout works.
+* Password reset works.
+* Email verification works.
+* Sessions persist.
+
+### Security
+
+* Users can only access their own data.
+* Supabase RLS is correctly configured.
+* Secrets are not exposed.
+
+### Production
+
+* Production build succeeds.
+* Environment variables are documented.
+* Vercel deployment requirements are understood.
+* No critical Replit-only dependency blocks deployment.
+* Authentication redirects are production-ready.
+
+---
+
+# FINAL REPORT REQUIRED
+
+After completing the work, provide a concise report containing:
+
+1. **What was fixed**
+2. **What was removed**
+3. **What was made functional**
+4. **Currency system changes**
+5. **Settings / Workspace / Configuration changes**
+6. **Authentication fixes**
+7. **Autosave UI changes**
+8. **Security changes**
+9. **Vercel deployment readiness**
+10. **Production build result**
+11. **Any remaining blockers**
+
+Do not claim something is fixed unless you actually tested it.
+
+Do not claim Vercel deployment is ready if there are known unresolved deployment blockers.
+
+If you discover a blocker that cannot safely be fixed within this task, clearly identify it and explain the exact reason.
+
+## MOST IMPORTANT RULE
+
+**Do not leave broken functionality visible to users.**
+
+For every user-facing feature:
+
+> **Make it fully functional, or remove it.**
+
+The final goal is a **clean, stable, fully functional, professional InvoiceFocus MVP that is ready for real users and ready for deployment to Vercel.**

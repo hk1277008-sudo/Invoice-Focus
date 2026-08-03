@@ -1,6 +1,11 @@
 import { supabase } from './supabase'
 import type { InvoiceStatus, InvoiceRecord } from './invoices'
 
+export interface CurrencyAmount {
+  currency: string
+  amount: number
+}
+
 export interface DashboardOverview {
   range: { start: string | null; end: string | null }
   stats: {
@@ -12,11 +17,11 @@ export interface DashboardOverview {
     paidInvoices: number
     overdueInvoices: number
     cancelledInvoices: number
-    totalRevenue: number
-    outstandingAmount: number
+    totalRevenue: CurrencyAmount[]
+    outstandingAmount: CurrencyAmount[]
     totalClients: number
   }
-  revenue: Array<{ date: string; amount: number }>
+  revenue: Array<{ date: string; currency: string; amount: number }>
   statusDistribution: Array<{ status: InvoiceStatus; count: number }>
   recentInvoices: InvoiceRecord[]
   recentActivity: Array<{ id: string; invoice_id: string; action: string; description: string; created_at: string }>
@@ -28,7 +33,7 @@ export interface DashboardOverview {
     created_at: string
     updated_at: string
     invoice_count: number
-    outstanding: number
+    outstanding: CurrencyAmount[]
   }>
 }
 

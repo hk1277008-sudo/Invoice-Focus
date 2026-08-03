@@ -47,3 +47,13 @@ export function formatCurrency(amount: number, currency: Currency): string {
   }
   return `${currency.symbol}${formatted}`
 }
+
+export function formatCurrencyCode(amount: number, code: string): string {
+  const currency = CURRENCY_MAP[code as CurrencyCode]
+  if (currency) return formatCurrency(amount, currency)
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: code }).format(amount)
+  } catch {
+    return `${code} ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
+}
