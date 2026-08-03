@@ -1,0 +1,151 @@
+INVOICEFOCUS — DEFINITIVE FIX FOR RENDER ESBUILD MODULE_NOT_FOUND
+
+The Render deployment is STILL failing with the exact same error:
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'esbuild' imported from /opt/render/project/src/artifacts/api-server/build.mjs
+
+This means the previous attempted fix did NOT resolve the actual production dependency problem.
+
+DO NOT make another speculative fix.
+
+DO NOT change Render commands yet.
+
+DO NOT modify unrelated code.
+
+DO NOT modify the frontend.
+
+DO NOT modify the logo.
+
+DO NOT modify authentication.
+
+DO NOT modify invoice functionality.
+
+DO NOT reapply or modify migration 019_free_platform_cleanup.sql.
+
+Your task is to inspect the CURRENT repository and definitively identify why the Render environment cannot resolve esbuild.
+
+CURRENT RENDER CONFIGURATION:
+
+Root Directory:
+.
+
+Build Command:
+pnpm --filter @workspace/api-server run build
+
+Start Command:
+pnpm --filter @workspace/api-server run start
+
+The failing build file is:
+
+artifacts/api-server/build.mjs
+
+The API workspace package is:
+
+@workspace/api-server
+
+Perform the following investigation:
+
+1. Inspect the root package.json.
+
+2. Inspect:
+   artifacts/api-server/package.json
+
+3. Inspect:
+   artifacts/api-server/build.mjs
+
+4. Inspect:
+   pnpm-workspace.yaml
+
+5. Inspect:
+   pnpm-lock.yaml
+
+6. Determine EXACTLY where esbuild is declared.
+
+7. Determine whether esbuild is declared under:
+   - dependencies
+   - devDependencies
+   - optionalDependencies
+
+8. Determine which package actually imports esbuild.
+
+9. Determine whether build.mjs imports esbuild directly.
+
+10. Determine whether the dependency is available from the location where Node resolves build.mjs.
+
+11. Determine whether pnpm workspace dependency isolation prevents build.mjs from resolving esbuild.
+
+12. Determine whether Render is installing production dependencies only and therefore omitting esbuild.
+
+13. Determine whether the lockfile contains esbuild correctly.
+
+14. Determine whether the current package manager version used by Render matches the project's packageManager configuration.
+
+15. Reproduce the production build locally using the same command:
+
+pnpm --filter @workspace/api-server run build
+
+16. If possible, reproduce a clean install using the repository's lockfile and then run the same build command.
+
+IMPORTANT:
+
+Do not simply add esbuild somewhere without understanding why the module cannot be resolved.
+
+Do not install a duplicate or unnecessary version of esbuild.
+
+Do not use a global esbuild installation.
+
+Do not change the Render Build Command as a workaround unless you can prove the repository configuration is correct and the Render environment itself is the problem.
+
+The final fix must ensure that:
+
+pnpm --filter @workspace/api-server run build
+
+works after a clean dependency installation in a fresh environment.
+
+The Render build must be able to resolve:
+
+esbuild
+
+from:
+
+artifacts/api-server/build.mjs
+
+using the current monorepo structure.
+
+If the correct fix is to add esbuild to a specific package's dependencies, explain WHY that package needs it.
+
+If the correct fix is to move esbuild from devDependencies to dependencies, explain WHY.
+
+If the correct fix is a pnpm workspace configuration change, explain WHY.
+
+If the correct fix is a packageManager/version configuration issue, explain WHY.
+
+If the correct fix is a Render build configuration issue, prove that the repository dependency configuration is correct before recommending it.
+
+After applying the ROOT-CAUSE fix, run:
+
+- pnpm install using the lockfile
+- pnpm --filter @workspace/api-server run build
+- pnpm --filter @workspace/api-server run start, if practical
+- Frontend typecheck
+- Frontend production build
+- API typecheck
+- API production build
+- git diff --check
+
+Finally provide a report with EXACTLY:
+
+1. Root cause
+2. Files inspected
+3. Files changed
+4. Exact fix
+5. Why the previous fix failed
+6. Why the new fix works in a clean Render environment
+7. Exact Render Build Command
+8. Exact Render Start Command
+9. Whether Render Root Directory should remain "."
+10. Verification results
+
+Do not claim the issue is fixed unless the build has been successfully reproduced after a clean dependency installation.
+
+Make the smallest safe change necessary.
