@@ -7,9 +7,9 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { wrap: 'h-6 w-6', text: 'text-[15px]' },
-  md: { wrap: 'h-7 w-7', text: 'text-[18px]' },
-  lg: { wrap: 'h-9 w-9', text: 'text-[22px]' },
+  sm: { wrap: 'h-8 w-8', text: 'text-[16px]' },
+  md: { wrap: 'h-10 w-10', text: 'text-[20px]' },
+  lg: { wrap: 'h-12 w-12', text: 'text-[26px]' },
 }
 
 /**
@@ -21,7 +21,7 @@ export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
   const { wrap, text } = sizes[size]
 
   return (
-    <span className={cn('inline-flex items-center gap-2.5', className)}>
+    <span className={cn('inline-flex items-center gap-3', className)}>
       <img
         src="/invoicefocus-logo.png"
         alt="InvoiceFocus icon"
