@@ -7,9 +7,9 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { wrap: 'h-10 w-10', text: 'text-[18px]' },
-  md: { wrap: 'h-14 w-14', text: 'text-[22px]' },
-  lg: { wrap: 'h-16 w-16', text: 'text-[28px]' },
+  sm: { wrap: 'h-9 w-auto', text: 'text-[18px]' },
+  md: { wrap: 'h-12 w-auto', text: 'text-[22px]' },
+  lg: { wrap: 'h-14 w-auto', text: 'text-[28px]' },
 }
 
 /**
@@ -25,8 +25,12 @@ export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
       <img
         src="/invoicefocus-logo.png"
         alt="InvoiceFocus icon"
-        className={cn('block shrink-0 object-contain select-none', wrap)}
-      />
+        className={cn(
+          'block shrink-0 object-contain select-none',
+    wrap
+  )}
+  draggable={false}
+/>
       {!markOnly && (
         <span className={cn('font-display font-bold tracking-[-0.025em] leading-none', text)}>
            <span className="text-foreground">Invoice</span>
