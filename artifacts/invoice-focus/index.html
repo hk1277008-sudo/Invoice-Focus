@@ -92,9 +92,28 @@
 
     <!-- Structured Data -->
     <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "https://invoicefocus.com/#organization",
+      "name": "Invoice Focus",
+      "url": "https://invoicefocus.com",
+      "logo": "https://invoicefocus.com/invoicefocus-logo.png"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://invoicefocus.com/#website",
+      "url": "https://invoicefocus.com",
+      "name": "Invoice Focus",
+      "publisher": {
+        "@id": "https://invoicefocus.com/#organization"
+      }
+    },
+    {
       "@type": "SoftwareApplication",
+      "@id": "https://invoicefocus.com/#software",
       "name": "Invoice Focus",
       "applicationCategory": "BusinessApplication",
       "applicationSubCategory": "Invoice Generator",
@@ -107,10 +126,8 @@
         "price": "0",
         "priceCurrency": "USD"
       },
-      "creator": {
-        "@type": "Organization",
-        "name": "Invoice Focus",
-        "url": "https://invoicefocus.com"
+      "publisher": {
+        "@id": "https://invoicefocus.com/#organization"
       },
       "featureList": [
         "Invoice Generator",
@@ -123,6 +140,8 @@
         "Client Management"
       ]
     }
+  ]
+}
     </script>
   </head>
 
