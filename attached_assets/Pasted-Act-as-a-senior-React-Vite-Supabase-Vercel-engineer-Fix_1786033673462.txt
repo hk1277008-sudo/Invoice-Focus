@@ -1,0 +1,141 @@
+Act as a senior React + Vite + Supabase + Vercel engineer.
+
+Fix ONLY the following issues without breaking any existing functionality. The homepage, templates, and SEO are already working correctly, so do not modify anything unrelated.
+
+====================================================
+1. RESET PASSWORD EMAIL STILL OPENS 404
+====================================================
+
+Problem:
+- User receives the password reset email successfully.
+- Clicking the Reset Password button inside the email still opens a 404 page instead of the Reset Password screen.
+
+Requirements:
+- Find the root cause.
+- Ensure every Supabase recovery link correctly opens the Reset Password page.
+- Verify Vercel SPA routing.
+- Verify Supabase redirect URL configuration.
+- Verify React router configuration.
+- Test the complete password reset flow from email → reset page → update password.
+
+====================================================
+2. CLIENTS PAGE IS NOT FUNCTIONAL
+====================================================
+
+Problem:
+- After logging in, clicking "Clients" in the dashboard does nothing.
+
+Requirements:
+- Restore complete Clients page navigation.
+- Ensure routing works.
+- Ensure page loads correctly.
+- Do not affect Dashboard, Templates, Help or Invoices.
+
+====================================================
+3. DASHBOARD SIDEBAR AUTO-ACTIVE BUG
+====================================================
+
+Problem:
+Sometimes Dashboard and Clients appear active simultaneously even though only Dashboard was selected.
+
+Requirements:
+- Only one sidebar item may be active.
+- Active state must always match the current route.
+- Remove any duplicate active styling.
+- Prevent simultaneous active states.
+
+====================================================
+4. DASHBOARD FETCH ERROR
+====================================================
+
+Problem:
+Dashboard sometimes shows:
+
+Failed to fetch
+
+Requirements:
+- Identify why the dashboard API request fails.
+- Fix authentication/session/API handling.
+- Add proper loading and error handling.
+- Do not silently suppress errors.
+- Dashboard must consistently load business overview data.
+
+====================================================
+5. FAVICON + BROWSER ICON IMPROVEMENT
+====================================================
+
+I will provide a new square logo.
+
+Requirements:
+
+- Remove the white background completely.
+- Preserve transparent background.
+- Enhance sharpness and quality.
+- Generate production-ready favicon assets.
+
+Create:
+
+- favicon.ico
+- favicon-16.png
+- favicon-32.png
+- favicon-48.png
+- apple-touch-icon.png
+- 192x192 icon
+- 512x512 icon
+
+Update every favicon reference if necessary.
+
+The favicon should look large, centered and crisp in:
+
+- Chrome
+- Edge
+- Firefox
+- Mobile browsers
+
+====================================================
+6. BROWSER TAB BRANDING
+====================================================
+
+Ensure browser branding is consistent.
+
+Requirements:
+
+- Browser tab title remains correct.
+- Browser icon uses the new favicon.
+- PWA icons use the same branding.
+- No old logo should remain anywhere.
+
+====================================================
+7. DO NOT BREAK ANYTHING
+====================================================
+
+The following already work correctly and must remain untouched:
+
+✓ Homepage
+✓ Homepage Templates
+✓ Logged-in Templates
+✓ Help page "Go to Dashboard" CTA
+✓ SEO metadata
+✓ JSON-LD
+✓ Open Graph
+✓ Bing optimization
+✓ Google indexing improvements
+
+====================================================
+8. BEFORE FINISHING
+====================================================
+
+Verify all of the following manually:
+
+✓ Reset Password email link works
+✓ Clients page works
+✓ Dashboard fetch works
+✓ Sidebar highlights only one active item
+✓ New favicon appears correctly
+✓ Browser branding updated
+✓ No console errors
+✓ No TypeScript errors
+✓ Production build succeeds
+✓ Vercel deployment succeeds
+
+Do not mark the task complete until every item above has been verified.

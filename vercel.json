@@ -1,7 +1,7 @@
 {
   "framework": "vite",
-  "buildCommand": "PORT=18994 BASE_PATH=/ pnpm run build",
-  "outputDirectory": "dist/public",
+  "buildCommand": "PORT=18994 BASE_PATH=/ pnpm --filter @workspace/invoice-focus run build",
+  "outputDirectory": "artifacts/invoice-focus/dist/public",
   "rewrites": [
     {
       "source": "/(.*)",

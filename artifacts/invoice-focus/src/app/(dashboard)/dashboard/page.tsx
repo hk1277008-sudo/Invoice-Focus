@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'wouter'
+import { Link, useSearch } from 'wouter'
 import {
   ArrowUpRight, CalendarDays, CheckCircle2, CircleDollarSign, Clock3, Copy, FileText,
   Eye, MessageSquare, MoreHorizontal, Plus, Receipt, TrendingUp, Users, XCircle,
@@ -68,6 +68,7 @@ export default function DashboardPage() {
   const { toast } = useToast()
   const { user } = useAuth()
   const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false)
+  const search = useSearch()
   const range = useMemo(() => getRange(preset, customStart, customEnd), [customEnd, customStart, preset])
 
   const load = useCallback(async () => {
@@ -85,6 +86,11 @@ export default function DashboardPage() {
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [load])
+
+  useEffect(() => {
+    if (new URLSearchParams(search).get('section') !== 'invoices' || loading || !overview) return
+    document.getElementById('invoices')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [loading, overview, search])
 
   useEffect(() => {
     if (!overview || !user || typeof window === 'undefined') return
@@ -116,7 +122,7 @@ export default function DashboardPage() {
       </div>
     </div>
     {preset === 'custom' && <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4"><div><label className="text-xs font-medium text-muted-foreground">From</label><input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} className="mt-1 block h-9 rounded-md border border-input bg-background px-3 text-sm" /></div><div><label className="text-xs font-medium text-muted-foreground">To</label><input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} className="mt-1 block h-9 rounded-md border border-input bg-background px-3 text-sm" /></div></div>}
-    {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error}</div>}
+     {error && <div className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between"><span>{error}</span><Button variant="outline" size="sm" onClick={() => void load()} disabled={loading}>Try again</Button></div>}
      {showFeedbackPrompt && <div className="flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/[0.03] p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><div><p className="text-sm font-semibold">How is Invoice Focus working for you?</p><p className="mt-1 text-sm text-muted-foreground">A quick note helps us shape the next release.</p></div></div><div className="flex shrink-0 gap-2"><Button asChild size="sm"><Link href="/dashboard/feedback">Share feedback</Link></Button><Button variant="ghost" size="sm" onClick={() => setShowFeedbackPrompt(false)}>Not now</Button></div></div>}
     {loading && !overview ? <DashboardSkeleton /> : overview ? <DashboardContent overview={overview} onDuplicate={handleDuplicate} onDelete={handleDelete} /> : null}
   </div></DashboardLayout>

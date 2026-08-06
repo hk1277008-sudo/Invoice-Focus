@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'wouter'
+import { Link, useLocation, useSearch } from 'wouter'
 import { FileText, Users, LayoutDashboard, CircleHelp, PlusCircle, LogOut, Menu } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react'
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Invoices', href: '/dashboard', icon: FileText },
+  { label: 'Invoices', href: '/dashboard?section=invoices', icon: FileText },
   { label: 'Clients', href: '/dashboard/clients', icon: Users },
   { label: 'Templates', href: '/dashboard/templates', icon: FileText },
   { label: 'Help', href: '/help', icon: CircleHelp },
@@ -68,7 +68,9 @@ function UserMenu() {
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation()
+  const search = useSearch()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const isInvoiceSection = location === '/dashboard' && new URLSearchParams(search).get('section') === 'invoices'
 
   useEffect(() => {
     setMobileNavOpen(false)
@@ -87,7 +89,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 overflow-y-auto p-3">
           <ul className="space-y-1">
             {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
-              const isActive = location === href
+              const isActive = label === 'Dashboard'
+                ? location === '/dashboard' && !isInvoiceSection
+                : label === 'Invoices'
+                  ? isInvoiceSection
+                  : location === href
               return (
                 <li key={label}>
                   <Link
@@ -145,9 +151,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <Link
                   href={href}
                   onClick={() => setMobileNavOpen(false)}
-                  className={cn(
+                    className={cn(
                     'flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
-                    location === href
+                     label === 'Dashboard'
+                       ? location === '/dashboard' && !isInvoiceSection
+                       : label === 'Invoices'
+                         ? isInvoiceSection
+                         : location === href
                       ? 'bg-primary/10 font-medium text-primary'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                   )}

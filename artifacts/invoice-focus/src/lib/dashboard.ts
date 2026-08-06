@@ -43,9 +43,17 @@ export async function getDashboardOverview(range: { start?: string; end?: string
   const params = new URLSearchParams()
   if (range.start) params.set('start', range.start)
   if (range.end) params.set('end', range.end)
-  const response = await fetch(`${getApiBaseUrl()}/api/dashboard/overview?${params}`, {
-    headers: { Authorization: `Bearer ${data.session.access_token}` },
+  const request = (accessToken: string) => fetch(`${getApiBaseUrl()}/api/dashboard/overview?${params}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
   })
+  let response = await request(data.session.access_token)
+  if (response.status === 401) {
+    const refreshed = await supabase.auth.refreshSession()
+    if (refreshed.error || !refreshed.data.session?.access_token) {
+      throw new Error('Your session has expired. Please sign in again.')
+    }
+    response = await request(refreshed.data.session.access_token)
+  }
   if (!response.ok) {
     const body = await response.json().catch(() => null)
     throw new Error(body?.error || 'Could not load dashboard overview')
