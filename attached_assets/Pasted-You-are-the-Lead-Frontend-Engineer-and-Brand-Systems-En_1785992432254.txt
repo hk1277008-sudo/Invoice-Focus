@@ -1,0 +1,219 @@
+You are the Lead Frontend Engineer and Brand Systems Engineer for InvoiceFocus.
+
+This is NOT a branding redesign task.
+
+This is a production branding integration task.
+
+====================================================
+MISSION
+====================================================
+
+The official branding assets have already been uploaded.
+
+They are the ONLY approved branding assets.
+
+DO NOT redesign them.
+
+DO NOT recreate them.
+
+DO NOT generate new logos.
+
+DO NOT change typography.
+
+DO NOT change gradients.
+
+DO NOT change spacing.
+
+DO NOT change colors.
+
+Treat them exactly like the official assets of Stripe, Notion, GitHub, Vercel, Linear and Figma.
+
+Your only responsibility is integrating them correctly.
+
+====================================================
+FIRST TASK (CRITICAL)
+====================================================
+
+The website STILL displays a white rectangle behind the logo.
+
+DO NOT GUESS.
+
+Find the EXACT root cause.
+
+Inspect everything including:
+
+• logo-horizontal.png
+• logo-mark.png
+• invoicefocus-logo.png
+• favicon assets
+• HTML
+• CSS
+• React components
+• Tailwind classes
+• wrapper divs
+• parent containers
+• browser rendered DOM
+• computed CSS
+• image alpha channel
+• PNG transparency
+• image metadata
+• image color profile
+• browser cache
+• asset paths
+
+Determine exactly where the white rectangle originates.
+
+Do NOT stop until the white rectangle is completely removed.
+
+The logo must render exactly like Stripe, Notion, GitHub, Vercel or Linear logos.
+
+No visible box.
+
+No visible canvas.
+
+No white pixels.
+
+No background.
+
+====================================================
+SECOND TASK
+====================================================
+
+If ANY uploaded branding asset contains white pixels instead of transparency:
+
+Remove them.
+
+Preserve the original design.
+
+Preserve typography.
+
+Preserve icon.
+
+Preserve colors.
+
+Preserve gradients.
+
+Enhance image quality if necessary.
+
+Keep transparent alpha.
+
+Do NOT flatten onto white.
+
+====================================================
+THIRD TASK
+====================================================
+
+Create a professional production branding asset structure identical to modern SaaS companies.
+
+The public folder should contain:
+
+public/
+│
+├── favicon.ico
+├── favicon-16.png
+├── favicon-32.png
+├── favicon-48.png
+├── apple-touch-icon.png
+├── android-chrome-192.png
+├── android-chrome-512.png
+├── logo-horizontal.png
+├── logo-mark.png
+├── invoicefocus-logo.png
+├── site.webmanifest
+├── robots.txt
+└── sitemap.xml
+
+Remove obsolete branding assets if they are no longer used.
+
+Do not leave duplicates.
+
+====================================================
+FOURTH TASK
+====================================================
+
+Update every reference automatically.
+
+Verify:
+
+index.html
+
+site.webmanifest
+
+Open Graph image
+
+Twitter image
+
+favicon links
+
+Apple Touch Icon
+
+Android icons
+
+Header logo
+
+React Logo component
+
+Meta tags
+
+Structured data
+
+Everything must point to the official assets.
+
+====================================================
+FIFTH TASK
+====================================================
+
+Inspect the running application.
+
+Do NOT inspect only source code.
+
+Inspect the rendered UI.
+
+Open Developer Tools.
+
+Inspect computed styles.
+
+Inspect the rendered DOM.
+
+Verify visually that:
+
+✓ No white rectangle exists.
+
+✓ Logo sits directly on the page background.
+
+✓ Transparency works correctly.
+
+✓ Header alignment is pixel perfect.
+
+====================================================
+SIXTH TASK
+====================================================
+
+If image quality can be improved without changing the design:
+
+Improve anti-aliasing.
+
+Improve sharpness.
+
+Improve transparency edges.
+
+Improve PNG optimization.
+
+Keep the exact same design.
+
+====================================================
+FINAL REQUIREMENT
+====================================================
+
+Do NOT report success based only on file existence.
+
+Report success ONLY after visually confirming on the running website that:
+
+• The white rectangle is completely gone.
+• Transparency is correct.
+• Every branding asset loads correctly.
+• No duplicate branding exists.
+• Every reference points to the official files.
+• The branding quality matches production standards used by Stripe, Notion, GitHub, Vercel and Linear.
+
+If any of the above fails, continue fixing automatically until everything is correct.
