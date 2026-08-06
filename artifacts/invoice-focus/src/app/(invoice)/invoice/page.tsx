@@ -169,12 +169,7 @@ export default function InvoicePage() {
         // unsaved/invalid local status. Preserve all other in-progress edits.
         updateDetails('status', currentSavedStatus)
       }
-      setRemoteStatus('error')
-      toast({
-        title: 'Save failed',
-        description: error instanceof Error ? error.message : 'Could not save this invoice.',
-        variant: 'destructive',
-      })
+      setRemoteStatus('idle')
     } finally {
       saveInFlightRef.current = false
       const latestSignature = JSON.stringify(invoiceRef.current)
@@ -351,7 +346,7 @@ export default function InvoicePage() {
           </div>
           <div className="relative grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3">
             <span className="pointer-events-none absolute -top-6 right-0 min-h-4 text-xs text-muted-foreground sm:right-0" aria-live="polite">
-              {remoteStatus === 'saved' ? 'All changes saved' : remoteStatus === 'error' ? 'Could not save' : ''}
+              {remoteStatus === 'saved' ? 'All changes saved' : ''}
             </span>
 
             <input
