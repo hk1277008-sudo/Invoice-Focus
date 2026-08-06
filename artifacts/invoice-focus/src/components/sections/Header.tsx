@@ -49,10 +49,19 @@ export function Header() {
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="sm" asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-slate-950 bg-white text-slate-950 hover:bg-slate-950 hover:text-white focus-visible:ring-slate-950"
+            asChild
+          >
             <Link href="/sign-in">Sign In</Link>
           </Button>
-          <Button size="sm" asChild>
+          <Button
+            size="sm"
+            className="bg-slate-950 text-white shadow-md shadow-slate-950/20 hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-950/25 focus-visible:ring-slate-950"
+            asChild
+          >
             <Link href="/invoice">Get Started</Link>
           </Button>
         </div>
@@ -92,12 +101,21 @@ export function Header() {
               ))}
             </nav>
             <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4">
-              <Button variant="ghost" size="default" asChild className="w-full justify-center">
+              <Button
+                variant="outline"
+                size="default"
+                className="w-full justify-center border-slate-950 bg-white text-slate-950 hover:bg-slate-950 hover:text-white focus-visible:ring-slate-950"
+                asChild
+              >
                 <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
                   Sign In
                 </Link>
               </Button>
-              <Button size="default" asChild className="w-full justify-center">
+              <Button
+                size="default"
+                className="w-full justify-center bg-slate-950 text-white shadow-md shadow-slate-950/20 hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-950/25 focus-visible:ring-slate-950"
+                asChild
+              >
                 <Link href="/invoice" onClick={() => setMenuOpen(false)}>
                   Get Started
                 </Link>

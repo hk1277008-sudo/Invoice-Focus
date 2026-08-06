@@ -20,7 +20,7 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   const dark = family === 'enterprise'
   const band = family === 'enterprise' || presentation.headerLayout === 'Band'
   const centered = family === 'minimal' || presentation.headerLayout === 'Centered'
-  const pageWidth = presentation.paperSize === 'Letter' ? '8.5in' : '210mm'
+  const pagePadding = family === 'minimal' ? '14mm' : family === 'enterprise' ? '8mm' : '12mm'
   const font = presentationFontFamily(presentation.font)
   const visibleItems = invoice.items
     .filter((item) => item.name.trim() || item.description.trim() || Number(item.quantity) > 0 || Number(item.unitPrice) > 0)
@@ -47,11 +47,12 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>${escapeHtml(invoice.details.number || 'Invoice')}</title>
 <style>
-  @page { size: ${presentation.paperSize}; margin: ${family === 'minimal' ? '20mm' : family === 'enterprise' ? '12mm' : '16mm'}; }
+  @page { size: ${presentation.paperSize} portrait; margin: 0; }
   * { box-sizing: border-box; }
   :root { --primary: ${presentation.primaryColor}; --accent: ${presentation.accentColor}; }
+  html, body { width: 100%; min-height: 100%; }
   body { font-family: ${font}; color: ${dark ? '#f5f8fc' : '#172033'}; background: ${dark ? '#182337' : '#fff'}; margin: 0; padding: 0; line-height: 1.5; font-size: 11px; }
-  .invoice { position: relative; width: 100%; max-width: ${pageWidth}; margin: 0 auto; padding: ${family === 'minimal' ? '12px' : family === 'enterprise' ? '0' : '6px'}; overflow: hidden; }
+  .invoice { position: relative; width: 100%; max-width: none; min-height: 100%; margin: 0; padding: ${pagePadding}; overflow: visible; }
   .rail { position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--primary); }
   .topbar { position: absolute; inset: 0 0 auto; height: 6px; background: var(--primary); }
   .orb { position: absolute; right: -55px; top: -55px; width: 180px; height: 180px; border-radius: 50%; background: var(--accent); opacity: .2; }
@@ -80,7 +81,7 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   .footer { margin-top: 32px; border-top: 1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e5e7eb'}; padding-top: 12px; color: ${dark ? 'rgba(255,255,255,.5)' : '#8b96a6'}; font-size: 9px; }
   .footer-bar { background: var(--accent); border: 0; border-radius: 6px; padding: 7px 9px; color: #fff; }
   @media screen and (max-width: 680px) { .invoice { padding: 5mm; } .header, .columns { flex-direction: column; } .header-right, .column-right { text-align: left; } .column-right { grid-template-columns: 1fr 1fr; } }
-  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .invoice { padding: 0; } img { break-inside: avoid; } }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .invoice { width: 100%; max-width: none; padding: ${pagePadding}; } img { break-inside: avoid; } }
 </style></head><body>
 <main class="invoice">${family === 'enterprise' ? '<div class="topbar"></div>' : family === 'professional' ? '<div class="rail"></div>' : '<div class="orb"></div>'}
   <header class="header"><div class="header-left">${invoice.business.logo ? `<img class="logo" src="${escapeHtml(invoice.business.logo)}" alt="${escapeHtml(invoice.business.name || 'Business')} logo">` : ''}<p class="business-name">${escapeHtml(invoice.business.name || 'Business Name')}</p>${invoice.business.contactPerson ? `<p class="muted">${escapeHtml(invoice.business.contactPerson)}</p>` : ''}${invoice.business.address ? `<p class="muted">${escapeHtml(invoice.business.address).replace(/\n/g, '<br>')}</p>` : ''}<div style="margin-top:6px">${invoice.business.email ? `<p class="muted">${escapeHtml(invoice.business.email)}</p>` : ''}${invoice.business.phone ? `<p class="muted">${escapeHtml(invoice.business.phone)}</p>` : ''}${invoice.business.website ? `<p class="muted">${escapeHtml(invoice.business.website)}</p>` : ''}</div>${invoice.business.taxId ? `<p class="muted" style="margin-top:8px">Tax ID: ${escapeHtml(invoice.business.taxId)}</p>` : ''}</div><div class="header-right"><p class="meta-label">${escapeHtml(documentMeta.numberLabel)}</p><p class="business-name" style="font-size:${presentation.titleStyle === 'compact' ? '19px' : '24px'}">${escapeHtml(documentMeta.title)}</p>${invoice.details.number ? `<p class="meta-value">${escapeHtml(invoice.details.number)}</p>` : ''}${documentType === 'receipt' ? '<span class="status">PAYMENT RECEIVED</span>' : invoice.details.status ? `<span class="status">${escapeHtml(invoice.details.status)}</span>` : ''}</div></header>

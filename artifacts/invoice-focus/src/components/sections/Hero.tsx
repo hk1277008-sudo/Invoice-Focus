@@ -21,7 +21,7 @@ export function Hero() {
         >
           <span className="label-caps w-fit">Professional Invoicing Made Simple</span>
           <h1 className="font-display text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Create Professional Invoices In Under A Minute
+            Free Invoice Generator
           </h1>
           <p className="max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
             Create professional invoices, quotes, estimates, and receipts in minutes with InvoiceFocus—the free online invoice generator built for freelancers, agencies, startups, and businesses. Customize your documents, download print-ready PDF invoices, and send them to clients quickly, all from your browser.
