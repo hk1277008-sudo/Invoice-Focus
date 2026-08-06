@@ -29,9 +29,9 @@ const FEATURES = [
   },
   {
     icon: Download,
-    title: 'PDF Export',
+    title: 'Print-Ready PDF Invoices',
     description:
-      'Download print-ready PDFs instantly or share a secure link so clients can view invoices in any browser.',
+      'Download print-ready PDF invoices instantly or share a secure link so clients can view documents in any browser.',
   },
   {
     icon: Palette,
@@ -70,7 +70,7 @@ export function Features() {
             A Complete Toolkit for Polished Invoices, Quotes, and Estimates
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            A focused toolkit for creating, customizing, and sharing professional documents.
+            Everything you need from a free invoice maker and invoice creator: professional documents, flexible invoice templates, clear totals, and fast PDF export.
           </p>
         </div>
 

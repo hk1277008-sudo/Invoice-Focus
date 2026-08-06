@@ -1,0 +1,65 @@
+Use this prompt for your agent. It is narrowly scoped to the homepage copy and SEO improvements, and explicitly tells it not to change anything else.
+
+---
+
+**Prompt**
+
+> Replace the current homepage hero subheading:
+>
+> **Current text:**
+>
+> > *The Invoicing Tool That Helps You Look Professional. Focus on your work, not your billing. InvoiceFocus handles the details so you can get paid.*
+>
+> **Replace it everywhere it is sourced from (whether hardcoded, imported from a constants/config file, JSON, or CMS) with:**
+>
+> > **Create professional invoices, quotes, estimates, and receipts in minutes with InvoiceFocus—the free online invoice generator built for freelancers, agencies, startups, and businesses. Customize your documents, download print-ready PDF invoices, and send them to clients quickly, all from your browser.**
+>
+> ---
+>
+> Then perform a complete on-page SEO optimization for the public marketing pages only.
+>
+> **Requirements:**
+>
+> * Take inspiration from leading invoicing websites such as Invoice-Generator.com for SEO structure and keyword coverage, but **do not copy any wording**. Write completely original content.
+> * Optimize naturally for keywords including:
+>
+>   * free invoice generator
+>   * online invoice generator
+>   * invoice maker
+>   * invoice creator
+>   * invoice template
+>   * invoice software
+>   * quote generator
+>   * estimate generator
+>   * receipt generator
+>   * PDF invoice
+>   * freelancers
+>   * agencies
+>   * startups
+>   * small businesses
+>   * professional invoices
+> * Improve:
+>
+>   * page title
+>   * meta description
+>   * Open Graph
+>   * Twitter/X metadata
+>   * canonical tags
+>   * structured data (Schema.org)
+>   * heading hierarchy (H1, H2, H3)
+>   * image alt attributes
+>   * internal linking where appropriate
+> * Ensure the homepage content is unique, human-readable, and not keyword stuffed.
+> * Improve semantic HTML where beneficial.
+> * Ensure all SEO changes follow Google's best practices.
+> * Preserve the existing UI and design.
+>
+> **Important:**
+>
+> * Do **not** modify authentication.
+> * Do **not** modify dashboard functionality.
+> * Do **not** modify invoice generation logic.
+> * Do **not** modify APIs or database code.
+> * Do **not** introduce new features.
+> * Only update homepage/public marketing copy and SEO-related files.
+> * After finishing, provide a concise list of every file that was modified and a brief explanation of each SEO improvement made.

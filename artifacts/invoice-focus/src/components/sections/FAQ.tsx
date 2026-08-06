@@ -13,6 +13,11 @@ const FAQS = [
       'Yes. InvoiceFocus is permanently free with unlimited invoices, templates, branding controls, recurring invoices, reminders, exports, and client management. There are no paid tiers or usage limits.',
   },
   {
+    question: 'Can I create quotes, estimates, and receipts?',
+    answer:
+      'Yes. InvoiceFocus works as an invoice generator, quote generator, estimate generator, and receipt generator, with document types that can be customized before you share or export them.',
+  },
+  {
     question: 'Do I need to install anything?',
     answer:
       'InvoiceFocus runs entirely in your browser. Start creating an invoice immediately, or sign in when you want cloud saving, history, and synchronized data.',
@@ -21,6 +26,11 @@ const FAQS = [
     question: 'Can I export invoices as PDFs?',
     answer:
       'Yes. Every invoice, quote, and estimate can be exported as a polished, print-ready PDF with one click.',
+  },
+  {
+    question: 'Is InvoiceFocus an online invoice maker for small businesses?',
+    answer:
+      'Yes. InvoiceFocus is browser-based invoice software for freelancers, agencies, startups, and small businesses that need professional invoices without a complicated setup.',
   },
   {
     question: 'Does InvoiceFocus support multiple currencies?',

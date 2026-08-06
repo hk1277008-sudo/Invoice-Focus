@@ -108,7 +108,7 @@ export function Templates() {
             Start With a Professionally Designed Template
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            Choose a layout, add your branding, and send your first invoice in minutes.
+            Start with a polished invoice template for invoices, quotes, estimates, or receipts, then add your branding and send it in minutes.
           </p>
         </div>
 

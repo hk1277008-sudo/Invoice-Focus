@@ -94,7 +94,7 @@ export function HowItWorks() {
             From Draft to Delivery in Four Steps
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            No complicated setup. Create, customize, and send in moments.
+            Use InvoiceFocus as your online invoice generator: create, customize, and send professional documents in moments.
           </p>
         </motion.div>
 

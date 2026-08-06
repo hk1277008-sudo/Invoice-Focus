@@ -149,7 +149,7 @@ export function ProductPreview() {
             See Your Documents Before You Send Them
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            Switch between invoices, quotes, estimates, receipts, and purchase orders to preview every detail.
+            Preview an invoice, quote, estimate, or receipt before you send it, so every detail looks clear and professional.
           </p>
         </motion.div>
 
