@@ -367,14 +367,14 @@ export function InvoiceEditor({
           <CardDescription>Add products or services to this document.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg border border-border" data-invoice-items>
-            <div className={`${advancedOptionsOpen ? 'grid-cols-12' : 'grid-cols-10'} hidden gap-2 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid`}>
-               <div className="col-span-3">Description</div>
-              <div className="col-span-3 sm:col-span-1">Qty</div>
-              <div className="col-span-4 sm:col-span-3">Price</div>
-              {advancedOptionsOpen && <><div className="col-span-2 sm:col-span-1">Tax %</div><div className="col-span-2 sm:col-span-1">Disc %</div></>}
-              <div className={`${advancedOptionsOpen ? 'col-span-1' : 'col-span-2'} sm:col-span-2`}>Total</div>
-              <div className="col-span-1 sm:col-span-1"></div>
+           <div className="overflow-x-auto rounded-lg border border-border" data-invoice-items>
+             <div className={`${advancedOptionsOpen ? 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(4.5rem,0.8fr)_minmax(5rem,0.9fr)_minmax(6rem,1.2fr)_2.5rem]' : 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(6rem,1.2fr)_2.5rem]'} hidden min-w-[42rem] gap-3 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid`}>
+               <div>Description</div>
+               <div>Qty</div>
+               <div>Price</div>
+               {advancedOptionsOpen && <><div>Tax %</div><div>Discount %</div></>}
+               <div className="text-right">Total</div>
+               <div aria-hidden="true" />
             </div>
             <div className="divide-y divide-border">
               {invoice.items.map((item, index) => (
@@ -496,21 +496,14 @@ function InvoiceItemRow({
   const priceError = errors[`item-${index}-price`]
 
   return (
-    <div className={`grid min-w-0 grid-cols-2 gap-3 overflow-hidden p-3 sm:gap-2 ${showAdjustments ? 'sm:grid-cols-12' : 'sm:grid-cols-10'}`}>
-      <div className="col-span-2 min-w-0 space-y-1 sm:col-span-3">
-        <Input
-          value={item.description}
-          onChange={(e) => onUpdate(item.id, 'description', e.target.value)}
-          placeholder="Description"
-          className="h-8"
-          data-item-description={item.id}
-        />
+    <div className={`grid min-w-0 grid-cols-2 items-center gap-3 overflow-hidden p-3 sm:min-w-[42rem] ${showAdjustments ? 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(4.5rem,0.8fr)_minmax(5rem,0.9fr)_minmax(6rem,1.2fr)_2.5rem]' : 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(6rem,1.2fr)_2.5rem]'}`}>
+      <div className="col-span-2 min-w-0 space-y-1 sm:col-span-1">
         <Input
           value={item.name}
           onChange={(e) => onUpdate(item.id, 'name', e.target.value)}
-          placeholder="Item Name"
-          className="h-8"
-          tabIndex={-1}
+          placeholder="Description"
+          className="h-9"
+          data-item-description={item.id}
           aria-invalid={!!nameError}
           aria-describedby={nameError ? `item-${index}-name-error` : undefined}
         />
@@ -520,7 +513,7 @@ function InvoiceItemRow({
           </p>
         )}
       </div>
-      <div className="col-span-1 sm:col-span-1">
+      <div className="col-span-1 min-w-0 sm:col-span-1">
         <Input
           type="number"
           min="0"
@@ -528,12 +521,12 @@ function InvoiceItemRow({
           value={item.quantity}
           onChange={(e) => onUpdate(item.id, 'quantity', e.target.value)}
           placeholder="Qty"
-          className="h-8"
+          className="h-9"
           aria-invalid={!!qtyError}
         />
         {qtyError && <p className="text-xs text-destructive">{qtyError}</p>}
       </div>
-      <div className="col-span-1 sm:col-span-3">
+      <div className="col-span-1 min-w-0 sm:col-span-1">
         <Input
           type="number"
           min="0"
@@ -541,23 +534,12 @@ function InvoiceItemRow({
           value={item.unitPrice}
           onChange={(e) => onUpdate(item.id, 'unitPrice', e.target.value)}
           placeholder="Price"
-          className="h-8"
+          className="h-9"
           aria-invalid={!!priceError}
         />
         {priceError && <p className="text-xs text-destructive">{priceError}</p>}
       </div>
-      {showAdjustments && <div className="col-span-1 sm:col-span-1 order-1">
-        <Input
-          type="number"
-          min="0"
-          step="0.01"
-          value={item.discountPercent}
-          onChange={(e) => onUpdate(item.id, 'discountPercent', e.target.value)}
-          placeholder="Disc %"
-          className="h-8"
-        />
-      </div>}
-      {showAdjustments && <div className="col-span-1 sm:col-span-1 order-2">
+      {showAdjustments && <div className="col-span-1 min-w-0 sm:col-span-1">
         <Input
           type="number"
           min="0"
@@ -565,14 +547,25 @@ function InvoiceItemRow({
           value={item.taxPercent}
           onChange={(e) => onUpdate(item.id, 'taxPercent', e.target.value)}
           placeholder="Tax %"
-          className="h-8"
+          className="h-9"
         />
       </div>}
-      <div className={`col-span-1 flex min-w-0 items-center justify-end overflow-hidden text-right text-xs font-medium tabular-nums ${showAdjustments ? 'sm:col-span-2' : 'sm:col-span-2'}`}>
+      {showAdjustments && <div className="col-span-1 min-w-0 sm:col-span-1">
+        <Input
+          type="number"
+          min="0"
+          step="0.01"
+          value={item.discountPercent}
+          onChange={(e) => onUpdate(item.id, 'discountPercent', e.target.value)}
+          placeholder="Discount %"
+          className="h-9"
+        />
+      </div>}
+      <div className="col-span-1 flex min-h-9 min-w-0 items-center justify-end overflow-hidden text-right text-xs font-medium tabular-nums">
         <span className="mr-1 text-[10px] font-normal text-muted-foreground sm:hidden">Total</span>
         {lineTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
-      <div className="col-span-1 flex items-center justify-end sm:col-span-2">
+      <div className="col-span-1 flex min-h-9 items-center justify-end">
         <Button
           type="button"
           variant="ghost"
@@ -580,7 +573,7 @@ function InvoiceItemRow({
           onClick={() => onRemove(item.id)}
           disabled={!canRemove}
           aria-label="Remove item"
-          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+          className="h-9 w-9 text-muted-foreground hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
