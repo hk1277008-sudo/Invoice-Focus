@@ -1,0 +1,249 @@
+You are a senior SaaS frontend engineer, UI/UX engineer, branding specialist, SEO engineer, and PWA engineer.
+
+Project: InvoiceFocus
+
+=========================================================
+MISSION
+=========================================================
+
+Complete the ENTIRE branding integration for InvoiceFocus.
+
+I have uploaded the OFFICIAL branding assets.
+
+These uploaded assets are the ONLY approved branding assets.
+
+DO NOT redesign them.
+
+DO NOT recreate them.
+
+DO NOT regenerate them.
+
+DO NOT improve them.
+
+DO NOT modify typography.
+
+DO NOT modify spacing.
+
+DO NOT modify gradients.
+
+DO NOT modify proportions.
+
+DO NOT change colors.
+
+Treat the uploaded files as the final brand identity.
+
+=========================================================
+CRITICAL TRANSPARENCY RULE
+=========================================================
+
+The uploaded PNG files already contain transparency.
+
+Preserve transparency exactly.
+
+NEVER flatten them onto white.
+
+NEVER create a white canvas.
+
+NEVER add a background.
+
+NEVER add borders.
+
+NEVER add shadows.
+
+NEVER add padding around the artwork.
+
+NEVER add margins around the artwork.
+
+The logo must look identical to professional SaaS companies such as:
+
+Stripe
+
+Notion
+
+Linear
+
+Vercel
+
+GitHub
+
+Clerk
+
+The final logo must NOT have a white rectangle behind it anywhere.
+
+=========================================================
+HEADER LOGO
+=========================================================
+
+Replace the current React composed logo (icon + separate text).
+
+Instead use ONE horizontal logo image.
+
+Requirements:
+
+Use uploaded logo
+
+Responsive
+
+Pixel perfect
+
+Vertically centered
+
+Proper spacing
+
+High quality
+
+Professional SaaS appearance
+
+Remove every old logo implementation.
+
+=========================================================
+GENERATE BRAND ASSETS
+=========================================================
+
+Using ONLY the uploaded assets generate and replace:
+
+favicon.ico
+
+favicon-16.png
+
+favicon-32.png
+
+favicon-48.png
+
+apple-touch-icon.png
+
+android-chrome-192.png
+
+android-chrome-512.png
+
+logo-horizontal.png
+
+logo-mark.png
+
+invoicefocus-logo.png
+
+Every generated asset must preserve transparency whenever supported.
+
+=========================================================
+HTML HEAD
+=========================================================
+
+Verify and fix:
+
+favicon links
+
+apple touch icon
+
+manifest
+
+theme color
+
+Open Graph image
+
+Twitter image
+
+Title
+
+Description
+
+Canonical
+
+Everything should reference the correct branding.
+
+=========================================================
+HEADER TITLE
+=========================================================
+
+Browser title must display:
+
+InvoiceFocus
+
+No old branding anywhere.
+
+=========================================================
+WEB MANIFEST
+=========================================================
+
+Update site.webmanifest.
+
+Ensure every icon path is correct.
+
+=========================================================
+STRUCTURED DATA
+=========================================================
+
+Verify:
+
+WebSite
+
+SoftwareApplication
+
+Organization
+
+Ensure zero JSON errors.
+
+=========================================================
+SEO
+=========================================================
+
+Do not break:
+
+robots.txt
+
+sitemap.xml
+
+canonical
+
+Open Graph
+
+Twitter cards
+
+=========================================================
+QUALITY
+=========================================================
+
+Professional production quality.
+
+Pixel perfect.
+
+Responsive.
+
+Optimized images.
+
+No broken references.
+
+No duplicate assets.
+
+=========================================================
+FINAL VERIFICATION
+=========================================================
+
+Before finishing verify ALL of the following:
+
+✓ Header logo uses uploaded branding.
+
+✓ No white background behind logo.
+
+✓ favicon works.
+
+✓ Apple Touch Icon works.
+
+✓ Android icons work.
+
+✓ invoicefocus-logo.png is correct.
+
+✓ Browser title shows InvoiceFocus.
+
+✓ Every asset loads successfully.
+
+✓ No broken image paths.
+
+✓ No branding inconsistencies.
+
+Fix every issue automatically before completing the task.
+
+Do NOT leave TODO comments.
+
+Do NOT ask for confirmation.
+
+Complete the implementation completely.
