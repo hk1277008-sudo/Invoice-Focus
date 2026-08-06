@@ -44,7 +44,7 @@ function emailDocument(preheader: string, content: string) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="x-apple-disable-message-reformatting">
-  <title>InvoiceFocus</title>
+  <title>Invoice Focus</title>
   <style>
     body { margin: 0; padding: 0; width: 100% !important; background: #f5f7fb; color: #172033; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
     table { border-spacing: 0; border-collapse: collapse; }
@@ -55,12 +55,9 @@ function emailDocument(preheader: string, content: string) {
     .container { width: 100%; max-width: 600px; margin: 0 auto; }
      .topbar { padding: 36px 24px 26px; text-align: center; }
      .brand-header { width: 100%; }
-     .logo { width: 64px; height: 64px; border-radius: 14px; margin: 0 auto 14px; }
-     .wordmark { color: #172033; font-size: 18px; font-weight: 750; letter-spacing: -0.035em; line-height: 22px; white-space: nowrap; }
-     .wordmark-focus { color: #2454D6; }
+    .logo { width: 220px; height: auto; max-width: 100%; margin: 0 auto; }
     .card { background: #ffffff; border: 1px solid #e3e8f1; border-radius: 16px; box-shadow: 0 8px 28px rgba(23, 32, 51, 0.06); }
     .hero { padding: 36px 40px 12px; }
-     .hero-mark { width: 64px; height: 64px; margin-bottom: 24px; border-radius: 16px; }
     .eyebrow { margin: 0 0 12px; color: #315de8; font-size: 11px; font-weight: 750; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; }
     h1 { margin: 0; color: #172033; font-size: 30px; font-weight: 750; letter-spacing: -0.04em; line-height: 1.15; }
     .body { padding: 12px 40px 40px; }
@@ -102,8 +99,7 @@ function emailDocument(preheader: string, content: string) {
            <table role="presentation" class="brand-header" width="100%">
              <tr>
                 <td align="center" valign="middle">
-                  <img class="logo" src="cid:${brandLogoCid}" width="64" height="64" alt="InvoiceFocus logo" style="display:block;width:64px;height:64px;border:0;border-radius:14px;margin:0 auto 14px">
-                  <div class="wordmark">Invoice<span class="wordmark-focus">Focus</span></div>
+                  <img class="logo" src="cid:${brandLogoCid}" width="220" alt="Invoice Focus" style="display:block;width:220px;height:auto;max-width:100%;border:0;margin:0 auto">
                 </td>
              </tr>
            </table>

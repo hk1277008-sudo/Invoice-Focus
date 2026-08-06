@@ -1,6 +1,6 @@
 {
-  "name": "InvoiceFocus",
-  "short_name": "InvoiceFocus",
+  "name": "Invoice Focus",
+  "short_name": "Invoice Focus",
   "description": "Professional invoicing made simple.",
   "start_url": "/invoice",
   "display": "standalone",

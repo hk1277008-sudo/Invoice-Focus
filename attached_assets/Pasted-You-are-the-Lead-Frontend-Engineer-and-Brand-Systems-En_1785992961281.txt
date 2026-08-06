@@ -1,0 +1,138 @@
+You are the Lead Frontend Engineer and Brand Systems Engineer for Invoice Focus.
+
+This is NOT a redesign task.
+
+This is a production branding integration task.
+
+====================================================
+OBJECTIVE
+====================================================
+
+Complete the remaining branding integration for Invoice Focus using ONLY the already approved branding assets that exist in the project.
+
+DO NOT redesign anything.
+
+DO NOT regenerate logos.
+
+DO NOT recreate branding.
+
+DO NOT modify colors.
+
+DO NOT modify typography.
+
+DO NOT modify gradients.
+
+DO NOT modify spacing.
+
+Treat the uploaded branding assets as the official source of truth.
+
+====================================================
+TASK 1 — EMAIL BRANDING
+====================================================
+
+Find every email template used by the application.
+
+Replace every old logo with the official horizontal logo (icon + wordmark in a single line).
+
+Requirements:
+
+• Use ONLY the official horizontal logo.
+• Never use the icon alone.
+• Preserve transparency.
+• Preserve image quality.
+• Proper alignment.
+• Responsive across email clients.
+• Professional appearance similar to Stripe, Notion, GitHub, Linear and Vercel transactional emails.
+
+Inspect every transactional email including:
+
+• Welcome Email
+• Email Verification
+• Password Reset
+• Magic Link
+• Invitation
+• Organization Invite
+• Billing / Payment emails
+• Any additional email templates in the project
+
+Remove every reference to the previous logo.
+
+====================================================
+TASK 2 — BROWSER / APPLICATION NAME
+====================================================
+
+The browser should display exactly:
+
+Invoice Focus
+
+(with one space)
+
+NOT
+
+InvoiceFocus
+
+Inspect and update every location responsible for the browser/application display name:
+
+• HTML <title>
+• Web App Manifest
+• Manifest "name"
+• Manifest "short_name"
+• Meta application-name
+• Apple mobile web app title
+• PWA metadata
+• Framework metadata
+• Any browser identity configuration
+
+The browser tab must display:
+
+Invoice Focus
+
+The browser/application name shown above the URL must display:
+
+Invoice Focus
+
+IMPORTANT:
+
+Do NOT rename the domain.
+
+Do NOT rename the project folder.
+
+Do NOT rename source files.
+
+Do NOT rename branding assets.
+
+Only change the browser/application display name.
+
+====================================================
+TASK 3 — VERIFY THE LIVE APPLICATION
+====================================================
+
+Do NOT verify only source code.
+
+Run the application.
+
+Inspect the rendered application.
+
+Confirm visually:
+
+✓ Email templates use the official horizontal logo.
+
+✓ Browser tab displays "Invoice Focus".
+
+✓ Browser/application name above the URL displays "Invoice Focus".
+
+✓ No old branding remains.
+
+✓ Logo quality is preserved.
+
+✓ Transparency is preserved.
+
+====================================================
+SUCCESS CRITERIA
+====================================================
+
+Only report success after visually confirming ALL of the above on the running application.
+
+Do not rely solely on file existence or metadata checks.
+
+Explain exactly which files were modified and why.

@@ -32,10 +32,25 @@ try {
       inviteUrl: 'https://example.test/invite',
       recipientName: 'Malak Hamad',
     }),
+    email.buildInvoiceEmail({
+      businessName: 'Acme Studio',
+      invoiceNumber: 'INV-1001',
+      amountDue: '$1,250.00',
+      viewUrl: 'https://example.test/invoice',
+    }),
+    email.buildInvoiceEmail({
+      businessName: 'Acme Studio',
+      invoiceNumber: 'INV-1001',
+      amountDue: '$1,250.00',
+      viewUrl: 'https://example.test/invoice',
+      emailType: 'payment-reminder',
+    }),
   ];
 
   for (const message of builders) {
     assert.equal((message.html.match(/src="cid:invoicefocus-logo"/g) || []).length, 1);
+    assert.match(message.html, /class="logo" src="cid:invoicefocus-logo" width="220"/);
+    assert.doesNotMatch(message.html, /class="wordmark"/);
     assert.equal((message.html.match(/© 2026 Invoice Focus — Professional Invoicing Made Effortless/g) || []).length, 1);
     assert.match(message.html, /Support: <a href="mailto:hello@invoicefocus\.com">hello@invoicefocus\.com<\/a>/);
     assert.doesNotMatch(message.html, />https:\/\/invoicefocus\.com</);

@@ -1,0 +1,78 @@
+One final branding integration task.
+
+Do NOT redesign anything.
+
+Do NOT regenerate any branding assets.
+
+Use the already approved branding assets that exist in the project.
+
+====================================================
+1. EMAIL BRANDING
+====================================================
+
+Find every email template used by the application.
+
+Replace the current email branding with the official horizontal InvoiceFocus logo (logo + wordmark in one line).
+
+Requirements:
+
+• Use the official horizontal logo only.
+• Do NOT use the icon alone.
+• Remove every old logo.
+• Keep transparency.
+• Keep high quality.
+• Proper alignment.
+• Responsive in email clients.
+• Professional appearance similar to Stripe, Notion, GitHub and Vercel transactional emails.
+
+Verify every email template:
+
+- Welcome email
+- Verification email
+- Password reset email
+- Magic link email
+- Invitation email
+- Any other transactional email
+
+====================================================
+2. BROWSER HEADER NAME
+====================================================
+
+When the website is opened, the browser tab should display:
+
+InvoiceFocus
+
+and the browser header (shown above the URL https://...) should also display:
+
+InvoiceFocus
+
+Inspect everything responsible for browser identity, including:
+
+- HTML <title>
+- Web App Manifest
+- PWA configuration
+- Meta application-name
+- Apple mobile web app title
+- Theme metadata
+- Any framework-specific metadata
+
+If anything still references old branding, replace it with:
+
+InvoiceFocus
+
+====================================================
+3. VERIFY
+====================================================
+
+Do not verify only source code.
+
+Run the application.
+
+Visually confirm:
+
+✓ Email templates use the official horizontal logo.
+✓ Browser tab shows InvoiceFocus.
+✓ Browser header (above the URL) shows InvoiceFocus.
+✓ No old branding remains anywhere.
+
+Only report success after visually confirming all of the above.
