@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/shared/Logo'
 import { cn } from '@/lib/utils'
 import { Link } from 'wouter'
@@ -47,25 +46,6 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Desktop actions */}
-        <div className="hidden items-center gap-2 md:flex">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-slate-950 bg-white text-slate-950 hover:bg-slate-950 hover:text-white focus-visible:ring-slate-950"
-            asChild
-          >
-            <Link href="/sign-in">Sign In</Link>
-          </Button>
-          <Button
-            size="sm"
-            className="bg-slate-950 text-white shadow-md shadow-slate-950/20 hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-950/25 focus-visible:ring-slate-950"
-            asChild
-          >
-            <Link href="/invoice">Get Started</Link>
-          </Button>
-        </div>
-
         {/* Mobile menu toggle */}
         <button
           type="button"
@@ -100,27 +80,6 @@ export function Header() {
                 </a>
               ))}
             </nav>
-            <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4">
-              <Button
-                variant="outline"
-                size="default"
-                className="w-full justify-center border-slate-950 bg-white text-slate-950 hover:bg-slate-950 hover:text-white focus-visible:ring-slate-950"
-                asChild
-              >
-                <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
-                  Sign In
-                </Link>
-              </Button>
-              <Button
-                size="default"
-                className="w-full justify-center bg-slate-950 text-white shadow-md shadow-slate-950/20 hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-950/25 focus-visible:ring-slate-950"
-                asChild
-              >
-                <Link href="/invoice" onClick={() => setMenuOpen(false)}>
-                  Get Started
-                </Link>
-              </Button>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
