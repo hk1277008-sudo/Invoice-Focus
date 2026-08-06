@@ -1,0 +1,76 @@
+Fix ONLY this bug.
+
+Do NOT refactor, optimize, improve, redesign, clean up code, or modify any unrelated functionality.
+
+Do NOT investigate or fix any other bugs.
+
+Do NOT change UI, routing, SEO, authentication, templates, dashboard, clients, PDF, autosave behavior, or any feature unless it is directly causing this exact issue.
+
+=========================
+BUG TO FIX
+=========================
+
+There is a critical text input bug affecting ALL editable text fields inside the invoice editor.
+
+Current behavior:
+
+- While typing, characters disappear automatically.
+- Pressing Backspace deletes characters but they immediately reappear.
+- Typing becomes impossible because previous values overwrite current typing.
+- This happens across every editable input field, not only Business Name.
+
+Example:
+
+Typing:
+Malik
+
+Becomes:
+MA
+
+or characters randomly disappear.
+
+Deleting text also fails because deleted characters are restored automatically.
+
+=========================
+EXPECTED BEHAVIOR
+=========================
+
+Every input must behave like a normal React controlled input.
+
+- Characters must never disappear.
+- Backspace must permanently delete characters.
+- Typing must be smooth.
+- Pasting must work.
+- Selecting text must work.
+- Rapid typing must work.
+- No previous value should overwrite what the user is currently typing.
+
+=========================
+REQUIREMENTS
+=========================
+
+1. Find ONLY the root cause of this input overwrite bug.
+
+2. Fix ONLY the state synchronization responsible for overwriting user input.
+
+3. Ensure active typing is never overwritten by stale state.
+
+4. Preserve existing functionality.
+
+5. Do NOT modify anything unrelated.
+
+6. Do NOT introduce new features.
+
+7. Do NOT perform unnecessary code cleanup.
+
+8. After fixing, manually verify every editable input inside the invoice editor behaves normally.
+
+=========================
+DELIVERABLE
+=========================
+
+Return:
+
+- Exact root cause.
+- Files modified.
+- Confirmation that only this bug was fixed.

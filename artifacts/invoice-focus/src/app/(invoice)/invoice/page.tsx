@@ -139,10 +139,13 @@ export default function InvoicePage() {
             ...result.invoice.payload,
             details: { ...result.invoice.payload.details, status: result.invoice.status },
           }
-          persistedSignature = JSON.stringify(canonicalInvoice)
-          loadFromData({
-            ...canonicalInvoice,
-          })
+          // Do not let an older save response replace edits made while it was in flight.
+          if (JSON.stringify(invoiceRef.current) === currentSignature) {
+            persistedSignature = JSON.stringify(canonicalInvoice)
+            loadFromData({
+              ...canonicalInvoice,
+            })
+          }
         }
         if (statusChanged) {
           toast({ title: 'Invoice status updated', description: `Invoice marked ${input.status}.` })
