@@ -1,0 +1,177 @@
+You are a senior UI/UX engineer, frontend engineer, and branding specialist.
+
+Project: InvoiceFocus
+
+Your task is to complete ALL branding assets and branding integration for the project in one pass.
+
+========================
+OBJECTIVE
+========================
+
+Finish the complete branding system so that the website looks like a premium SaaS product similar to Stripe, Notion, Linear, Vercel, and Figma.
+
+Do NOT modify application logic.
+
+Do NOT change business functionality.
+
+Only work on branding assets and branding integration.
+
+========================
+HEADER LOGO
+========================
+
+Replace the current React-composed logo (icon + separate text) with a professional horizontal logo.
+
+Requirements:
+
+• Use a single logo image.
+• Logo should contain:
+    - InvoiceFocus icon
+    - InvoiceFocus wordmark
+• Proper spacing
+• Vertically centered
+• Responsive
+• High quality
+• Professional SaaS appearance
+
+Update the Logo component accordingly.
+
+========================
+FAVICON & APP ICONS
+========================
+
+Replace all branding assets consistently.
+
+Update:
+
+favicon.ico
+
+favicon-16.png
+
+favicon-32.png
+
+favicon-48.png
+
+apple-touch-icon.png
+
+android-chrome-192.png
+
+android-chrome-512.png
+
+invoicefocus-logo.png (Open Graph)
+
+logo-horizontal.png
+
+logo-mark.png
+
+site.webmanifest
+
+Ensure every icon uses the new branding.
+
+========================
+HTML HEAD
+========================
+
+Open the main index.html.
+
+Verify:
+
+Title
+
+Meta description
+
+Canonical
+
+Open Graph
+
+Twitter Cards
+
+Theme color
+
+Manifest
+
+Favicon links
+
+Apple Touch Icon
+
+Everything should reference the new branding correctly.
+
+========================
+HEADER TITLE
+========================
+
+In browser tabs and browser UI the website should display:
+
+InvoiceFocus
+
+NOT old branding.
+
+========================
+WEB HEADER
+========================
+
+When users open
+
+https://invoicefocus.com
+
+the browser should display:
+
+InvoiceFocus
+
+above the URL.
+
+Verify the HTML title.
+
+========================
+STRUCTURED DATA
+========================
+
+Verify:
+
+WebSite schema
+
+SoftwareApplication schema
+
+Organization schema
+
+No JSON errors.
+
+========================
+QUALITY
+========================
+
+Use:
+
+clean spacing
+
+consistent sizing
+
+pixel-perfect alignment
+
+responsive sizing
+
+proper alt text
+
+proper image optimization
+
+========================
+VERIFY
+========================
+
+After finishing:
+
+Check that every branding asset loads correctly.
+
+Check that no broken image paths exist.
+
+Check that favicon updates correctly.
+
+Check that browser title is correct.
+
+Check that all references point to the new assets.
+
+Fix every issue automatically.
+
+Do not leave TODOs.
+
+Complete everything in one implementation.

@@ -7,9 +7,9 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { wrap: 'h-6 w-6', text: 'text-[15px]' },
-  md: { wrap: 'h-7 w-7', text: 'text-[18px]' },
-  lg: { wrap: 'h-9 w-9', text: 'text-[22px]' },
+  sm: { full: 'h-auto w-[8.5rem]', mark: 'h-6 w-6' },
+  md: { full: 'h-auto w-[10rem]', mark: 'h-7 w-7' },
+  lg: { full: 'h-auto w-[12rem]', mark: 'h-9 w-9' },
 }
 
 /**
@@ -18,21 +18,15 @@ const sizes = {
  * invoice shells.
  */
 export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
-  const { wrap, text } = sizes[size]
+  const { full, mark } = sizes[size]
 
   return (
-    <span className={cn('inline-flex items-center gap-2.5', className)}>
+    <span className={cn('inline-flex items-center', className)}>
       <img
-        src="/invoicefocus-logo.png"
-        alt="InvoiceFocus icon"
-        className={cn('block shrink-0 object-contain', wrap)}
+        src={markOnly ? '/logo-mark.png' : '/logo-horizontal.png'}
+        alt={markOnly ? 'InvoiceFocus mark' : 'InvoiceFocus'}
+        className={cn('block shrink-0 object-contain', markOnly ? mark : full)}
       />
-      {!markOnly && (
-        <span className={cn('font-display font-bold tracking-[-0.025em] leading-none', text)}>
-           <span className="text-foreground">Invoice</span>
-          <span className="text-primary">Focus</span>
-        </span>
-      )}
     </span>
   )
 }
