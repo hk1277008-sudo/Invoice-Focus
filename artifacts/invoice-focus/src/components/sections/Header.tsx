@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/shared/Logo'
 import { cn } from '@/lib/utils'
 import { Link } from 'wouter'
@@ -39,12 +40,22 @@ export function Header() {
             <a
               key={item}
               href={`#${item.toLowerCase().replace(/ /g, '-')}`}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="rounded-md px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {item}
             </a>
           ))}
         </nav>
+
+        {/* Desktop actions */}
+        <div className="hidden items-center gap-2 md:flex">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/sign-in">Sign In</Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/invoice">Get Started</Link>
+          </Button>
+        </div>
 
         {/* Mobile menu toggle */}
         <button
@@ -80,6 +91,18 @@ export function Header() {
                 </a>
               ))}
             </nav>
+            <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4">
+              <Button variant="ghost" size="default" asChild className="w-full justify-center">
+                <Link href="/sign-in" onClick={() => setMenuOpen(false)}>
+                  Sign In
+                </Link>
+              </Button>
+              <Button size="default" asChild className="w-full justify-center">
+                <Link href="/invoice" onClick={() => setMenuOpen(false)}>
+                  Get Started
+                </Link>
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
