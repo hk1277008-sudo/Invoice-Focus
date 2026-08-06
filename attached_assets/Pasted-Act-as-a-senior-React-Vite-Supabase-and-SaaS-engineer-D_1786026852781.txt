@@ -1,0 +1,186 @@
+Act as a senior React, Vite, Supabase, and SaaS engineer.
+
+Do not make assumptions or implement quick fixes.
+
+Investigate the root cause of every issue first, then implement the correct production-quality solution. Fix the actual cause instead of applying workarounds.
+
+═══════════════════════════════════════
+1. PASSWORD RESET (HIGHEST PRIORITY)
+═══════════════════════════════════════
+
+Current issue:
+
+• Clicking the "Reset Password" button inside the recovery email opens a 404 page instead of the reset password page.
+
+Requirements:
+
+• The recovery email link must correctly open /reset-password.
+• The recovery token must be processed correctly.
+• Password reset must complete successfully.
+• No 404 page should appear.
+• Verify the complete recovery flow end-to-end.
+
+═══════════════════════════════════════
+2. HOMEPAGE TEMPLATES
+═══════════════════════════════════════
+
+Current issue:
+
+• Clicking templates on the homepage sometimes opens a 404 page.
+
+Requirements:
+
+• Every homepage template must open correctly.
+• No homepage template should ever return a 404.
+• Verify every template route.
+
+═══════════════════════════════════════
+3. DASHBOARD TEMPLATES
+═══════════════════════════════════════
+
+Current issue:
+
+• After logging in, clicking Templates below the dashboard redirects back to the homepage and automatically logs the user out.
+
+Requirements:
+
+• Logged-in users must remain authenticated.
+• Dashboard templates must work exactly like homepage templates.
+• Selecting a template must open the invoice editor directly.
+• No redirect to homepage.
+• No automatic logout.
+
+═══════════════════════════════════════
+4. CLIENTS CTA
+═══════════════════════════════════════
+
+Current issues:
+
+• The Clients CTA below the dashboard is not functional.
+• After login it does not open the correct page.
+
+Requirements:
+
+• Make the Clients CTA fully functional.
+• Verify routing.
+• Verify authenticated navigation.
+• Ensure no broken links or 404 pages.
+
+═══════════════════════════════════════
+5. HELP PAGE
+═══════════════════════════════════════
+
+Current issue:
+
+• The Help page still displays the "Sign In" CTA even when the user is already logged in.
+
+Requirements:
+
+• Hide the Sign In CTA for authenticated users.
+• Display the correct logged-in experience instead.
+
+═══════════════════════════════════════
+6. DASHBOARD AUTO CLICK BUG
+═══════════════════════════════════════
+
+Current issue:
+
+• Previously Dashboard and Clients CTAs triggered automatically without any user interaction.
+
+Requirements:
+
+• Investigate the root cause.
+• Remove duplicate event handlers if present.
+• Ensure navigation only occurs after an intentional user click.
+
+═══════════════════════════════════════
+7. INVOICE STATUS UPDATE
+═══════════════════════════════════════
+
+Current issue:
+
+Changing invoice status sometimes displays the red error:
+
+"Transition save failed"
+
+Requirements:
+
+• Fix the save process.
+• Remove false error messages.
+• Ensure invoice status updates save correctly.
+• Verify Supabase synchronization.
+
+═══════════════════════════════════════
+8. DRAFT SAVING LOOP
+═══════════════════════════════════════
+
+Current issues:
+
+• "Draft Saved" appears repeatedly.
+• Save Draft button continuously blinks.
+• Live preview repeatedly triggers draft saves.
+
+Requirements:
+
+• Prevent repeated save requests.
+• Debounce auto-save.
+• Display only one successful save notification.
+• Eliminate unnecessary save cycles.
+• Ensure stable UI state.
+
+═══════════════════════════════════════
+9. PDF EXPORT QUALITY
+═══════════════════════════════════════
+
+Current issue:
+
+Downloaded PDFs have poor formatting.
+
+Problems include:
+
+• Poor spacing
+• Poor alignment
+• Lines merged together
+• Unprofessional layout
+• Low overall quality
+
+Requirements:
+
+• Produce production-quality PDFs.
+• Improve typography.
+• Fix spacing.
+• Fix margins.
+• Fix alignment.
+• Ensure clean page layout suitable for real business use.
+
+═══════════════════════════════════════
+FINAL VERIFICATION
+═══════════════════════════════════════
+
+After implementing all fixes, verify:
+
+✓ Password reset flow
+✓ Homepage templates
+✓ Dashboard templates
+✓ Clients CTA
+✓ Help page
+✓ Invoice status updates
+✓ Draft saving
+✓ PDF export
+✓ Desktop
+✓ Mobile
+
+Run:
+
+• Frontend typecheck
+• Production build
+• Browser console verification
+
+Finally provide:
+
+1. Root cause of every bug.
+2. Files modified.
+3. Summary of fixes implemented.
+4. Any remaining non-blocking issues.
+
+Do not stop after fixing only one issue. Complete the entire bug-fix pass and verify every feature before finishing.
