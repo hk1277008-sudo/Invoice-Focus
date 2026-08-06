@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import { Link } from 'wouter'
 
-function TemplateMiniPreview({ family, accent }: { family: 'minimal' | 'professional' | 'enterprise'; accent: string }) {
+export function TemplateMiniPreview({ family, accent }: { family: 'minimal' | 'professional' | 'enterprise'; accent: string }) {
   return (
     <div className={`relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border/60 p-3 shadow-sm transition-shadow duration-300 group-hover:shadow-md ${family === 'enterprise' ? 'bg-[#182337]' : 'bg-white'}`}>
       {family === 'enterprise' && <div className={`absolute inset-x-0 top-0 h-2 ${accent}`} />}
@@ -33,7 +34,7 @@ function TemplateMiniPreview({ family, accent }: { family: 'minimal' | 'professi
   )
 }
 
-const TEMPLATES = [
+export const TEMPLATES = [
   {
     id: 'professional',
     family: 'professional' as const,
@@ -119,22 +120,26 @@ export function Templates() {
           viewport={{ once: true, margin: '-80px' }}
         >
           {TEMPLATES.map(({ id, family, documentType, title, description, accent }) => (
-            <motion.a
+            <motion.div
               key={title}
-              href={`/invoice?template=${id}&documentType=${documentType}`}
               variants={item}
               className="group flex h-full flex-col rounded-2xl bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg gradient-border"
             >
-              <TemplateMiniPreview family={family} accent={accent} />
-              <div className="mt-5">
-                <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">{title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
-              </div>
-              <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                Use Template
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
-            </motion.a>
+              <Link
+                href={`/invoice?template=${id}&documentType=${documentType}`}
+                className="group flex h-full flex-col"
+              >
+                <TemplateMiniPreview family={family} accent={accent} />
+                <div className="mt-5">
+                  <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">{title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                </div>
+                <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-semibold text-primary">
+                  Use Template
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            </motion.div>
           ))}
         </motion.div>
       </div>

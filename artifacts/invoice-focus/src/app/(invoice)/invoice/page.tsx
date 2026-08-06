@@ -32,6 +32,7 @@ import { listClients, type ClientRecord } from '@/lib/clients'
 import { useAuth } from '@/hooks/useAuth'
 import { invoiceTemplates, normalizeTemplate, type InvoiceTemplate } from '@/components/invoice/presentation'
 import { normalizeDocumentType, type InvoiceDocumentType } from '@/components/invoice/document-types'
+import { calculateInvoiceTotals } from '@/components/invoice/utils'
 
 export default function InvoicePage() {
   const search = useSearch()
@@ -78,6 +79,18 @@ export default function InvoicePage() {
   const [isLoadingRecord, setIsLoadingRecord] = useState(true)
   const [remoteStatus, setRemoteStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [clients, setClients] = useState<ClientRecord[]>([])
+  const invoiceRef = useRef(invoice)
+  const recordIdRef = useRef<string | null>(null)
+  const savedStatusRef = useRef<InvoiceStatus | null>(null)
+  const lastPersistedSignatureRef = useRef<string | null>(null)
+  const saveInFlightRef = useRef(false)
+  const saveAgainRef = useRef(false)
+  const saveTimerRef = useRef<number | null>(null)
+  const persistInvoiceRef = useRef<() => Promise<void>>(async () => undefined)
+
+  invoiceRef.current = invoice
+  recordIdRef.current = recordId
+  savedStatusRef.current = savedStatus
 
   useEffect(() => {
     listClients({ sort: 'name', direction: 'asc' })
@@ -101,19 +114,34 @@ export default function InvoicePage() {
 
   const persistInvoice = useCallback(async () => {
     if (!hasAnyData || !isAuthenticated) return
+    if (saveInFlightRef.current) {
+      saveAgainRef.current = true
+      return
+    }
+    const currentInvoice = invoiceRef.current
+    const currentSignature = JSON.stringify(currentInvoice)
+    if (lastPersistedSignatureRef.current === currentSignature) return
+    const currentRecordId = recordIdRef.current
+    const currentSavedStatus = savedStatusRef.current
+    saveInFlightRef.current = true
     setRemoteStatus('saving')
-    const input = invoiceInput(invoice, calculations.grandTotal)
-    const statusChanged = Boolean(recordId && savedStatus !== null && input.status !== savedStatus)
+    const input = invoiceInput(currentInvoice, calculateInvoiceTotals(currentInvoice.items).grandTotal)
+    const statusChanged = Boolean(currentRecordId && currentSavedStatus !== null && input.status !== currentSavedStatus)
+    let persistedSignature = currentSignature
     try {
-      if (recordId) {
+      if (currentRecordId) {
         // Submit status and invoice data together. The PATCH endpoint owns
         // transition validation and returns the canonical synchronized row.
-        const result = await updateInvoice(recordId, input)
+        const result = await updateInvoice(currentRecordId, input)
         setSavedStatus(result.invoice.status)
         if (result.invoice.payload) {
-          loadFromData({
+          const canonicalInvoice = {
             ...result.invoice.payload,
             details: { ...result.invoice.payload.details, status: result.invoice.status },
+          }
+          persistedSignature = JSON.stringify(canonicalInvoice)
+          loadFromData({
+            ...canonicalInvoice,
           })
         }
         if (statusChanged) {
@@ -125,13 +153,14 @@ export default function InvoicePage() {
         setSavedStatus(result.invoice.status)
         navigate(`/invoice?id=${result.invoice.id}`, { replace: true })
       }
+      lastPersistedSignatureRef.current = persistedSignature
       setRemoteStatus('saved')
       window.setTimeout(() => setRemoteStatus((status) => status === 'saved' ? 'idle' : status), 1800)
     } catch (error) {
-      if (statusChanged && savedStatus) {
+      if (statusChanged && currentSavedStatus) {
         // A rejected transition must not leave the editor showing an
         // unsaved/invalid local status. Preserve all other in-progress edits.
-        updateDetails('status', savedStatus)
+        updateDetails('status', currentSavedStatus)
       }
       setRemoteStatus('error')
       toast({
@@ -139,8 +168,15 @@ export default function InvoicePage() {
         description: error instanceof Error ? error.message : 'Could not save this invoice.',
         variant: 'destructive',
       })
+    } finally {
+      saveInFlightRef.current = false
+      if (saveAgainRef.current || lastPersistedSignatureRef.current !== JSON.stringify(invoiceRef.current)) {
+        saveAgainRef.current = false
+        saveTimerRef.current = window.setTimeout(() => { void persistInvoiceRef.current() }, 300)
+      }
     }
-  }, [calculations.grandTotal, hasAnyData, invoice, isAuthenticated, navigate, recordId, savedStatus, toast])
+  }, [hasAnyData, isAuthenticated, loadFromData, navigate, toast, updateDetails])
+  persistInvoiceRef.current = persistInvoice
 
   useEffect(() => {
     const params = new URLSearchParams(search)
@@ -153,10 +189,12 @@ export default function InvoicePage() {
       .then(({ invoice: record }) => {
         setSavedStatus(record.status)
         if (record.payload) {
-          loadFromData({
+          const canonicalInvoice = {
             ...record.payload,
             details: { ...record.payload.details, status: record.status },
-          })
+          }
+          lastPersistedSignatureRef.current = JSON.stringify(canonicalInvoice)
+          loadFromData(canonicalInvoice)
         }
       })
       .catch((error) => {
@@ -171,12 +209,17 @@ export default function InvoicePage() {
   }, [loadFromData, navigate, search, toast])
 
   useEffect(() => {
-    if (isLoadingRecord || !hasAnyData) return
-    const timeout = window.setTimeout(() => {
+    if (isLoadingRecord || !hasAnyData || !isAuthenticated) return
+    const signature = JSON.stringify(invoice)
+    if (lastPersistedSignatureRef.current === signature) return
+    if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = window.setTimeout(() => {
       void persistInvoice()
     }, 1200)
-    return () => window.clearTimeout(timeout)
-  }, [hasAnyData, invoice, isLoadingRecord, persistInvoice])
+    return () => {
+      if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current)
+    }
+  }, [hasAnyData, invoice, isAuthenticated, isLoadingRecord, persistInvoice])
 
   const handlePrint = () => {
     if (!runValidation()) return

@@ -16,3 +16,4 @@
 - [Independent production deployment](invoice-focus-production-deployment.md) — Vercel hosts the SPA, a separate Node host runs Express, and the browser API origin must be configured explicitly.
 - [Render API build dependencies](render-api-build-dependencies.md) — Bundlers and build plugins invoked by the API production build must be regular dependencies, not dev-only packages.
 - [Render pnpm version pin](render-pnpm-version-pin.md) — Pin the workspace package manager so Render uses the pnpm version validated against the lockfile.
+- [Renderer matrix runner](renderer-matrix-runner.md) — The renderer matrix uses the workspace scripts package's linked `tsx` runner rather than the invoice-focus package directly.

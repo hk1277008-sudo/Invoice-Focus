@@ -192,7 +192,7 @@ router.post('/invoices', async (req, res) => {
       client_id: input.clientId ?? null,
       total: input.total,
       currency: input.currency.toUpperCase(),
-      payload: input.payload,
+      payload: withInvoicePayloadStatus(input.payload, input.status),
     })
     .select('*')
     .single();

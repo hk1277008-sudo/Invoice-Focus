@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Invoices', href: '/dashboard', icon: FileText },
   { label: 'Clients', href: '/dashboard/clients', icon: Users },
-  { label: 'Templates', href: '/#templates', icon: FileText },
+  { label: 'Templates', href: '/dashboard/templates', icon: FileText },
   { label: 'Help', href: '/help', icon: CircleHelp },
 ]
 
@@ -89,7 +89,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
               const isActive = location === href
               return (
-                <li key={href}>
+                <li key={label}>
                   <Link
                     href={href}
                     className={cn(
@@ -141,7 +141,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 overflow-y-auto p-3">
           <ul className="space-y-1">
             {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
-              <li key={href}>
+              <li key={label}>
                 <Link
                   href={href}
                   onClick={() => setMobileNavOpen(false)}

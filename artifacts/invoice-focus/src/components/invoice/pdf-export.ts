@@ -102,27 +102,7 @@ export function printInvoice(invoice: InvoiceData): boolean {
   if (!printWindow) {
     return false
   }
-  const preview = document.querySelector<HTMLElement>('.invoice-preview-container')
-  if (preview) {
-    const presentation = normalizePresentation(invoice.presentation)
-    const styleLinks = Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'))
-      .map((link) => `<link rel="stylesheet" href="${escapeHtml(link.href)}">`)
-      .join('')
-    const styleTags = Array.from(document.querySelectorAll<HTMLStyleElement>('style'))
-      .map((style) => style.outerHTML)
-      .join('')
-    printWindow.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(invoice.details.number || 'Invoice')}</title>${styleLinks}${styleTags}<style>
-      @page { size: ${presentation.paperSize}; margin: 16mm; }
-      html, body { margin: 0; padding: 0; background: #fff; }
-      body { min-width: 0; }
-      .invoice-preview-container { width: 100% !important; max-width: none !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; overflow: visible !important; }
-      .invoice-preview-container > div { padding: 0 !important; }
-      .invoice-preview-container table { min-width: 0 !important; width: 100% !important; table-layout: fixed !important; }
-      @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-    </style></head><body>${preview.outerHTML}</body></html>`)
-  } else {
-    printWindow.document.write(buildPrintableInvoiceHTML(invoice).html)
-  }
+  printWindow.document.write(buildPrintableInvoiceHTML(invoice).html)
   printWindow.document.close()
   printWindow.focus()
   setTimeout(() => printWindow.print(), 250)

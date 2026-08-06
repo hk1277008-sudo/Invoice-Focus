@@ -16,15 +16,50 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSuccess, setIsSuccess] = useState(false)
-  const [token, setToken] = useState<string | null>(null)
+  const [recoveryReady, setRecoveryReady] = useState(false)
 
   useEffect(() => {
-    const params = new URLSearchParams(search)
-    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
-    const tokenValue = params.get('token') || params.get('token_hash') || hashParams.get('token_hash')
-    if (tokenValue) {
-      setToken(tokenValue)
+    let active = true
+    const prepareRecovery = async () => {
+      const params = new URLSearchParams(search)
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+      const tokenValue = params.get('token_hash') || params.get('token') || hashParams.get('token_hash')
+      const code = params.get('code')
+      const accessToken = hashParams.get('access_token')
+      const refreshToken = hashParams.get('refresh_token')
+
+      try {
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code)
+          if (error) throw error
+        } else if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+          if (error) throw error
+        } else if (tokenValue) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenValue,
+            type: 'recovery',
+          })
+          if (error) throw error
+        } else {
+          throw new Error('Invalid or expired reset link. Please request a new one.')
+        }
+
+        const { data } = await supabase.auth.getSession()
+        if (!data.session) throw new Error('Invalid or expired reset link. Please request a new one.')
+        if (active) setRecoveryReady(true)
+      } catch (error) {
+        if (active) {
+          setErrors({ password: error instanceof Error ? error.message : 'Invalid or expired reset link.' })
+          setRecoveryReady(false)
+        }
+      }
     }
+    void prepareRecovery()
+    return () => { active = false }
   }, [search])
 
   const validate = () => {
@@ -43,19 +78,8 @@ export default function ResetPasswordPage() {
     setIsLoading(true)
 
     try {
-      if (!token) {
+      if (!recoveryReady) {
         setErrors({ password: 'Invalid or expired reset link. Please request a new one.' })
-        return
-      }
-
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        token_hash: token,
-        type: 'recovery',
-      })
-
-      if (verifyError) {
-        setErrors({ password: verifyError.message || 'Invalid or expired reset link.' })
-        toast({ title: 'Reset failed', description: verifyError.message, variant: 'destructive' })
         return
       }
 
@@ -148,7 +172,7 @@ export default function ResetPasswordPage() {
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading || !token}>
+          <Button type="submit" className="w-full" disabled={isLoading || !recoveryReady}>
             {isLoading ? 'Updating...' : 'Reset password'}
           </Button>
         </form>

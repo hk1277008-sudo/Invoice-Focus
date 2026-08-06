@@ -1,8 +1,10 @@
 import { MarketingLayout } from '../layout'
 import { Button } from '@/components/ui/button'
 import { Link } from 'wouter'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function HelpPage() {
+  const { isAuthenticated } = useAuth()
   return (
     <MarketingLayout>
       <div className="mx-auto max-w-3xl px-6 py-16">
@@ -42,9 +44,15 @@ export default function HelpPage() {
         </div>
 
         <div className="mt-10">
-          <Button asChild>
-            <Link href="/sign-in">Sign in to your account</Link>
-          </Button>
+          {isAuthenticated ? (
+            <Button asChild>
+              <Link href="/dashboard">Go to dashboard</Link>
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link href="/sign-in">Sign in to your account</Link>
+            </Button>
+          )}
         </div>
       </div>
     </MarketingLayout>

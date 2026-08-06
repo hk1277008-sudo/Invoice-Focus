@@ -24,6 +24,7 @@ import NewRecurringInvoicePage from '@/app/(dashboard)/recurring/new/page'
 import EditRecurringInvoicePage from '@/app/(dashboard)/recurring/[id]/page'
 import FeedbackPage from '@/app/(dashboard)/feedback/page'
 import ReportsPage from '@/app/(dashboard)/reports/page'
+import TemplatesPage from '@/app/(dashboard)/templates/page'
 import InvoiceDetailsPage from '@/components/invoice/InvoiceDetailsPage'
 import SharedInvoicePage from '@/app/share/[token]/page'
 
@@ -69,6 +70,16 @@ function Router() {
       <Route path="/dashboard/clients">
         <ProtectedRoute>
           <ClientsPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/templates">
+        <ProtectedRoute>
+          <TemplatesPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/templates">
+        <ProtectedRoute>
+          <TemplatesPage />
         </ProtectedRoute>
       </Route>
       <Route path="/dashboard/recurring">
