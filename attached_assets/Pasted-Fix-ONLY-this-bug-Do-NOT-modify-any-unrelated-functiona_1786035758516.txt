@@ -1,0 +1,74 @@
+Fix ONLY this bug.
+
+Do NOT modify any unrelated functionality.
+
+========================================
+BUG
+========================================
+
+The Save Invoice button continuously blinks.
+
+At the same time, the following error repeatedly appears:
+
+"Save failed"
+"Invoice number already exists"
+
+This happens continuously without the user pressing Save again.
+
+========================================
+EXPECTED BEHAVIOR
+========================================
+
+- Save should execute only once per user action.
+- Autosave must not repeatedly call the save endpoint.
+- Failed saves must not immediately retry forever.
+- The Save button must remain stable.
+- The error toast should appear only once for a failed save.
+- Invoice number conflicts must not trigger an infinite save loop.
+
+========================================
+INVESTIGATE
+========================================
+
+Check for:
+
+- Duplicate saveInvoice() calls.
+- Autosave useEffect dependency loops.
+- React Query mutation loops.
+- Repeated mutation retries.
+- Multiple event listeners.
+- Save being triggered by preview updates.
+- State updates triggering save recursively.
+- Invoice status updates triggering save again.
+- Draft save conflicting with final save.
+
+========================================
+FIX
+========================================
+
+1. Ensure only ONE save request is sent for one save action.
+
+2. Prevent recursive save loops.
+
+3. If invoice number already exists:
+
+   - Stop further save attempts.
+   - Show the error only once.
+   - Stop blinking Save button.
+
+4. If autosave is enabled:
+
+   - Never autosave while another save is in progress.
+   - Never retry endlessly after a failed save.
+   - Only retry after the user edits something again.
+
+========================================
+DO NOT
+========================================
+
+- Do not redesign the UI.
+- Do not change invoice numbering.
+- Do not modify unrelated pages.
+- Do not change working features.
+
+Fix ONLY the repeated save loop and blinking Save button.

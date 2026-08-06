@@ -83,6 +83,7 @@ export default function InvoicePage() {
   const recordIdRef = useRef<string | null>(null)
   const savedStatusRef = useRef<InvoiceStatus | null>(null)
   const lastPersistedSignatureRef = useRef<string | null>(null)
+  const lastFailedSignatureRef = useRef<string | null>(null)
   const saveInFlightRef = useRef(false)
   const saveAgainRef = useRef(false)
   const saveTimerRef = useRef<number | null>(null)
@@ -120,6 +121,7 @@ export default function InvoicePage() {
     }
     const currentInvoice = invoiceRef.current
     const currentSignature = JSON.stringify(currentInvoice)
+    if (lastFailedSignatureRef.current === currentSignature) return
     if (lastPersistedSignatureRef.current === currentSignature) return
     const currentRecordId = recordIdRef.current
     const currentSavedStatus = savedStatusRef.current
@@ -157,9 +159,11 @@ export default function InvoicePage() {
         navigate(`/invoice?id=${result.invoice.id}`, { replace: true })
       }
       lastPersistedSignatureRef.current = persistedSignature
+      lastFailedSignatureRef.current = null
       setRemoteStatus('saved')
       window.setTimeout(() => setRemoteStatus((status) => status === 'saved' ? 'idle' : status), 1800)
     } catch (error) {
+      lastFailedSignatureRef.current = currentSignature
       if (statusChanged && currentSavedStatus) {
         // A rejected transition must not leave the editor showing an
         // unsaved/invalid local status. Preserve all other in-progress edits.
@@ -173,10 +177,12 @@ export default function InvoicePage() {
       })
     } finally {
       saveInFlightRef.current = false
-      if (saveAgainRef.current || lastPersistedSignatureRef.current !== JSON.stringify(invoiceRef.current)) {
-        saveAgainRef.current = false
+      const latestSignature = JSON.stringify(invoiceRef.current)
+      const shouldRetryAfterEdit = latestSignature !== lastFailedSignatureRef.current
+      if ((saveAgainRef.current || lastPersistedSignatureRef.current !== latestSignature) && shouldRetryAfterEdit) {
         saveTimerRef.current = window.setTimeout(() => { void persistInvoiceRef.current() }, 300)
       }
+      saveAgainRef.current = false
     }
   }, [hasAnyData, isAuthenticated, loadFromData, navigate, toast, updateDetails])
   persistInvoiceRef.current = persistInvoice
@@ -214,6 +220,7 @@ export default function InvoicePage() {
   useEffect(() => {
     if (isLoadingRecord || !hasAnyData || !isAuthenticated) return
     const signature = JSON.stringify(invoice)
+    if (lastFailedSignatureRef.current === signature) return
     if (lastPersistedSignatureRef.current === signature) return
     if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current)
     saveTimerRef.current = window.setTimeout(() => {
