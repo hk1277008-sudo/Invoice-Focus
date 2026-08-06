@@ -24,8 +24,9 @@ export function Logo({ className, markOnly = false, size = 'md' }: LogoProps) {
     <span className={cn('inline-flex items-center', className)}>
       <img
         src={markOnly ? '/logo-mark.png' : '/logo-horizontal.png'}
-        alt={markOnly ? 'InvoiceFocus mark' : 'InvoiceFocus'}
+        alt={markOnly ? 'Invoice Focus mark' : 'Invoice Focus'}
         className={cn('block shrink-0 object-contain', markOnly ? mark : full)}
+        draggable={false}
       />
     </span>
   )

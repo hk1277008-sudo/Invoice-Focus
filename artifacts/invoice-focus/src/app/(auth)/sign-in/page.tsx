@@ -13,7 +13,7 @@ export default function SignInPage() {
   const { toast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMeState] = useState(false)
+  const [rememberMe, setRememberMeState] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const passwordRef = useRef<HTMLInputElement>(null)

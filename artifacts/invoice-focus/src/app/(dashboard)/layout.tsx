@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react'
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Invoices', href: '/dashboard#invoices', icon: FileText },
+  { label: 'Invoices', href: '/dashboard', icon: FileText },
   { label: 'Clients', href: '/dashboard/clients', icon: Users },
   { label: 'Templates', href: '/#templates', icon: FileText },
   { label: 'Help', href: '/help', icon: CircleHelp },

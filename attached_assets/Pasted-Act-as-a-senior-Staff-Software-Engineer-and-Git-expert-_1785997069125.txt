@@ -1,0 +1,92 @@
+Act as a senior Staff Software Engineer and Git expert.
+
+Your task is to completely resolve the current Git merge conflict and leave the repository in a clean, production-ready state.
+
+Requirements:
+
+1. Resolve every merge conflict yourself.
+   - Do NOT ask me which version to keep.
+   - Inspect both versions carefully.
+   - Preserve the newest branding work while also preserving the SEO improvements.
+   - Produce one final clean version with NO conflict markers remaining.
+
+2. index.html
+   - Remove every
+     <<<<<<<
+     =======
+     >>>>>>>
+     marker.
+   - Produce one final version only.
+   - Keep the newest SEO metadata.
+   - Keep Google Tag Manager.
+   - Keep Bing verification.
+   - Keep structured data.
+   - Keep canonical.
+   - Keep OpenGraph.
+   - Keep Twitter metadata.
+   - Use the official branding.
+   - Use the official horizontal logo everywhere appropriate.
+   - Shorten the title to SEO best practice.
+   - Rewrite the meta description to approximately 150-160 characters.
+
+3. Structured data
+   - Use the official Organization logo.
+   - Do not reference outdated logo assets.
+   - Ensure JSON-LD validates.
+
+4. Homepage SEO
+   Bing previously reported:
+   - Title too long
+   - Meta description too long/short
+   - Missing H1
+
+   Fix ALL of these automatically.
+
+   Ensure there is exactly ONE semantic <h1> on the homepage.
+
+5. Branding
+   Preserve every branding improvement already completed.
+   Do not revert any branding work.
+
+6. Validation
+   After resolving conflicts run and verify:
+
+   - Git merge completed successfully
+   - git diff --check
+   - frontend typecheck
+   - api typecheck
+   - production build
+   - sitemap validation
+   - robots validation
+   - favicon validation
+   - structured-data validation
+   - OpenGraph validation
+   - browser preview
+   - browser console
+
+7. Final state
+   The repository must contain:
+
+   ✔ zero merge conflicts
+   ✔ zero conflict markers
+   ✔ zero duplicate metadata
+   ✔ production-ready SEO
+   ✔ production-ready branding
+
+8. IMPORTANT
+
+   Do NOT stop after explaining.
+
+   Actually modify the conflicting files.
+
+   Complete the merge.
+
+   Commit the merge.
+
+   Leave the repository ready to push.
+
+At the end provide only:
+
+• Files modified
+• Tests passed
+• Merge completed successfully
