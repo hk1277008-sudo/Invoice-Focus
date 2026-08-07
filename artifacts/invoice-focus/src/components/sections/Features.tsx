@@ -67,10 +67,10 @@ export function Features() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Features</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            A Complete Toolkit for Polished Invoices, Quotes, and Estimates
+            Professional Invoicing Tools Built for Modern Businesses
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            Everything you need from a free invoice maker and invoice creator: professional documents, flexible invoice templates, clear totals, and fast PDF export.
+            Everything you need to create invoices, quotes, estimates, and receipts with smart templates, automatic calculations, and print-ready PDF exports.
           </p>
         </div>
 

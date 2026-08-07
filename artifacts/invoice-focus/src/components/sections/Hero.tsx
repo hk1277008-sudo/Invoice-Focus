@@ -18,14 +18,18 @@ export function Hero() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span className="label-caps w-fit">Professional Invoicing Made Simple</span>
-          <h1 className="font-display text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Create Professional Invoices In Under A Minute
-          </h1>
-          <p className="max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
-            Create professional invoices online with our free invoice generator for freelancers and small businesses. Customize your invoice, download a PDF, and get paid faster.
-          </p>
+        ><span className="label-caps w-fit">
+  Professional Invoicing Made Simple
+</span>
+
+<h1 className="font-display text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-foreground md:text-5xl lg:text-6xl">
+  Free Online Invoice Generator
+</h1>
+
+<p className="max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
+  Create, customize, and download professional invoices, quotes, estimates, and receipts online in seconds with InvoiceFocus.
+</p>
+          
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
             <Button size="lg" asChild>
