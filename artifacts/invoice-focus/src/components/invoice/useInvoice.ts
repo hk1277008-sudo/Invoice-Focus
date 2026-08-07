@@ -23,6 +23,7 @@ function createEmptyItem(): InvoiceItem {
     id: crypto.randomUUID(),
     name: '',
     description: '',
+    sku: '',
     quantity: '',
     unitPrice: '',
     taxPercent: '',
@@ -221,8 +222,8 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
   }, [])
 
   const calculations = useMemo<InvoiceCalculations>(() => {
-    return calculateInvoiceTotals(invoice.items)
-  }, [invoice.items])
+    return calculateInvoiceTotals(invoice.items, invoice.additional)
+  }, [invoice.items, invoice.additional])
 
   const currency = useMemo(() => getCurrencyByCode(invoice.details.currency), [invoice.details.currency])
 
@@ -248,10 +249,12 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
       additional.notes.trim() !== '' ||
       additional.paymentInstructions.trim() !== '' ||
       additional.terms.trim() !== '' ||
+           additional.shipping?.trim() !== '' ||
       items.some(
         (item) =>
           item.name.trim() !== '' ||
           item.description.trim() !== '' ||
+           item.sku?.trim() !== '' ||
           item.quantity.trim() !== '' ||
           item.unitPrice.trim() !== '' ||
           item.taxPercent.trim() !== '' ||

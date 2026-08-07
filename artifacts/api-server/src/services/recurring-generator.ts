@@ -93,18 +93,21 @@ export async function generateDueRecurringInvoices(asOf?: string) {
         const tax = taxable * ((Number(item.taxPercent) || 0) / 100);
         return sum + taxable + tax;
       }, 0);
-      const number = invoiceNumber(row, nextRun, 0);
+       const shipping = Number(template.additional?.shipping) || 0;
+       const number = invoiceNumber(row, nextRun, 0);
+       const documentType = template.documentType;
+       const generatedDueDate = ['receipt', 'credit-note', 'purchase-order'].includes(documentType) ? null : dueDate(nextRun, row.due_date_offset);
       const invoiceInsert = {
         user_id: row.user_id,
         recurring_invoice_id: row.id,
         invoice_number: number,
         status: row.invoice_status || 'Draft',
         issue_date: nextRun,
-        due_date: dueDate(nextRun, row.due_date_offset),
+         due_date: generatedDueDate,
         client: client.name || row.template_data.client_name || row.template_data.clientName || row.client_name,
         company: client.companyName || business.name || '',
         client_id: client.clientId || null,
-        total,
+         total: total + shipping,
         currency: details.currency || 'USD',
         payload: template,
       };

@@ -53,6 +53,7 @@ export interface InvoiceItem {
   id: string
   name: string
   description: string
+  sku?: string
   quantity: string
   unitPrice: string
   taxPercent: string
@@ -63,6 +64,7 @@ export interface InvoiceAdditional {
   notes: string
   paymentInstructions: string
   terms: string
+  shipping?: string
 }
 
 export interface InvoiceDocumentDetails {
@@ -75,6 +77,10 @@ export interface InvoiceDocumentDetails {
   acceptanceNote: string
   approvalName: string
   approvalDate: string
+  deliveryDate: string
+  deliveryInstructions: string
+  authorizedBy: string
+  authorizationDate: string
 }
 
 export interface InvoiceData {
@@ -92,5 +98,6 @@ export interface InvoiceCalculations {
   subtotal: number
   tax: number
   discount: number
+  shipping: number
   grandTotal: number
 }

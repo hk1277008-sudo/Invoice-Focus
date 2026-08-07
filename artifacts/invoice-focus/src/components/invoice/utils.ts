@@ -1,4 +1,4 @@
-import type { InvoiceItem, InvoiceCalculations } from './types'
+import type { InvoiceAdditional, InvoiceItem, InvoiceCalculations } from './types'
 
 export function parseNumber(value: string): number {
   const parsed = Number.parseFloat(value)
@@ -20,7 +20,7 @@ export function calculateItemValues(item: InvoiceItem) {
   return { quantity, unitPrice, taxPercent, discountPercent, base, discount, taxable, tax, lineTotal }
 }
 
-export function calculateInvoiceTotals(items: InvoiceItem[]): InvoiceCalculations {
+export function calculateInvoiceTotals(items: InvoiceItem[], additional?: Pick<InvoiceAdditional, 'shipping'>): InvoiceCalculations {
   let subtotal = 0
   let tax = 0
   let discount = 0
@@ -33,6 +33,7 @@ export function calculateInvoiceTotals(items: InvoiceItem[]): InvoiceCalculation
   }
 
   const grandTotal = subtotal - discount + tax
+  const shipping = parseNumber(additional?.shipping || '')
 
-  return { subtotal, tax, discount, grandTotal }
+  return { subtotal, tax, discount, shipping, grandTotal: grandTotal + shipping }
 }

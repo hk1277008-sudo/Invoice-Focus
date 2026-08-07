@@ -1,6 +1,6 @@
 import type { InvoiceDocumentDetails } from './types'
 
-export type InvoiceDocumentType = 'invoice' | 'receipt' | 'estimate' | 'quote' | 'credit-note'
+export type InvoiceDocumentType = 'invoice' | 'receipt' | 'estimate' | 'quote' | 'credit-note' | 'purchase-order'
 
 export interface InvoiceDocumentMeta {
   title: string
@@ -31,6 +31,7 @@ export const documentTypes: Array<{
   { id: 'estimate', name: 'Estimate', description: 'Share an expected project cost before work begins.' },
   { id: 'quote', name: 'Quote', description: 'Present a formal price proposal with validity terms.' },
   { id: 'credit-note', name: 'Credit Note', description: 'Record a refund, adjustment, or credit against an invoice.' },
+  { id: 'purchase-order', name: 'Purchase Order', description: 'Authorize a supplier to provide goods or services.' },
 ]
 
 export const defaultDocumentType: InvoiceDocumentType = 'invoice'
@@ -115,6 +116,23 @@ export function documentTypeMeta(type: InvoiceDocumentType): InvoiceDocumentMeta
         hideDueDate: true,
         description: 'Record a refund or adjustment against an original invoice.',
       }
+    case 'purchase-order':
+      return {
+        title: 'Purchase Order',
+        numberLabel: 'Purchase Order No.',
+        issueDateLabel: 'Order Date',
+        dueDateLabel: '',
+        termsLabel: 'Payment Terms',
+        referenceLabel: 'PO Number',
+        billToLabel: 'Supplier',
+        itemsLabel: 'Ordered Items',
+        subtotalLabel: 'Subtotal',
+        taxLabel: 'Tax',
+        totalLabel: 'Order Total',
+        notesLabel: 'Order Notes',
+        hideDueDate: true,
+        description: 'Authorize a supplier to provide goods or services.',
+      }
     default:
       return {
         title: 'Invoice',
@@ -146,6 +164,10 @@ export function defaultDocumentDetails(): InvoiceDocumentDetails {
     acceptanceNote: '',
     approvalName: '',
     approvalDate: '',
+    deliveryDate: '',
+    deliveryInstructions: '',
+    authorizedBy: '',
+    authorizationDate: '',
   }
 }
 
@@ -162,5 +184,9 @@ export function normalizeDocumentDetails(value: unknown): InvoiceDocumentDetails
     acceptanceNote: typeof candidate.acceptanceNote === 'string' ? candidate.acceptanceNote : defaults.acceptanceNote,
     approvalName: typeof candidate.approvalName === 'string' ? candidate.approvalName : defaults.approvalName,
     approvalDate: typeof candidate.approvalDate === 'string' ? candidate.approvalDate : defaults.approvalDate,
+    deliveryDate: typeof candidate.deliveryDate === 'string' ? candidate.deliveryDate : defaults.deliveryDate,
+    deliveryInstructions: typeof candidate.deliveryInstructions === 'string' ? candidate.deliveryInstructions : defaults.deliveryInstructions,
+    authorizedBy: typeof candidate.authorizedBy === 'string' ? candidate.authorizedBy : defaults.authorizedBy,
+    authorizationDate: typeof candidate.authorizationDate === 'string' ? candidate.authorizationDate : defaults.authorizationDate,
   }
 }

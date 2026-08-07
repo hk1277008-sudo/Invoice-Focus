@@ -29,7 +29,7 @@ export function validateInvoice(invoice: InvoiceData): InvoiceValidation {
     errors.push({ field: 'issue-date', message: 'Issue date is required' })
   }
   const documentType = normalizeDocumentType(invoice.documentType)
-  if (!invoice.details.dueDate && documentType !== 'receipt' && documentType !== 'credit-note') {
+  if (!invoice.details.dueDate && !['receipt', 'credit-note', 'purchase-order'].includes(documentType)) {
     errors.push({ field: 'due-date', message: 'Due date is required' })
   }
   const businessEmailError = validateEmail(invoice.business.email, 'business email')

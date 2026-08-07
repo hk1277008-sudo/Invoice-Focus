@@ -8,8 +8,8 @@ const baseInvoice: InvoiceData = {
   business: { logo: null, name: 'Matrix Studio', contactPerson: '', email: 'hello@example.com', phone: '', website: '', address: '', taxId: '' },
   client: { name: 'Client', companyName: '', email: 'client@example.com', phone: '', billingAddress: '', taxId: '' },
   details: { number: 'DOC-001', issueDate: '2026-08-03', dueDate: '2026-08-31', paymentTerms: 'Net 30', status: 'Draft', poNumber: '', currency: 'EUR' },
-  items: [{ id: 'item-1', name: 'Service', description: 'A useful service', quantity: '2', unitPrice: '125', taxPercent: '10', discountPercent: '' }],
-  additional: { notes: 'Thank you', paymentInstructions: '', terms: '' },
+  items: [{ id: 'item-1', name: 'Service', description: 'A useful service', sku: 'SKU-001', quantity: '2', unitPrice: '125', taxPercent: '10', discountPercent: '' }],
+  additional: { notes: 'Thank you', paymentInstructions: '', terms: '', shipping: '25' },
   documentDetails: normalizeDocumentDetails({
     transactionId: 'TXN-001',
     originalInvoiceReference: 'INV-000',
@@ -20,10 +20,14 @@ const baseInvoice: InvoiceData = {
     acceptanceNote: 'Approval requested by the validity date.',
     approvalName: 'Client Approver',
     approvalDate: '2026-08-15',
+    deliveryDate: '2026-09-01',
+    deliveryInstructions: 'Deliver to the receiving dock between 9am and 3pm.',
+    authorizedBy: 'Procurement Lead',
+    authorizationDate: '2026-08-04',
   }),
 }
 
-const documentTypes: InvoiceDocumentType[] = ['invoice', 'receipt', 'estimate', 'quote', 'credit-note']
+const documentTypes: InvoiceDocumentType[] = ['invoice', 'receipt', 'estimate', 'quote', 'credit-note', 'purchase-order']
 const familyTemplates: Array<[InvoiceTemplate, 'minimal' | 'professional' | 'enterprise']> = [
   ['minimal', 'minimal'],
   ['professional', 'professional'],
@@ -43,6 +47,12 @@ for (const documentType of documentTypes) {
     if (documentType === 'quote') assert.match(result.html, /Client Approval/)
     if (documentType === 'estimate') assert.match(result.html, /Estimated Timeline/)
     if (documentType === 'credit-note') assert.match(result.html, /Original Invoice/)
+    if (documentType === 'purchase-order') {
+      assert.match(result.html, /Purchase Order/)
+      assert.match(result.html, /Requested Delivery/)
+      assert.match(result.html, /SKU/)
+      assert.match(result.html, /Shipping \/ Handling/)
+    }
   }
 }
 

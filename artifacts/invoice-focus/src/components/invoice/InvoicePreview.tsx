@@ -50,6 +50,7 @@ export const InvoicePreview = memo(function InvoicePreview({
     const values = calculateItemValues(item)
     return values.taxPercent > 0 || values.discountPercent > 0
   })
+  const showSku = documentType === 'purchase-order'
 
   return (
     <div
@@ -234,12 +235,35 @@ export const InvoicePreview = memo(function InvoicePreview({
             </div>
           </div>
         )}
+        {documentType === 'purchase-order' && (
+          <div className={`mt-8 grid gap-5 rounded-xl border p-5 sm:grid-cols-3 ${dark ? 'border-white/10 bg-white/[0.04]' : 'border-blue-200 bg-blue-50/50'}`}>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-blue-700'}`}>Requested Delivery</p>
+              <p className={`mt-1 text-sm font-semibold ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.deliveryDate || 'To be confirmed'}</p>
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-blue-700'}`}>Authorized By</p>
+              <p className={`mt-1 text-sm font-semibold ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.authorizedBy || '—'}</p>
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-blue-700'}`}>Authorization Date</p>
+              <p className={`mt-1 text-sm font-semibold ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.authorizationDate || '—'}</p>
+            </div>
+            {documentDetails.deliveryInstructions && (
+              <div className={`border-t pt-4 sm:col-span-3 ${dark ? 'border-white/10' : 'border-blue-200'}`}>
+                <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-blue-700'}`}>Delivery Instructions</p>
+                <p className={`mt-1 whitespace-pre-line text-sm ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>{documentDetails.deliveryInstructions}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Items Table */}
         <div className={`mt-10 max-w-full overflow-hidden ${family === 'enterprise' ? 'border-t-2' : family === 'professional' ? 'border-t' : ''}`} style={{ borderColor: presentation.primaryColor }}>
           <table className="hidden w-full min-w-0 table-fixed border-separate border-spacing-0 text-left text-xs sm:table sm:text-sm print:table" aria-label="Invoice items">
             <colgroup>
-              <col className={showAdjustments ? 'w-[36%]' : 'w-[46%]'} />
+              <col className={showAdjustments ? (showSku ? 'w-[31%]' : 'w-[36%]') : (showSku ? 'w-[38%]' : 'w-[46%]')} />
+              {showSku && <col className="w-[13%]" />}
               <col className={showAdjustments ? 'w-[9%]' : 'w-[12%]'} />
               <col className={showAdjustments ? 'w-[15%]' : 'w-[20%]'} />
               {showAdjustments && <><col className="w-[13%]" /><col className="w-[14%]" /></>}
@@ -248,7 +272,8 @@ export const InvoicePreview = memo(function InvoicePreview({
             <thead>
               <tr className={`border-b ${dark ? 'border-white/10' : 'border-border'}`}>
                  <th className="break-words px-2.5 py-3 text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">{documentMeta.itemsLabel}</th>
-                <th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Qty</th>
+                 {showSku && <th className="break-words px-2.5 py-3 text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">SKU</th>}
+                 <th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Qty</th>
                 <th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Price</th>
                 {showAdjustments && <><th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Tax</th><th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Discount</th></>}
                 <th className="break-words px-2.5 py-3 text-right text-xs font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:px-3">Amount</th>
@@ -261,10 +286,12 @@ export const InvoicePreview = memo(function InvoicePreview({
                 return (
                   <tr key={item.id}>
                      <td className="min-w-0 break-words px-2.5 py-4 align-top sm:px-3">
-                      <p className={`break-words font-medium leading-5 ${dark ? 'text-white' : 'text-foreground'}`}>{item.name || 'Item'}</p>
+                 <p className={`break-words font-medium leading-5 ${dark ? 'text-white' : 'text-foreground'}`}>{item.name || 'Item'}</p>
+                       {showSku && item.sku && <p className={`mt-1 text-xs ${dark ? 'text-white/55' : 'text-muted-foreground'}`}>SKU: {item.sku}</p>}
                       {item.description && <p className={`mt-1 break-words text-xs leading-5 ${dark ? 'text-white/55' : 'text-muted-foreground'}`}>{item.description}</p>}
                     </td>
-                     <td className={`break-words px-2.5 py-4 text-right align-top text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'} sm:px-3`}>{values.quantity}</td>
+                      {showSku && <td className={`break-words px-2.5 py-4 align-top text-xs ${dark ? 'text-white/70' : 'text-muted-foreground'} sm:px-3`}>{item.sku || '—'}</td>}
+                      <td className={`break-words px-2.5 py-4 text-right align-top text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'} sm:px-3`}>{values.quantity}</td>
                      <td className={`break-words px-2.5 py-4 text-right align-top text-sm tabular-nums ${dark ? 'text-white' : 'text-foreground'} sm:px-3`}>
                       {formatCurrency(values.unitPrice, currency)}
                     </td>
@@ -278,12 +305,13 @@ export const InvoicePreview = memo(function InvoicePreview({
             </tbody>
           </table>
             <div className="space-y-3 sm:hidden print:hidden" aria-label="Invoice items">
-              {visibleItems.map((item) => {
+               {visibleItems.map((item) => {
                 const values = calculateItemValues(item)
                 return (
                   <article key={item.id} className={`rounded-lg border p-3 ${dark ? 'border-white/10 bg-white/[0.03]' : 'border-border bg-muted/20'}`}>
                     <div className="min-w-0">
-                      <p className={`break-words font-semibold leading-5 ${dark ? 'text-white' : 'text-foreground'}`}>{item.name || 'Item'}</p>
+                       <p className={`break-words font-semibold leading-5 ${dark ? 'text-white' : 'text-foreground'}`}>{item.name || 'Item'}</p>
+                       {showSku && item.sku && <p className={`mt-1 text-xs ${dark ? 'text-white/55' : 'text-muted-foreground'}`}>SKU: {item.sku}</p>}
                       {item.description && <p className={`mt-1 break-words text-xs leading-5 ${dark ? 'text-white/55' : 'text-muted-foreground'}`}>{item.description}</p>}
                     </div>
                     <div className={`mt-3 grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-3 ${dark ? 'border-white/10' : 'border-border'}`}>
@@ -315,6 +343,12 @@ export const InvoicePreview = memo(function InvoicePreview({
               <div className="flex justify-between text-sm text-muted-foreground">
                <span className="min-w-0">{documentMeta.taxLabel}</span>
                 <span className="min-w-0 break-all text-right tabular-nums">{formatCurrency(calculations.tax, currency)}</span>
+              </div>
+            )}
+            {calculations.shipping > 0 && (
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span className="min-w-0">Shipping / Handling</span>
+                <span className="min-w-0 break-all text-right tabular-nums">{formatCurrency(calculations.shipping, currency)}</span>
               </div>
             )}
              <div className={`flex justify-between border-t pt-2 text-base font-bold ${family === 'enterprise' ? 'rounded-lg border-0 px-3 py-3' : ''} ${dark ? 'border-white/15 bg-white/[0.06] text-white' : 'border-border text-foreground'}`}>

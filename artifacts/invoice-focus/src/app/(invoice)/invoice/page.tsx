@@ -128,7 +128,7 @@ export default function InvoicePage() {
     const currentSavedStatus = savedStatusRef.current
     saveInFlightRef.current = true
     setRemoteStatus('saving')
-    const input = invoiceInput(currentInvoice, calculateInvoiceTotals(currentInvoice.items).grandTotal)
+    const input = invoiceInput(currentInvoice, calculateInvoiceTotals(currentInvoice.items, currentInvoice.additional).grandTotal)
     const statusChanged = Boolean(currentRecordId && currentSavedStatus !== null && input.status !== currentSavedStatus)
     let persistedSignature = currentSignature
     try {

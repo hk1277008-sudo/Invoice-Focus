@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'wouter'
 
-const HOME_DESCRIPTION = 'Create professional invoices, quotes, estimates, and receipts with Invoice Focus, a free online invoice generator for freelancers and small businesses.'
+const HOME_DESCRIPTION = 'Create professional invoices, quotes, estimates, receipts, and purchase orders with Invoice Focus, a free online invoice generator for freelancers and small businesses.'
 
 const publicMetadata: Record<string, string> = {
   '/': HOME_DESCRIPTION,

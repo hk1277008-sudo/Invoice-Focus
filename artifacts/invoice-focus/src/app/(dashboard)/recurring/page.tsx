@@ -243,7 +243,7 @@ export default function RecurringInvoicesPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {invoices.map((inv) => {
-                const total = calculateInvoiceTotals(inv.template_data.items).grandTotal
+                const total = calculateInvoiceTotals(inv.template_data.items, inv.template_data.additional).grandTotal
                 const currency = inv.template_data.details.currency || 'USD'
 
                 return (

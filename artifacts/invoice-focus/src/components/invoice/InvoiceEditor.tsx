@@ -87,11 +87,11 @@ export function InvoiceEditor({
       {/* Invoice Details */}
       <Card>
         <CardHeader>
-          <CardTitle>{documentType === 'receipt' ? 'Receipt Details' : documentType === 'estimate' ? 'Estimate Details' : documentType === 'quote' ? 'Quote Details' : documentType === 'credit-note' ? 'Credit Note Details' : 'Invoice Details'}</CardTitle>
-          <CardDescription>Enter the document number, dates, and terms.</CardDescription>
+          <CardTitle>{documentType === 'receipt' ? 'Receipt Details' : documentType === 'estimate' ? 'Estimate Details' : documentType === 'quote' ? 'Quote Details' : documentType === 'credit-note' ? 'Credit Note Details' : documentType === 'purchase-order' ? 'Purchase Order Details' : 'Invoice Details'}</CardTitle>
+          <CardDescription>{documentType === 'purchase-order' ? 'Enter the order number, date, supplier reference, and payment terms.' : 'Enter the document number, dates, and terms.'}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-           <FormField label={documentType === 'receipt' ? 'Receipt Number' : documentType === 'estimate' ? 'Estimate Number' : documentType === 'quote' ? 'Quote Number' : documentType === 'credit-note' ? 'Credit Note Number' : 'Invoice Number'} htmlFor="invoice-number" error={errors['invoice-number']}>
+            <FormField label={documentType === 'receipt' ? 'Receipt Number' : documentType === 'estimate' ? 'Estimate Number' : documentType === 'quote' ? 'Quote Number' : documentType === 'credit-note' ? 'Credit Note Number' : documentType === 'purchase-order' ? 'Purchase Order Number' : 'Invoice Number'} htmlFor="invoice-number" error={errors['invoice-number']}>
             <Input
               id="invoice-number"
               value={invoice.details.number}
@@ -112,7 +112,7 @@ export function InvoiceEditor({
                aria-invalid={!!errors['issue-date']}
             />
           </FormField>
-          {documentType !== 'receipt' && documentType !== 'credit-note' && <FormField label={documentType === 'estimate' ? 'Valid Until' : documentType === 'quote' ? 'Quote Valid Until' : 'Due Date'} htmlFor="due-date" error={errors['due-date']}>
+          {documentType !== 'receipt' && documentType !== 'credit-note' && documentType !== 'purchase-order' && <FormField label={documentType === 'estimate' ? 'Valid Until' : documentType === 'quote' ? 'Quote Valid Until' : 'Due Date'} htmlFor="due-date" error={errors['due-date']}>
             <Input
               id="due-date"
               type="date"
@@ -143,7 +143,7 @@ export function InvoiceEditor({
             </select>
             <p className="mt-1 text-xs text-muted-foreground">Only valid lifecycle transitions can be saved. You can also manage status from the invoice details page.</p>
           </FormField>
-           <FormField label={`${documentType === 'receipt' ? 'Transaction ID' : documentType === 'credit-note' ? 'Adjustment Reference' : 'Reference / PO Number'} (optional)`} htmlFor="po-number" className="sm:col-span-2">
+           <FormField label={`${documentType === 'receipt' ? 'Transaction ID' : documentType === 'credit-note' ? 'Adjustment Reference' : documentType === 'purchase-order' ? 'Supplier Reference' : 'Reference / PO Number'} (optional)`} htmlFor="po-number" className="sm:col-span-2">
             <Input
               id="po-number"
               value={invoice.details.poNumber}
@@ -372,13 +372,14 @@ export function InvoiceEditor({
       {/* Invoice Items */}
       <Card>
         <CardHeader>
-          <CardTitle>{documentType === 'receipt' ? 'Paid Items' : documentType === 'estimate' ? 'Estimated Items' : documentType === 'quote' ? 'Quoted Items' : documentType === 'credit-note' ? 'Credited Items' : 'Invoice Items'}</CardTitle>
-          <CardDescription>Add products or services to this document.</CardDescription>
+          <CardTitle>{documentType === 'receipt' ? 'Paid Items' : documentType === 'estimate' ? 'Estimated Items' : documentType === 'quote' ? 'Quoted Items' : documentType === 'credit-note' ? 'Credited Items' : documentType === 'purchase-order' ? 'Ordered Items' : 'Invoice Items'}</CardTitle>
+          <CardDescription>{documentType === 'purchase-order' ? 'Add the goods or services being ordered, including optional SKU codes.' : 'Add products or services to this document.'}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
            <div className="overflow-x-auto rounded-lg border border-border" data-invoice-items>
-             <div className={`${advancedOptionsOpen ? 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(4.5rem,0.8fr)_minmax(5rem,0.9fr)_minmax(6rem,1.2fr)_2.5rem]' : 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(6rem,1.2fr)_2.5rem]'} hidden min-w-[42rem] gap-3 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid`}>
-               <div>Description</div>
+             <div className={`${advancedOptionsOpen ? (documentType === 'purchase-order' ? 'sm:grid-cols-[minmax(14rem,3fr)_minmax(5rem,0.9fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(4.5rem,0.8fr)_minmax(5rem,0.9fr)_minmax(6rem,1.2fr)_2.5rem]' : 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(4.5rem,0.8fr)_minmax(5rem,0.9fr)_minmax(6rem,1.2fr)_2.5rem]') : (documentType === 'purchase-order' ? 'sm:grid-cols-[minmax(14rem,3fr)_minmax(5rem,0.9fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(6rem,1.2fr)_2.5rem]' : 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(6rem,1.2fr)_2.5rem]')} hidden min-w-[42rem] gap-3 overflow-hidden border-b border-border bg-muted/50 p-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:grid`}>
+                <div>{documentType === 'purchase-order' ? 'Item / SKU' : 'Description'}</div>
+                {documentType === 'purchase-order' && <div>SKU</div>}
                <div>Qty</div>
                <div>Price</div>
                {advancedOptionsOpen && <><div>Tax %</div><div>Discount %</div></>}
@@ -396,6 +397,7 @@ export function InvoiceEditor({
                   onRemove={onRemoveItem}
                   canRemove={invoice.items.length > 1}
                   showAdjustments={advancedOptionsOpen}
+                   showSku={documentType === 'purchase-order'}
                 />
               ))}
             </div>
@@ -422,7 +424,7 @@ export function InvoiceEditor({
       <Card>
         <CardHeader>
           <CardTitle>Additional Information</CardTitle>
-          <CardDescription>Notes, payment instructions, and terms.</CardDescription>
+          <CardDescription>{documentType === 'purchase-order' ? 'Order notes, payment instructions, terms, and shipping charges.' : 'Notes, payment instructions, and terms.'}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <FormField label="Notes" htmlFor="notes">
@@ -452,6 +454,19 @@ export function InvoiceEditor({
               rows={3}
             />
           </FormField>
+          {documentType === 'purchase-order' && (
+            <FormField label="Shipping / Handling" htmlFor="shipping">
+              <Input
+                id="shipping"
+                type="number"
+                min="0"
+                step="0.01"
+                value={invoice.additional.shipping || ''}
+                onChange={(e) => onUpdateAdditional('shipping', e.target.value)}
+                placeholder="0.00"
+              />
+            </FormField>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -502,6 +517,8 @@ function DocumentDetailsCard({
               ? 'Quote Approval'
               : documentType === 'estimate'
                 ? 'Project Scope'
+              : documentType === 'purchase-order'
+                ? 'Order Authorization'
                 : 'Credit Adjustment'}
         </CardTitle>
         <CardDescription>
@@ -511,6 +528,8 @@ function DocumentDetailsCard({
               ? 'Make approval expectations clear for your client.'
               : documentType === 'estimate'
                 ? 'Give your client context around the projected work.'
+                : documentType === 'purchase-order'
+                  ? 'Add delivery and authorization details for the supplier.'
                 : 'Document the invoice being adjusted and the reason for the credit.'}
         </CardDescription>
       </CardHeader>
@@ -561,6 +580,22 @@ function DocumentDetailsCard({
             </FormField>
           </>
         )}
+        {documentType === 'purchase-order' && (
+          <>
+            <FormField label="Requested Delivery Date" htmlFor="delivery-date">
+              <Input id="delivery-date" type="date" value={details.deliveryDate} onChange={(event) => onUpdate('deliveryDate', event.target.value)} />
+            </FormField>
+            <FormField label="Authorized By" htmlFor="authorized-by">
+              <Input id="authorized-by" value={details.authorizedBy} onChange={(event) => onUpdate('authorizedBy', event.target.value)} placeholder="Purchasing manager or approver" />
+            </FormField>
+            <FormField label="Delivery Instructions" htmlFor="delivery-instructions" className="sm:col-span-2">
+              <Textarea id="delivery-instructions" value={details.deliveryInstructions} onChange={(event) => onUpdate('deliveryInstructions', event.target.value)} placeholder="Ship-to details, delivery window, or receiving instructions." rows={3} />
+            </FormField>
+            <FormField label="Authorization Date" htmlFor="authorization-date">
+              <Input id="authorization-date" type="date" value={details.authorizationDate} onChange={(event) => onUpdate('authorizationDate', event.target.value)} />
+            </FormField>
+          </>
+        )}
       </CardContent>
     </Card>
   )
@@ -574,6 +609,7 @@ function InvoiceItemRow({
   onRemove,
   canRemove,
   showAdjustments,
+  showSku,
 }: {
   index: number
   item: InvoiceItem
@@ -582,6 +618,7 @@ function InvoiceItemRow({
   onRemove: (id: string) => void
   canRemove: boolean
   showAdjustments: boolean
+  showSku: boolean
 }) {
   const { lineTotal } = calculateItemValues(item)
   const nameError = errors[`item-${index}-name`]
@@ -589,7 +626,7 @@ function InvoiceItemRow({
   const priceError = errors[`item-${index}-price`]
 
   return (
-    <div className={`grid min-w-0 grid-cols-2 items-center gap-3 overflow-hidden p-3 sm:min-w-[42rem] ${showAdjustments ? 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(4.5rem,0.8fr)_minmax(5rem,0.9fr)_minmax(6rem,1.2fr)_2.5rem]' : 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(6rem,1.2fr)_2.5rem]'}`}>
+    <div className={`grid min-w-0 grid-cols-2 items-center gap-3 overflow-hidden p-3 sm:min-w-[42rem] ${showAdjustments ? 'sm:grid-cols-[minmax(14rem,3fr)_minmax(5rem,0.9fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(4.5rem,0.8fr)_minmax(5rem,0.9fr)_minmax(6rem,1.2fr)_2.5rem]' : showSku ? 'sm:grid-cols-[minmax(14rem,3fr)_minmax(5rem,0.9fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(6rem,1.2fr)_2.5rem]' : 'sm:grid-cols-[minmax(14rem,3fr)_minmax(4rem,0.8fr)_minmax(7rem,1.4fr)_minmax(6rem,1.2fr)_2.5rem]'}`}>
       <div className="col-span-2 min-w-0 space-y-1 sm:col-span-1">
         <Input
           value={item.name}
@@ -600,12 +637,20 @@ function InvoiceItemRow({
           aria-invalid={!!nameError}
           aria-describedby={nameError ? `item-${index}-name-error` : undefined}
         />
-        {nameError && (
+         {nameError && (
           <p id={`item-${index}-name-error`} className="text-xs text-destructive">
             {nameError}
           </p>
         )}
       </div>
+      {showSku && <div className="col-span-1 min-w-0 sm:col-span-1">
+        <Input
+          value={item.sku || ''}
+          onChange={(e) => onUpdate(item.id, 'sku', e.target.value)}
+          placeholder="SKU"
+          className="h-9"
+        />
+      </div>}
       <div className="col-span-1 min-w-0 sm:col-span-1">
         <Input
           type="number"

@@ -83,6 +83,30 @@ export const TEMPLATES = [
     description: 'A clear payment confirmation with a structured enterprise layout.',
     accent: 'bg-rose-500',
   },
+  {
+    id: 'professional',
+    family: 'professional' as const,
+    documentType: 'purchase-order',
+    title: 'Professional Purchase Order',
+    description: 'A clear, practical order layout for supplier requests and approvals.',
+    accent: 'bg-cyan-500',
+  },
+  {
+    id: 'minimal',
+    family: 'minimal' as const,
+    documentType: 'purchase-order',
+    title: 'Minimal Purchase Order',
+    description: 'A focused order document with generous whitespace and simple metadata.',
+    accent: 'bg-slate-500',
+  },
+  {
+    id: 'enterprise',
+    family: 'enterprise' as const,
+    documentType: 'purchase-order',
+    title: 'Enterprise Purchase Order',
+    description: 'Structured purchase orders for teams managing detailed supplier workflows.',
+    accent: 'bg-indigo-500',
+  },
 ]
 
 const container = {
@@ -108,7 +132,7 @@ export function Templates() {
             Start With a Professionally Designed Template
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            Start with a polished invoice template for invoices, quotes, estimates, or receipts, then add your branding and send it in minutes.
+            Start with a polished template for invoices, quotes, estimates, receipts, or purchase orders, then add your branding and send it in minutes.
           </p>
         </div>
 

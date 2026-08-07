@@ -17,6 +17,8 @@ const FOOTER_GROUPS = [
       { text: 'Quote', href: '#templates' },
       { text: 'Estimate', href: '#templates' },
       { text: 'Receipt', href: '#templates' },
+      { text: 'Purchase Order', href: '/invoice?template=professional&documentType=purchase-order' },
+      { text: 'Credit Note', href: '/invoice?template=professional&documentType=credit-note' },
     ],
   },
   {

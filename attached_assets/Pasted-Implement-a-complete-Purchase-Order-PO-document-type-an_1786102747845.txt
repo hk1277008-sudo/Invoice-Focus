@@ -1,0 +1,158 @@
+Implement a complete Purchase Order (PO) document type and enhance the footer to a premium SaaS standard.
+
+========================
+PART 1 — PURCHASE ORDER
+========================
+
+Add a fully functional Purchase Order document type that matches the quality of the existing Invoice, Quote, Estimate, Receipt, and Credit Note.
+
+Requirements:
+
+• Add "Purchase Order" as a document type everywhere appropriate.
+• It must be selectable from:
+  - Homepage Templates
+  - Template pages
+  - Document Type selector
+  - Dashboard
+  - Invoice creation flow
+
+Create a professional Purchase Order layout containing:
+
+Header
+- Company logo
+- Company information
+- PURCHASE ORDER title
+- Purchase Order Number
+- Issue Date
+- Delivery Date / Expected Delivery
+- Status
+
+Supplier Information
+- Supplier Name
+- Company
+- Address
+- Email
+- Phone
+
+Buyer Information
+- Customer / Buyer details
+
+Items Table
+- Description
+- SKU (optional)
+- Quantity
+- Unit Price
+- Tax
+- Discount
+- Total
+
+Summary
+- Subtotal
+- Tax
+- Discount
+- Shipping (optional)
+- Grand Total
+
+Additional Sections
+- Payment Terms
+- Delivery Instructions
+- Notes
+- Authorized Signature
+
+The Purchase Order must:
+- Export correctly as PDF
+- Print correctly
+- Save correctly
+- Share correctly
+- Use existing styling system
+- Support Professional, Minimal, and Enterprise templates
+
+========================
+PART 2 — PREMIUM TEMPLATE SUPPORT
+========================
+
+Ensure Purchase Orders work with ALL visual themes:
+
+• Minimal
+• Professional
+• Enterprise
+
+Each template must preserve its own visual identity exactly like the other document types.
+
+========================
+PART 3 — FOOTER ENHANCEMENT
+========================
+
+Redesign the footer to feel premium and polished like modern SaaS companies such as Stripe, Notion, Vercel, and Replit.
+
+Do NOT copy their design.
+
+Create an original premium footer.
+
+Footer structure:
+
+Column 1
+InvoiceFocus logo
+Short company description
+
+Column 2
+PRODUCT
+- Features
+- Templates
+- How It Works
+
+Column 3
+TEMPLATES
+- Invoice
+- Quote
+- Estimate
+- Receipt
+- Credit Note
+- Purchase Order
+
+Column 4
+RESOURCES
+- Help
+- Guides
+- Blog
+
+Column 5
+COMPANY
+- About
+- Contact
+
+Legal section
+- Privacy Policy
+- Terms of Service
+- Cookie Policy
+
+Footer bottom
+© 2026 InvoiceFocus. All Rights Reserved.
+
+========================
+DESIGN REQUIREMENTS
+========================
+
+Improve spacing, typography, alignment, hover animations, and responsiveness.
+
+The footer should:
+- feel premium
+- look modern
+- not appear empty
+- maintain the existing InvoiceFocus branding
+- use existing design system
+- work perfectly on desktop, tablet, and mobile
+
+========================
+IMPORTANT
+========================
+
+Do not modify existing working document types.
+
+Do not break routing.
+
+Do not change authentication.
+
+Do not remove any existing functionality.
+
+Only implement Purchase Order and improve the footer as described.
