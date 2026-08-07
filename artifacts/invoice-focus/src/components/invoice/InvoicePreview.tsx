@@ -101,7 +101,7 @@ export const InvoicePreview = memo(function InvoicePreview({
 
           <div className={`text-left sm:text-right ${centered ? 'mx-auto text-center sm:text-center' : ''}`}>
             <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${dark || band ? 'text-white/60' : 'text-muted-foreground'}`}>{documentMeta.numberLabel}</p>
-            <h1 className={`font-bold ${titleClass} ${dark || band ? 'text-white' : 'text-foreground'}`}>{documentMeta.title}</h1>
+            <h2 className={`font-bold ${titleClass} ${dark || band ? 'text-white' : 'text-foreground'}`}>{documentMeta.title}</h2>
             {invoice.details.number && (
               <p className={dark || band ? 'text-sm font-medium text-white/65' : 'text-sm font-medium text-muted-foreground'}>{invoice.details.number}</p>
             )}
