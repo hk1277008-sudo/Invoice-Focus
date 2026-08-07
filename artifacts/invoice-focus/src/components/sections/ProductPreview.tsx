@@ -1,8 +1,5 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
-import { Link } from 'wouter'
-import { Button } from '@/components/ui/button'
 import { InvoicePreview } from '@/components/invoice/InvoicePreview'
 import { calculateInvoiceTotals } from '@/components/invoice/utils'
 import { getCurrencyByCode } from '@/components/invoice/currencies'
@@ -143,7 +140,6 @@ export function ProductPreview() {
   const invoice = buildPreviewInvoice(activePreview)
   const currency = getCurrencyByCode(invoice.details.currency)
   const calculations = calculateInvoiceTotals(invoice.items)
-  const templateHref = `/invoice?template=${activePreview.template}&documentType=${activePreview.documentType}`
 
   return (
     <section id="preview" className="bg-muted/30">
@@ -229,18 +225,6 @@ export function ProductPreview() {
             </AnimatePresence>
           </div>
 
-          <div className="mx-auto mt-6 flex max-w-5xl flex-col items-center justify-between gap-4 rounded-xl border border-border/60 bg-card px-5 py-4 sm:flex-row">
-            <div className="text-center sm:text-left">
-              <p className="text-sm font-semibold text-foreground">{activePreview.label}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{activePreview.description}</p>
-            </div>
-            <Button size="lg" asChild className="shrink-0">
-              <Link href={templateHref}>
-                Use This Template
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </Button>
-          </div>
         </motion.div>
       </div>
     </section>
