@@ -162,6 +162,18 @@ export async function saveSettings(settings: UserSettings) {
   if (data.session?.user.id) settingsCache.set(data.session.user.id, normalized)
   return normalized
 }
+export async function saveBusinessCurrency(defaultCurrency: string) {
+  const result = await request<{ defaultCurrency: string }>('/settings/business-currency', {
+    method: 'PUT',
+    body: JSON.stringify({ defaultCurrency }),
+  })
+  const { data } = await supabase.auth.getSession()
+  if (data.session?.user.id) {
+    const current = settingsCache.get(data.session.user.id)
+    if (current) settingsCache.set(data.session.user.id, { ...current, defaultCurrency: result.defaultCurrency })
+  }
+  return result.defaultCurrency
+}
 export function exportSettingsData() {
   return request<Record<string, unknown>>('/settings/export')
 }

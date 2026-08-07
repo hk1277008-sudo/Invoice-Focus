@@ -5,6 +5,8 @@ export interface CurrencyAmount { currency: string; amount: number }
 export interface CurrencyRate { currency: string; value: number }
 export interface ReportsOverview {
   range: { start: string | null; end: string | null; period: ReportPeriod }
+  businessCurrency: string
+  excludedCurrencies: string[]
   summary: {
     totalRevenue: CurrencyAmount[]; outstandingRevenue: CurrencyAmount[]; paidRevenue: CurrencyAmount[]; overdueRevenue: CurrencyAmount[]
     totalInvoices: number; paidInvoices: number; outstandingInvoices: number; overdueInvoices: number

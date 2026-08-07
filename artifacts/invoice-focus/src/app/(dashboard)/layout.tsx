@@ -1,12 +1,15 @@
 import { Link, useLocation, useSearch } from 'wouter'
-import { FileText, Users, LayoutDashboard, CircleHelp, PlusCircle, LogOut, Menu } from 'lucide-react'
+import { FileText, Users, LayoutDashboard, CircleHelp, PlusCircle, LogOut, Menu, Check, Loader2 } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
+import { CURRENCIES } from '@/components/invoice/currencies'
+import { getSettings, saveBusinessCurrency } from '@/lib/settings'
+import { useToast } from '@/hooks/use-toast'
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -19,6 +22,9 @@ const NAV_ITEMS = [
 function UserMenu() {
   const { user, signOut } = useAuth()
   const [, navigate] = useLocation()
+  const { toast } = useToast()
+  const [businessCurrency, setBusinessCurrency] = useState('USD')
+  const [savingCurrency, setSavingCurrency] = useState(false)
   const fullName = (user?.user_metadata?.full_name as string) || ''
   const avatarUrl = (user?.user_metadata?.avatar_url as string) || ''
   const initials = fullName
@@ -29,6 +35,32 @@ function UserMenu() {
         .toUpperCase()
         .slice(0, 2)
     : user?.email?.slice(0, 2).toUpperCase() || 'IF'
+
+  useEffect(() => {
+    let active = true
+    void getSettings().then((settings) => {
+      if (active) setBusinessCurrency(settings.defaultCurrency)
+    }).catch(() => {
+      // The menu remains usable even if settings are temporarily unavailable.
+    })
+    return () => { active = false }
+  }, [user?.id])
+
+  const handleCurrencyChange = async (value: string) => {
+    const previous = businessCurrency
+    setBusinessCurrency(value)
+    setSavingCurrency(true)
+    try {
+      await saveBusinessCurrency(value)
+      toast({ title: 'Business currency updated', description: `Dashboard reporting now uses ${value}.` })
+      window.dispatchEvent(new CustomEvent('invoicefocus:business-currency-changed', { detail: value }))
+    } catch (error) {
+      setBusinessCurrency(previous)
+      toast({ title: 'Could not update business currency', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' })
+    } finally {
+      setSavingCurrency(false)
+    }
+  }
 
   const handleSignOut = async () => {
     await signOut()
@@ -55,6 +87,23 @@ function UserMenu() {
         <div className="px-2 py-1.5">
           <p className="text-sm font-medium">{fullName || 'User'}</p>
           <p className="text-xs text-muted-foreground">{user?.email}</p>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>Business reporting currency</DropdownMenuLabel>
+        <div className="px-2 pb-2">
+          <div className="relative">
+            <select
+              aria-label="Business reporting currency"
+              value={businessCurrency}
+              disabled={savingCurrency}
+              onChange={(event) => void handleCurrencyChange(event.target.value)}
+              className="h-9 w-full appearance-none rounded-md border border-input bg-background px-2 pr-8 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {CURRENCIES.map((currency) => <option key={currency.code} value={currency.code}>{currency.code} — {currency.name}</option>)}
+            </select>
+            {savingCurrency ? <Loader2 className="pointer-events-none absolute right-2 top-2 h-4 w-4 animate-spin text-muted-foreground" /> : businessCurrency ? <Check className="pointer-events-none absolute right-2 top-2 h-4 w-4 text-primary" /> : null}
+          </div>
+          <p className="mt-1.5 text-[11px] leading-4 text-muted-foreground">Dashboard totals exclude invoices in other currencies.</p>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">

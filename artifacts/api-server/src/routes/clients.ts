@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
+import { resolveBusinessCurrency } from '../services/business-currency';
 
 const router: IRouter = Router();
 
@@ -126,9 +127,10 @@ router.get('/clients/:id', async (req, res) => {
     return;
   }
   const history = [...(invoices ?? [])].sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
+  const businessCurrency = await resolveBusinessCurrency(user.id, history);
   const totalInvoicedByCurrency = new Map<string, number>();
   const totalPaidByCurrency = new Map<string, number>();
-  for (const invoice of history) {
+  for (const invoice of history.filter((item) => currencyCode(item.currency) === businessCurrency)) {
     const currency = currencyCode(invoice.currency);
     addCurrencyAmount(totalInvoicedByCurrency, currency, Number(invoice.total || 0));
     if (invoice.status === 'Paid') {
@@ -147,6 +149,8 @@ router.get('/clients/:id', async (req, res) => {
       totalPaid: currencyAmounts(totalPaidByCurrency),
       outstanding: currencyAmounts(outstandingByCurrency),
     },
+    businessCurrency,
+    excludedCurrencies: [...new Set(history.map((invoice) => currencyCode(invoice.currency)).filter((currency) => currency !== businessCurrency))].sort(),
     recentInvoices: history.slice(0, 10),
   });
 });

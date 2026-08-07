@@ -1,0 +1,66 @@
+Fix the Business Dashboard currency behavior.
+
+Currently, the dashboard (Business Overview, Total Revenue, Analytics, Reports, and every financial summary) displays mixed currencies (e.g., PKR and USD together).
+
+This is incorrect.
+
+Implement a professional multi-currency system.
+
+Requirements:
+
+• Every user must have ONE primary business currency.
+• The primary currency should automatically be taken from the currency the user selects while creating their first invoice.
+• If the user later creates invoices in different currencies, the dashboard must NOT mix them.
+
+Instead:
+
+Option A (Preferred)
+- Ask the user to choose a Business Default Currency in Business Settings/Profile.
+- All dashboard totals must always use this selected currency.
+
+OR
+
+Option B
+- Automatically use the currency of the first invoice as the user's default business currency until they manually change it.
+
+Behavior:
+
+✓ User creates invoices in PKR → Dashboard shows only PKR totals.
+✓ User creates invoices in SAR → Dashboard shows only SAR totals.
+✓ User creates invoices in AED → Dashboard shows only AED totals.
+✓ User creates invoices in USD → Dashboard shows only USD totals.
+✓ User creates invoices in EUR → Dashboard shows only EUR totals.
+
+If invoices exist in multiple currencies:
+
+- Never add different currencies together.
+- Convert all totals into the user's Business Default Currency using stored exchange rates or clearly separate currencies if conversion is unavailable.
+- Do NOT display mixed symbols like "$25 + PKR 5,000" in any dashboard metric.
+
+Business Settings
+
+Add:
+
+Business Default Currency
+
+Allow the user to change it anytime.
+
+Changing the default currency should immediately update dashboard reports.
+
+Apply this behavior consistently to:
+
+- Business Overview
+- Total Revenue
+- Revenue Charts
+- Analytics
+- Dashboard Cards
+- Reports
+- Client Revenue
+- Invoice Statistics
+- Every financial calculation throughout the application
+
+Do not modify invoice PDFs or existing invoice currency behavior.
+
+Only improve dashboard/business reporting so it behaves like a premium accounting SaaS (Stripe, QuickBooks, Xero, FreshBooks, Zoho Invoice).
+
+Do not introduce regressions or modify unrelated functionality.

@@ -2,6 +2,7 @@ import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
 import { refreshOverdueInvoices } from '../services/invoice-lifecycle';
+import { resolveBusinessCurrency } from '../services/business-currency';
 
 const router: IRouter = Router();
 const statuses = ['Draft', 'Sent', 'Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'] as const;
@@ -132,9 +133,13 @@ router.get('/reports/overview', async (req, res) => {
   const invoiceRows = invoices ?? [];
   const paymentRows = payments ?? [];
   const clientRows = clients ?? [];
+  const businessCurrency = await resolveBusinessCurrency(user.id, invoiceRows);
   const selectedInvoiceIds = new Set(invoiceRows.map((invoice) => invoice.id));
   const selectedPaymentRows = paymentRows.filter((payment) => selectedInvoiceIds.has(payment.invoice_id));
   const invoiceCurrency = new Map(invoiceRows.map((invoice) => [invoice.id, currencyCode(invoice.currency)]));
+  const reportingInvoiceRows = invoiceRows.filter((invoice) => currencyCode(invoice.currency) === businessCurrency);
+  const reportingInvoiceIds = new Set(reportingInvoiceRows.map((invoice) => invoice.id));
+  const reportingPaymentRows = selectedPaymentRows.filter((payment) => reportingInvoiceIds.has(payment.invoice_id));
   const paidByInvoice = new Map<string, number>();
   for (const payment of selectedPaymentRows) add(paidByInvoice, payment.invoice_id, Number(payment.amount || 0));
   const paidFor = (invoice: { id: string; amount_paid?: number | null }) =>
@@ -145,7 +150,7 @@ router.get('/reports/overview', async (req, res) => {
   const paidAmountByCurrency = new Map<string, number>();
   const outstandingAmountByCurrency = new Map<string, number>();
   const overdueAmountByCurrency = new Map<string, number>();
-  for (const invoice of invoiceRows) {
+  for (const invoice of reportingInvoiceRows) {
     const currency = currencyCode(invoice.currency);
     addCurrencyAmount(totalBilledByCurrency, currency, Number(invoice.total || 0));
     addCurrencyAmount(paidAmountByCurrency, currency, paidFor(invoice));
@@ -159,7 +164,7 @@ router.get('/reports/overview', async (req, res) => {
   const invoiceStatus = statuses.map((status) => ({ status, count: invoiceRows.filter((invoice) => invoice.status === status).length }));
 
   const revenueMap = new Map<string, { label: string; currency: string; value: number }>();
-  for (const payment of selectedPaymentRows) {
+  for (const payment of reportingPaymentRows) {
     const label = periodKey(payment.payment_date, period);
     const currency = invoiceCurrency.get(payment.invoice_id) ?? 'USD';
     const key = `${label}:${currency}`;
@@ -169,7 +174,7 @@ router.get('/reports/overview', async (req, res) => {
   }
   const revenue = [...revenueMap.values()].sort((a, b) => `${a.label}:${a.currency}`.localeCompare(`${b.label}:${b.currency}`));
   const collectionMap = new Map<string, { label: string; currency: string; value: number }>();
-  for (const payment of selectedPaymentRows) {
+  for (const payment of reportingPaymentRows) {
     const label = periodKey(payment.payment_date, 'month');
     const currency = invoiceCurrency.get(payment.invoice_id) ?? 'USD';
     const key = `${label}:${currency}`;
@@ -180,7 +185,7 @@ router.get('/reports/overview', async (req, res) => {
   const monthlyCollections = [...collectionMap.values()].sort((a, b) => `${a.label}:${a.currency}`.localeCompare(`${b.label}:${b.currency}`));
 
   const clientMetrics = new Map<string, { name: string; revenue: Map<string, number>; invoices: number; paidInvoices: number }>();
-  for (const invoice of invoiceRows) {
+  for (const invoice of reportingInvoiceRows) {
     const key = invoice.client_id || `name:${invoice.client || invoice.company || 'Unassigned'}`;
     const name = invoice.company || invoice.client || 'Unassigned client';
     const current = clientMetrics.get(key) ?? { name, revenue: new Map<string, number>(), invoices: 0, paidInvoices: 0 };
@@ -193,7 +198,7 @@ router.get('/reports/overview', async (req, res) => {
     .sort((a, b) => [...b.revenue.values()].reduce((sum, value) => sum + value, 0) - [...a.revenue.values()].reduce((sum, value) => sum + value, 0))
     .slice(0, 8)
     .map((client) => ({ ...client, revenue: currencyAmounts(client.revenue) }));
-  const activeClientIds = new Set(invoiceRows.map((invoice) => invoice.client_id).filter(Boolean));
+  const activeClientIds = new Set(reportingInvoiceRows.map((invoice) => invoice.client_id).filter(Boolean));
   const returningClients = [...clientMetrics.values()].filter((client) => client.invoices > 1).length;
   const newClients = clientRows.length;
   const averageClientRevenueByCurrency = new Map<string, { total: number; count: number }>();
@@ -206,8 +211,8 @@ router.get('/reports/overview', async (req, res) => {
     }
   }
   const averageClientRevenue = averageCurrencyAmounts(averageClientRevenueByCurrency);
-  const invoiceIssueDates = new Map(invoiceRows.map((invoice) => [invoice.id, day(invoice.issue_date)]));
-  const paymentTimes = selectedPaymentRows
+  const invoiceIssueDates = new Map(reportingInvoiceRows.map((invoice) => [invoice.id, day(invoice.issue_date)]));
+  const paymentTimes = reportingPaymentRows
     .map((payment) => {
       const issueDate = invoiceIssueDates.get(payment.invoice_id);
       if (!issueDate) return null;
@@ -222,7 +227,7 @@ router.get('/reports/overview', async (req, res) => {
     const span = previousEnd.getTime() - previousStart.getTime() + 86400000;
     const priorStart = new Date(previousStart.getTime() - span).toISOString().slice(0, 10);
     const priorEnd = new Date(previousStart.getTime() - 86400000).toISOString().slice(0, 10);
-    const { data: priorInvoices } = await supabaseAdmin.from('invoices').select('amount_paid,currency').eq('user_id', user.id).gte('issue_date', priorStart).lte('issue_date', priorEnd);
+     const { data: priorInvoices } = await supabaseAdmin.from('invoices').select('amount_paid,currency').eq('user_id', user.id).eq('currency', businessCurrency).gte('issue_date', priorStart).lte('issue_date', priorEnd);
     const priorRevenueByCurrency = new Map<string, number>();
     for (const invoice of priorInvoices ?? []) addCurrencyAmount(priorRevenueByCurrency, currencyCode(invoice.currency), Number(invoice.amount_paid || 0));
     const growthInputs = new Map<string, { numerator: number; denominator: number }>();
@@ -242,16 +247,18 @@ router.get('/reports/overview', async (req, res) => {
   for (const item of revenue) if (item.label === currentMonth) addCurrencyAmount(monthlyRevenue, item.currency, item.value);
 
   res.json({
-    range: { start: start ?? null, end: end ?? null, period },
+     range: { start: start ?? null, end: end ?? null, period },
+     businessCurrency,
+     excludedCurrencies: [...new Set(invoiceRows.map((invoice) => currencyCode(invoice.currency)).filter((currency) => currency !== businessCurrency))].sort(),
     summary: {
        totalRevenue: currencyAmounts(totalBilledByCurrency),
        outstandingRevenue: currencyAmounts(outstandingAmountByCurrency),
        paidRevenue: currencyAmounts(paidAmountByCurrency),
        overdueRevenue: currencyAmounts(overdueAmountByCurrency),
       totalInvoices: invoiceRows.length,
-      paidInvoices: paidRows.length,
-      outstandingInvoices: outstandingRows.length,
-      overdueInvoices: invoiceRows.filter((invoice) => invoice.status === 'Overdue').length,
+       paidInvoices: paidRows.length,
+       outstandingInvoices: outstandingRows.length,
+       overdueInvoices: invoiceRows.filter((invoice) => invoice.status === 'Overdue').length,
       activeClients: activeClientIds.size || clientRows.length,
        averageInvoiceValue: averageCurrencyAmounts(new Map([...totalBilledByCurrency].map(([currency, total]) => [currency, { total, count: invoiceRows.filter((invoice) => currencyCode(invoice.currency) === currency).length }]))),
       averageClientRevenue,

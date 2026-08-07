@@ -1,8 +1,12 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
+import { businessCurrencyCodes, normalizeBusinessCurrency, setBusinessCurrency } from '../services/business-currency';
 
 const router: IRouter = Router();
+const businessCurrencySchema = z.object({
+  defaultCurrency: z.enum(businessCurrencyCodes),
+});
 const settingsSchema = z.object({
   businessName: z.string().trim().max(200).default(''),
   businessLogo: z.string().max(2_000_000).default(''),
@@ -122,6 +126,23 @@ router.put('/settings', async (req, res) => {
   const { data, error } = await supabaseAdmin.from('user_settings').upsert({ user_id: user.id, ...values }, { onConflict: 'user_id' }).select('*').single();
   if (error) { res.status(500).json({ error: 'Failed to save settings' }); return; }
   res.json({ settings: toClient(data) });
+});
+
+router.put('/settings/business-currency', async (req, res) => {
+  const user = await requireUser(req, res); if (!user) return;
+  const parsed = businessCurrencySchema.safeParse({
+    defaultCurrency: typeof req.body?.defaultCurrency === 'string' ? req.body.defaultCurrency.toUpperCase() : req.body?.defaultCurrency,
+  });
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Please choose a supported business currency' });
+    return;
+  }
+  try {
+    const defaultCurrency = await setBusinessCurrency(user.id, parsed.data.defaultCurrency);
+    res.json({ defaultCurrency });
+  } catch {
+    res.status(500).json({ error: 'Failed to save business currency' });
+  }
 });
 
 router.get('/settings/export', async (req, res) => {

@@ -2,6 +2,7 @@ import { Router, type IRouter, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { supabaseAdmin } from '../lib/supabase';
 import { refreshOverdueInvoices } from '../services/invoice-lifecycle';
+import { resolveBusinessCurrency } from '../services/business-currency';
 
 const router: IRouter = Router();
 const statusValues = ['Draft', 'Sent', 'Viewed', 'Partially Paid', 'Paid', 'Overdue', 'Cancelled'] as const;
@@ -86,6 +87,7 @@ router.get('/dashboard/overview', async (req, res) => {
 
   const invoiceRows = invoices ?? [];
   const clientRows = clients ?? [];
+  const businessCurrency = await resolveBusinessCurrency(user.id, invoiceRows);
   const statusDistribution = statusValues.map((status) => ({
     status,
     count: invoiceRows.filter((invoice) => invoice.status === status).length,
@@ -96,6 +98,7 @@ router.get('/dashboard/overview', async (req, res) => {
   const outstandingAmountByCurrency = new Map<string, number>();
   for (const invoice of invoiceRows) {
     const currency = currencyCode(invoice.currency);
+    if (currency !== businessCurrency) continue;
     addCurrencyAmount(totalRevenueByCurrency, currency, Number(invoice.amount_paid || 0));
     if (outstandingRows.includes(invoice)) {
       addCurrencyAmount(
@@ -110,6 +113,7 @@ router.get('/dashboard/overview', async (req, res) => {
   for (const invoice of paidRows) {
     const key = dateKey(invoice.issue_date);
     const currency = currencyCode(invoice.currency);
+    if (currency !== businessCurrency) continue;
     const current = revenueMap.get(`${key}:${currency}`) ?? { currency, amount: 0 };
     current.amount += Number(invoice.amount_paid || 0);
     revenueMap.set(`${key}:${currency}`, current);
@@ -120,7 +124,7 @@ router.get('/dashboard/overview', async (req, res) => {
     if (!invoice.client_id) continue;
     const current = invoiceCountsByClient.get(invoice.client_id) ?? { count: 0, outstanding: new Map<string, number>() };
     current.count += 1;
-    if (['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status)) {
+    if (currencyCode(invoice.currency) === businessCurrency && ['Sent', 'Viewed', 'Partially Paid', 'Overdue'].includes(invoice.status)) {
       addCurrencyAmount(
         current.outstanding,
         currencyCode(invoice.currency),
@@ -133,7 +137,9 @@ router.get('/dashboard/overview', async (req, res) => {
   const { data: recentActivity } = await supabaseAdmin.from('invoice_activity').select('id,invoice_id,action,description,created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(8);
   res.json({
     range: { start: start ?? null, end: end ?? null },
-    stats: {
+     businessCurrency,
+     excludedCurrencies: [...new Set(invoiceRows.map((invoice) => currencyCode(invoice.currency)).filter((currency) => currency !== businessCurrency))].sort(),
+     stats: {
       totalInvoices: invoiceRows.length,
       draftInvoices: invoiceRows.filter((invoice) => invoice.status === 'Draft').length,
       sentInvoices: invoiceRows.filter((invoice) => invoice.status === 'Sent').length,
@@ -146,7 +152,7 @@ router.get('/dashboard/overview', async (req, res) => {
        outstandingAmount: currencyAmounts(outstandingAmountByCurrency),
       totalClients: clientRows.length,
     },
-     revenue: [...revenueMap.entries()]
+      revenue: [...revenueMap.entries()]
        .sort(([a], [b]) => a.localeCompare(b))
        .map(([key, value]) => ({ date: key.slice(0, 10), currency: value.currency, amount: value.amount })),
     statusDistribution,
@@ -154,7 +160,7 @@ router.get('/dashboard/overview', async (req, res) => {
     recentInvoices: invoiceRows.slice(0, 8),
     recentClients: clientRows.slice(0, 6).map((client) => {
        const metrics = invoiceCountsByClient.get(client.id) ?? { count: 0, outstanding: new Map<string, number>() };
-       return { ...client, invoice_count: metrics.count, outstanding: currencyAmounts(metrics.outstanding) };
+        return { ...client, invoice_count: metrics.count, outstanding: currencyAmounts(new Map([[businessCurrency, metrics.outstanding.get(businessCurrency) ?? 0]])) };
     }),
   });
 });

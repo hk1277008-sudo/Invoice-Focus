@@ -58,6 +58,8 @@ export function getClient(id: string) {
   return request<{
     client: ClientRecord
     stats: { invoiceCount: number; totalInvoiced: CurrencyAmount[]; totalPaid: CurrencyAmount[]; outstanding: CurrencyAmount[] }
+    businessCurrency: string
+    excludedCurrencies: string[]
     recentInvoices: Array<{ id: string; invoice_number: string; status: string; issue_date: string; total: number; currency: string }>
   }>(`/clients/${id}`)
 }

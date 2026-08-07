@@ -8,6 +8,8 @@ export interface CurrencyAmount {
 
 export interface DashboardOverview {
   range: { start: string | null; end: string | null }
+  businessCurrency: string
+  excludedCurrencies: string[]
   stats: {
     totalInvoices: number
     draftInvoices: number

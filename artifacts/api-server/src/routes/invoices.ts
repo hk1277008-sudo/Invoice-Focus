@@ -4,6 +4,7 @@ import { supabaseAdmin } from '../lib/supabase';
 import { buildInvoiceEmail, sendEmail } from '../lib/email';
 import { canTransition, invoiceStatuses, recordActivity, refreshOverdueInvoices, remainingBalance, statusAfterPayment, withInvoicePayloadStatus, createSimplePdf, processDueReminders, type InvoiceStatus } from '../services/invoice-lifecycle';
 import { invoicePresentationPayloadSchema } from '../lib/invoice-presentation';
+import { adoptFirstInvoiceCurrency } from '../services/business-currency';
 
 const router: IRouter = Router();
 const statuses = invoiceStatuses;
@@ -200,6 +201,12 @@ router.post('/invoices', async (req, res) => {
   if (error) {
     res.status(error.code === '23505' ? 409 : 500).json({ error: error.code === '23505' ? 'Invoice number already exists' : 'Failed to save invoice' });
     return;
+  }
+  try {
+    await adoptFirstInvoiceCurrency(user.id, data.currency);
+  } catch {
+    // Reporting also self-heals from the earliest invoice if settings migration
+    // has not been applied yet; invoice creation must not be blocked by it.
   }
   await recordActivity(data.id, user.id, 'created', `Invoice ${data.invoice_number} created`);
   res.status(201).json({ invoice: data });

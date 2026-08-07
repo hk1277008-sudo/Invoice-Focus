@@ -103,6 +103,12 @@ export default function DashboardPage() {
     }
   }, [overview, user])
 
+  useEffect(() => {
+    const refresh = () => void load()
+    window.addEventListener('invoicefocus:business-currency-changed', refresh)
+    return () => window.removeEventListener('invoicefocus:business-currency-changed', refresh)
+  }, [load])
+
   const handleDuplicate = async (id: string) => {
     try { await duplicateInvoice(id); toast({ title: 'Invoice duplicated', description: 'A new draft invoice is ready.' }); void load() }
     catch (err) { toast({ title: 'Duplicate failed', description: err instanceof Error ? err.message : 'Please try again.', variant: 'destructive' }) }
@@ -124,7 +130,7 @@ export default function DashboardPage() {
     {preset === 'custom' && <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4"><div><label className="text-xs font-medium text-muted-foreground">From</label><input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} className="mt-1 block h-9 rounded-md border border-input bg-background px-3 text-sm" /></div><div><label className="text-xs font-medium text-muted-foreground">To</label><input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} className="mt-1 block h-9 rounded-md border border-input bg-background px-3 text-sm" /></div></div>}
      {error && <div className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between"><span>{error}</span><Button variant="outline" size="sm" onClick={() => void load()} disabled={loading}>Try again</Button></div>}
      {showFeedbackPrompt && <div className="flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/[0.03] p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><div><p className="text-sm font-semibold">How is Invoice Focus working for you?</p><p className="mt-1 text-sm text-muted-foreground">A quick note helps us shape the next release.</p></div></div><div className="flex shrink-0 gap-2"><Button asChild size="sm"><Link href="/dashboard/feedback">Share feedback</Link></Button><Button variant="ghost" size="sm" onClick={() => setShowFeedbackPrompt(false)}>Not now</Button></div></div>}
-    {loading && !overview ? <DashboardSkeleton /> : overview ? <DashboardContent overview={overview} onDuplicate={handleDuplicate} onDelete={handleDelete} /> : null}
+     {loading && !overview ? <DashboardSkeleton /> : overview ? <DashboardContent overview={overview} onDuplicate={handleDuplicate} onDelete={handleDelete} /> : null}
   </div></DashboardLayout>
 }
 
@@ -143,9 +149,10 @@ function DashboardContent({ overview, onDuplicate, onDelete }: { overview: Dashb
     { label: 'Total Clients', value: stats.totalClients, icon: Users, tone: 'text-violet-500' },
   ]
   const isEmpty = stats.totalInvoices === 0 && stats.totalClients === 0
-  return <>{isEmpty ? <EmptyDashboard /> : <>
+   return <>{isEmpty ? <EmptyDashboard /> : <>
+     <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/15 bg-primary/[0.03] px-4 py-3 text-sm"><span>Business reporting currency</span><span className="font-semibold text-primary">{overview.businessCurrency}</span>{overview.excludedCurrencies.length > 0 && <span className="text-xs text-muted-foreground">Other currencies excluded: {overview.excludedCurrencies.join(', ')}</span>}</div>
      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, icon: Icon, tone }) => <Card key={label} className="interactive-surface"><CardContent className="flex items-start justify-between p-5"><div><p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</p><p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums">{value}</p></div><div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted/70"><Icon className={`h-4 w-4 ${tone}`} /></div></CardContent></Card>)}</div>
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]"><RevenueChart data={overview.revenue} /><StatusChart data={overview.statusDistribution} /></div>
+     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]"><RevenueChart data={overview.revenue} businessCurrency={overview.businessCurrency} /><StatusChart data={overview.statusDistribution} /></div>
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"><RecentInvoices invoices={overview.recentInvoices} onDuplicate={onDuplicate} onDelete={onDelete} /><RecentClients clients={overview.recentClients} /></div>
     <RecentActivity items={overview.recentActivity} />
   </>}</>
@@ -155,9 +162,9 @@ function RecentActivity({ items }: { items: DashboardOverview['recentActivity'] 
   return <Card><CardHeader><CardTitle>Recent Activity</CardTitle><p className="mt-1 text-sm text-muted-foreground">The latest changes across your invoices</p></CardHeader><CardContent>{items.length ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{items.map((item) => <Link key={item.id} href={`/invoice/${item.invoice_id}`} className="rounded-lg border p-3 transition-colors hover:bg-muted/40"><p className="text-sm font-medium">{item.description}</p><p className="mt-1 text-xs capitalize text-muted-foreground">{item.action.replaceAll('_', ' ')} · {new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date(item.created_at))}</p></Link>)}</div> : <p className="text-sm text-muted-foreground">No recent activity yet.</p>}</CardContent></Card>
 }
 
-function RevenueChart({ data }: { data: DashboardOverview['revenue'] }) {
+function RevenueChart({ data, businessCurrency }: { data: DashboardOverview['revenue']; businessCurrency: string }) {
   const currencies = [...new Set(data.map((item) => item.currency))].sort()
-  return <Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle>Revenue Overview</CardTitle><p className="mt-1 text-sm text-muted-foreground">Paid revenue in the selected period, grouped by currency</p></div><TrendingUp className="h-5 w-5 text-emerald-500" /></CardHeader><CardContent>{data.length ? <div className="space-y-5">{currencies.map((currency) => { const points = data.filter((item) => item.currency === currency); return <div key={currency}><p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{currency}</p><div className="h-[220px] w-full"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points}><defs><linearGradient id={`revenueFill-${currency}`} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#2563eb" stopOpacity={0.24} /><stop offset="95%" stopColor="#2563eb" stopOpacity={0} /></linearGradient></defs><CartesianGrid vertical={false} strokeDasharray="3 3" /><XAxis dataKey="date" tickFormatter={shortDate} tickLine={false} axisLine={false} minTickGap={28} /><YAxis tickFormatter={(value) => formatCurrencyCode(Number(value), currency)} tickLine={false} axisLine={false} width={78} /><Tooltip labelFormatter={(value) => shortDate(String(value))} formatter={(value) => [formatCurrencyCode(Number(value), currency), 'Revenue']} /><Area type="monotone" dataKey="amount" stroke="#2563eb" strokeWidth={2.5} fill={`url(#revenueFill-${currency})`} /></AreaChart></ResponsiveContainer></div></div> })}</div> : <div className="h-[280px]"><ChartEmpty label="No paid revenue in this period" /></div>}</CardContent></Card>
+  return <Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle>Revenue Overview</CardTitle><p className="mt-1 text-sm text-muted-foreground">Paid revenue in {businessCurrency} for the selected period</p></div><TrendingUp className="h-5 w-5 text-emerald-500" /></CardHeader><CardContent>{data.length ? <div className="space-y-5">{currencies.map((currency) => { const points = data.filter((item) => item.currency === currency); return <div key={currency}><p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{currency}</p><div className="h-[220px] w-full"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points}><defs><linearGradient id={`revenueFill-${currency}`} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#2563eb" stopOpacity={0.24} /><stop offset="95%" stopColor="#2563eb" stopOpacity={0} /></linearGradient></defs><CartesianGrid vertical={false} strokeDasharray="3 3" /><XAxis dataKey="date" tickFormatter={shortDate} tickLine={false} axisLine={false} minTickGap={28} /><YAxis tickFormatter={(value) => formatCurrencyCode(Number(value), currency)} tickLine={false} axisLine={false} width={78} /><Tooltip labelFormatter={(value) => shortDate(String(value))} formatter={(value) => [formatCurrencyCode(Number(value), currency), 'Revenue']} /><Area type="monotone" dataKey="amount" stroke="#2563eb" strokeWidth={2.5} fill={`url(#revenueFill-${currency})`} /></AreaChart></ResponsiveContainer></div></div> })}</div> : <div className="h-[280px]"><ChartEmpty label="No paid revenue in this period" /></div>}</CardContent></Card>
 }
 
 function StatusChart({ data }: { data: DashboardOverview['statusDistribution'] }) {
