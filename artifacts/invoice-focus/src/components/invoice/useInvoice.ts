@@ -5,7 +5,7 @@ import { calculateInvoiceTotals, parseNumber } from './utils'
 import { loadDraft } from './useInvoiceDraft'
 import { getSettings } from '@/lib/settings'
 import { defaultPresentation, normalizePresentation, type InvoiceTemplate } from './presentation'
-import { defaultDocumentType, normalizeDocumentType } from './document-types'
+import { defaultDocumentDetails, defaultDocumentType, normalizeDocumentDetails, normalizeDocumentType } from './document-types'
 
 function generateInvoiceNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
@@ -67,6 +67,7 @@ export function createEmptyInvoice(): InvoiceData {
       paymentInstructions: '',
       terms: '',
     },
+    documentDetails: defaultDocumentDetails(),
     presentation: defaultPresentation,
   }
 }
@@ -78,6 +79,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
     return {
       ...initial,
       documentType: normalizeDocumentType(initial.documentType),
+      documentDetails: normalizeDocumentDetails(initial.documentDetails),
       ...(selectedTemplate ? { presentation: { ...normalizePresentation(initial.presentation), template: selectedTemplate } } : { presentation: normalizePresentation(initial.presentation) }),
     }
   })
@@ -88,6 +90,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
        setInvoice({
          ...saved,
          documentType: normalizeDocumentType(saved.documentType),
+          documentDetails: normalizeDocumentDetails(saved.documentDetails),
          ...(selectedTemplate ? { presentation: { ...normalizePresentation(saved.presentation), template: selectedTemplate } } : { presentation: normalizePresentation(saved.presentation) }),
        })
       return
@@ -173,6 +176,10 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
     setInvoice((prev) => ({ ...prev, additional: { ...prev.additional, [field]: value } }))
   }, [])
 
+  const updateDocumentDetails = useCallback((field: keyof NonNullable<InvoiceData['documentDetails']>, value: string) => {
+    setInvoice((prev) => ({ ...prev, documentDetails: { ...normalizeDocumentDetails(prev.documentDetails), [field]: value } }))
+  }, [])
+
   const updatePresentation = useCallback((field: keyof NonNullable<InvoiceData['presentation']>, value: string) => {
     setInvoice((prev) => ({
       ...prev,
@@ -206,7 +213,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
   }, [])
 
   const loadFromData = useCallback((data: InvoiceData) => {
-    setInvoice({ ...data, documentType: normalizeDocumentType(data.documentType), presentation: normalizePresentation(data.presentation) })
+    setInvoice({ ...data, documentType: normalizeDocumentType(data.documentType), documentDetails: normalizeDocumentDetails(data.documentDetails), presentation: normalizePresentation(data.presentation) })
   }, [])
 
   const reset = useCallback(() => {
@@ -264,6 +271,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
     updateCurrency,
     updateDocumentType,
     updateAdditional,
+    updateDocumentDetails,
     updatePresentation,
     updateItem,
     addItem,

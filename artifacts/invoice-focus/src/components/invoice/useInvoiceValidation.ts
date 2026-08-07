@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { InvoiceData, InvoiceItem } from './types'
 import { parseNumber } from './utils'
+import { normalizeDocumentType } from './document-types'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -27,7 +28,8 @@ export function validateInvoice(invoice: InvoiceData): InvoiceValidation {
   if (!invoice.details.issueDate) {
     errors.push({ field: 'issue-date', message: 'Issue date is required' })
   }
-  if (!invoice.details.dueDate) {
+  const documentType = normalizeDocumentType(invoice.documentType)
+  if (!invoice.details.dueDate && documentType !== 'receipt' && documentType !== 'credit-note') {
     errors.push({ field: 'due-date', message: 'Due date is required' })
   }
   const businessEmailError = validateEmail(invoice.business.email, 'business email')

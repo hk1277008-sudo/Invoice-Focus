@@ -4,7 +4,7 @@ import type { InvoiceData, InvoiceCalculations, Currency } from './types'
 import { formatCurrency, getCurrencyDecimals } from './currencies'
 import { calculateItemValues } from './utils'
 import { normalizePresentation, presentationFontFamily, templateFamily } from './presentation'
-import { documentTypeMeta, normalizeDocumentType } from './document-types'
+import { documentTypeMeta, normalizeDocumentDetails, normalizeDocumentType } from './document-types'
 
 interface InvoicePreviewProps {
   invoice: InvoiceData
@@ -35,6 +35,7 @@ export const InvoicePreview = memo(function InvoicePreview({
   const presentation = normalizePresentation(invoice.presentation)
   const documentType = normalizeDocumentType(invoice.documentType)
   const documentMeta = documentTypeMeta(documentType)
+  const documentDetails = normalizeDocumentDetails(invoice.documentDetails)
   const family = templateFamily(presentation.template)
   const dark = family === 'enterprise'
   const serif = family === 'minimal' || presentation.template === 'elegant'
@@ -104,9 +105,9 @@ export const InvoicePreview = memo(function InvoicePreview({
             {invoice.details.number && (
               <p className={dark || band ? 'text-sm font-medium text-white/65' : 'text-sm font-medium text-muted-foreground'}>{invoice.details.number}</p>
             )}
-            {invoice.details.status && (
+            {(documentMeta.statusLabel || invoice.details.status) && (
               <p className="mt-1 inline-flex rounded-md px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: `${presentation.primaryColor}18`, color: dark || band ? '#fff' : presentation.primaryColor }}>
-                {invoice.details.status}
+                {documentMeta.statusLabel || invoice.details.status}
               </p>
             )}
           </div>
@@ -142,12 +143,14 @@ export const InvoicePreview = memo(function InvoicePreview({
                 {invoice.details.issueDate || '—'}
               </p>
             </div>
-            <div>
-               <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>{documentMeta.dueDateLabel}</p>
-              <p className={`text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>
-                {invoice.details.dueDate || '—'}
-              </p>
-            </div>
+            {!documentMeta.hideDueDate && (
+              <div>
+                <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>{documentMeta.dueDateLabel}</p>
+                <p className={`text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>
+                  {invoice.details.dueDate || '—'}
+                </p>
+              </div>
+            )}
             <div>
                <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>{documentMeta.termsLabel}</p>
               <p className={`text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>
@@ -162,6 +165,75 @@ export const InvoicePreview = memo(function InvoicePreview({
             </div>
           </div>
         </div>
+
+        {documentType === 'receipt' && (
+          <div className={`mt-8 grid gap-4 rounded-xl border p-4 sm:grid-cols-3 ${dark ? 'border-white/10 bg-white/[0.04]' : 'border-emerald-200 bg-emerald-50/60'}`}>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-emerald-700'}`}>Payment Received</p>
+              <p className={`mt-1 text-sm font-semibold ${dark ? 'text-white' : 'text-emerald-950'}`}>Paid in full</p>
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-emerald-700'}`}>Payment Method</p>
+              <p className={`mt-1 text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>{invoice.details.paymentTerms || '—'}</p>
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-emerald-700'}`}>Transaction ID</p>
+              <p className={`mt-1 break-words text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.transactionId || invoice.details.poNumber || '—'}</p>
+            </div>
+          </div>
+        )}
+
+        {documentType === 'quote' && (
+          <div className={`mt-8 rounded-xl border p-5 ${dark ? 'border-white/10 bg-white/[0.04]' : 'border-border bg-muted/20'}`}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Client Approval</p>
+                <p className={`mt-1 text-sm font-semibold ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.approvalName || 'Approval requested'}</p>
+                {documentDetails.acceptanceNote && <p className={`mt-2 whitespace-pre-line text-sm ${dark ? 'text-white/65' : 'text-muted-foreground'}`}>{documentDetails.acceptanceNote}</p>}
+              </div>
+              {documentDetails.approvalDate && (
+                <div className="shrink-0 sm:text-right">
+                  <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Accepted On</p>
+                  <p className={`mt-1 text-sm font-medium ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.approvalDate}</p>
+                </div>
+              )}
+            </div>
+            <div className={`mt-5 border-t pt-4 ${dark ? 'border-white/10' : 'border-border'}`}>
+              <p className={`text-xs ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Signature / approval</p>
+              <div className={`mt-5 h-7 border-b ${dark ? 'border-white/25' : 'border-foreground/30'}`} />
+            </div>
+          </div>
+        )}
+
+        {documentType === 'estimate' && (
+          <div className={`mt-8 grid gap-5 rounded-xl border p-5 sm:grid-cols-[minmax(0,1fr)_180px] ${dark ? 'border-white/10 bg-white/[0.04]' : 'border-border bg-muted/20'}`}>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Scope</p>
+              <p className={`mt-2 whitespace-pre-line text-sm leading-6 ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>{documentDetails.scope || 'Project scope will be confirmed before work begins.'}</p>
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-muted-foreground'}`}>Estimated Timeline</p>
+              <p className={`mt-2 text-sm font-semibold ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.estimatedTimeline || 'To be confirmed'}</p>
+            </div>
+          </div>
+        )}
+
+        {documentType === 'credit-note' && (
+          <div className={`mt-8 grid gap-5 rounded-xl border p-5 sm:grid-cols-3 ${dark ? 'border-white/10 bg-white/[0.04]' : 'border-rose-200 bg-rose-50/50'}`}>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-rose-700'}`}>Original Invoice</p>
+              <p className={`mt-1 text-sm font-semibold ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.originalInvoiceReference || '—'}</p>
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-rose-700'}`}>Reason for Credit</p>
+              <p className={`mt-1 whitespace-pre-line text-sm ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>{documentDetails.reasonForCredit || 'Refund or adjustment'}</p>
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? 'text-white/45' : 'text-rose-700'}`}>Remaining Balance</p>
+              <p className={`mt-1 text-sm font-semibold ${dark ? 'text-white' : 'text-foreground'}`}>{documentDetails.remainingBalance || '—'}</p>
+            </div>
+          </div>
+        )}
 
         {/* Items Table */}
         <div className={`mt-10 max-w-full overflow-hidden ${family === 'enterprise' ? 'border-t-2' : family === 'professional' ? 'border-t' : ''}`} style={{ borderColor: presentation.primaryColor }}>

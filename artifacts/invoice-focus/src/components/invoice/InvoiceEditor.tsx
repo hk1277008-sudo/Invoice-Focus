@@ -12,7 +12,7 @@ import { calculateItemValues } from './utils'
 import { InvoicePresentationControls } from './InvoicePresentationControls'
 import type { InvoicePresentation } from './presentation'
 import type { InvoiceDocumentType } from './document-types'
-import { normalizeDocumentType } from './document-types'
+import { normalizeDocumentDetails, normalizeDocumentType } from './document-types'
 
 interface InvoiceEditorProps {
   invoice: InvoiceData
@@ -22,6 +22,7 @@ interface InvoiceEditorProps {
   onUpdateDetails: (field: keyof InvoiceData['details'], value: string) => void
   onUpdateCurrency: (value: InvoiceData['details']['currency']) => void
   onUpdateAdditional: (field: keyof InvoiceData['additional'], value: string) => void
+  onUpdateDocumentDetails: (field: keyof NonNullable<InvoiceData['documentDetails']>, value: string) => void
   onUpdateItem: (id: string, field: keyof InvoiceItem, value: string) => void
   onAddItem: () => void
   onRemoveItem: (id: string) => void
@@ -40,6 +41,7 @@ export function InvoiceEditor({
   onUpdateDetails,
   onUpdateCurrency,
   onUpdateAdditional,
+  onUpdateDocumentDetails,
   onUpdateItem,
   onAddItem,
   onRemoveItem,
@@ -85,11 +87,11 @@ export function InvoiceEditor({
       {/* Invoice Details */}
       <Card>
         <CardHeader>
-          <CardTitle>{invoice.documentType === 'receipt' ? 'Receipt Details' : invoice.documentType === 'estimate' ? 'Estimate Details' : invoice.documentType === 'quote' ? 'Quote Details' : 'Invoice Details'}</CardTitle>
+          <CardTitle>{documentType === 'receipt' ? 'Receipt Details' : documentType === 'estimate' ? 'Estimate Details' : documentType === 'quote' ? 'Quote Details' : documentType === 'credit-note' ? 'Credit Note Details' : 'Invoice Details'}</CardTitle>
           <CardDescription>Enter the document number, dates, and terms.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-           <FormField label={invoice.documentType === 'receipt' ? 'Receipt Number' : invoice.documentType === 'estimate' ? 'Estimate Number' : invoice.documentType === 'quote' ? 'Quote Number' : 'Invoice Number'} htmlFor="invoice-number" error={errors['invoice-number']}>
+           <FormField label={documentType === 'receipt' ? 'Receipt Number' : documentType === 'estimate' ? 'Estimate Number' : documentType === 'quote' ? 'Quote Number' : documentType === 'credit-note' ? 'Credit Note Number' : 'Invoice Number'} htmlFor="invoice-number" error={errors['invoice-number']}>
             <Input
               id="invoice-number"
               value={invoice.details.number}
@@ -101,7 +103,7 @@ export function InvoiceEditor({
           <FormField label="Currency" htmlFor="currency" error={errors['currency']}>
             <CurrencySelector value={invoice.details.currency} onChange={onUpdateCurrency} />
           </FormField>
-            <FormField label={invoice.documentType === 'receipt' ? 'Payment Date' : invoice.documentType === 'estimate' ? 'Estimate Date' : invoice.documentType === 'quote' ? 'Quote Date' : 'Invoice Date'} htmlFor="issue-date" error={errors['issue-date']}>
+             <FormField label={documentType === 'receipt' ? 'Payment Date' : documentType === 'estimate' ? 'Estimate Date' : documentType === 'quote' ? 'Quote Date' : 'Issue Date'} htmlFor="issue-date" error={errors['issue-date']}>
             <Input
               id="issue-date"
               type="date"
@@ -110,7 +112,7 @@ export function InvoiceEditor({
                aria-invalid={!!errors['issue-date']}
             />
           </FormField>
-          <FormField label={invoice.documentType === 'receipt' ? 'Original Invoice Date / Reference' : invoice.documentType === 'estimate' ? 'Expiration Date' : invoice.documentType === 'quote' ? 'Valid Until' : 'Due Date'} htmlFor="due-date" error={errors['due-date']}>
+          {documentType !== 'receipt' && documentType !== 'credit-note' && <FormField label={documentType === 'estimate' ? 'Valid Until' : documentType === 'quote' ? 'Quote Valid Until' : 'Due Date'} htmlFor="due-date" error={errors['due-date']}>
             <Input
               id="due-date"
               type="date"
@@ -118,13 +120,13 @@ export function InvoiceEditor({
               onChange={(e) => onUpdateDetails('dueDate', e.target.value)}
               aria-invalid={!!errors['due-date']}
             />
-          </FormField>
-          <FormField label={invoice.documentType === 'receipt' ? 'Payment Method' : 'Terms'} htmlFor="payment-terms">
+          </FormField>}
+           <FormField label={documentType === 'receipt' ? 'Payment Method' : documentType === 'credit-note' ? 'Adjustment Terms' : 'Terms'} htmlFor="payment-terms">
             <Input
               id="payment-terms"
               value={invoice.details.paymentTerms}
               onChange={(e) => onUpdateDetails('paymentTerms', e.target.value)}
-              placeholder={invoice.documentType === 'receipt' ? 'Card, bank transfer, cash...' : 'Net 30'}
+              placeholder={documentType === 'receipt' ? 'Card, bank transfer, cash...' : documentType === 'credit-note' ? 'Refund or account credit...' : 'Net 30'}
             />
           </FormField>
           <FormField label={`${documentType === 'receipt' ? 'Receipt' : documentType[0].toUpperCase() + documentType.slice(1)} Status`} htmlFor="status">
@@ -141,7 +143,7 @@ export function InvoiceEditor({
             </select>
             <p className="mt-1 text-xs text-muted-foreground">Only valid lifecycle transitions can be saved. You can also manage status from the invoice details page.</p>
           </FormField>
-          <FormField label={`${invoice.documentType === 'receipt' ? 'Reference' : 'Reference / PO Number'} (optional)`} htmlFor="po-number" className="sm:col-span-2">
+           <FormField label={`${documentType === 'receipt' ? 'Transaction ID' : documentType === 'credit-note' ? 'Adjustment Reference' : 'Reference / PO Number'} (optional)`} htmlFor="po-number" className="sm:col-span-2">
             <Input
               id="po-number"
               value={invoice.details.poNumber}
@@ -151,6 +153,13 @@ export function InvoiceEditor({
           </FormField>
         </CardContent>
       </Card>
+
+      {documentType !== 'invoice' && (
+        <DocumentDetailsCard
+          invoice={invoice}
+          onUpdate={onUpdateDocumentDetails}
+        />
+      )}
 
       {/* Business Information */}
       <Card>
@@ -363,7 +372,7 @@ export function InvoiceEditor({
       {/* Invoice Items */}
       <Card>
         <CardHeader>
-          <CardTitle>{invoice.documentType === 'receipt' ? 'Paid Items' : invoice.documentType === 'estimate' ? 'Estimated Items' : invoice.documentType === 'quote' ? 'Quoted Items' : 'Invoice Items'}</CardTitle>
+          <CardTitle>{documentType === 'receipt' ? 'Paid Items' : documentType === 'estimate' ? 'Estimated Items' : documentType === 'quote' ? 'Quoted Items' : documentType === 'credit-note' ? 'Credited Items' : 'Invoice Items'}</CardTitle>
           <CardDescription>Add products or services to this document.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -470,6 +479,90 @@ function FormField({
       <div className="mt-1.5">{children}</div>
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
+  )
+}
+
+function DocumentDetailsCard({
+  invoice,
+  onUpdate,
+}: {
+  invoice: InvoiceData
+  onUpdate: (field: keyof NonNullable<InvoiceData['documentDetails']>, value: string) => void
+}) {
+  const documentType = normalizeDocumentType(invoice.documentType)
+  const details = normalizeDocumentDetails(invoice.documentDetails)
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {documentType === 'receipt'
+            ? 'Payment Confirmation'
+            : documentType === 'quote'
+              ? 'Quote Approval'
+              : documentType === 'estimate'
+                ? 'Project Scope'
+                : 'Credit Adjustment'}
+        </CardTitle>
+        <CardDescription>
+          {documentType === 'receipt'
+            ? 'Add the payment reference and original invoice information.'
+            : documentType === 'quote'
+              ? 'Make approval expectations clear for your client.'
+              : documentType === 'estimate'
+                ? 'Give your client context around the projected work.'
+                : 'Document the invoice being adjusted and the reason for the credit.'}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4 sm:grid-cols-2">
+        {documentType === 'receipt' && (
+          <>
+            <FormField label="Transaction ID" htmlFor="transaction-id">
+              <Input id="transaction-id" value={details.transactionId} onChange={(event) => onUpdate('transactionId', event.target.value)} placeholder="TXN-12345" />
+            </FormField>
+            <FormField label="Original Invoice Reference" htmlFor="original-invoice-reference">
+              <Input id="original-invoice-reference" value={details.originalInvoiceReference} onChange={(event) => onUpdate('originalInvoiceReference', event.target.value)} placeholder="INV-001" />
+            </FormField>
+          </>
+        )}
+        {documentType === 'quote' && (
+          <>
+            <FormField label="Acceptance Contact" htmlFor="approval-name">
+              <Input id="approval-name" value={details.approvalName} onChange={(event) => onUpdate('approvalName', event.target.value)} placeholder="Client approver name" />
+            </FormField>
+            <FormField label="Acceptance Date" htmlFor="approval-date">
+              <Input id="approval-date" type="date" value={details.approvalDate} onChange={(event) => onUpdate('approvalDate', event.target.value)} />
+            </FormField>
+            <FormField label="Acceptance Section" htmlFor="acceptance-note" className="sm:col-span-2">
+              <Textarea id="acceptance-note" value={details.acceptanceNote} onChange={(event) => onUpdate('acceptanceNote', event.target.value)} placeholder="Approval is requested by the validity date above." rows={3} />
+            </FormField>
+          </>
+        )}
+        {documentType === 'estimate' && (
+          <>
+            <FormField label="Estimated Timeline" htmlFor="estimated-timeline">
+              <Input id="estimated-timeline" value={details.estimatedTimeline} onChange={(event) => onUpdate('estimatedTimeline', event.target.value)} placeholder="4–6 weeks" />
+            </FormField>
+            <FormField label="Scope" htmlFor="estimate-scope" className="sm:col-span-2">
+              <Textarea id="estimate-scope" value={details.scope} onChange={(event) => onUpdate('scope', event.target.value)} placeholder="Describe what this estimate includes." rows={3} />
+            </FormField>
+          </>
+        )}
+        {documentType === 'credit-note' && (
+          <>
+            <FormField label="Original Invoice Reference" htmlFor="credit-original-invoice">
+              <Input id="credit-original-invoice" value={details.originalInvoiceReference} onChange={(event) => onUpdate('originalInvoiceReference', event.target.value)} placeholder="INV-001" />
+            </FormField>
+            <FormField label="Remaining Balance" htmlFor="remaining-balance">
+              <Input id="remaining-balance" type="number" min="0" step="0.01" value={details.remainingBalance} onChange={(event) => onUpdate('remainingBalance', event.target.value)} placeholder="0.00" />
+            </FormField>
+            <FormField label="Reason for Credit" htmlFor="reason-for-credit" className="sm:col-span-2">
+              <Textarea id="reason-for-credit" value={details.reasonForCredit} onChange={(event) => onUpdate('reasonForCredit', event.target.value)} placeholder="Explain the refund or adjustment." rows={3} />
+            </FormField>
+          </>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

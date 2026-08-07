@@ -42,6 +42,7 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
     updateCurrency,
     updateDocumentType,
     updateAdditional,
+    updateDocumentDetails,
     updatePresentation,
     updateItem,
     addItem,
@@ -334,6 +335,7 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
                 onUpdateDetails={updateDetails}
                 onUpdateCurrency={updateCurrency}
                 onUpdateAdditional={updateAdditional}
+                onUpdateDocumentDetails={updateDocumentDetails}
                 onUpdateItem={updateItem}
                 onAddItem={addItem}
                 onRemoveItem={removeItem}

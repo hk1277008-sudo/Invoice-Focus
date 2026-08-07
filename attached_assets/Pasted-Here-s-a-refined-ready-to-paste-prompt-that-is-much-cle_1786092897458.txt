@@ -1,0 +1,212 @@
+Here's a refined, ready-to-paste prompt that is much clearer and more actionable for the agent.
+
+---
+
+### InvoiceFocus Premium Template System Upgrade
+
+Do **not** redesign the entire application. Focus **only** on the document template system and make it feel like a premium SaaS product comparable to Stripe, Notion, Vercel, Linear, Canva, and Invoice-Generator.com.
+
+## 1. Every Document Type Must Have Its Own Identity
+
+Currently, when switching between:
+
+* Invoice
+* Receipt
+* Estimate
+* Quote
+
+only the title changes.
+
+This is **not acceptable**.
+
+Each document type must have its own professional layout, content structure, labels, metadata, and visual hierarchy.
+
+Examples:
+
+### Invoice
+
+* Payment Due
+* Due Date
+* Balance Due
+* Payment Terms
+* Invoice Number
+* Professional payment-focused layout
+
+### Receipt
+
+* PAID badge
+* Payment Received
+* Payment Method
+* Transaction ID
+* Receipt Number
+* Receipt Date
+* Remove Due Date completely
+
+### Quote
+
+* Quote Valid Until
+* Acceptance section
+* Client approval area
+* Quote Number
+* Optional signature block
+
+### Estimate
+
+* Estimated Cost
+* Estimated Timeline
+* Scope section
+* Estimate Number
+* Valid Until
+* Informational wording instead of payment wording
+
+### Credit Note (NEW)
+
+Implement a full Credit Note document type.
+
+Include:
+
+* Credit Note Number
+* Original Invoice Reference
+* Credit Amount
+* Reason for Credit
+* Remaining Balance
+* Professional refund/adjustment layout
+
+---
+
+# 2. Visual Templates Must Feel Completely Different
+
+Currently Minimal, Professional and Enterprise feel too similar.
+
+I want them to feel like completely different products.
+
+## Minimal
+
+* Extremely clean
+* Lots of whitespace
+* Thin typography
+* Boutique studio feel
+* Apple / Notion inspired
+
+## Professional
+
+* Balanced layout
+* Modern hierarchy
+* Best all-around template
+* Premium freelancer/agency style
+
+## Enterprise
+
+* Corporate style
+* Strong headers
+* Dense metadata
+* Structured sections
+* Suitable for larger companies
+
+These should not be color changes only.
+
+Layouts, spacing, typography, headers, section organization, totals, metadata placement, and overall visual presentation should differ significantly.
+
+---
+
+# 3. PDF Export Must Look Premium
+
+Current PDFs look basic.
+
+I want export quality similar to premium invoicing platforms.
+
+Improve:
+
+* Typography
+* Margins
+* Alignment
+* White space
+* Header hierarchy
+* Table styling
+* Totals section
+* Footer
+* Professional print layout
+* Better visual balance
+
+The exported PDF should look polished enough to send directly to clients.
+
+---
+
+# 4. Live Preview Must Update Correctly
+
+When switching:
+
+* Template
+* Document Type
+
+the live preview must immediately reflect the selected combination.
+
+Each combination should render correctly.
+
+---
+
+# 5. All Combinations Must Work
+
+Support every combination consistently.
+
+Examples:
+
+* Professional Invoice
+
+* Professional Receipt
+
+* Professional Quote
+
+* Professional Estimate
+
+* Professional Credit Note
+
+* Minimal Invoice
+
+* Minimal Receipt
+
+* Minimal Quote
+
+* Minimal Estimate
+
+* Minimal Credit Note
+
+* Enterprise Invoice
+
+* Enterprise Receipt
+
+* Enterprise Quote
+
+* Enterprise Estimate
+
+* Enterprise Credit Note
+
+No placeholder behaviour.
+
+No title-only changes.
+
+Every combination should feel intentional.
+
+---
+
+# 6. Premium UX
+
+When users switch templates or document types, the experience should feel smooth and polished.
+
+No flicker.
+
+No layout jumps.
+
+No broken alignment.
+
+No inconsistent spacing.
+
+---
+
+# Important
+
+Do **not** simplify this implementation.
+
+Treat this as a premium SaaS feature.
+
+The objective is that every exported document looks like it came from a high-end invoicing platform, and users can immediately tell the difference between document types and visual templates.

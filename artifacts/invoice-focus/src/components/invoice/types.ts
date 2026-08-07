@@ -65,6 +65,18 @@ export interface InvoiceAdditional {
   terms: string
 }
 
+export interface InvoiceDocumentDetails {
+  transactionId: string
+  originalInvoiceReference: string
+  reasonForCredit: string
+  remainingBalance: string
+  estimatedTimeline: string
+  scope: string
+  acceptanceNote: string
+  approvalName: string
+  approvalDate: string
+}
+
 export interface InvoiceData {
   documentType?: import('./document-types').InvoiceDocumentType
   business: InvoiceBusiness
@@ -72,6 +84,7 @@ export interface InvoiceData {
   details: InvoiceDetails
   items: InvoiceItem[]
   additional: InvoiceAdditional
+  documentDetails?: InvoiceDocumentDetails
   presentation?: import('./presentation').InvoicePresentation
 }
 

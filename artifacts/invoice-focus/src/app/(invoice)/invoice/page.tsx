@@ -52,6 +52,7 @@ export default function InvoicePage() {
     updateCurrency,
     updateDocumentType,
     updateAdditional,
+    updateDocumentDetails,
     updatePresentation,
     updateItem,
     addItem,
@@ -433,6 +434,7 @@ export default function InvoicePage() {
               onUpdateDetails={updateDetails}
               onUpdateCurrency={updateCurrency}
               onUpdateAdditional={updateAdditional}
+              onUpdateDocumentDetails={updateDocumentDetails}
               onUpdateItem={updateItem}
               onAddItem={addItem}
               onRemoveItem={removeItem}
