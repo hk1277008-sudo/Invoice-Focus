@@ -24,7 +24,6 @@ const FOOTER_GROUPS = [
     links: [
       { text: 'Help', href: '/help' },
       { text: 'Guides', href: '/guides' },
-      { text: 'Status', href: '/status' },
     ],
   },
   {

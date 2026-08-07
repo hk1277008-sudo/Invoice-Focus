@@ -3,7 +3,6 @@ import { Hero } from '@/components/sections/Hero'
 import { Features } from '@/components/sections/Features'
 import { Templates } from '@/components/sections/Templates'
 import { HowItWorks } from '@/components/sections/HowItWorks'
-import { ProductPreview } from '@/components/sections/ProductPreview'
 import { Why } from '@/components/sections/Why'
 import { Services } from '@/components/sections/Services'
 import { FAQ } from '@/components/sections/FAQ'
@@ -19,7 +18,6 @@ export default function HomePage() {
         <Features />
         <Templates />
         <HowItWorks />
-        <ProductPreview />
         <Why />
         <Services />
         <FAQ />
