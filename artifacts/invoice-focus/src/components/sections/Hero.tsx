@@ -23,7 +23,7 @@ export function Hero() {
 </span>
 
 <h1 className="font-display text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-foreground md:text-5xl lg:text-6xl">
-  Free Invoice Generator for Freelancers & Businesses
+  Free Online Invoice Generator
 </h1>
 
 <p className="max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
