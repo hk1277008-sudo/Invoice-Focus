@@ -41,7 +41,7 @@ export function RouteSeo() {
     const pathname = location.split('?')[0] || '/'
     const { description, indexable } = getMetadata(pathname)
 
-    document.title = 'Invoice Focus'
+    document.title = 'Free Invoice Generator'
     upsertMeta('description', description)
     upsertMeta('robots', indexable ? 'index, follow' : 'noindex, nofollow')
 

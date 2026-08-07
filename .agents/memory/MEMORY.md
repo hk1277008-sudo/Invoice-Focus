@@ -18,4 +18,4 @@
 - [Render pnpm version pin](render-pnpm-version-pin.md) — Pin the workspace package manager so Render uses the pnpm version validated against the lockfile.
 - [Renderer matrix runner](renderer-matrix-runner.md) — The renderer matrix uses the workspace scripts package's linked `tsx` runner rather than the invoice-focus package directly.
 - [Document template semantics](document-template-semantics.md) — Keep document-specific fields optional in the invoice payload and render their semantics consistently in preview and PDF.
-- [Browser identity metadata](browser-identity-metadata.md) — Keep browser title, route SEO metadata, and favicon/PWA assets aligned with the Invoice Focus brand.
+- [Browser identity metadata](browser-identity-metadata.md) — Google Site Name is Invoice Focus, while the browser tab title remains Free Invoice Generator.
