@@ -1,0 +1,92 @@
+Please investigate and fix ONLY the issues below. Before making any changes, perform a complete audit and verify each issue instead of guessing.
+
+## 1. Bing Live URL Test
+
+Bing Live URL Test still reports:
+
+"Meta Description too long or too short (1 instance found)"
+
+Tasks:
+- Perform a complete SEO audit of the project.
+- Find every page that outputs a meta description.
+- Ensure every indexable page has exactly ONE <meta name="description"> tag.
+- Ensure every description is between 25–160 characters.
+- Check whether any React SEO component, Helmet, dynamic metadata, or duplicate tags are overriding the homepage metadata.
+- Explain why Bing still reports this issue even though the homepage meta description is already within the recommended length.
+- Fix the actual source of the problem.
+
+---
+
+## 2. Cross-Browser Compatibility Audit
+
+Perform a full browser compatibility audit.
+
+Verify the website works correctly on all major browsers, including:
+
+- Google Chrome
+- Microsoft Edge
+- Mozilla Firefox
+- Safari (macOS)
+- Safari (iPhone/iPad)
+- Brave
+- Opera
+- Samsung Internet
+
+If browser testing cannot be performed directly, explain the limitation and use browser compatibility analysis to identify potential issues instead of claiming tests were run.
+
+Fix any browser-specific problems found.
+
+---
+
+## 3. Website Title / Browser Tab
+
+The browser tab still does not consistently display:
+
+Invoice Focus
+
+Instead it still shows the old title in some situations.
+
+Audit the project and determine:
+
+- Which file currently controls the browser tab title.
+- Whether the title is being overridden dynamically.
+- Whether browser cache, service workers, or deployment are preventing the updated title from appearing.
+
+Fix it so the browser tab consistently displays:
+
+Invoice Focus
+
+---
+
+## 4. Favicon
+
+The favicon has not updated everywhere.
+
+Audit favicon implementation completely.
+
+Verify:
+
+- favicon.ico
+- favicon-16.png
+- favicon-32.png
+- favicon-48.png
+- apple-touch-icon
+- manifest icons
+- browser caching
+
+If necessary:
+- regenerate favicon assets,
+- update all favicon references,
+- ensure browsers pick up the new icon correctly.
+
+---
+
+## IMPORTANT
+
+Do not modify unrelated functionality.
+
+Investigate first.
+
+Explain the root cause of each issue.
+
+Then implement the correct fix using production-ready best practices.

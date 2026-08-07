@@ -27,6 +27,7 @@ import ReportsPage from '@/app/(dashboard)/reports/page'
 import TemplatesPage from '@/app/(dashboard)/templates/page'
 import InvoiceDetailsPage from '@/components/invoice/InvoiceDetailsPage'
 import SharedInvoicePage from '@/app/share/[token]/page'
+import { RouteSeo } from '@/components/seo/RouteSeo'
 
 const InvoicePage = lazy(() => import('@/app/(invoice)/invoice/page'))
 
@@ -42,8 +43,10 @@ function InvoicePageFallback() {
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={HomePage} />
+    <>
+      <RouteSeo />
+      <Switch>
+        <Route path="/" component={HomePage} />
       <Route path="/privacy" component={PrivacyPage} />
       <Route path="/terms" component={TermsPage} />
       <Route path="/help" component={HelpPage} />
@@ -116,8 +119,9 @@ function Router() {
         {(params) => <ProtectedRoute><InvoiceDetailsPage id={params.id} /></ProtectedRoute>}
       </Route>
       <Route path="/share/:token" component={SharedInvoicePage} />
-      <Route component={NotFound} />
-    </Switch>
+        <Route component={NotFound} />
+      </Switch>
+    </>
   )
 }
 
