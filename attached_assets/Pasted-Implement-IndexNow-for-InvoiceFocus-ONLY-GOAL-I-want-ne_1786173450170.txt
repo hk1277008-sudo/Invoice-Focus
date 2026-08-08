@@ -1,0 +1,74 @@
+Implement IndexNow for InvoiceFocus ONLY.
+
+GOAL:
+I want newly published or updated public InvoiceFocus pages to be automatically notified to Bing through IndexNow instead of relying only on normal crawler discovery.
+
+IMPORTANT:
+- Do not change the existing UI.
+- Do not change invoice generation.
+- Do not change authentication.
+- Do not change dashboard functionality.
+- Do not change existing SEO metadata.
+- Do not change sitemap.xml or robots.txt unless required for IndexNow.
+- Do not remove or modify existing analytics.
+- Do not make unrelated changes.
+
+REQUIREMENTS:
+
+1. Research the current official Bing IndexNow implementation requirements before coding.
+
+2. Generate/configure the IndexNow API key securely.
+
+3. Host the required key verification file correctly on:
+   https://invoicefocus.com/
+
+4. Integrate IndexNow into the existing production architecture.
+
+5. Automatically notify IndexNow when a PUBLIC SEO page is:
+   - newly published
+   - materially updated
+   - deleted
+
+6. Include public pages such as:
+   - homepage
+   - templates
+   - invoice generator
+   - receipt generator
+   - estimate generator
+   - quote generator
+   - credit note generator
+   - purchase order generator
+   - blog
+   - individual blog articles
+   - help
+   - about
+   - contact
+   - how-it-works
+   - industry landing pages
+
+7. NEVER submit private/authenticated routes, dashboard pages, account pages, login pages, signup pages, API endpoints, or other non-public URLs.
+
+8. Avoid duplicate/repeated submissions when nothing has changed.
+
+9. Use environment variables/secrets for any sensitive API configuration. Never hardcode secrets into frontend source code.
+
+10. Keep the implementation production-safe and compatible with the existing deployment architecture.
+
+VALIDATION:
+- Verify the IndexNow key is publicly accessible from the correct domain.
+- Verify a test public URL can be submitted successfully.
+- Verify Bing Webmaster Tools receives the submission.
+- Verify the existing sitemap still works.
+- Verify robots.txt still works.
+- Run the production frontend build.
+- Run TypeScript checks.
+- Check for console/runtime errors.
+- Confirm no private URLs are submitted.
+
+IMPORTANT:
+Do NOT create a new SEO system.
+Do NOT rewrite existing SEO pages.
+Do NOT change page content.
+Do NOT redesign anything.
+
+Only implement and validate IndexNow.
