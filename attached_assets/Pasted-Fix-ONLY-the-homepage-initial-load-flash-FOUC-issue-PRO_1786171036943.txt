@@ -1,0 +1,48 @@
+Fix ONLY the homepage initial-load flash/FOUC issue.
+
+PROBLEM:
+When I refresh https://invoicefocus.com/ in a normal browser, the page briefly displays raw unstyled SEO/FAQ text before the normal InvoiceFocus homepage appears.
+
+The screenshot shows text such as:
+- "Invoice Focus – Free Invoice Generator for Freelancers and Small Businesses"
+- "Invoice Focus is a free online invoice generator..."
+- FAQ questions and answers
+
+This content appears briefly on screen during refresh and then disappears when the normal React homepage loads.
+
+This is a frontend rendering/hydration/FOUC issue.
+
+REQUIRED FIX:
+- Prevent the raw SEO/FAQ fallback content from being visibly rendered to normal users during initial page loading.
+- The normal InvoiceFocus homepage must appear without showing the raw SEO text first.
+- Keep the SEO content available to search-engine crawlers.
+- DO NOT delete the SEO content.
+- DO NOT remove the FAQ content.
+- DO NOT remove metadata, structured data, canonical URLs, sitemap functionality, or SEO optimizations.
+- DO NOT replace the homepage with a blank loading screen.
+- Do not add an unnecessary long loading spinner.
+- Preserve the existing homepage design and functionality exactly.
+
+Investigate the actual cause first, including:
+- SSR/static HTML fallback
+- React hydration
+- FOUC
+- CSS loading order
+- JavaScript mounting timing
+- visibility/display behavior of the SEO fallback content
+
+Implement the smallest production-safe fix.
+
+IMPORTANT:
+Do not modify unrelated pages or features.
+Do not change invoice generation, dashboard, authentication, templates, PDFs, routing, or existing SEO metadata.
+
+After fixing:
+1. Hard refresh the homepage multiple times.
+2. Confirm raw SEO/FAQ text never flashes visibly.
+3. Confirm the normal homepage renders correctly.
+4. Confirm SEO content remains available to crawlers.
+5. Confirm production build passes.
+6. Confirm no console errors.
+
+Only fix this issue and report exactly what caused it and what was changed.
