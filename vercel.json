@@ -2,6 +2,14 @@
   "framework": "vite",
   "buildCommand": "PORT=18994 BASE_PATH=/ pnpm --filter @workspace/invoice-focus run build",
   "outputDirectory": "artifacts/invoice-focus/dist/public",
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.invoicefocus.com" }],
+      "destination": "https://invoicefocus.com/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",

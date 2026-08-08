@@ -68,10 +68,37 @@ password.
 
 ## Domain
 
-Use `invoicefocus.com` as the canonical domain. Add the domain to Vercel and
-copy the exact DNS records Vercel provides for the project; those values vary
-by Vercel project and must not be guessed. Redirect
-`www.invoicefocus.com` to the canonical domain in Vercel/domain settings.
+Use `invoicefocus.com` as the canonical domain.
+
+### apex domain (`invoicefocus.com`)
+
+In Vercel → Project → Settings → Domains, add `invoicefocus.com`. Vercel will
+display the exact A/AAAA record values to set at your DNS provider. Copy those
+values verbatim; they vary by project and must not be guessed.
+
+### www subdomain (`www.invoicefocus.com`)
+
+1. In Vercel → Project → Settings → Domains, add `www.invoicefocus.com` and
+   set it to redirect to `invoicefocus.com` (301 permanent).
+2. At your DNS provider, add a CNAME record for `www` pointing to
+   `cname.vercel-dns.com.` — this is Vercel's standard CNAME target for
+   subdomains. If Vercel's dashboard shows a different value, use that instead.
+
+`vercel.json` already includes a `redirects` rule that sends any request
+arriving on `www.invoicefocus.com` to `https://invoicefocus.com/` with a 301,
+so the redirect is enforced at the edge once the DNS record resolves.
+
+### Verifying the redirect
+
+After DNS propagates (typically a few minutes with Vercel DNS, up to 48 hours
+with third-party providers), confirm:
+
+```
+curl -sI https://www.invoicefocus.com | grep -E "HTTP|location"
+# Expected: HTTP/2 301 (or 308), location: https://invoicefocus.com/
+```
+
+### API subdomain
 
 The API may use a separate hostname such as `api.invoicefocus.com`. Point that
 hostname at the Render/Railway service using the records supplied by that
