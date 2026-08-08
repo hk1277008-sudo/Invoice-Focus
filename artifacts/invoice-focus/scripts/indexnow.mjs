@@ -10,7 +10,29 @@ const publicDir = resolve(artifactDir, 'public')
 const sitemapPath = resolve(publicDir, 'sitemap.xml')
 const siteHost = 'invoicefocus.com'
 const siteOrigin = `https://${siteHost}`
-const indexNowEndpoint = process.env.INDEXNOW_ENDPOINT || 'https://api.indexnow.org/indexnow'
+
+/**
+ * Each entry is tried independently. A success from any one endpoint is enough
+ * for that batch. Bing Webmaster Tools verification is required before Bing
+ * accepts IndexNow submissions; include it so that once verification is done it
+ * starts working automatically without a code change.
+ *
+ * Override with a space-separated list in INDEXNOW_ENDPOINTS to test individual
+ * endpoints (e.g. "https://yandex.com/indexnow").
+ */
+export const DEFAULT_ENDPOINTS = [
+  'https://yandex.com/indexnow',
+  'https://www.bing.com/indexnow',
+]
+
+export function resolveEndpoints() {
+  const override = process.env.INDEXNOW_ENDPOINTS?.trim()
+  if (override) return override.split(/\s+/).filter(Boolean)
+  // INDEXNOW_ENDPOINT (singular) kept for backward compatibility: if set, use
+  // only that endpoint.
+  if (process.env.INDEXNOW_ENDPOINT?.trim()) return [process.env.INDEXNOW_ENDPOINT.trim()]
+  return DEFAULT_ENDPOINTS
+}
 
 const publicChangePrefixes = [
   'artifacts/invoice-focus/index.html',
@@ -104,24 +126,54 @@ function readIndexNowKey(keyFile) {
   return key
 }
 
-async function submit(urlList, key, keyFile) {
-  const response = await fetch(indexNowEndpoint, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json; charset=utf-8' },
-    body: JSON.stringify({
-      host: siteHost,
-      key,
-      keyLocation: `${siteOrigin}/${keyFile}`,
-      urlList,
-    }),
-  })
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`[IndexNow] Submission failed with HTTP ${response.status}: ${body.slice(0, 500)}`)
+/**
+ * Submit urlList to a single endpoint. Returns true on success (HTTP 200/202),
+ * false on any failure so the caller can track partial success per batch.
+ *
+ * Exported for testing.
+ */
+export async function submitToEndpoint(endpoint, urlList, key, keyFile, fetchImpl = fetch) {
+  let response
+  try {
+    response = await fetchImpl(endpoint, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        host: siteHost,
+        key,
+        keyLocation: `${siteOrigin}/${keyFile}`,
+        urlList,
+      }),
+    })
+  } catch (networkError) {
+    console.warn(`[IndexNow] Network error reaching ${endpoint}:`, networkError instanceof Error ? networkError.message : networkError)
+    return false
   }
 
-  console.log(`[IndexNow] Submitted ${urlList.length} public URL(s); endpoint returned HTTP ${response.status}.`)
+  if (response.ok) {
+    console.log(`[IndexNow] ${endpoint} accepted ${urlList.length} URL(s) (HTTP ${response.status}).`)
+    return true
+  }
+
+  // Bing returns 403 UserForbiddedToAccessSite when the site has not yet been
+  // verified in Bing Webmaster Tools. Log the details and continue so that
+  // other endpoints (e.g. Yandex) can still succeed.
+  const body = await response.text().catch(() => '')
+  console.warn(`[IndexNow] ${endpoint} rejected with HTTP ${response.status}: ${body.slice(0, 400)}`)
+  return false
+}
+
+/**
+ * Submit one batch to all endpoints independently. Returns true if at least
+ * one endpoint accepted the batch; false if every endpoint rejected it.
+ *
+ * Exported for testing.
+ */
+export async function submitBatch(urlList, key, keyFile, endpoints, fetchImpl = fetch) {
+  const results = await Promise.all(
+    endpoints.map((endpoint) => submitToEndpoint(endpoint, urlList, key, keyFile, fetchImpl)),
+  )
+  return results.some(Boolean)
 }
 
 async function main() {
@@ -150,13 +202,37 @@ async function main() {
 
   const keyFile = findKeyFile()
   const key = readIndexNowKey(keyFile)
-  console.log(`[IndexNow] Public SEO change detected in ${changedFiles.length} file(s); submitting current and removed sitemap URLs.`)
+  const endpoints = resolveEndpoints()
 
+  console.log(`[IndexNow] Public SEO change detected in ${changedFiles.length} file(s); submitting ${urlsToSubmit.length} URL(s) to ${endpoints.length} endpoint(s).`)
+
+  const failedBatches = []
   for (let index = 0; index < urlsToSubmit.length; index += 10_000) {
-    await submit(urlsToSubmit.slice(index, index + 10_000), key, keyFile)
+    const batch = urlsToSubmit.slice(index, index + 10_000)
+    const batchSuccess = await submitBatch(batch, key, keyFile, endpoints)
+    if (!batchSuccess) {
+      failedBatches.push({ start: index, end: index + batch.length })
+    }
   }
+
+  if (failedBatches.length > 0) {
+    throw new Error(
+      `[IndexNow] ${failedBatches.length} batch(es) were rejected by all endpoints. ` +
+      `Failed URL ranges: ${failedBatches.map((b) => `${b.start}–${b.end}`).join(', ')}. ` +
+      'Check the warnings above for details.',
+    )
+  }
+
+  console.log('[IndexNow] Submission complete: every batch was accepted by at least one endpoint.')
 }
 
-main().catch((error) => {
-  console.error('[IndexNow] Notification failed; continuing the production build.', error)
-})
+// Run only when this file is the entry point, not when imported by tests.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    // Individual endpoint warnings (e.g. Bing 403) are logged inside submitToEndpoint
+    // and do not reach here. Only a batch that is rejected by ALL endpoints throws
+    // and reaches this handler — that is a genuine indexing gap and must fail the build.
+    console.error('[IndexNow] Submission failed; aborting the build.', error instanceof Error ? error.message : error)
+    process.exitCode = 1
+  })
+}
