@@ -5,7 +5,8 @@ import { MarketingLayout } from './layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TemplateMiniPreview, TEMPLATES } from '@/components/sections/Templates'
-import { BLOG_ARTICLES, type BlogArticle } from './blog-content'
+import { BLOG_ARTICLES, type ArticleSection, type BlogArticle } from './blog-content'
+import NotFound from '@/pages/not-found'
 
 export type DocumentType = 'invoice' | 'quote' | 'estimate' | 'receipt' | 'credit-note' | 'purchase-order'
 export type TemplateFamily = 'minimal' | 'professional' | 'enterprise'
@@ -508,7 +509,9 @@ export function BlogIndexPage() {
 }
 
 export function BlogArticlePage({ slug }: { slug?: string }) {
-  const article = BLOG_ARTICLES.find((item) => item.slug === slug) ?? BLOG_ARTICLES[0]
+  const article = BLOG_ARTICLES.find((item) => item.slug === slug)
+  if (!article) return <NotFound />
+
   const related = article.relatedSlugs
     .map((relatedSlug) => BLOG_ARTICLES.find((item) => item.slug === relatedSlug))
     .filter((item): item is BlogArticle => Boolean(item))
@@ -516,23 +519,48 @@ export function BlogArticlePage({ slug }: { slug?: string }) {
   return (
     <SeoShell eyebrow={`${article.category} · ${article.readTime}`} title={article.title} description={article.excerpt}>
       <article className="mx-auto max-w-3xl">
-        <p className="text-lg leading-relaxed text-foreground">{article.intro}</p>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+          <span>By {article.byline}</span>
+          <span aria-hidden="true">·</span>
+          <time dateTime={article.date}>{new Date(`${article.date}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time>
+        </div>
+        <p className="mt-6 text-lg leading-relaxed text-foreground">{article.intro}</p>
         <div className="mt-10 space-y-10">
-          {article.sections.map((section) => (
-            <section key={section.heading}>
-              <h2 className="font-display text-2xl font-semibold tracking-tight">{section.heading}</h2>
-              <div className="mt-4 space-y-4 text-base leading-8 text-muted-foreground">
-                {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-              </div>
-            </section>
-          ))}
+          {article.sections.map((section) => <ArticleSectionView key={section.heading} section={section} />)}
         </div>
         <div className="mt-12 rounded-2xl border border-border/70 bg-primary p-6 text-primary-foreground sm:p-8">
           <p className="label-caps text-primary-foreground/70">Put it into practice</p>
-          <h2 className="mt-2 font-display text-2xl font-semibold">Create a document with a clear starting point.</h2>
-          <p className="mt-3 max-w-xl text-primary-foreground/80">Choose the document that matches your business moment, then review the result before sharing it.</p>
-          <Button asChild variant="secondary" className="mt-6"><Link href="/templates">Browse templates <ArrowRight className="h-4 w-4" /></Link></Button>
+          <h2 className="mt-2 font-display text-2xl font-semibold">{article.cta.title}</h2>
+          <p className="mt-3 max-w-xl text-primary-foreground/80">{article.cta.description}</p>
+          <Button asChild variant="secondary" className="mt-6">
+            <Link href={article.cta.href}>{article.cta.label} <ArrowRight className="h-4 w-4" /></Link>
+          </Button>
         </div>
+        <section className="mt-10 border-t border-border/70 pt-8" aria-labelledby="article-links">
+          <h2 id="article-links" className="font-display text-xl font-semibold tracking-tight">Useful InvoiceFocus tools</h2>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {article.internalLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="rounded-full border border-border/70 bg-card px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-muted">
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+        {article.sources && article.sources.length > 0 && (
+          <section className="mt-10 border-t border-border/70 pt-8" aria-labelledby="article-sources">
+            <h2 id="article-sources" className="font-display text-xl font-semibold tracking-tight">Sources and further reading</h2>
+            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              {article.sources.map((source) => (
+                <li key={source.href}>
+                  <a href={source.href} target="_blank" rel="noreferrer" className="text-primary hover:underline">{source.label}</a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        <p className="mt-8 text-sm leading-relaxed text-muted-foreground">
+          This article provides general workflow information, not accounting, tax, or legal advice. Requirements can vary by location and business type.
+        </p>
         {related.length > 0 && (
           <section className="mt-12 border-t border-border/70 pt-10" aria-labelledby="related-articles">
             <h2 id="related-articles" className="font-display text-2xl font-semibold tracking-tight">Related articles</h2>
@@ -549,5 +577,57 @@ export function BlogArticlePage({ slug }: { slug?: string }) {
         )}
       </article>
     </SeoShell>
+  )
+}
+
+function ArticleSectionView({ section }: { section: ArticleSection }) {
+  return (
+    <section>
+      <h2 className="font-display text-2xl font-semibold tracking-tight">{section.heading}</h2>
+      {section.paragraphs && (
+        <div className="mt-4 space-y-4 text-base leading-8 text-muted-foreground">
+          {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+        </div>
+      )}
+      {section.bullets && (
+        <ul className="mt-5 space-y-3 text-base leading-7 text-muted-foreground">
+          {section.bullets.map((bullet) => (
+            <li key={bullet} className="flex gap-3">
+              <Check className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {section.steps && (
+        <ol className="mt-5 space-y-4 text-base leading-7 text-muted-foreground">
+          {section.steps.map((step, index) => (
+            <li key={step} className="flex gap-3">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">{index + 1}</span>
+              <span>{step}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+      {section.table && (
+        <div className="mt-5 overflow-x-auto rounded-2xl border border-border/70">
+          <table className="w-full min-w-[620px] text-left text-sm">
+            <thead className="bg-muted/40 text-foreground">
+              <tr>
+                {section.table.headers.map((header) => <th key={header} className="px-4 py-3 font-semibold">{header}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {section.table.rows.map((row) => (
+                <tr key={row[0]} className="border-t border-border/70 align-top">
+                  {row.map((cell, index) => <td key={`${row[0]}-${index}`} className="px-4 py-3 leading-6 text-muted-foreground">{cell}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {section.callout && <p className="mt-5 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-muted-foreground">{section.callout}</p>}
+    </section>
   )
 }

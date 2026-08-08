@@ -1,0 +1,304 @@
+INVOICEFOCUS BLOG RESET + WEEK 1 CONTENT PLAN
+
+I want to reset the current InvoiceFocus blog and publish only a small number of high-quality articles for the first week.
+
+IMPORTANT:
+- Remove/archive the existing blog articles currently displayed on the blog page.
+- Do NOT delete the blog infrastructure or article system.
+- Keep the existing scalable blog architecture and routing.
+- For this week, publish ONLY 3–4 genuinely useful articles.
+- Do not generate dozens of articles.
+- Do not create placeholder articles.
+- Do not change unrelated InvoiceFocus functionality.
+- Do not modify the dashboard, invoice generator, templates, authentication, PDF system, or existing SEO infrastructure unnecessarily.
+
+==================================================
+RESEARCH FIRST
+==================================================
+
+Before writing, perform fresh research on current search intent and useful questions around:
+
+- invoices
+- invoice generators
+- receipts
+- quotes
+- estimates
+- purchase orders
+- credit notes
+- freelance invoicing
+- small-business invoicing
+- overdue invoices and payment follow-ups
+- invoice workflow problems
+
+Use current search results, authoritative sources, current industry discussions, and real user questions to identify topics with genuine usefulness and reasonable organic-search potential.
+
+Do NOT simply copy or rewrite competitor articles.
+
+Research should identify:
+- recurring questions people actually ask
+- practical problems businesses face
+- emerging/current invoicing topics
+- useful long-tail search intent
+- opportunities where InvoiceFocus can provide a genuinely useful explanation
+
+==================================================
+WEEK 1 — SELECT ONLY 3–4 ARTICLES
+==================================================
+
+After research, select the 3–4 strongest topics for InvoiceFocus.
+
+Prioritize topics that:
+1. Have clear search intent.
+2. Are genuinely useful to freelancers and small businesses.
+3. Closely relate to InvoiceFocus's actual products.
+4. Can naturally link to InvoiceFocus generators/templates.
+5. Have enough depth to produce a substantial article.
+6. Are not simply generic definitions.
+
+Possible topic directions include:
+
+- How to Create a Professional Invoice as a Freelancer
+- Invoice vs Receipt: What Is the Difference?
+- Quote vs Estimate vs Invoice: When Should You Use Each?
+- How to Handle an Overdue Invoice Without Damaging the Client Relationship
+- What Is a Credit Note and When Should You Issue One?
+- Purchase Order vs Invoice: What's the Difference?
+- What Should an Invoice Include?
+- How to Organize a Simple Invoice Workflow for a Small Business
+
+Do NOT automatically use these exact topics. Choose based on your research.
+
+==================================================
+WRITING QUALITY
+==================================================
+
+Write for real people first.
+
+The articles must feel:
+- natural
+- clear
+- specific
+- useful
+- conversational but professional
+- confident without sounding corporate
+- original
+- practical
+
+Avoid generic AI-style writing.
+
+DO NOT:
+- use repetitive introductions
+- use predictable "In today's fast-paced world" language
+- stuff keywords into every paragraph
+- repeat the same point using different wording
+- create artificial statistics
+- invent expert opinions
+- invent customer experiences
+- invent surveys
+- invent company claims
+- copy competitor wording
+- paraphrase competitor articles sentence-by-sentence
+- create content purely to target search engines
+
+Use natural variation in sentence length and structure.
+
+Where appropriate, include:
+- practical examples
+- realistic scenarios
+- simple explanations
+- decision tables
+- checklists
+- step-by-step guidance
+- common mistakes
+- useful examples
+
+The reader should finish the article feeling that they learned something useful.
+
+Google's current guidance emphasizes original, helpful, people-first content rather than content created primarily to attract search traffic, so prioritize actual usefulness and first-hand/product-relevant insight over keyword volume.
+
+==================================================
+SEO REQUIREMENTS
+==================================================
+
+Each article must have:
+
+- One H1 only.
+- Unique SEO title.
+- Meta description between 25–160 characters.
+- Canonical URL.
+- SEO-friendly slug.
+- Relevant H2/H3 structure.
+- Natural keyword usage.
+- Related semantic terms.
+- Internal links.
+- Relevant CTA to InvoiceFocus.
+- Breadcrumbs where appropriate.
+- Article structured data where appropriate.
+- Open Graph metadata.
+
+Do not keyword-stuff.
+
+The primary keyword should naturally appear in:
+- title
+- H1
+- introduction where appropriate
+- one or more relevant headings where natural
+- body content
+- internal links where natural
+
+Use related terminology rather than repeating the exact keyword excessively.
+
+==================================================
+INTERNAL LINKING
+==================================================
+
+Every article should naturally link to relevant InvoiceFocus pages.
+
+Examples:
+
+Invoice article:
+→ /invoice-generator
+→ /invoice-template
+→ /templates
+
+Receipt article:
+→ /receipt-generator
+→ /receipt-template
+
+Quote article:
+→ /quote-generator
+→ /quote-template
+
+Estimate article:
+→ /estimate-generator
+→ /estimate-template
+
+Credit note article:
+→ /credit-note-generator
+→ /credit-note-template
+
+Purchase order article:
+→ /purchase-order-generator
+→ /purchase-order-template
+
+Do NOT force links where they don't make sense.
+
+==================================================
+ARTICLE STRUCTURE
+==================================================
+
+Aim for substantial coverage rather than a fixed word count.
+
+A typical article should contain:
+
+- Clear introduction
+- Direct answer to the search intent
+- Main explanation
+- Practical examples
+- Important considerations
+- Common mistakes or FAQs where useful
+- Clear conclusion
+- Relevant InvoiceFocus CTA
+
+Don't artificially extend articles just to hit a word count.
+
+==================================================
+AUTHORSHIP / TRUST
+==================================================
+
+Use an appropriate InvoiceFocus author/byline structure.
+
+Do not invent a fake expert or fake credentials.
+
+Where information involves laws, taxes, compliance, or country-specific requirements:
+- use authoritative sources
+- clearly distinguish general information from legal/tax advice
+- include appropriate source links where necessary
+- do not make unsupported compliance claims
+
+==================================================
+BLOG PAGE
+==================================================
+
+Update /blog so it displays only the new Week 1 articles.
+
+Make the blog listing look polished and premium.
+
+Each article card should include:
+- title
+- short excerpt
+- category
+- publication date
+- reading time if available
+- clear "Read article" CTA
+
+Do not display old articles.
+
+==================================================
+CONTENT ARCHITECTURE
+==================================================
+
+Keep the blog scalable.
+
+Use a maintainable structure such as:
+
+/blog
+/blog/[slug]
+
+Do not hardcode the entire blog into one giant component.
+
+The architecture must allow us to add another 3–4 articles next week without restructuring the system.
+
+==================================================
+WEEKLY CONTENT STRATEGY
+==================================================
+
+Do NOT write future weeks now.
+
+After Week 1 is published, we will review:
+- Google Search Console queries
+- impressions
+- clicks
+- CTR
+- indexed pages
+- Clarity behavior
+- article performance
+
+Then we will research and select the next 3–4 articles for Week 2.
+
+This is intentional. We want a controlled publishing cadence instead of mass-producing content.
+
+==================================================
+FINAL VALIDATION
+==================================================
+
+After implementation:
+
+1. Confirm all old blog articles are removed from the public blog listing.
+2. Confirm only 3–4 new articles are published.
+3. Open every article route.
+4. Confirm no article returns 404.
+5. Confirm exactly one H1 per article.
+6. Confirm unique title and meta description for every article.
+7. Confirm canonical URLs.
+8. Confirm article structured data.
+9. Confirm internal links work.
+10. Confirm blog listing works.
+11. Confirm mobile layout.
+12. Confirm production build passes.
+13. Confirm no console errors.
+14. Confirm sitemap includes the new articles.
+15. Confirm private/authenticated routes are not added to the sitemap.
+
+Do NOT make unrelated changes.
+
+At the end, report:
+- Articles selected
+- Final titles
+- URLs/slugs
+- Primary search intent
+- Main keyword/theme
+- Internal links added
+- SEO metadata status
+- Sitemap status
+- Any remaining issues
