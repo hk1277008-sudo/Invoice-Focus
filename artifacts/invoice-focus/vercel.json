@@ -2,10 +2,10 @@
   "framework": "vite",
   "buildCommand": "PORT=18994 BASE_PATH=/ pnpm run build",
   "outputDirectory": "dist/public",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
