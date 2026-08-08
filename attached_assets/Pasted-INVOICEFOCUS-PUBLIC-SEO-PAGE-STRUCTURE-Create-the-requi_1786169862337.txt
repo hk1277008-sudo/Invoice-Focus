@@ -1,0 +1,369 @@
+INVOICEFOCUS — PUBLIC SEO PAGE STRUCTURE
+
+Create the required public-facing pages for InvoiceFocus so the website has a complete, professional SEO structure before I submit it to Google Search Console and Bing Webmaster Tools.
+
+IMPORTANT:
+- Do NOT modify existing working invoice creation, dashboard, authentication, templates, document types, PDF generation, or other functionality.
+- Do NOT create unnecessary or thin pages.
+- Every page must contain useful, unique content.
+- Every page must be responsive and match the existing InvoiceFocus design system.
+- Every indexable page must have a unique SEO title, meta description, canonical URL, and exactly ONE H1.
+- Do not duplicate content between pages.
+- Do not keyword-stuff.
+- Do not create fake testimonials, fake statistics, fake reviews, or unsupported claims.
+- Keep all existing functionality working.
+
+==================================================
+1. TEMPLATES HUB
+==================================================
+
+Create:
+
+/templates
+
+This should be the main public template directory.
+
+Include the currently available document types:
+
+- Invoice
+- Quote
+- Estimate
+- Receipt
+- Credit Note
+- Purchase Order
+
+Show the available visual styles:
+
+- Minimal
+- Professional
+- Enterprise
+
+Each template/document combination should link to the correct existing working document creation route.
+
+Do NOT create fake templates that do not exist.
+
+SEO target:
+Invoice Templates / Free Invoice Templates
+
+==================================================
+2. INDIVIDUAL DOCUMENT GENERATOR PAGES
+==================================================
+
+Create public SEO landing pages for:
+
+/invoice-generator
+/receipt-generator
+/estimate-generator
+/quote-generator
+/credit-note-generator
+/purchase-order-generator
+
+Each page must:
+
+- Explain what the document is.
+- Explain when it is used.
+- Explain the main benefits.
+- Include a strong CTA to create the document.
+- Link to relevant templates.
+- Include useful FAQs.
+- Use unique content.
+- Use exactly ONE H1.
+- Have unique metadata.
+- Use canonical URLs.
+
+The actual generator functionality must continue using the existing document creation system.
+
+==================================================
+3. TEMPLATE LANDING PAGES
+==================================================
+
+Create:
+
+/invoice-template
+/receipt-template
+/estimate-template
+/quote-template
+/credit-note-template
+/purchase-order-template
+
+Each page should showcase the relevant existing templates.
+
+Include:
+
+- Template previews
+- Template features
+- Who the template is suitable for
+- CTA
+- FAQ
+- Link to the relevant generator
+
+Do not create duplicate pages for templates that do not actually exist.
+
+==================================================
+4. INDUSTRY LANDING PAGES
+==================================================
+
+Create useful industry-specific pages targeting legitimate use cases:
+
+/invoice-generator-for-freelancers
+/invoice-generator-for-agencies
+/invoice-generator-for-consultants
+/invoice-generator-for-designers
+/invoice-generator-for-developers
+/invoice-generator-for-photographers
+/invoice-generator-for-contractors
+
+Each page must contain genuinely useful information specific to that audience.
+
+Do not simply replace the industry name in identical text.
+
+==================================================
+5. HOW IT WORKS
+==================================================
+
+Create:
+
+/how-it-works
+
+Explain the complete InvoiceFocus workflow:
+
+1. Choose a document type.
+2. Choose a template.
+3. Enter business and client information.
+4. Add items.
+5. Configure tax/discount/advanced options.
+6. Preview the document.
+7. Download/export the PDF.
+
+Use screenshots or existing UI visuals only where appropriate.
+
+==================================================
+6. FEATURES
+==================================================
+
+Create:
+
+/features
+
+Explain the actual features currently available in InvoiceFocus.
+
+Only describe features that actually exist.
+
+Include relevant internal links to generators and templates.
+
+==================================================
+7. ABOUT
+==================================================
+
+Create:
+
+/about
+
+Create a professional About InvoiceFocus page.
+
+Explain:
+- What InvoiceFocus is.
+- Who it is built for.
+- The problem it solves.
+- Its long-term purpose.
+
+Do NOT invent company history, customer numbers, awards, funding, employees, or claims that are not true.
+
+==================================================
+8. CONTACT
+==================================================
+
+Create:
+
+/contact
+
+Provide a professional contact page.
+
+Include the existing supported contact method.
+
+Do not invent an email address or contact information.
+
+==================================================
+9. HELP / GUIDES
+==================================================
+
+Create or improve:
+
+/help
+
+Organize useful help content around:
+
+- Creating invoices
+- Creating quotes
+- Creating estimates
+- Creating receipts
+- Creating credit notes
+- Creating purchase orders
+- Templates
+- PDF export
+- Account issues
+
+Link to the relevant generator pages.
+
+==================================================
+10. BLOG
+==================================================
+
+Create:
+
+/blog
+
+Build a scalable blog structure.
+
+Requirements:
+
+- Blog listing page
+- Individual article route
+- Category support if useful
+- SEO-friendly URLs
+- Unique metadata per article
+- Article schema where appropriate
+- Breadcrumbs
+- Related articles
+- Internal links to relevant InvoiceFocus pages
+
+Use a scalable content architecture rather than hardcoding every future article into one huge component.
+
+Prefer Markdown/MDX or another maintainable content structure compatible with the existing React + Vite architecture.
+
+Do NOT generate dozens of low-quality AI articles automatically.
+
+==================================================
+11. LEGAL PAGES
+==================================================
+
+Ensure these public pages exist and are accessible:
+
+/privacy
+/terms
+/cookies
+
+Use the existing legal content if already present.
+
+Do not invent legal claims.
+
+==================================================
+12. SITEMAP / ROBOTS
+==================================================
+
+Update the site's SEO infrastructure so all important public pages can be discovered.
+
+Ensure:
+
+/sitemap.xml
+
+contains the correct canonical public URLs.
+
+Ensure:
+
+/robots.txt
+
+allows search engines to crawl public SEO pages while protecting private application/dashboard routes where appropriate.
+
+Do NOT include private authenticated routes unnecessarily.
+
+==================================================
+13. SEO REQUIREMENTS FOR EVERY PUBLIC PAGE
+==================================================
+
+Every indexable public page must have:
+
+- Unique <title>
+- Unique meta description between 25 and 160 characters
+- Exactly one H1
+- Logical H2/H3 hierarchy
+- Canonical URL
+- Open Graph title
+- Open Graph description
+- Open Graph URL
+- Appropriate structured data where relevant
+- Breadcrumbs where appropriate
+- Internal links
+- Mobile-friendly layout
+
+Do not add multiple H1 tags.
+
+==================================================
+14. INTERNAL LINKING
+==================================================
+
+Create a logical internal-linking structure.
+
+Example:
+
+Homepage
+↓
+Templates
+↓
+Individual template pages
+↓
+Document generators
+
+Blog
+↓
+Relevant guides
+↓
+Generators
+↓
+Templates
+
+Industry pages
+↓
+Invoice Generator
+↓
+Invoice Templates
+
+Every important public page should be reachable through internal links.
+
+==================================================
+15. IMPORTANT INDEXING RULE
+==================================================
+
+Do NOT index:
+
+- Dashboard
+- Login
+- Sign up
+- Forgot password
+- Reset password
+- Private user pages
+- Authenticated invoice editing pages
+- Internal application routes
+- Any page that requires authentication to be useful
+
+Only public, useful, search-intent pages should be indexable.
+
+==================================================
+16. FINAL AUDIT
+==================================================
+
+After implementation:
+
+1. Check every new route.
+2. Confirm no route returns 404.
+3. Confirm every CTA works.
+4. Confirm generator CTAs open the correct existing generator.
+5. Confirm all templates still work.
+6. Confirm mobile responsiveness.
+7. Confirm exactly one H1 per public page.
+8. Confirm every public page has a unique title.
+9. Confirm every public page has a valid meta description.
+10. Confirm canonical URLs are correct.
+11. Confirm sitemap contains the correct public pages.
+12. Confirm robots.txt is correct.
+13. Confirm no private/authenticated routes are accidentally exposed to search engines.
+
+Do not make unrelated changes.
+
+At the end, provide a concise list of:
+- Pages created
+- Pages modified
+- Routes
+- SEO metadata implemented
+- Sitemap/robots changes
+- Any issues that could not be completed
