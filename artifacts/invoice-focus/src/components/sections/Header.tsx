@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type MouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,18 @@ const NAV_ITEMS = ['Features', 'Templates', 'How It Works', 'FAQ']
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+
+  const handleFaqClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    const faqSection = document.getElementById('faq')
+    if (!faqSection) return
+
+    event.preventDefault()
+    const headerOffset = 88
+    const top = faqSection.getBoundingClientRect().top + window.scrollY - headerOffset
+    window.scrollTo({ top, behavior: 'smooth' })
+    window.history.replaceState(null, '', '#faq')
+    setMenuOpen(false)
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10)
@@ -40,6 +52,7 @@ export function Header() {
             <a
               key={item}
               href={`#${item.toLowerCase().replace(/ /g, '-')}`}
+              onClick={item === 'FAQ' ? handleFaqClick : undefined}
               className="rounded-md px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {item}
@@ -84,7 +97,7 @@ export function Header() {
                 <a
                   key={item}
                   href={`#${item.toLowerCase().replace(/ /g, '-')}`}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={item === 'FAQ' ? handleFaqClick : () => setMenuOpen(false)}
                   className="rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-muted/50"
                 >
                   {item}
