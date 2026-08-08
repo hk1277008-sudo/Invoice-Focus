@@ -79,7 +79,12 @@
         "name":"Invoice Focus",
         "alternateName":"InvoiceFocus",
         "url":"https://invoicefocus.com/",
-        "logo":"https://invoicefocus.com/logo-horizontal.png"
+        "logo":"https://invoicefocus.com/logo-horizontal.png",
+        "sameAs":[
+          "https://twitter.com/REPLACE_ME",
+          "https://www.linkedin.com/company/REPLACE_ME",
+          "https://www.producthunt.com/products/REPLACE_ME"
+        ]
       },
       {
         "@type":"WebSite",
@@ -157,7 +162,89 @@
     </noscript>
     <!-- End Google Tag Manager (noscript) -->
 
+    <!--
+      Crawlable fallback content.
+      This block is invisible to normal browsers (JS hides/removes it once the
+      React app mounts into #root) but is served as real HTML in the initial
+      response, so search/AI crawlers that don't execute JavaScript see actual
+      content instead of an empty page. This is a stopgap only — replace with
+      proper prerendering/SSR for your marketing routes as discussed. Keep this
+      text in sync with what the live app actually shows and with the FAQ
+      schema above, so there's no mismatch between claimed and rendered content.
+    -->
+    <div id="seo-fallback">
+      <header>
+        <h1>Invoice Focus — Free Invoice Generator for Freelancers and Small Businesses</h1>
+        <p>
+          Invoice Focus is a free online invoice generator for creating professional invoices,
+          quotes, estimates, and receipts. Built for freelancers, agencies, startups, and small
+          businesses that need clean, branded billing documents without paying for accounting
+          software.
+        </p>
+      </header>
+
+      <section>
+        <h2>What you can do with Invoice Focus</h2>
+        <ul>
+          <li>Create unlimited invoices, quotes, estimates, and receipts for free</li>
+          <li>Customize documents with your own branding and logo</li>
+          <li>Set up recurring invoices and payment reminders</li>
+          <li>Manage clients and reuse their details across invoices</li>
+          <li>Export every document as a polished, print-ready PDF</li>
+        </ul>
+      </section>
+
+      <section id="faq">
+        <h2>Frequently asked questions</h2>
+        <article>
+          <h3>Is Invoice Focus really free?</h3>
+          <p>
+            Yes. Invoice Focus is permanently free with unlimited invoices, templates, branding
+            controls, recurring invoices, reminders, exports, and client management. There are no
+            paid tiers or usage limits.
+          </p>
+        </article>
+        <article>
+          <h3>Can I create quotes, estimates, and receipts?</h3>
+          <p>
+            Yes. Invoice Focus works as an invoice generator, quote generator, estimate
+            generator, and receipt generator, with document types that can be customized before
+            you share or export them.
+          </p>
+        </article>
+        <article>
+          <h3>Can I export invoices as PDFs?</h3>
+          <p>
+            Yes. Every invoice, quote, and estimate can be exported as a polished, print-ready
+            PDF with one click.
+          </p>
+        </article>
+      </section>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <script>
+      // Hide the crawlable fallback once the real app has mounted, so
+      // human visitors with JS enabled only ever see the React UI.
+      (function () {
+        var hideFallback = function () {
+          var el = document.getElementById('seo-fallback');
+          if (el) el.style.display = 'none';
+        };
+        if (document.getElementById('root').childElementCount > 0) {
+          hideFallback();
+        } else {
+          var observer = new MutationObserver(function () {
+            if (document.getElementById('root').childElementCount > 0) {
+              hideFallback();
+              observer.disconnect();
+            }
+          });
+          observer.observe(document.getElementById('root'), { childList: true });
+        }
+      })();
+    </script>
   </body>
 </html>
