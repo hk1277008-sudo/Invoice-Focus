@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://invoicefocus.com/</loc><priority>1.0</priority></url>
-  <url><loc>https://invoicefocus.com/about</loc><priority>0.8</priority></url>
-  <url><loc>https://invoicefocus.com/blog</loc><priority>0.7</priority></url>
-  <url><loc>https://invoicefocus.com/contact</loc><priority>0.8</priority></url>
-  <url><loc>https://invoicefocus.com/guides</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/templates</loc><priority>0.9</priority></url>
+  <url><loc>https://invoicefocus.com/features</loc><priority>0.8</priority></url>
+  <url><loc>https://invoicefocus.com/how-it-works</loc><priority>0.8</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-generator</loc><priority>0.9</priority></url>
+  <url><loc>https://invoicefocus.com/receipt-generator</loc><priority>0.8</priority></url>
+  <url><loc>https://invoicefocus.com/estimate-generator</loc><priority>0.8</priority></url>
+  <url><loc>https://invoicefocus.com/quote-generator</loc><priority>0.8</priority></url>
+  <url><loc>https://invoicefocus.com/credit-note-generator</loc><priority>0.8</priority></url>
+  <url><loc>https://invoicefocus.com/purchase-order-generator</loc><priority>0.8</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-template</loc><priority>0.8</priority></url>
+  <url><loc>https://invoicefocus.com/receipt-template</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/estimate-template</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/quote-template</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/credit-note-template</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/purchase-order-template</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-generator-for-freelancers</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-generator-for-agencies</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-generator-for-consultants</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-generator-for-designers</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-generator-for-developers</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-generator-for-photographers</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/invoice-generator-for-contractors</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/about</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/contact</loc><priority>0.7</priority></url>
   <url><loc>https://invoicefocus.com/help</loc><priority>0.8</priority></url>
-  <url><loc>https://invoicefocus.com/privacy</loc><priority>0.7</priority></url>
-  <url><loc>https://invoicefocus.com/status</loc><priority>0.7</priority></url>
-  <url><loc>https://invoicefocus.com/terms</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/guides</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/blog</loc><priority>0.7</priority></url>
+  <url><loc>https://invoicefocus.com/blog/calm-way-to-close-out-a-project</loc><priority>0.6</priority></url>
+  <url><loc>https://invoicefocus.com/blog/what-to-include-on-every-professional-invoice</loc><priority>0.6</priority></url>
+  <url><loc>https://invoicefocus.com/blog/better-weekly-money-check-in</loc><priority>0.6</priority></url>
+  <url><loc>https://invoicefocus.com/blog/invoice-workflow-for-freelancers</loc><priority>0.6</priority></url>
+  <url><loc>https://invoicefocus.com/privacy</loc><priority>0.4</priority></url>
+  <url><loc>https://invoicefocus.com/terms</loc><priority>0.4</priority></url>
+  <url><loc>https://invoicefocus.com/cookies</loc><priority>0.4</priority></url>
+  <url><loc>https://invoicefocus.com/status</loc><priority>0.3</priority></url>
 </urlset>

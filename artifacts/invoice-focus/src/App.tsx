@@ -10,7 +10,18 @@ import HomePage from '@/app/(marketing)/page'
 import PrivacyPage from '@/app/(marketing)/privacy/page'
 import TermsPage from '@/app/(marketing)/terms/page'
 import HelpPage from '@/app/(marketing)/help/page'
-import { AboutPage, BlogPage, ContactPage, GuidesPage, StatusPage } from '@/app/(marketing)/saas-pages'
+import { AboutPage, ContactPage, GuidesPage, StatusPage } from '@/app/(marketing)/saas-pages'
+import {
+  BlogArticlePage,
+  BlogIndexPage,
+  CookiesPage,
+  DocumentGeneratorPage,
+  DocumentTemplatePage,
+  FeaturesPage,
+  HowItWorksPage,
+  IndustryPage,
+  TemplatesHubPage,
+} from '@/app/(marketing)/seo-pages'
 import SignInPage from '@/app/(auth)/sign-in/page'
 import SignUpPage from '@/app/(auth)/sign-up/page'
 import ForgotPasswordPage from '@/app/(auth)/forgot-password/page'
@@ -53,8 +64,72 @@ function Router() {
       <Route path="/guides" component={GuidesPage} />
       <Route path="/status" component={StatusPage} />
       <Route path="/about" component={AboutPage} />
-      <Route path="/blog" component={BlogPage} />
-      <Route path="/contact" component={ContactPage} />
+        <Route path="/contact" component={ContactPage} />
+        <Route path="/cookies" component={CookiesPage} />
+        <Route path="/blog/:slug">
+          {(params) => <BlogArticlePage slug={params.slug} />}
+        </Route>
+        <Route path="/blog" component={BlogIndexPage} />
+        <Route path="/templates" component={TemplatesHubPage} />
+        <Route path="/features" component={FeaturesPage} />
+        <Route path="/how-it-works" component={HowItWorksPage} />
+        <Route path="/invoice-generator">
+          <DocumentGeneratorPage documentType="invoice" />
+        </Route>
+        <Route path="/receipt-generator">
+          <DocumentGeneratorPage documentType="receipt" />
+        </Route>
+        <Route path="/estimate-generator">
+          <DocumentGeneratorPage documentType="estimate" />
+        </Route>
+        <Route path="/quote-generator">
+          <DocumentGeneratorPage documentType="quote" />
+        </Route>
+        <Route path="/credit-note-generator">
+          <DocumentGeneratorPage documentType="credit-note" />
+        </Route>
+        <Route path="/purchase-order-generator">
+          <DocumentGeneratorPage documentType="purchase-order" />
+        </Route>
+        <Route path="/invoice-template">
+          <DocumentTemplatePage documentType="invoice" />
+        </Route>
+        <Route path="/receipt-template">
+          <DocumentTemplatePage documentType="receipt" />
+        </Route>
+        <Route path="/estimate-template">
+          <DocumentTemplatePage documentType="estimate" />
+        </Route>
+        <Route path="/quote-template">
+          <DocumentTemplatePage documentType="quote" />
+        </Route>
+        <Route path="/credit-note-template">
+          <DocumentTemplatePage documentType="credit-note" />
+        </Route>
+        <Route path="/purchase-order-template">
+          <DocumentTemplatePage documentType="purchase-order" />
+        </Route>
+        <Route path="/invoice-generator-for-freelancers">
+          <IndustryPage industry="freelancers" />
+        </Route>
+        <Route path="/invoice-generator-for-agencies">
+          <IndustryPage industry="agencies" />
+        </Route>
+        <Route path="/invoice-generator-for-consultants">
+          <IndustryPage industry="consultants" />
+        </Route>
+        <Route path="/invoice-generator-for-designers">
+          <IndustryPage industry="designers" />
+        </Route>
+        <Route path="/invoice-generator-for-developers">
+          <IndustryPage industry="developers" />
+        </Route>
+        <Route path="/invoice-generator-for-photographers">
+          <IndustryPage industry="photographers" />
+        </Route>
+        <Route path="/invoice-generator-for-contractors">
+          <IndustryPage industry="contractors" />
+        </Route>
       <Route path="/sign-in" component={SignInPage} />
       <Route path="/sign-up" component={SignUpPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
@@ -76,11 +151,6 @@ function Router() {
         </ProtectedRoute>
       </Route>
       <Route path="/dashboard/templates">
-        <ProtectedRoute>
-          <TemplatesPage />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/templates">
         <ProtectedRoute>
           <TemplatesPage />
         </ProtectedRoute>

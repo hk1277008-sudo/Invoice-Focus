@@ -5,20 +5,20 @@ const FOOTER_GROUPS = [
   {
     title: 'Product',
     links: [
-      { text: 'Features', href: '#features' },
-      { text: 'Templates', href: '#templates' },
-      { text: 'How It Works', href: '#how-it-works' },
+      { text: 'Features', href: '/features' },
+      { text: 'Templates', href: '/templates' },
+      { text: 'How It Works', href: '/how-it-works' },
     ],
   },
   {
     title: 'Templates',
     links: [
-      { text: 'Invoice', href: '#templates' },
-      { text: 'Quote', href: '#templates' },
-      { text: 'Estimate', href: '#templates' },
-      { text: 'Receipt', href: '#templates' },
-      { text: 'Purchase Order', href: '/invoice?template=professional&documentType=purchase-order' },
-      { text: 'Credit Note', href: '/invoice?template=professional&documentType=credit-note' },
+      { text: 'Invoice', href: '/invoice-template' },
+      { text: 'Quote', href: '/quote-template' },
+      { text: 'Estimate', href: '/estimate-template' },
+      { text: 'Receipt', href: '/receipt-template' },
+      { text: 'Purchase Order', href: '/purchase-order-template' },
+      { text: 'Credit Note', href: '/credit-note-template' },
     ],
   },
   {
@@ -26,13 +26,13 @@ const FOOTER_GROUPS = [
     links: [
       { text: 'Help', href: '/help' },
       { text: 'Guides', href: '/guides' },
+      { text: 'Blog', href: '/blog' },
     ],
   },
   {
     title: 'Company',
     links: [
       { text: 'About', href: '/about' },
-      { text: 'Blog', href: '/blog' },
       { text: 'Contact', href: '/contact' },
     ],
   },
@@ -41,6 +41,7 @@ const FOOTER_GROUPS = [
     links: [
       { text: 'Privacy Policy', href: '/privacy' },
       { text: 'Terms', href: '/terms' },
+      { text: 'Cookies', href: '/cookies' },
     ],
   },
 ]
