@@ -487,7 +487,7 @@ function FormField({
   className?: string
 }) {
   return (
-    <div className={className}>
+    <div className={`min-w-0 ${className ?? ''}`}>
       <Label htmlFor={htmlFor} aria-invalid={!!error}>
         {label}
       </Label>
