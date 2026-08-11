@@ -46,6 +46,50 @@ const DEFAULT_IMAGE = `${SITE_URL}/logo-horizontal.png`
  *   bullets?: string[],
  * }>} */
 const ROUTES = [
+  // ── Authentication pages ─────────────────────────────────────────────────────
+  // These routes are intentionally prerendered for direct email-link access,
+  // but remain noindex and are not included in the public sitemap.
+  {
+    path: '/sign-in',
+    title: 'Sign In | Invoice Focus',
+    description: 'Sign in to your Invoice Focus account.',
+    indexable: false,
+    h1: 'Welcome back',
+    intro: 'Sign in to continue to Invoice Focus.',
+  },
+  {
+    path: '/sign-up',
+    title: 'Create Your Account | Invoice Focus',
+    description: 'Create your free Invoice Focus account.',
+    indexable: false,
+    h1: 'Create your account',
+    intro: 'Create professional documents in minutes.',
+  },
+  {
+    path: '/forgot-password',
+    title: 'Reset Your Password | Invoice Focus',
+    description: 'Request a secure password reset link for your Invoice Focus account.',
+    indexable: false,
+    h1: 'Reset your password',
+    intro: 'Enter your email and we’ll send you a reset link.',
+  },
+  {
+    path: '/reset-password',
+    title: 'Choose a New Password | Invoice Focus',
+    description: 'Choose a new password for your Invoice Focus account.',
+    indexable: false,
+    h1: 'Choose a new password',
+    intro: 'Enter your new password below.',
+  },
+  {
+    path: '/verify-email',
+    title: 'Verify Your Email | Invoice Focus',
+    description: 'Verify your email address to finish setting up your Invoice Focus account.',
+    indexable: false,
+    h1: 'Email verification',
+    intro: 'Verify your email address to finish setting up your account.',
+  },
+
   // ── Homepage ─────────────────────────────────────────────────────────────────
   {
     path: '/',
