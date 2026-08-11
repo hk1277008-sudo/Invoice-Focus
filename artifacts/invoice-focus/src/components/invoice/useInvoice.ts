@@ -73,10 +73,10 @@ export function createEmptyInvoice(): InvoiceData {
   }
 }
 
-export function useInvoice(selectedTemplate?: InvoiceTemplate) {
+export function useInvoice(selectedTemplate?: InvoiceTemplate, initialData?: InvoiceData) {
   const [invoice, setInvoice] = useState<InvoiceData>(() => {
-    const draft = loadDraft()
-    const initial = draft ?? createEmptyInvoice()
+    const draft = initialData ? null : loadDraft()
+    const initial = initialData ?? draft ?? createEmptyInvoice()
     return {
       ...initial,
       documentType: normalizeDocumentType(initial.documentType),
@@ -86,6 +86,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
   })
 
   useEffect(() => {
+    if (initialData) return
     const saved = loadDraft()
     if (saved) {
        setInvoice({
@@ -151,7 +152,7 @@ export function useInvoice(selectedTemplate?: InvoiceTemplate) {
         }
       })
     }).catch(() => undefined)
-  }, [selectedTemplate])
+  }, [initialData, selectedTemplate])
 
   const updateBusiness = useCallback((field: keyof InvoiceData['business'], value: string) => {
     setInvoice((prev) => ({ ...prev, business: { ...prev.business, [field]: value } }))

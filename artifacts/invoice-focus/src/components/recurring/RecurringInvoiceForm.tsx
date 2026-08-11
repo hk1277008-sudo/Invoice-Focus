@@ -21,6 +21,7 @@ import { InvoicePreview } from '@/components/invoice/InvoicePreview'
 import { useInvoiceValidation } from '@/components/invoice/useInvoiceValidation'
 import { format } from 'date-fns'
 import { getSettings, type UserSettings } from '@/lib/settings'
+import type { InvoiceData } from '@/components/invoice/types'
 
 interface Props {
   initialData?: RecurringInvoice | null
@@ -30,6 +31,15 @@ interface Props {
 export function RecurringInvoiceForm({ initialData, isNew }: Props) {
   const [, navigate] = useLocation()
   const { toast } = useToast()
+  const [handoffData] = useState<InvoiceData | null>(() => {
+    if (!isNew || initialData || typeof window === 'undefined') return null
+    try {
+      const handoff = window.sessionStorage.getItem('recurring_handoff')
+      return handoff ? JSON.parse(handoff) as InvoiceData : null
+    } catch {
+      return null
+    }
+  })
   
   const {
     invoice,
@@ -49,7 +59,7 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
     removeItem,
     setLogo,
     loadFromData,
-  } = useInvoice()
+  } = useInvoice(undefined, handoffData ?? undefined)
 
   const { fieldErrors: validationErrors, isValid: isInvoiceValid } = useInvoiceValidation(invoice)
   const [showValidation, setShowValidation] = useState(false)
@@ -106,19 +116,14 @@ export function RecurringInvoiceForm({ initialData, isNew }: Props) {
       if (initialData.template_data) {
         loadFromData(initialData.template_data)
       }
-    } else if (isNew) {
-      try {
-        const handoff = sessionStorage.getItem('recurring_handoff')
-        if (handoff) {
-          const parsed = JSON.parse(handoff)
-          loadFromData(parsed)
-          sessionStorage.removeItem('recurring_handoff')
-        }
-      } catch (e) {
-        // ignore
-      }
     }
   }, [initialData, isNew, loadFromData])
+
+  useEffect(() => {
+    if (!initialData && isNew && handoffData) {
+      window.sessionStorage.removeItem('recurring_handoff')
+    }
+  }, [handoffData, initialData, isNew])
 
   const selectClient = useCallback((client: ClientRecord | null) => {
     if (!client) {
