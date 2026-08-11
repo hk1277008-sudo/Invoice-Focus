@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearch, useLocation } from 'wouter'
 import { AuthLayout } from '../layout'
+import { AuthCard, AuthField } from '@/components/auth/AuthCard'
+import { PasswordInput } from '@/components/auth/PasswordInput'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { supabase, getApiBaseUrl } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 
@@ -101,39 +102,42 @@ export default function VerifyEmailPage() {
 
   return (
     <AuthLayout>
-      <div className="rounded-lg border border-border bg-card px-5 py-8 text-center shadow-sm sm:px-8 sm:py-10">
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+      <AuthCard className="text-center">
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-[-0.035em] text-foreground">
           Email verification
         </h1>
-        <p className="mt-3 text-sm text-muted-foreground">{message}</p>
+        <p
+          className="mt-3 text-sm leading-6 text-muted-foreground"
+          role={status === 'error' ? 'alert' : 'status'}
+          aria-live="polite"
+        >
+          {message}
+        </p>
 
         {status === 'success' && (
-          <Button type="button" className="mt-6" onClick={() => navigate('/sign-in')}>
+          <Button type="button" className="mt-7 h-11 rounded-xl px-5" onClick={() => navigate('/sign-in')}>
             Sign In
           </Button>
         )}
 
         {status === 'error' && email && (
-          <form onSubmit={handleResend} className="mt-6 space-y-3 text-left">
-            <div className="space-y-1.5">
-              <Label htmlFor="resend-password">Enter your password to resend</Label>
-              <Input
+          <form onSubmit={handleResend} className="mt-7 space-y-3 text-left">
+            <AuthField label="Enter your password to resend" htmlFor="resend-password" error={resendError}>
+              <PasswordInput
                 id="resend-password"
-                type="password"
                 placeholder="••••••••"
                 value={resendPassword}
                 onChange={(e) => setResendPassword(e.target.value)}
                 disabled={isResending}
               />
-              {resendError && <p className="text-xs text-destructive">{resendError}</p>}
-            </div>
-            <Button type="submit" variant="outline" disabled={isResending || !resendPassword} className="w-full">
+            </AuthField>
+            <Button type="submit" variant="outline" disabled={isResending || !resendPassword} className="h-11 w-full rounded-xl">
               {isResending ? 'Resending...' : 'Resend verification email'}
             </Button>
             <div className="text-center">
               <Link
                 href="/sign-in"
-                className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                className="rounded-sm text-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
               >
                 Back to Sign In
               </Link>
@@ -144,12 +148,12 @@ export default function VerifyEmailPage() {
         {status === 'error' && !email && (
           <Link
             href="/sign-in"
-            className="mt-6 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
+            className="mt-7 inline-block rounded-sm text-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
           >
             Back to Sign In
           </Link>
         )}
-      </div>
+      </AuthCard>
     </AuthLayout>
   )
 }

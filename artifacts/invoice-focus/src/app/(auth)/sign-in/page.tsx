@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'wouter'
 import { AuthLayout } from '../layout'
+import { AuthCard, AuthField } from '@/components/auth/AuthCard'
+import { PasswordInput } from '@/components/auth/PasswordInput'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { supabase, setRememberMe } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
@@ -81,19 +82,18 @@ export default function SignInPage() {
 
   return (
     <AuthLayout>
-      <div className="rounded-lg border border-border bg-card px-5 py-8 shadow-sm sm:px-8 sm:py-10">
-        <div className="mb-8">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+      <AuthCard>
+        <div className="mb-7">
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-[-0.035em] text-foreground">
             Welcome back
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Sign in to your Invoice Focus account.
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Sign in to continue to Invoice Focus.
           </p>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Work email</Label>
+        <form className="space-y-3" onSubmit={handleSubmit} noValidate>
+          <AuthField label="Work email" htmlFor="email" error={errors.email}>
             <Input
               id="email"
               type="email"
@@ -105,16 +105,15 @@ export default function SignInPage() {
                 setErrors({})
               }}
               aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
               disabled={isLoading}
+              className="h-12 rounded-xl bg-background px-4 shadow-none"
             />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-          </div>
+          </AuthField>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
+          <AuthField label="Password" htmlFor="password" error={errors.password}>
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="••••••••"
               autoComplete="current-password"
               value={password}
@@ -124,46 +123,46 @@ export default function SignInPage() {
                 setErrors({})
               }}
               aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? 'password-error' : undefined}
               disabled={isLoading}
             />
-            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-            <div className="mt-3 flex justify-end">
+            <div className="-mt-1 flex justify-end">
               <Link
                 href="/forgot-password"
-                className="text-xs text-primary underline-offset-4 hover:underline"
+                className="rounded-sm text-xs font-medium text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
               >
                 Forgot password?
               </Link>
             </div>
-          </div>
+          </AuthField>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 pt-1">
             <Checkbox
               id="remember-me"
               checked={rememberMe}
               onCheckedChange={(checked) => setRememberMeState(checked === true)}
               disabled={isLoading}
             />
-            <Label htmlFor="remember-me" className="text-sm font-normal">
+            <label htmlFor="remember-me" className="cursor-pointer text-sm text-muted-foreground">
               Remember me
-            </Label>
+            </label>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="mt-2 h-12 w-full rounded-xl" disabled={isLoading}>
             {isLoading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <p className="mt-7 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
           <Link
             href="/sign-up"
-            className="font-medium text-primary underline-offset-4 hover:underline"
+            className="rounded-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
           >
             Create account
           </Link>
         </p>
-      </div>
+      </AuthCard>
     </AuthLayout>
   )
 }

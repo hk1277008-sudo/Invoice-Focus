@@ -1,0 +1,825 @@
+You are working on the existing InvoiceFocus production SaaS application.
+
+TASK:
+Redesign the existing Sign In and Sign Up pages into a premium, polished SaaS authentication experience based specifically on the current screenshots and InvoiceFocus's existing visual identity.
+
+This is a FRONTEND/UI/UX task.
+
+DO NOT change authentication/business logic.
+
+============================================================
+CURRENT AUTH UI — BASELINE
+============================================================
+
+The current Sign In page contains:
+
+- "Welcome back"
+- "Sign in to your InvoiceFocus account."
+- Work email
+- Password
+- Forgot password?
+- Remember me
+- Sign in button
+- "Don't have an account? Create account"
+
+The current Sign Up page contains:
+
+- "Create your account"
+- "Start sending professional invoices today."
+- Full name
+- Work email
+- Password
+- Confirm password
+- Create account button
+- "Already have an account? Sign in"
+
+The current UI is functional and clean but visually generic.
+
+The redesign should make both pages feel like a serious premium SaaS product.
+
+============================================================
+DESIGN GOAL
+============================================================
+
+The target quality should feel comparable to the design quality principles used by:
+
+- Stripe
+- Vercel
+- Linear
+- Notion
+- Replit
+
+DO NOT copy their layouts, branding, wording, illustrations, or visual assets.
+
+Instead use the same principles:
+
+- excellent spacing
+- strong typography
+- restrained visual hierarchy
+- subtle motion
+- excellent form states
+- minimal visual noise
+- fast perceived performance
+- accessibility
+- responsive design
+- professional SaaS polish
+
+InvoiceFocus must still have its own identity.
+
+Do not make the page look like a clone of another company.
+
+============================================================
+IMPORTANT: PRESERVE AUTHENTICATION
+============================================================
+
+Before modifying anything, inspect the existing authentication implementation.
+
+Identify:
+
+- Sign In component
+- Sign Up component
+- Forgot Password component
+- Password Reset component
+- Authentication hooks
+- Supabase authentication calls
+- Session handling
+- Redirect handling
+- Protected routes
+- Email verification
+- Existing validation
+- Existing error handling
+- OAuth providers if present
+
+PRESERVE ALL EXISTING AUTHENTICATION LOGIC.
+
+Do NOT:
+
+- change Supabase configuration
+- change authentication providers
+- change database schema
+- change migrations
+- change environment variables
+- change user/session behavior
+- change redirects unless fixing an existing UI-only issue
+- change protected-route behavior
+- remove existing authentication functionality
+
+Only improve the presentation and user experience.
+
+============================================================
+1. CREATE A SHARED AUTHENTICATION SHELL
+============================================================
+
+Sign In and Sign Up should use the same visual system.
+
+Create/reuse a shared authentication layout where appropriate.
+
+The structure should be approximately:
+
+InvoiceFocus logo
+
+H1
+
+Supporting text
+
+Authentication form
+
+Primary CTA
+
+Secondary authentication navigation
+
+Small legal/trust footer if already appropriate
+
+Do not duplicate styling between Sign In and Sign Up unnecessarily.
+
+The two pages should feel like two states of the same product.
+
+============================================================
+2. INVOICEFOCUS BRANDING
+============================================================
+
+Use the existing InvoiceFocus logo.
+
+DO NOT create a new logo.
+
+Place the InvoiceFocus logo above the authentication content.
+
+The logo should be:
+
+- clearly visible
+- properly sized
+- crisp
+- aligned with the authentication container
+- not oversized
+
+Use the existing InvoiceFocus visual identity.
+
+Primary brand blue:
+
+#2563EB
+
+Use this primarily for:
+
+- CTA
+- focus states
+- links
+- selected controls
+- subtle interaction feedback
+
+Do not overuse blue.
+
+============================================================
+3. BACKGROUND
+============================================================
+
+Replace the current plain/empty feeling with a refined premium background.
+
+Use a very subtle neutral background consistent with the InvoiceFocus website.
+
+Preferred direction:
+
+- warm/cool off-white or very light neutral
+- subtle tonal variation
+- no noisy patterns
+
+A very subtle background treatment is acceptable.
+
+DO NOT use:
+
+- flashy gradients
+- animated gradients
+- particles
+- blobs
+- neon effects
+- glassmorphism
+- large illustrations
+- distracting decorative objects
+
+The authentication form must remain the visual focus.
+
+============================================================
+4. AUTHENTICATION CONTAINER
+============================================================
+
+The current screenshots show a large generic card.
+
+Refine it.
+
+The authentication content should feel lighter and more premium.
+
+Use:
+
+- clean white surface
+- subtle border
+- very soft shadow
+- moderate border radius
+- generous but controlled padding
+
+Do not create a heavy floating card.
+
+Do not make the card excessively tall.
+
+The form should be compact enough that the user immediately understands what to do.
+
+Desktop width:
+
+approximately 400–460px depending on the final visual balance.
+
+Do not stretch the form unnecessarily.
+
+============================================================
+5. SIGN IN PAGE
+============================================================
+
+Keep the existing functionality.
+
+Recommended visual hierarchy:
+
+InvoiceFocus logo
+
+H1:
+"Welcome back"
+
+Supporting text:
+"Sign in to continue to InvoiceFocus."
+
+Then:
+
+Work email
+
+[input]
+
+Password                                  [show/hide]
+
+[input]
+
+Forgot password?
+
+Remember me
+
+[ Sign in ]
+
+Don't have an account?
+Create account
+
+Keep the wording concise.
+
+The existing "Welcome back" heading is good and should remain.
+
+The existing "Sign in to your InvoiceFocus account." can be replaced with the more concise:
+
+"Sign in to continue to InvoiceFocus."
+
+============================================================
+6. SIGN UP PAGE
+============================================================
+
+Keep the existing functionality.
+
+Use:
+
+H1:
+"Create your account"
+
+Supporting text:
+
+"Create professional documents in minutes."
+
+This is preferred over:
+
+"Start sending professional invoices today."
+
+Reason:
+
+InvoiceFocus now supports more than invoices, including:
+
+- invoices
+- quotes
+- estimates
+- receipts
+- purchase orders
+- credit notes
+
+The authentication copy should therefore not position the entire platform as only an invoice product.
+
+Fields:
+
+Full name
+
+Work email
+
+Password
+
+Confirm password
+
+Primary CTA:
+
+"Create account"
+
+Bottom:
+
+"Already have an account? Sign in"
+
+============================================================
+7. INPUT DESIGN
+============================================================
+
+The current screenshots show basic bordered inputs.
+
+Upgrade them substantially while keeping them simple.
+
+Inputs should:
+
+- have approximately 48–52px height
+- use comfortable horizontal padding
+- have a subtle neutral border
+- use a clean white background
+- have consistent border radius
+- have strong readable text
+- have clear labels
+- have polished focus states
+
+Normal:
+
+subtle gray border
+
+Hover:
+
+slightly stronger border
+
+Focus:
+
+InvoiceFocus blue border/focus ring
+
+Error:
+
+clear error border + accessible error message
+
+Disabled:
+
+muted background and text
+
+Do NOT use the current blue-tinted input background as the default state.
+
+The normal state should feel cleaner and more premium.
+
+============================================================
+8. PASSWORD VISIBILITY
+============================================================
+
+Add a password visibility control to:
+
+- Sign In password
+- Sign Up password
+- Confirm password if appropriate
+- Password reset password fields
+
+The control must:
+
+- be keyboard accessible
+- have an accessible label
+- have a subtle hover state
+- not alter the layout
+- use an existing icon system if the project already has one
+
+Do not introduce a large dependency just for icons.
+
+============================================================
+9. FORGOT PASSWORD
+============================================================
+
+Keep the existing Forgot Password functionality.
+
+The link should be visually aligned with the password field.
+
+Use:
+
+"Forgot password?"
+
+Make it a subtle but clearly recognizable InvoiceFocus-blue link.
+
+Do not create a separate visual hierarchy that competes with the Sign In button.
+
+============================================================
+10. REMEMBER ME
+============================================================
+
+Keep the existing Remember Me functionality if it currently works.
+
+Make the checkbox visually consistent with the InvoiceFocus design.
+
+It should have:
+
+- clean checked state
+- accessible label
+- keyboard focus state
+- appropriate spacing
+
+Do not make it visually oversized.
+
+============================================================
+11. BUTTON DESIGN
+============================================================
+
+The primary CTA should remain InvoiceFocus blue:
+
+#2563EB
+
+Improve the current button with:
+
+- polished hover state
+- subtle shadow
+- subtle press feedback
+- disabled state
+- loading state
+- smooth transition
+
+Sign In:
+
+"Sign in"
+
+Loading:
+
+"Signing in..."
+
+Sign Up:
+
+"Create account"
+
+Loading:
+
+"Creating account..."
+
+Prevent duplicate submissions.
+
+Do not use excessive button animation.
+
+============================================================
+12. MICRO-ANIMATIONS
+============================================================
+
+Add subtle premium animations.
+
+The animation system should feel smooth rather than flashy.
+
+Page entrance:
+
+- logo fades in
+- auth content fades in
+- content moves upward approximately 6–12px
+
+Inputs:
+
+- smooth focus transition
+
+Buttons:
+
+- subtle hover transition
+- subtle press feedback
+
+Errors:
+
+- subtle opacity/height transition
+
+Success states:
+
+- smooth appearance
+
+Recommended animation duration:
+
+150–300ms.
+
+Use existing project animation utilities if available.
+
+Do NOT introduce a large animation library unless the project already uses one.
+
+Respect:
+
+prefers-reduced-motion
+
+When reduced motion is enabled, remove non-essential motion.
+
+============================================================
+13. FORM VALIDATION
+============================================================
+
+Do not change existing validation logic.
+
+Improve only the presentation.
+
+Errors should:
+
+- appear near the relevant field
+- use clear human-readable language
+- avoid technical Supabase errors
+- not cause major layout shifts
+- remain accessible to screen readers
+
+Examples:
+
+"Please enter your email address."
+
+"Please enter your password."
+
+"Passwords do not match."
+
+"Unable to sign in. Please check your email and password."
+
+Do not expose internal implementation details.
+
+============================================================
+14. LOADING STATES
+============================================================
+
+Authentication actions must have clear feedback.
+
+While signing in:
+
+Button becomes disabled.
+
+Display:
+
+"Signing in..."
+
+Optionally use a very subtle spinner.
+
+While creating account:
+
+"Creating account..."
+
+While sending reset email:
+
+"Sending..."
+
+Do not allow repeated clicks to create duplicate requests.
+
+============================================================
+15. SUCCESS STATES
+============================================================
+
+If the existing flow includes:
+
+- email verification
+- password reset
+- account creation confirmation
+
+display the success state in the same premium visual language.
+
+Do not alter the underlying flow.
+
+============================================================
+16. MOBILE EXPERIENCE
+============================================================
+
+This is critical.
+
+The screenshots provided are desktop-oriented.
+
+The redesigned auth experience must be intentionally responsive.
+
+Test:
+
+320px
+375px
+390px
+414px
+768px
+1024px
+1280px
+1440px
+1920px
+
+Mobile requirements:
+
+- no horizontal scrolling
+- comfortable page padding
+- inputs remain easy to tap
+- CTA remains prominent
+- logo remains visible
+- text remains readable
+- keyboard navigation works
+- no excessive vertical whitespace
+- no content hidden behind browser UI
+- no awkward card overflow
+
+On mobile, the authentication container may lose the desktop card appearance and become a clean full-width content area.
+
+============================================================
+17. ACCESSIBILITY
+============================================================
+
+Ensure:
+
+- every field has a proper label
+- keyboard navigation works
+- visible focus indicators
+- password toggle has accessible label
+- checkbox has accessible label
+- errors are announced appropriately
+- buttons have meaningful names
+- color is not the only error indicator
+- sufficient contrast
+- reduced motion is respected
+
+Use semantic HTML.
+
+Do not sacrifice accessibility for visual design.
+
+============================================================
+18. LEGAL / FOOTER
+============================================================
+
+Keep authentication pages focused.
+
+Do not add unnecessary marketing sections.
+
+If appropriate, show a subtle bottom line:
+
+"By continuing, you agree to our Terms and Privacy Policy."
+
+Only use routes that actually exist.
+
+Do not invent URLs.
+
+Keep the footer visually quiet.
+
+============================================================
+19. SEO
+============================================================
+
+Authentication pages should remain non-marketing pages.
+
+Do not add keyword-stuffed copy.
+
+Preserve existing noindex behavior if already configured.
+
+Do not add Sign In or Sign Up to the public SEO sitemap if they are currently excluded.
+
+Do not modify unrelated SEO routes.
+
+============================================================
+20. DO NOT REDESIGN THE REST OF THE WEBSITE
+============================================================
+
+Do not modify:
+
+- Homepage
+- Templates
+- Invoice generator
+- Dashboard
+- Business profile
+- Invoice templates
+- PDF generation
+- Quotes
+- Estimates
+- Receipts
+- Purchase orders
+- Credit notes
+- Blog
+- SEO pages
+- Sitemap
+- Robots
+- GA4
+- Microsoft Clarity
+- IndexNow
+- Supabase migrations
+
+Only modify the authentication UI and directly related authentication presentation components.
+
+============================================================
+21. CODE QUALITY
+============================================================
+
+Before editing:
+
+Inspect the current authentication implementation.
+
+Reuse existing:
+
+- design tokens
+- buttons
+- typography
+- icons
+- form components
+- validation
+- Supabase hooks
+- routing
+- authentication services
+
+Do not create unnecessary duplicate components.
+
+If Sign In and Sign Up currently duplicate large amounts of styling, refactor only where it is safe and improves maintainability.
+
+Keep changes focused.
+
+============================================================
+22. VISUAL QA
+============================================================
+
+After implementation, visually inspect both pages.
+
+Check:
+
+SIGN IN:
+
+- logo alignment
+- heading spacing
+- supporting text
+- email field
+- password field
+- forgot password alignment
+- remember me
+- CTA
+- sign-up link
+- overall vertical balance
+
+SIGN UP:
+
+- logo alignment
+- heading spacing
+- supporting text
+- full name
+- email
+- password
+- confirm password
+- CTA
+- sign-in link
+- overall vertical balance
+
+Both pages must feel like the same product.
+
+============================================================
+23. AUTHENTICATION QA
+============================================================
+
+After UI changes test:
+
+1. Existing user Sign In
+2. Invalid Sign In
+3. Sign Out
+4. New account Sign Up
+5. Invalid Sign Up
+6. Password mismatch
+7. Forgot Password
+8. Password Reset
+9. Email verification if enabled
+10. Existing session persistence
+11. Protected route redirect
+12. Post-login redirect
+13. Mobile authentication
+14. Keyboard navigation
+15. Password visibility toggle
+
+Do not mark the task complete if authentication functionality is broken.
+
+============================================================
+24. BUILD VERIFICATION
+============================================================
+
+Run:
+
+1. Frontend TypeScript check
+2. Production frontend build
+3. git diff --check
+4. Restart web workflow
+5. Inspect browser console
+6. Test authentication flows
+7. Visually inspect Sign In
+8. Visually inspect Sign Up
+9. Check responsive layouts
+
+If existing warnings appear, distinguish them from warnings introduced by this change.
+
+============================================================
+25. FINAL REPORT
+============================================================
+
+At completion report:
+
+- Exact files changed
+- Shared auth components created/modified
+- Sign In improvements
+- Sign Up improvements
+- Animation improvements
+- Accessibility improvements
+- Authentication functionality preserved
+- Tests completed
+- TypeScript result
+- Production build result
+- git diff --check result
+- Browser console result
+- Any remaining warnings
+
+IMPORTANT:
+
+Do not modify unrelated application functionality.
+
+Do not rebuild authentication.
+
+Do not change Supabase.
+
+Do not change the database.
+
+Do not change business logic.
+
+The final result should feel like a premium InvoiceFocus product while remaining simple, fast, accessible, and trustworthy.

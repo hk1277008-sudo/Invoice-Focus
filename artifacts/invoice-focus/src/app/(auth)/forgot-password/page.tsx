@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'wouter'
 import { AuthLayout } from '../layout'
+import { AuthCard, AuthField } from '@/components/auth/AuthCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { getApiBaseUrl } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 
@@ -53,39 +53,38 @@ export default function ForgotPasswordPage() {
   if (isSuccess) {
     return (
       <AuthLayout>
-        <div className="rounded-lg border border-border bg-card px-5 py-8 text-center shadow-sm sm:px-8 sm:py-10">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+        <AuthCard className="text-center">
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-[-0.035em] text-foreground">
             Check your email
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
             If an account exists for <strong>{email}</strong>, we sent a password reset link.
           </p>
           <Link
             href="/sign-in"
-            className="mt-6 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
+            className="mt-7 inline-block rounded-sm text-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
           >
             Back to Sign In
           </Link>
-        </div>
+        </AuthCard>
       </AuthLayout>
     )
   }
 
   return (
     <AuthLayout>
-      <div className="rounded-lg border border-border bg-card px-5 py-8 shadow-sm sm:px-8 sm:py-10">
-        <div className="mb-8">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+      <AuthCard>
+        <div className="mb-7">
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-[-0.035em] text-foreground">
             Reset your password
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Enter your email and we&apos;ll send you a reset link.
           </p>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Work email</Label>
+        <form className="space-y-3" onSubmit={handleSubmit} noValidate>
+          <AuthField label="Work email" htmlFor="email" error={errors.email}>
             <Input
               id="email"
               type="email"
@@ -94,26 +93,27 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
               disabled={isLoading}
+              className="h-12 rounded-xl bg-background px-4 shadow-none"
             />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-          </div>
+          </AuthField>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="mt-2 h-12 w-full rounded-xl" disabled={isLoading}>
             {isLoading ? 'Sending...' : 'Send reset link'}
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <p className="mt-7 text-center text-sm text-muted-foreground">
           Remember your password?{' '}
           <Link
             href="/sign-in"
-            className="font-medium text-primary underline-offset-4 hover:underline"
+            className="rounded-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
           >
             Sign in
           </Link>
         </p>
-      </div>
+      </AuthCard>
     </AuthLayout>
   )
 }

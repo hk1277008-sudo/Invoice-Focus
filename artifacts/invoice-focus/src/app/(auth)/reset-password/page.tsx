@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useSearch } from 'wouter'
 import { AuthLayout } from '../layout'
+import { AuthCard, AuthField } from '@/components/auth/AuthCard'
+import { PasswordInput } from '@/components/auth/PasswordInput'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 
@@ -101,37 +101,37 @@ export default function ResetPasswordPage() {
   if (isSuccess) {
     return (
       <AuthLayout>
-        <div className="rounded-lg border border-border bg-card px-5 py-8 text-center shadow-sm sm:px-8 sm:py-10">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+        <AuthCard className="text-center">
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-[-0.035em] text-foreground">
             Password updated
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
             Your password has been reset successfully.
           </p>
           <Link
             href="/sign-in"
-            className="mt-6 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
+            className="mt-7 inline-block rounded-sm text-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
           >
             Sign in
           </Link>
-        </div>
+        </AuthCard>
       </AuthLayout>
     )
   }
 
   return (
     <AuthLayout>
-      <div className="rounded-lg border border-border bg-card px-5 py-8 shadow-sm sm:px-8 sm:py-10">
-        <div className="mb-8">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+      <AuthCard>
+        <div className="mb-7">
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-[-0.035em] text-foreground">
             Choose a new password
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Enter your new password below.
           </p>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+        <form className="space-y-3" onSubmit={handleSubmit} noValidate>
           <input
             type="text"
             name="username"
@@ -140,43 +140,41 @@ export default function ResetPasswordPage() {
             aria-hidden="true"
             className="sr-only"
           />
-          <div className="space-y-1.5">
-            <Label htmlFor="password">New password</Label>
-            <Input
+          <AuthField label="New password" htmlFor="password" error={errors.password}>
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="••••••••"
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? 'password-error' : undefined}
               disabled={isLoading}
             />
-            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-          </div>
+          </AuthField>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="confirm-password">Confirm new password</Label>
-            <Input
+          <AuthField
+            label="Confirm new password"
+            htmlFor="confirm-password"
+            error={errors.confirmPassword}
+          >
+            <PasswordInput
               id="confirm-password"
-              type="password"
               placeholder="••••••••"
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               aria-invalid={!!errors.confirmPassword}
+              aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
               disabled={isLoading}
             />
-            {errors.confirmPassword && (
-              <p className="text-xs text-destructive">{errors.confirmPassword}</p>
-            )}
-          </div>
+          </AuthField>
 
-          <Button type="submit" className="w-full" disabled={isLoading || !recoveryReady}>
+          <Button type="submit" className="mt-2 h-12 w-full rounded-xl" disabled={isLoading || !recoveryReady}>
             {isLoading ? 'Updating...' : 'Reset password'}
           </Button>
         </form>
-      </div>
+      </AuthCard>
     </AuthLayout>
   )
 }

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'wouter'
 import { AuthLayout } from '../layout'
+import { AuthCard, AuthField } from '@/components/auth/AuthCard'
+import { PasswordInput } from '@/components/auth/PasswordInput'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { getApiBaseUrl } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 
@@ -72,41 +73,40 @@ export default function SignUpPage() {
   if (isSuccess) {
     return (
       <AuthLayout>
-        <div className="rounded-lg border border-border bg-card px-5 py-8 text-center shadow-sm sm:px-8 sm:py-10">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+        <AuthCard className="text-center">
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-[-0.035em] text-foreground">
             Verify your email
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
             We sent a verification link to <strong>{email}</strong>. Please click it to activate your account.
           </p>
           <Button
             type="button"
             variant="outline"
-            className="mt-6"
+            className="mt-7 h-11 rounded-xl px-5"
             onClick={() => navigate('/sign-in')}
           >
             Go to Sign In
           </Button>
-        </div>
+        </AuthCard>
       </AuthLayout>
     )
   }
 
   return (
     <AuthLayout>
-      <div className="rounded-lg border border-border bg-card px-5 py-8 shadow-sm sm:px-8 sm:py-10">
-        <div className="mb-8">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+      <AuthCard>
+        <div className="mb-7">
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-[-0.035em] text-foreground">
             Create your account
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Start sending professional invoices today.
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Create professional documents in minutes.
           </p>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-          <div className="space-y-1.5">
-            <Label htmlFor="full-name">Full name</Label>
+        <form className="space-y-3" onSubmit={handleSubmit} noValidate>
+          <AuthField label="Full name" htmlFor="full-name" error={errors.fullName}>
             <Input
               id="full-name"
               placeholder="Alex Kim"
@@ -114,13 +114,13 @@ export default function SignUpPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               aria-invalid={!!errors.fullName}
+              aria-describedby={errors.fullName ? 'full-name-error' : undefined}
               disabled={isLoading}
+              className="h-12 rounded-xl bg-background px-4 shadow-none"
             />
-            {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
-          </div>
+          </AuthField>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Work email</Label>
+          <AuthField label="Work email" htmlFor="email" error={errors.email}>
             <Input
               id="email"
               type="email"
@@ -129,58 +129,57 @@ export default function SignUpPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
               disabled={isLoading}
+              className="h-12 rounded-xl bg-background px-4 shadow-none"
             />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-          </div>
+          </AuthField>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
+          <AuthField label="Password" htmlFor="password" error={errors.password}>
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="••••••••"
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? 'password-error' : undefined}
               disabled={isLoading}
             />
-            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-          </div>
+          </AuthField>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="confirm-password">Confirm password</Label>
-            <Input
+          <AuthField
+            label="Confirm password"
+            htmlFor="confirm-password"
+            error={errors.confirmPassword}
+          >
+            <PasswordInput
               id="confirm-password"
-              type="password"
               placeholder="••••••••"
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               aria-invalid={!!errors.confirmPassword}
+              aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
               disabled={isLoading}
             />
-            {errors.confirmPassword && (
-              <p className="text-xs text-destructive">{errors.confirmPassword}</p>
-            )}
-          </div>
+          </AuthField>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="mt-2 h-12 w-full rounded-xl" disabled={isLoading}>
             {isLoading ? 'Creating account...' : 'Create account'}
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <p className="mt-7 text-center text-sm text-muted-foreground">
           Already have an account?{' '}
           <Link
             href="/sign-in"
-            className="font-medium text-primary underline-offset-4 hover:underline"
+            className="rounded-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
           >
             Sign in
           </Link>
         </p>
-      </div>
+      </AuthCard>
     </AuthLayout>
   )
 }
