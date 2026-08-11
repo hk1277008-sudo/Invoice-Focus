@@ -42,7 +42,7 @@ export function Header() {
     >
       <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-6 lg:px-8">
         {/* Logo + brand */}
-        <Link href="/" aria-label="InvoiceFocus home">
+        <Link href="/" aria-label="Invoice Focus home">
           <Logo size="md" />
         </Link>
 

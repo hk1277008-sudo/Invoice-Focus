@@ -25,7 +25,6 @@ const FOOTER_GROUPS = [
     title: 'Resources',
     links: [
       { text: 'Help', href: '/help' },
-      { text: 'Guides', href: '/guides' },
       { text: 'Blog', href: '/blog' },
     ],
   },
@@ -53,7 +52,7 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-6">
           {/* Brand column */}
           <div className="lg:col-span-2">
-            <Link href="/" aria-label="InvoiceFocus home">
+            <Link href="/" aria-label="Invoice Focus home">
               <Logo size="md" />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
@@ -90,7 +89,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 sm:flex-row sm:items-center">
           <p className="text-xs text-muted-foreground">
-            © 2026 InvoiceFocus. All Rights Reserved.
+            © 2026 Invoice Focus. All Rights Reserved.
           </p>
           <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">

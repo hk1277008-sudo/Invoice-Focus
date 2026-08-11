@@ -27,7 +27,7 @@ export function Hero() {
 </h1>
 
 <p className="max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
-   Create, customize, and download professional invoices, quotes, estimates, receipts, and purchase orders online in seconds with InvoiceFocus.
+   Create, customize, and download professional invoices, quotes, estimates, receipts, and purchase orders online in seconds with Invoice Focus.
 </p>
           
 

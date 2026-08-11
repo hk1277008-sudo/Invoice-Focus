@@ -49,24 +49,24 @@ const ROUTES = [
   // ── Homepage ─────────────────────────────────────────────────────────────────
   {
     path: '/',
-    title: 'Free Invoice Generator | InvoiceFocus',
+    title: 'Free Invoice Generator | Invoice Focus',
     description:
-      'Create professional invoices, quotes, estimates, receipts, and purchase orders with InvoiceFocus, a free online document generator.',
+      'Create professional invoices, quotes, estimates, receipts, and purchase orders with Invoice Focus, a free online document generator.',
     indexable: true,
     showSoftwareApp: true,
     faq: [
       [
-        'Is InvoiceFocus free to use?',
-        'InvoiceFocus is a free online document generator for creating invoices and related business documents.',
+        'Is Invoice Focus free to use?',
+        'Invoice Focus is a free online document generator for creating invoices and related business documents.',
       ],
       [
         'Can I create documents besides invoices?',
-        'Yes. InvoiceFocus supports quotes, estimates, receipts, credit notes, and purchase orders.',
+        'Yes. Invoice Focus supports quotes, estimates, receipts, credit notes, and purchase orders.',
       ],
     ],
     h1: 'Free Invoice Generator for Freelancers and Small Businesses',
     intro:
-      'InvoiceFocus is a free online document generator for creating professional invoices, quotes, estimates, receipts, credit notes, and purchase orders.',
+      'Invoice Focus is a free online document generator for creating professional invoices, quotes, estimates, receipts, credit notes, and purchase orders.',
     bullets: [
       'Create invoices, quotes, estimates, receipts, credit notes, and purchase orders',
       'Choose from minimal, professional, and enterprise visual families',
@@ -89,7 +89,7 @@ const ROUTES = [
       ],
       [
         'Can I use an invoice template?',
-        'Yes. Browse the InvoiceFocus invoice templates to compare minimal, professional, and enterprise visual families before opening the generator.',
+        'Yes. Browse the Invoice Focus invoice templates to compare minimal, professional, and enterprise visual families before opening the generator.',
       ],
     ],
     h1: 'Invoice Generator',
@@ -202,11 +202,11 @@ const ROUTES = [
     path: '/templates',
     title: 'Invoice Templates | Free Professional Document Templates',
     description:
-      'Browse free InvoiceFocus templates for invoices, quotes, estimates, receipts, credit notes, and purchase orders in three visual families.',
+      'Browse free Invoice Focus templates for invoices, quotes, estimates, receipts, credit notes, and purchase orders in three visual families.',
     indexable: true,
     h1: 'Free Professional Document Templates',
     intro:
-      'Browse InvoiceFocus templates across three visual families — minimal, professional, and enterprise — for invoices, quotes, estimates, receipts, credit notes, and purchase orders.',
+      'Browse Invoice Focus templates across three visual families — minimal, professional, and enterprise — for invoices, quotes, estimates, receipts, credit notes, and purchase orders.',
     bullets: [
       'Minimal — focused layout that highlights the essentials',
       'Professional — balanced hierarchy for client-ready documents',
@@ -220,62 +220,62 @@ const ROUTES = [
     path: '/invoice-template',
     title: 'Invoice Templates | Choose a Professional Invoice Design',
     description:
-      'Explore InvoiceFocus invoice template families, compare their visual rhythm, and open the invoice generator with your choice.',
+      'Explore Invoice Focus invoice template families, compare their visual rhythm, and open the invoice generator with your choice.',
     indexable: true,
     h1: 'Invoice Templates',
-    intro: 'Explore InvoiceFocus invoice template families and choose a visual starting point for your next invoice.',
+    intro: 'Explore Invoice Focus invoice template families and choose a visual starting point for your next invoice.',
     bullets: ['Minimal invoice template', 'Professional invoice template', 'Enterprise invoice template'],
   },
   {
     path: '/receipt-template',
     title: 'Receipt Templates | Clear Payment Confirmation Designs',
     description:
-      'Explore InvoiceFocus receipt templates and choose a clear visual starting point for recording a completed payment.',
+      'Explore Invoice Focus receipt templates and choose a clear visual starting point for recording a completed payment.',
     indexable: true,
     h1: 'Receipt Templates',
-    intro: 'Explore InvoiceFocus receipt templates and choose a clear visual starting point for recording a completed payment.',
+    intro: 'Explore Invoice Focus receipt templates and choose a clear visual starting point for recording a completed payment.',
     bullets: ['Minimal receipt template', 'Professional receipt template', 'Enterprise receipt template'],
   },
   {
     path: '/estimate-template',
     title: 'Estimate Templates | Project Cost Estimate Designs',
     description:
-      'Explore InvoiceFocus estimate templates for presenting expected project work, costs, notes, and totals clearly.',
+      'Explore Invoice Focus estimate templates for presenting expected project work, costs, notes, and totals clearly.',
     indexable: true,
     h1: 'Estimate Templates',
-    intro: 'Explore InvoiceFocus estimate templates for presenting expected project work, costs, notes, and totals clearly.',
+    intro: 'Explore Invoice Focus estimate templates for presenting expected project work, costs, notes, and totals clearly.',
     bullets: ['Minimal estimate template', 'Professional estimate template', 'Enterprise estimate template'],
   },
   {
     path: '/quote-template',
     title: 'Quote Templates | Professional Client Quote Designs',
     description:
-      'Explore InvoiceFocus quote templates for presenting scope, pricing, and projected work before a client engagement begins.',
+      'Explore Invoice Focus quote templates for presenting scope, pricing, and projected work before a client engagement begins.',
     indexable: true,
     h1: 'Quote Templates',
     intro:
-      'Explore InvoiceFocus quote templates for presenting scope, pricing, and projected work before a client engagement begins.',
+      'Explore Invoice Focus quote templates for presenting scope, pricing, and projected work before a client engagement begins.',
     bullets: ['Minimal quote template', 'Professional quote template', 'Enterprise quote template'],
   },
   {
     path: '/credit-note-template',
     title: 'Credit Note Templates | Billing Adjustment Designs',
     description:
-      'Explore InvoiceFocus credit note templates for documenting billing adjustments with clear references and credited amounts.',
+      'Explore Invoice Focus credit note templates for documenting billing adjustments with clear references and credited amounts.',
     indexable: true,
     h1: 'Credit Note Templates',
     intro:
-      'Explore InvoiceFocus credit note templates for documenting billing adjustments with clear references and credited amounts.',
+      'Explore Invoice Focus credit note templates for documenting billing adjustments with clear references and credited amounts.',
     bullets: ['Minimal credit note template', 'Professional credit note template', 'Enterprise credit note template'],
   },
   {
     path: '/purchase-order-template',
     title: 'Purchase Order Templates | Supplier Order Designs',
     description:
-      'Explore InvoiceFocus purchase order templates for clear supplier requests, delivery details, and requested items.',
+      'Explore Invoice Focus purchase order templates for clear supplier requests, delivery details, and requested items.',
     indexable: true,
     h1: 'Purchase Order Templates',
-    intro: 'Explore InvoiceFocus purchase order templates for clear supplier requests, delivery details, and requested items.',
+    intro: 'Explore Invoice Focus purchase order templates for clear supplier requests, delivery details, and requested items.',
     bullets: [
       'Minimal purchase order template',
       'Professional purchase order template',
@@ -283,123 +283,16 @@ const ROUTES = [
     ],
   },
 
-  // ── Industry pages ────────────────────────────────────────────────────────────
-  {
-    path: '/invoice-generator-for-freelancers',
-    title: 'Invoice Generator for Freelancers | Clear Client Billing',
-    description:
-      'Create clear invoices, quotes, and receipts for freelance work with a focused document workflow built for independent professionals.',
-    indexable: true,
-    h1: 'Invoicing that leaves more room for the work.',
-    intro:
-      'When you move between projects, your invoicing should be easy to pick up and finish. InvoiceFocus gives independent professionals a focused place to create the document they need, add clear line items, and keep client-facing details consistent.',
-    bullets: [
-      'Choose the document type for the moment',
-      'Add your work, rates, and client details',
-      'Review the finished document before sending',
-    ],
-  },
-  {
-    path: '/invoice-generator-for-agencies',
-    title: 'Invoice Generator for Agencies | Consistent Client Documents',
-    description:
-      'Create consistent agency quotes, invoices, and credit notes for project handoffs, billing, and scope adjustments.',
-    indexable: true,
-    h1: 'A more consistent client document workflow.',
-    intro:
-      'Agencies balance multiple clients, contributors, and project stages. Reusable document patterns help your team present the right information at each handoff while keeping the client experience composed.',
-    bullets: [
-      'Set a clear commercial starting point',
-      'Keep project billing legible',
-      'Document changes when the scope or amount shifts',
-    ],
-  },
-  {
-    path: '/invoice-generator-for-consultants',
-    title: 'Invoice Generator for Consultants | Scope to Payment',
-    description:
-      'Create quotes, estimates, and invoices that keep consulting scope, recommendations, and billing details easy to follow.',
-    indexable: true,
-    h1: 'Clear documents for considered advice.',
-    intro:
-      'Consulting work often begins with a considered quote or estimate and ends with an invoice. A consistent document workflow helps you communicate each stage without adding another heavy system to your day.',
-    bullets: [
-      'Start with a quote or estimate',
-      'Describe the engagement in useful line items',
-      'Turn completed work into a clear invoice',
-    ],
-  },
-  {
-    path: '/invoice-generator-for-designers',
-    title: 'Invoice Generator for Designers | Client-Ready Documents',
-    description:
-      'Create quotes, estimates, and invoices for design engagements, milestones, deliverables, and final balances.',
-    indexable: true,
-    h1: 'Invoices that give creative work a clear finish.',
-    intro:
-      'Design projects often move through proposals, rounds of work, and handoff. A focused document workflow helps you describe the work clearly without letting administration compete with the creative process.',
-    bullets: [
-      'Set the scope and expected investment',
-      'Describe deliverables or milestones',
-      'Invoice the completed work with useful context',
-    ],
-  },
-  {
-    path: '/invoice-generator-for-developers',
-    title: 'Invoice Generator for Developers | Technical Work Billing',
-    description:
-      'Create precise quotes, invoices, and receipts for development projects, retainers, milestones, and implementation work.',
-    indexable: true,
-    h1: 'Straightforward billing for technical work.',
-    intro:
-      'Development work can include a fixed project, a monthly retainer, or a series of milestones. Use the document that matches the engagement and keep the line items precise enough to make the work understandable.',
-    bullets: [
-      'Choose a document for the engagement stage',
-      'Separate work, milestones, or retainers into useful items',
-      'Review totals and terms before sharing',
-    ],
-  },
-  {
-    path: '/invoice-generator-for-photographers',
-    title: 'Invoice Generator for Photographers | Shoot Documents',
-    description:
-      'Create quotes, estimates, and invoices for photography sessions, packages, services, deposits, and final balances.',
-    indexable: true,
-    h1: 'A polished document workflow for every shoot.',
-    intro:
-      'Photography work may involve a planned package, a project estimate, and a final balance. Keep the commercial details close to the creative brief so clients know what is included and what happens next.',
-    bullets: [
-      'Outline the session or package',
-      'Add services, usage, and other agreed items',
-      'Send a clear invoice or receipt at the right stage',
-    ],
-  },
-  {
-    path: '/invoice-generator-for-contractors',
-    title: 'Invoice Generator for Contractors | Project Billing',
-    description:
-      'Create estimates, invoices, and credit notes for contractor milestones, materials, completed work, and adjustments.',
-    indexable: true,
-    h1: 'Make project billing easier to explain.',
-    intro:
-      'For project-based work, context matters. A useful estimate sets the expectation, an invoice records the work, and a credit note can explain an adjustment. Build each document with the same attention to detail as the project itself.',
-    bullets: [
-      'Outline the expected project cost',
-      'Record completed work and materials',
-      'Explain any adjustment with the right document',
-    ],
-  },
-
   // ── Marketing pages ───────────────────────────────────────────────────────────
   {
     path: '/how-it-works',
-    title: 'How InvoiceFocus Works | From Details to PDF',
+    title: 'How Invoice Focus Works | From Details to PDF',
     description:
-      'See how InvoiceFocus takes you from document type and business details to a reviewed, professional PDF ready to share.',
+      'See how Invoice Focus takes you from document type and business details to a reviewed, professional PDF ready to share.',
     indexable: true,
-    h1: 'How InvoiceFocus Works',
+    h1: 'How Invoice Focus Works',
     intro:
-      'InvoiceFocus takes you from choosing a document type and adding your details to a reviewed, professional PDF ready to share.',
+      'Invoice Focus takes you from choosing a document type and adding your details to a reviewed, professional PDF ready to share.',
     bullets: [
       'Choose the document type — invoice, quote, estimate, receipt, credit note, or purchase order',
       'Pick a visual template family — minimal, professional, or enterprise',
@@ -409,14 +302,14 @@ const ROUTES = [
   },
   {
     path: '/features',
-    title: 'InvoiceFocus Features | Documents and Templates',
+    title: 'Invoice Focus Features | Documents and Templates',
     description:
-      'See the real InvoiceFocus features for creating invoices, quotes, estimates, receipts, credit notes, and purchase orders.',
+      'See the real Invoice Focus features for creating invoices, quotes, estimates, receipts, credit notes, and purchase orders.',
     indexable: true,
     showSoftwareApp: true,
     faq: [
       [
-        'Does InvoiceFocus replace accounting advice?',
+        'Does Invoice Focus replace accounting advice?',
         'No. It is a document creation tool, not accounting, tax, or legal advice. Use your own professional guidance for obligations specific to your business.',
       ],
       [
@@ -424,9 +317,9 @@ const ROUTES = [
         'Yes. The available template families give you a starting visual direction while you prepare the document.',
       ],
     ],
-    h1: 'InvoiceFocus Features',
+    h1: 'Invoice Focus Features',
     intro:
-      'InvoiceFocus is a focused document creation tool for invoices, quotes, estimates, receipts, credit notes, and purchase orders.',
+      'Invoice Focus is a focused document creation tool for invoices, quotes, estimates, receipts, credit notes, and purchase orders.',
     bullets: [
       'Six document types: invoice, quote, estimate, receipt, credit note, and purchase order',
       'Three visual families: minimal, professional, and enterprise',
@@ -436,13 +329,13 @@ const ROUTES = [
   },
   {
     path: '/about',
-    title: 'About InvoiceFocus | Focused Invoicing Software',
+    title: 'About Invoice Focus | Focused Invoicing Software',
     description:
-      'Learn what InvoiceFocus is, who it is built for, and how it makes everyday business document creation more focused.',
+      'Learn what Invoice Focus is, who it is built for, and how it makes everyday business document creation more focused.',
     indexable: true,
-    h1: 'About InvoiceFocus',
+    h1: 'About Invoice Focus',
     intro:
-      'InvoiceFocus is a focused online workspace for creating professional business documents. Built for freelancers, agencies, consultants, and small businesses that need clean billing documents without complicated software.',
+      'Invoice Focus is a focused online workspace for creating professional business documents. Built for freelancers, agencies, consultants, and small businesses that need clean billing documents without complicated software.',
     bullets: [
       'Free invoice generator for professional use',
       'Supports invoices, quotes, estimates, receipts, credit notes, and purchase orders',
@@ -452,24 +345,24 @@ const ROUTES = [
   },
   {
     path: '/contact',
-    title: 'Contact InvoiceFocus | Product and Support Questions',
+    title: 'Contact Invoice Focus | Product and Support Questions',
     description:
-      'Contact InvoiceFocus for product questions, partnerships, and support with your invoicing and business document workflow.',
+      'Contact Invoice Focus for product questions, partnerships, and support with your invoicing and business document workflow.',
     indexable: true,
-    h1: 'Contact InvoiceFocus',
+    h1: 'Contact Invoice Focus',
     intro:
       'Reach out with product questions, partnership inquiries, or support requests about your invoicing and business document workflow.',
     bullets: [],
   },
   {
     path: '/help',
-    title: 'InvoiceFocus Help Center | Invoicing and Account Guides',
+    title: 'Invoice Focus Help Center | Invoicing and Account Guides',
     description:
-      'Find practical help for creating invoices, using templates, exporting PDFs, and managing your InvoiceFocus account.',
+      'Find practical help for creating invoices, using templates, exporting PDFs, and managing your Invoice Focus account.',
     indexable: true,
-    h1: 'InvoiceFocus Help Center',
+    h1: 'Invoice Focus Help Center',
     intro:
-      'Find practical help for creating invoices, using templates, exporting PDFs, and managing your InvoiceFocus account.',
+      'Find practical help for creating invoices, using templates, exporting PDFs, and managing your Invoice Focus account.',
     bullets: [
       'Getting started with the invoice generator',
       'Choosing and using templates',
@@ -478,28 +371,12 @@ const ROUTES = [
     ],
   },
   {
-    path: '/guides',
-    title: 'Invoicing Guides | Practical Help from InvoiceFocus',
-    description:
-      'Read practical InvoiceFocus guides for creating polished invoices, organizing client details, and building a calmer billing workflow.',
-    indexable: true,
-    h1: 'Invoicing Guides',
-    intro:
-      'Practical InvoiceFocus guides for creating polished invoices, organizing client details, and building a calmer billing workflow.',
-    bullets: [
-      'How to create a professional invoice',
-      'Choosing the right document type',
-      'Working with templates and visual families',
-      'Organizing client and business details',
-    ],
-  },
-  {
     path: '/blog',
-    title: 'InvoiceFocus Journal | Invoicing and Business Guides',
+    title: 'Invoice Focus Journal | Invoicing and Business Guides',
     description:
-      'Read practical InvoiceFocus articles about invoicing, freelancing, small business documents, and focused work.',
+      'Read practical Invoice Focus articles about invoicing, freelancing, small business documents, and focused work.',
     indexable: true,
-    h1: 'InvoiceFocus Journal',
+    h1: 'Invoice Focus Journal',
     intro: 'Practical articles about invoicing, freelancing, small business documents, and focused work.',
     bullets: [
       'What to Include on an Invoice: A Practical Checklist',
@@ -513,7 +390,7 @@ const ROUTES = [
   // Mirrors BLOG_ARTICLES in src/app/(marketing)/blog-content.ts
   {
     path: '/blog/what-to-include-on-an-invoice',
-    title: 'What to Include on an Invoice: A Practical Checklist | InvoiceFocus Journal',
+    title: 'What to Include on an Invoice: A Practical Checklist | Invoice Focus Journal',
     description:
       'Use this practical invoice checklist to include the details clients need, explain the work clearly, and make payment easier to process.',
     indexable: true,
@@ -534,7 +411,7 @@ const ROUTES = [
   },
   {
     path: '/blog/invoice-vs-receipt',
-    title: 'Invoice vs Receipt: What Is the Difference? | InvoiceFocus Journal',
+    title: 'Invoice vs Receipt: What Is the Difference? | Invoice Focus Journal',
     description:
       'Understand when to send an invoice, when to issue a receipt, and how the two documents fit together in a simple payment workflow.',
     indexable: true,
@@ -552,7 +429,7 @@ const ROUTES = [
   },
   {
     path: '/blog/quote-vs-estimate-vs-invoice',
-    title: 'Quote vs Estimate vs Invoice: When Should You Use Each? | InvoiceFocus Journal',
+    title: 'Quote vs Estimate vs Invoice: When Should You Use Each? | Invoice Focus Journal',
     description:
       'A practical guide to choosing a quote, estimate, or invoice at each stage of a project, with examples for freelancers and small businesses.',
     indexable: true,
@@ -571,7 +448,7 @@ const ROUTES = [
   {
     path: '/blog/how-to-follow-up-on-an-overdue-invoice',
     title:
-      'How to Follow Up on an Overdue Invoice Without Damaging the Relationship | InvoiceFocus Journal',
+      'How to Follow Up on an Overdue Invoice Without Damaging the Relationship | Invoice Focus Journal',
     description:
       'Use a calm, practical follow-up sequence for overdue invoices, including timing, message examples, and the details to check first.',
     indexable: true,
@@ -592,44 +469,44 @@ const ROUTES = [
   // ── Legal / status pages ──────────────────────────────────────────────────────
   {
     path: '/privacy',
-    title: 'Privacy Policy | InvoiceFocus',
+    title: 'Privacy Policy | Invoice Focus',
     description:
-      'Read the InvoiceFocus privacy policy and learn how information used by the invoicing service is handled.',
+      'Read the Invoice Focus privacy policy and learn how information used by the invoicing service is handled.',
     indexable: true,
     h1: 'Privacy Policy',
     intro:
-      'Read the InvoiceFocus privacy policy to understand how information used by the invoicing service is collected, stored, and handled.',
+      'Read the Invoice Focus privacy policy to understand how information used by the invoicing service is collected, stored, and handled.',
     bullets: [],
   },
   {
     path: '/terms',
-    title: 'Terms of Service | InvoiceFocus',
-    description: 'Read the InvoiceFocus terms of service for using the free online business document application.',
+    title: 'Terms of Service | Invoice Focus',
+    description: 'Read the Invoice Focus terms of service for using the free online business document application.',
     indexable: true,
     h1: 'Terms of Service',
-    intro: 'Read the InvoiceFocus terms of service for using the free online business document application.',
+    intro: 'Read the Invoice Focus terms of service for using the free online business document application.',
     bullets: [],
   },
   {
     path: '/cookies',
-    title: 'Cookie Notice | InvoiceFocus',
+    title: 'Cookie Notice | Invoice Focus',
     description:
-      'Read the InvoiceFocus cookie notice and learn how browser technologies may support account access and security.',
+      'Read the Invoice Focus cookie notice and learn how browser technologies may support account access and security.',
     indexable: true,
     h1: 'Cookie Notice',
     intro:
-      'Read the InvoiceFocus cookie notice to understand how browser technologies may support account access and security.',
+      'Read the Invoice Focus cookie notice to understand how browser technologies may support account access and security.',
     bullets: [],
   },
   {
     path: '/status',
-    title: 'InvoiceFocus Status | Service Availability',
+    title: 'Invoice Focus Status | Service Availability',
     description:
-      'Check the current operational status of the InvoiceFocus application and services supporting your document workflow.',
+      'Check the current operational status of the Invoice Focus application and services supporting your document workflow.',
     indexable: true,
-    h1: 'InvoiceFocus Status',
+    h1: 'Invoice Focus Status',
     intro:
-      'Check the current operational status of the InvoiceFocus application and services supporting your document workflow.',
+      'Check the current operational status of the Invoice Focus application and services supporting your document workflow.',
     bullets: [],
   },
 ]
@@ -683,7 +560,7 @@ function buildJsonLd(route) {
       ? [
           {
             '@type': 'SoftwareApplication',
-            name: 'InvoiceFocus',
+            name: 'Invoice Focus',
             applicationCategory: 'BusinessApplication',
             applicationSubCategory: 'Business Document Generator',
             operatingSystem: 'Web',
@@ -808,7 +685,7 @@ function inject(templateHtml, route) {
     ['og:title', route.title],
     ['og:description', route.description],
     ['og:image', DEFAULT_IMAGE],
-    ['og:image:alt', 'InvoiceFocus logo'],
+    ['og:image:alt', 'Invoice Focus logo'],
   ]) {
     // Remove any og:image:width / og:image:height tags that don't vary per route
     if (prop === 'og:image') {
@@ -828,7 +705,7 @@ function inject(templateHtml, route) {
     ['twitter:title', route.title],
     ['twitter:description', route.description],
     ['twitter:image', DEFAULT_IMAGE],
-    ['twitter:image:alt', 'InvoiceFocus logo'],
+    ['twitter:image:alt', 'Invoice Focus logo'],
   ]) {
     html = html.replace(
       new RegExp(`<meta\\s[^>]*name="${name}"[^>]*>`),

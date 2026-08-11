@@ -8,6 +8,46 @@
       "has": [{ "type": "host", "value": "www.invoicefocus.com" }],
       "destination": "https://invoicefocus.com/$1",
       "permanent": true
+    },
+    {
+      "source": "/guides",
+      "destination": "/help",
+      "permanent": true
+    },
+    {
+      "source": "/invoice-generator-for-freelancers",
+      "destination": "/invoice-generator",
+      "permanent": true
+    },
+    {
+      "source": "/invoice-generator-for-agencies",
+      "destination": "/invoice-generator",
+      "permanent": true
+    },
+    {
+      "source": "/invoice-generator-for-consultants",
+      "destination": "/invoice-generator",
+      "permanent": true
+    },
+    {
+      "source": "/invoice-generator-for-designers",
+      "destination": "/invoice-generator",
+      "permanent": true
+    },
+    {
+      "source": "/invoice-generator-for-developers",
+      "destination": "/invoice-generator",
+      "permanent": true
+    },
+    {
+      "source": "/invoice-generator-for-photographers",
+      "destination": "/invoice-generator",
+      "permanent": true
+    },
+    {
+      "source": "/invoice-generator-for-contractors",
+      "destination": "/invoice-generator",
+      "permanent": true
     }
   ],
   "rewrites": [

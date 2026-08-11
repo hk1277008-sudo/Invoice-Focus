@@ -47,7 +47,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: 'Use this practical invoice checklist to include the details clients need, explain the work clearly, and make payment easier to process.',
     date: '2026-08-05',
     readTime: '8 min read',
-    byline: 'InvoiceFocus Editorial',
+    byline: 'Invoice Focus Editorial',
     primaryKeyword: 'what to include on an invoice',
     intro: 'A useful invoice answers four questions quickly: who is charging, who is being charged, what was provided, and how much is due. The exact requirements can vary by country, tax registration, and business type, but a clear structure helps every client review and process the document.',
     sections: [
@@ -90,7 +90,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Due date or payment term',
           'Payment instructions and a useful contact for questions',
         ],
-        callout: 'InvoiceFocus is a document creation tool, not tax or legal advice. Confirm country-, state-, and industry-specific requirements with an accountant or other qualified adviser.',
+        callout: 'Invoice Focus is a document creation tool, not tax or legal advice. Confirm country-, state-, and industry-specific requirements with an accountant or other qualified adviser.',
       },
       {
         heading: 'A five-minute invoice review',
@@ -140,7 +140,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: 'Understand when to send an invoice, when to issue a receipt, and how the two documents fit together in a simple payment workflow.',
     date: '2026-08-06',
     readTime: '7 min read',
-    byline: 'InvoiceFocus Editorial',
+    byline: 'Invoice Focus Editorial',
     primaryKeyword: 'invoice vs receipt',
     intro: 'An invoice asks for payment. A receipt confirms that payment was received. They can describe the same transaction at different moments, but they serve different jobs, so using the right document helps your client and your own records stay clear.',
     sections: [
@@ -225,7 +225,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: 'A practical guide to choosing a quote, estimate, or invoice at each stage of a project, with examples for freelancers and small businesses.',
     date: '2026-08-07',
     readTime: '8 min read',
-    byline: 'InvoiceFocus Editorial',
+    byline: 'Invoice Focus Editorial',
     primaryKeyword: 'quote vs estimate vs invoice',
     intro: 'Quotes, estimates, and invoices are not interchangeable steps in a project. A quote or estimate helps a client understand expected work and cost before the engagement is underway. An invoice requests payment for work, items, or a milestone that is now due.',
     sections: [
@@ -309,7 +309,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt: 'Use a calm, practical follow-up sequence for overdue invoices, including timing, message examples, and the details to check first.',
     date: '2026-08-08',
     readTime: '8 min read',
-    byline: 'InvoiceFocus Editorial',
+    byline: 'Invoice Focus Editorial',
     primaryKeyword: 'how to follow up on an overdue invoice',
     intro: 'An overdue invoice creates pressure, but the first follow-up does not need to sound like a confrontation. A clear sequence gives the client a chance to resolve a missed detail while giving you a consistent way to protect your cash flow and time.',
     sections: [

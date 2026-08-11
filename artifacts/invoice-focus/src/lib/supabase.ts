@@ -41,7 +41,7 @@ export function getApiBaseUrl(): string {
   }
   if (import.meta.env.PROD) {
     throw new Error(
-      'The InvoiceFocus API endpoint is not configured. Set VITE_API_BASE_URL in the frontend deployment.',
+      'The Invoice Focus API endpoint is not configured. Set VITE_API_BASE_URL in the frontend deployment.',
     )
   }
   // Keep Replit's artifact proxy working locally while allowing Vercel to

@@ -234,7 +234,7 @@ export default function InvoicePage() {
       return
     }
     if (!printInvoice(invoice)) {
-      toast({ title: 'Unable to open print preview', description: 'Please allow pop-ups for InvoiceFocus and try again.', variant: 'destructive' })
+      toast({ title: 'Unable to open print preview', description: 'Please allow pop-ups for Invoice Focus and try again.', variant: 'destructive' })
     }
   }
 
@@ -245,7 +245,7 @@ export default function InvoicePage() {
       return
     }
     if (!printInvoice(invoice)) {
-      toast({ title: 'Unable to open PDF preview', description: 'Please allow pop-ups for InvoiceFocus and try again.', variant: 'destructive' })
+      toast({ title: 'Unable to open PDF preview', description: 'Please allow pop-ups for Invoice Focus and try again.', variant: 'destructive' })
     }
   }
 

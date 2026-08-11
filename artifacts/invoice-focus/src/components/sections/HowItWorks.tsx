@@ -8,7 +8,7 @@ const STEPS = [
     step: '01',
     title: 'Create Invoice',
     description:
-      'Add your business details, client information, and line items. InvoiceFocus calculates totals, taxes, and discounts automatically.',
+      'Add your business details, client information, and line items. Invoice Focus calculates totals, taxes, and discounts automatically.',
   },
   {
     icon: SlidersHorizontal,
@@ -94,7 +94,7 @@ export function HowItWorks() {
             From Draft to Delivery in Four Steps
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            Use InvoiceFocus as your online invoice generator: create, customize, and send professional documents in moments.
+             Use Invoice Focus as your online invoice generator: create, customize, and send professional documents in moments.
           </p>
         </motion.div>
 

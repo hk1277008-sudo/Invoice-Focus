@@ -14,17 +14,9 @@ https://invoicefocus.com/estimate-template
 https://invoicefocus.com/quote-template
 https://invoicefocus.com/credit-note-template
 https://invoicefocus.com/purchase-order-template
-https://invoicefocus.com/invoice-generator-for-freelancers
-https://invoicefocus.com/invoice-generator-for-agencies
-https://invoicefocus.com/invoice-generator-for-consultants
-https://invoicefocus.com/invoice-generator-for-designers
-https://invoicefocus.com/invoice-generator-for-developers
-https://invoicefocus.com/invoice-generator-for-photographers
-https://invoicefocus.com/invoice-generator-for-contractors
 https://invoicefocus.com/about
 https://invoicefocus.com/contact
 https://invoicefocus.com/help
-https://invoicefocus.com/guides
 https://invoicefocus.com/blog
 https://invoicefocus.com/blog/what-to-include-on-an-invoice
 https://invoicefocus.com/blog/invoice-vs-receipt

@@ -1,0 +1,231 @@
+I need TWO specific fixes only.
+
+DO NOT make any unrelated changes.
+
+==================================================
+TASK 1 — CLEAN UP EXTRA SEO ROUTES
+==================================================
+
+File to inspect:
+- seoroute.tsx
+
+I have noticed that InvoiceFocus currently exposes too many SEO-related pages/routes. When searching for InvoiceFocus, many different pages appear that are not necessary.
+
+I do NOT want a large number of thin SEO pages.
+
+Audit the existing routes defined in `seoroute.tsx` and classify every SEO route into:
+
+KEEP
+REMOVE
+REDIRECT
+
+KEEP only pages that have a clear purpose, genuine search intent, strong unique content, or meaningful potential to generate qualified organic traffic.
+
+REMOVE or redirect unnecessary, repetitive, thin, near-duplicate, generic, or low-value SEO pages.
+
+IMPORTANT:
+- Do NOT remove valuable pages simply because they are not currently ranking.
+- Do NOT remove core product pages.
+- Do NOT remove the main homepage.
+- Do NOT remove legitimate document generator pages.
+- Do NOT remove legitimate template pages.
+- Do NOT remove the blog or useful articles.
+- Do NOT remove important industry pages if they contain genuinely unique/useful content.
+- Do NOT create replacement SEO pages.
+- Do NOT generate additional SEO pages.
+- Do NOT create keyword-stuffed pages.
+- Do NOT create hundreds of location/industry variations.
+- Do NOT change existing page content unless required for the route cleanup.
+
+The goal is QUALITY OVER QUANTITY.
+
+For any page that should no longer be publicly indexed:
+
+1. Prefer a proper 301 redirect to the most relevant existing page when the old URL has equivalent useful content or potential backlinks.
+2. Use noindex only when the page genuinely needs to remain accessible but should not appear in search.
+3. Remove the route entirely only when it has no legitimate purpose.
+4. Never redirect unrelated pages to the homepage just to eliminate URLs.
+
+==================================================
+IMPORTANT SEO SAFETY
+==================================================
+
+Before removing anything, check:
+
+- sitemap.xml
+- internal links
+- canonical URLs
+- robots.txt
+- redirects
+- navigation
+- footer links
+- blog links
+- structured data
+- any references from other components
+
+After cleanup:
+
+- Removed SEO routes must not remain in sitemap.xml.
+- Removed SEO routes must not have internal links pointing to them.
+- Redirected URLs must resolve correctly.
+- Important pages must remain indexable.
+- Do not accidentally remove authenticated/private routes.
+- Do not modify invoice creation, dashboard, authentication, templates, PDF generation, document types, or existing working functionality.
+
+==================================================
+TASK 2 — FIX BRAND NAME DISPLAY
+==================================================
+
+My website domain is:
+
+https://invoicefocus.com
+
+But the visible website/brand name is still appearing as:
+
+InvoiceFocus.com
+
+I want the brand name displayed to users to be:
+
+Invoice Focus
+
+IMPORTANT:
+This is a BRAND DISPLAY change, not a domain change.
+
+DO NOT change:
+- domain
+- URLs
+- canonical domain
+- sitemap domain
+- API URLs
+- deployment domain
+- authentication URLs
+- existing route paths
+
+Only change places where the BRAND NAME is displayed or represented as the site/company name.
+
+Audit the entire public frontend for incorrect branding, including:
+
+- navbar
+- logo text/wordmark
+- footer
+- browser-visible branding where appropriate
+- homepage brand references
+- About page
+- Contact page
+- Help page
+- SEO page branding
+- structured data / Organization or WebSite name
+- Open Graph site name where appropriate
+- page titles where the brand name is explicitly used
+- metadata where appropriate
+
+Replace incorrect display branding such as:
+
+InvoiceFocus.com
+
+with:
+
+Invoice Focus
+
+However, DO NOT blindly replace every occurrence of `InvoiceFocus`.
+
+The product/domain identifier may legitimately need to remain:
+
+- invoicefocus.com
+- InvoiceFocus
+- technical package names
+- code identifiers
+- API identifiers
+- environment variables
+- database identifiers
+- URLs
+- imports
+- filenames
+
+Only change user-facing brand presentation and SEO brand fields where appropriate.
+
+==================================================
+DO NOT CHANGE THE PRODUCT
+==================================================
+
+Do NOT modify:
+
+- invoice generator functionality
+- quote generator
+- estimate generator
+- receipt generator
+- credit note generator
+- purchase order generator
+- templates
+- PDF generation
+- dashboard
+- authentication
+- Supabase
+- API
+- analytics
+- Google Analytics
+- Microsoft Clarity
+- IndexNow
+- sitemap architecture except removing deleted SEO URLs
+- existing working SEO pages that have legitimate value
+
+==================================================
+VALIDATION
+==================================================
+
+After completing both tasks:
+
+1. Run TypeScript check.
+2. Run production build.
+3. Run git diff --check.
+4. Verify homepage loads.
+5. Verify `/templates` loads.
+6. Verify all six core document generator pages load.
+7. Verify blog loads.
+8. Verify important SEO pages still load.
+9. Verify removed routes are no longer indexable.
+10. Verify redirected routes return the correct redirect.
+11. Verify sitemap contains only valid public SEO URLs.
+12. Verify robots.txt remains valid.
+13. Verify canonical URLs remain correct.
+14. Search the frontend for visible `InvoiceFocus.com` branding and replace only incorrect user-facing occurrences.
+15. Confirm the visible brand now appears as:
+
+Invoice Focus
+
+16. Confirm the actual domain remains:
+
+invoicefocus.com
+
+17. Confirm no unrelated files or functionality were changed.
+
+==================================================
+FINAL REPORT
+==================================================
+
+At the end, report:
+
+SEO ROUTE CLEANUP:
+- Total routes reviewed
+- Routes kept
+- Routes removed
+- Routes redirected
+- Reason for each removal/redirect
+
+BRANDING:
+- Files changed
+- User-facing branding locations changed
+- Confirmation that domain remained invoicefocus.com
+
+VALIDATION:
+- TypeScript: PASS/FAIL
+- Production build: PASS/FAIL
+- git diff --check: PASS/FAIL
+- Sitemap validation: PASS/FAIL
+- Core routes: PASS/FAIL
+
+IMPORTANT:
+Do not create new SEO pages.
+Do not redesign anything.
+Do not make unrelated improvements.
+Do not spend time on anything outside these two tasks.

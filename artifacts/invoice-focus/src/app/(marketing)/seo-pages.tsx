@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ArrowRight, Check, ChevronDown, FileCheck2, FileText, Layers3, ShieldCheck, Sparkles, Wand2 } from 'lucide-react'
+import { ArrowRight, Check, ChevronDown, FileCheck2, FileText, Layers3, ShieldCheck, Wand2 } from 'lucide-react'
 import { Link } from 'wouter'
 import { MarketingLayout } from './layout'
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,6 @@ export type DocumentType = 'invoice' | 'quote' | 'estimate' | 'receipt' | 'credi
 export type TemplateFamily = 'minimal' | 'professional' | 'enterprise'
 
 type SupportedDocumentInput = DocumentType | string
-type IndustryKey = 'freelancers' | 'consultants' | 'agencies' | 'designers' | 'developers' | 'photographers' | 'contractors' | 'small-businesses'
 
 const documentDetails: Record<DocumentType, {
   label: string
@@ -65,83 +64,9 @@ const documentDetails: Record<DocumentType, {
   },
 }
 
-const industryDetails: Record<IndustryKey, {
-  label: string
-  title: string
-  description: string
-  copy: string
-  documents: DocumentType[]
-  workflow: string[]
-}> = {
-  freelancers: {
-    label: 'Freelancers',
-    title: 'Invoicing that leaves more room for the work.',
-    description: 'Create polished client documents without turning your solo workflow into an admin project.',
-    copy: 'When you move between projects, your invoicing should be easy to pick up and finish. InvoiceFocus gives independent professionals a focused place to create the document they need, add clear line items, and keep client-facing details consistent.',
-    documents: ['invoice', 'quote', 'receipt'],
-    workflow: ['Choose the document type for the moment', 'Add your work, rates, and client details', 'Review the finished document before sending'],
-  },
-  consultants: {
-    label: 'Consultants',
-    title: 'Clear documents for considered advice.',
-    description: 'Keep project scope, recommendations, and billing details easy for clients to follow.',
-    copy: 'Consulting work often begins with a considered quote or estimate and ends with an invoice. A consistent document workflow helps you communicate each stage without adding another heavy system to your day.',
-    documents: ['quote', 'estimate', 'invoice'],
-    workflow: ['Start with a quote or estimate', 'Describe the engagement in useful line items', 'Turn completed work into a clear invoice'],
-  },
-  agencies: {
-    label: 'Agencies',
-    title: 'A more consistent client document workflow.',
-    description: 'Give every engagement a clear paper trail across proposals, project billing, and adjustments.',
-    copy: 'Agencies balance multiple clients, contributors, and project stages. Reusable document patterns help your team present the right information at each handoff while keeping the client experience composed.',
-    documents: ['quote', 'invoice', 'credit-note'],
-    workflow: ['Set a clear commercial starting point', 'Keep project billing legible', 'Document changes when the scope or amount shifts'],
-  },
-  designers: {
-    label: 'Designers',
-    title: 'Invoices that give creative work a clear finish.',
-    description: 'Present design engagements, milestones, and final balances in documents that are easy for clients to review.',
-    copy: 'Design projects often move through proposals, rounds of work, and handoff. A focused document workflow helps you describe the work clearly without letting administration compete with the creative process.',
-    documents: ['quote', 'estimate', 'invoice'],
-    workflow: ['Set the scope and expected investment', 'Describe deliverables or milestones', 'Invoice the completed work with useful context'],
-  },
-  developers: {
-    label: 'Developers',
-    title: 'Straightforward billing for technical work.',
-    description: 'Keep retainers, milestones, and implementation work organized in clear client documents.',
-    copy: 'Development work can include a fixed project, a monthly retainer, or a series of milestones. Use the document that matches the engagement and keep the line items precise enough to make the work understandable.',
-    documents: ['quote', 'invoice', 'receipt'],
-    workflow: ['Choose a document for the engagement stage', 'Separate work, milestones, or retainers into useful items', 'Review totals and terms before sharing'],
-  },
-  photographers: {
-    label: 'Photographers',
-    title: 'A polished document workflow for every shoot.',
-    description: 'Explain services, packages, deposits, and final balances with client-ready documents.',
-    copy: 'Photography work may involve a planned package, a project estimate, and a final balance. Keep the commercial details close to the creative brief so clients know what is included and what happens next.',
-    documents: ['quote', 'estimate', 'invoice'],
-    workflow: ['Outline the session or package', 'Add services, usage, and other agreed items', 'Send a clear invoice or receipt at the right stage'],
-  },
-  'small-businesses': {
-    label: 'Small businesses',
-    title: 'Professional documents for everyday operations.',
-    description: 'Handle the documents around buying, selling, and getting paid with less friction.',
-    copy: 'Small businesses need tools that are useful on an ordinary Tuesday. InvoiceFocus keeps common document types close at hand, so an order request, customer invoice, or payment receipt can each have a clear starting point.',
-    documents: ['purchase-order', 'invoice', 'receipt'],
-    workflow: ['Pick the document that matches the transaction', 'Fill in the details your customer or supplier needs', 'Keep the final document clear and ready to share'],
-  },
-  contractors: {
-    label: 'Contractors',
-    title: 'Make project billing easier to explain.',
-    description: 'Turn milestones, materials, and adjustments into documents clients can review with confidence.',
-    copy: 'For project-based work, context matters. A useful estimate sets the expectation, an invoice records the work, and a credit note can explain an adjustment. Build each document with the same attention to detail as the project itself.',
-    documents: ['estimate', 'invoice', 'credit-note'],
-    workflow: ['Outline the expected project cost', 'Record completed work and materials', 'Explain any adjustment with the right document'],
-  },
-}
-
 const faqs = {
   generator: [
-    ['What can I create with the generator?', 'InvoiceFocus supports invoices, quotes, estimates, receipts, credit notes, and purchase orders. Choose the document type that matches the transaction you are recording.'],
+    ['What can I create with the generator?', 'Invoice Focus supports invoices, quotes, estimates, receipts, credit notes, and purchase orders. Choose the document type that matches the transaction you are recording.'],
     ['Can I start from a visual template?', 'Yes. The generator accepts a template family, including minimal, professional, and enterprise, so you can begin with a visual direction that fits the document.'],
     ['What should I prepare before I start?', 'Have your business details, client or supplier information, line items, rates, and any relevant terms nearby. The right details depend on the document type.'],
   ],
@@ -150,22 +75,14 @@ const faqs = {
     ['Can the same family be used for different documents?', 'Yes. A visual family can be paired with the document type you need, from an invoice to a purchase order.'],
     ['Can I preview a template before using it?', 'Each template page includes a compact visual preview and a direct link to open the generator with that document type and family selected.'],
   ],
-  industry: [
-    ['Is InvoiceFocus only for one kind of business?', 'No. The document workflow is useful anywhere clear invoices, quotes, estimates, receipts, credit notes, or purchase orders are part of the work.'],
-    ['How do I choose the right document?', 'Start with the business moment: quote or estimate before work, invoice for an amount due, receipt after payment, credit note for an adjustment, and purchase order for a supplier request.'],
-  ],
   features: [
-    ['Does InvoiceFocus replace accounting advice?', 'No. It is a document creation tool, not accounting, tax, or legal advice. Use your own professional guidance for obligations specific to your business.'],
+    ['Does Invoice Focus replace accounting advice?', 'No. It is a document creation tool, not accounting, tax, or legal advice. Use your own professional guidance for obligations specific to your business.'],
     ['Can I choose how a document looks?', 'Yes. The available template families give you a starting visual direction while you prepare the document.'],
   ],
 }
 
 function normalizeDocumentType(value?: SupportedDocumentInput): DocumentType {
   return value && value in documentDetails ? value as DocumentType : 'invoice'
-}
-
-function normalizeIndustry(value?: string): IndustryKey {
-  return value && value in industryDetails ? value as IndustryKey : 'small-businesses'
 }
 
 function generatorHref(documentType: DocumentType, family: TemplateFamily = 'professional') {
@@ -240,7 +157,7 @@ export function TemplatesHubPage() {
     <SeoShell
       eyebrow="Invoice templates"
       title="A clear starting point for every document."
-      description="Browse InvoiceFocus templates for invoices, quotes, estimates, receipts, credit notes, and purchase orders. Choose a visual family, then open the generator with the right document type selected."
+      description="Browse Invoice Focus templates for invoices, quotes, estimates, receipts, credit notes, and purchase orders. Choose a visual family, then open the generator with the right document type selected."
     >
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {TEMPLATES.map(({ id, family, documentType, title, description, accent }) => (
@@ -322,7 +239,7 @@ export function DocumentTemplatePage({ documentType = 'invoice', family = 'profe
     enterprise: 'Structured sections and higher contrast for documents with more metadata or review steps.',
   }
   return (
-    <SeoShell eyebrow={`${familyLabel} ${detail.label.toLowerCase()} template`} title={`${familyLabel} ${detail.label} template.`} description={`${familyDescriptions[selectedFamily]} Use this ${selectedFamily} visual family as a starting point for a ${detail.label.toLowerCase()} in InvoiceFocus.`}>
+    <SeoShell eyebrow={`${familyLabel} ${detail.label.toLowerCase()} template`} title={`${familyLabel} ${detail.label} template.`} description={`${familyDescriptions[selectedFamily]} Use this ${selectedFamily} visual family as a starting point for a ${detail.label.toLowerCase()} in Invoice Focus.`}>
       <div className="grid gap-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
         <div className="rounded-2xl border border-border/70 bg-muted/20 p-5 sm:p-7">
           <TemplateMiniPreview family={selectedFamily} accent={selectedFamily === 'minimal' ? 'bg-slate-700' : selectedFamily === 'professional' ? 'bg-blue-500' : 'bg-indigo-600'} />
@@ -361,44 +278,9 @@ export function DocumentTemplatePage({ documentType = 'invoice', family = 'profe
   )
 }
 
-export function IndustryPage({ industry = 'small-businesses' }: { industry?: string }) {
-  const key = normalizeIndustry(industry)
-  const detail = industryDetails[key]
-  return (
-    <SeoShell eyebrow={`InvoiceFocus for ${detail.label.toLowerCase()}`} title={detail.title} description={detail.description}>
-      <div className="grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
-        <Card className="border-border/70 shadow-sm">
-          <CardContent className="p-6 sm:p-8">
-            <p className="text-lg leading-relaxed text-foreground">{detail.copy}</p>
-            <div className="mt-8"><p className="label-caps">Useful document types</p><div className="mt-4"><DocumentLinkList types={detail.documents} /></div></div>
-          </CardContent>
-        </Card>
-        <div className="rounded-2xl border border-border/70 bg-muted/25 p-6 sm:p-8">
-          <p className="label-caps">A focused workflow</p>
-          <div className="mt-5 space-y-5">
-            {detail.workflow.map((step, index) => <div key={step} className="flex gap-3"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">{index + 1}</span><p className="pt-1 text-sm leading-relaxed">{step}</p></div>)}
-          </div>
-          <Button asChild variant="outline" className="mt-8"><Link href="/invoice?documentType=invoice&template=professional">Create an invoice <ArrowRight className="h-4 w-4" /></Link></Button>
-        </div>
-      </div>
-      <div className="mt-12 grid gap-4 sm:grid-cols-3">
-        {[
-          [Sparkles, 'A polished first draft', 'Start with a document that already has a considered structure.'],
-          [Layers3, 'The right level of detail', 'Add the context your customer, client, or supplier actually needs.'],
-          [ShieldCheck, 'A calmer handoff', 'Review the final document before it leaves your workspace.'],
-        ].map(([Icon, title, copy]) => {
-          const IconComponent = Icon as typeof Sparkles
-          return <Card key={title as string}><CardContent className="p-6"><IconComponent className="h-5 w-5 text-primary" aria-hidden="true" /><h2 className="mt-4 font-display font-semibold">{title as string}</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{copy as string}</p></CardContent></Card>
-        })}
-      </div>
-      <FaqSection items={faqs.industry} />
-    </SeoShell>
-  )
-}
-
 export function HowItWorksPage() {
   return (
-    <SeoShell eyebrow="How InvoiceFocus works" title="A focused path from details to document." description="InvoiceFocus keeps document creation understandable: choose what you are making, add the details, select a visual direction, and review the result.">
+    <SeoShell eyebrow="How Invoice Focus works" title="A focused path from details to document." description="Invoice Focus keeps document creation understandable: choose what you are making, add the details, select a visual direction, and review the result.">
       <div className="grid gap-5 lg:grid-cols-4">
         {[
           [FileCheck2, 'Choose a document', 'Start with an invoice, quote, estimate, receipt, credit note, or purchase order.'],
@@ -421,7 +303,7 @@ export function HowItWorksPage() {
 
 export function FeaturesPage() {
   return (
-    <SeoShell eyebrow="InvoiceFocus features" title="The essentials for better business documents." description="A focused document workflow for creating invoices and related business documents with clear structure and a professional presentation.">
+    <SeoShell eyebrow="Invoice Focus features" title="The essentials for better business documents." description="A focused document workflow for creating invoices and related business documents with clear structure and a professional presentation.">
       <div className="grid gap-6 md:grid-cols-2">
         {[
           [FileText, 'Six useful document types', 'Create invoices, quotes, estimates, receipts, credit notes, and purchase orders from one familiar starting point.'],
@@ -445,7 +327,7 @@ export function FeaturesPage() {
 
 export function CookiesPage() {
   return (
-    <SeoShell eyebrow="Legal notice" title="Cookie notice." description="This page explains, in plain language, how cookies and similar browser technologies may relate to your use of InvoiceFocus.">
+      <SeoShell eyebrow="Legal notice" title="Cookie notice." description="This page explains, in plain language, how cookies and similar browser technologies may relate to your use of Invoice Focus.">
       <div className="max-w-3xl space-y-8 text-sm leading-7 text-muted-foreground">
         <section>
           <h2 className="font-display text-xl font-semibold text-foreground">What cookies are</h2>
@@ -453,7 +335,7 @@ export function CookiesPage() {
         </section>
         <section>
           <h2 className="font-display text-xl font-semibold text-foreground">How this notice applies</h2>
-          <p className="mt-3">InvoiceFocus may use cookies or similar technologies that are necessary for the service to work, including account access and security. If optional technologies are used, they should be described at the point of collection or in an updated notice.</p>
+          <p className="mt-3">Invoice Focus may use cookies or similar technologies that are necessary for the service to work, including account access and security. If optional technologies are used, they should be described at the point of collection or in an updated notice.</p>
         </section>
         <section>
           <h2 className="font-display text-xl font-semibold text-foreground">Your browser choices</h2>
@@ -461,7 +343,7 @@ export function CookiesPage() {
         </section>
         <section>
           <h2 className="font-display text-xl font-semibold text-foreground">Questions</h2>
-          <p className="mt-3">For questions about this notice or information handled by InvoiceFocus, visit the <Link href="/privacy" className="font-medium text-primary hover:underline">Privacy Policy</Link> or <Link href="/contact" className="font-medium text-primary hover:underline">contact us</Link>.</p>
+          <p className="mt-3">For questions about this notice or information handled by Invoice Focus, visit the <Link href="/privacy" className="font-medium text-primary hover:underline">Privacy Policy</Link> or <Link href="/contact" className="font-medium text-primary hover:underline">contact us</Link>.</p>
         </section>
       </div>
     </SeoShell>
@@ -490,7 +372,7 @@ function BlogCard({ article }: { article: BlogArticle }) {
 export function BlogIndexPage() {
   return (
     <SeoShell
-      eyebrow="The InvoiceFocus Journal"
+      eyebrow="The Invoice Focus Journal"
       title="Practical ideas for better business operations."
       description="Useful guidance on invoicing, freelancing, small business documents, and the focused routines that support good work."
     >
@@ -537,7 +419,7 @@ export function BlogArticlePage({ slug }: { slug?: string }) {
           </Button>
         </div>
         <section className="mt-10 border-t border-border/70 pt-8" aria-labelledby="article-links">
-          <h2 id="article-links" className="font-display text-xl font-semibold tracking-tight">Useful InvoiceFocus tools</h2>
+          <h2 id="article-links" className="font-display text-xl font-semibold tracking-tight">Useful Invoice Focus tools</h2>
           <div className="mt-4 flex flex-wrap gap-3">
             {article.internalLinks.map((link) => (
               <Link key={link.href} href={link.href} className="rounded-full border border-border/70 bg-card px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-muted">

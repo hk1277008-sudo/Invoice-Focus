@@ -15,7 +15,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">Acceptance of Terms</h2>
             <p>
-              By using InvoiceFocus, you agree to these Terms of Service. If you do not agree, please do not use the service.
+              By using Invoice Focus, you agree to these Terms of Service. If you do not agree, please do not use the service.
             </p>
           </section>
 
@@ -29,14 +29,14 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">Use of the Service</h2>
             <p>
-              InvoiceFocus is provided for creating, managing, and sending invoices. You may not use the service for illegal, abusive, or fraudulent purposes. We reserve the right to suspend accounts that violate these terms.
+              Invoice Focus is provided for creating, managing, and sending invoices. You may not use the service for illegal, abusive, or fraudulent purposes. We reserve the right to suspend accounts that violate these terms.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-foreground">Limitation of Liability</h2>
             <p>
-              InvoiceFocus is provided as-is. We are not liable for any direct, indirect, incidental, or consequential damages arising from your use of the service.
+              Invoice Focus is provided as-is. We are not liable for any direct, indirect, incidental, or consequential damages arising from your use of the service.
             </p>
           </section>
         </div>

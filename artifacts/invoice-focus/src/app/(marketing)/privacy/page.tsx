@@ -22,7 +22,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">How We Use Your Information</h2>
             <p>
-              We use your information to provide, maintain, and improve InvoiceFocus. This includes authenticating your account, sending transactional emails, and storing your invoices and preferences.
+              We use your information to provide, maintain, and improve Invoice Focus. This includes authenticating your account, sending transactional emails, and storing your invoices and preferences.
             </p>
           </section>
 

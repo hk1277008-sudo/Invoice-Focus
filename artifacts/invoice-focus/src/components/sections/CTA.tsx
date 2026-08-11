@@ -26,7 +26,7 @@ export function CTA() {
               Start Creating Professional Invoices Today
             </h2>
             <p className="mt-4 text-balance text-lg leading-relaxed text-primary-foreground/80">
-              Join professionals who use InvoiceFocus to streamline billing and get paid on time.
+              Join professionals who use Invoice Focus to streamline billing and get paid on time.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="secondary" asChild>

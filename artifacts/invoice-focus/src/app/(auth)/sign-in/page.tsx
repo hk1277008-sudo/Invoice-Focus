@@ -87,7 +87,7 @@ export default function SignInPage() {
             Welcome back
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Sign in to your InvoiceFocus account.
+            Sign in to your Invoice Focus account.
           </p>
         </div>
 

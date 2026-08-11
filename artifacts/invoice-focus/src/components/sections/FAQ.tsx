@@ -8,19 +8,19 @@ import {
 
 const FAQS = [
   {
-    question: 'Is InvoiceFocus really free?',
+    question: 'Is Invoice Focus really free?',
     answer:
-      'Yes. InvoiceFocus is permanently free with unlimited invoices, templates, branding controls, recurring invoices, reminders, exports, and client management. There are no paid tiers or usage limits.',
+      'Yes. Invoice Focus is permanently free with unlimited invoices, templates, branding controls, recurring invoices, reminders, exports, and client management. There are no paid tiers or usage limits.',
   },
   {
     question: 'Can I create quotes, estimates, and receipts?',
     answer:
-      'Yes. InvoiceFocus works as an invoice generator, quote generator, estimate generator, and receipt generator, with document types that can be customized before you share or export them.',
+      'Yes. Invoice Focus works as an invoice generator, quote generator, estimate generator, and receipt generator, with document types that can be customized before you share or export them.',
   },
   {
     question: 'Do I need to install anything?',
     answer:
-      'InvoiceFocus runs entirely in your browser. Start creating an invoice immediately, or sign in when you want cloud saving, history, and synchronized data.',
+      'Invoice Focus runs entirely in your browser. Start creating an invoice immediately, or sign in when you want cloud saving, history, and synchronized data.',
   },
   {
     question: 'Can I export invoices as PDFs?',
@@ -28,12 +28,12 @@ const FAQS = [
       'Yes. Every invoice, quote, and estimate can be exported as a polished, print-ready PDF with one click.',
   },
   {
-    question: 'Is InvoiceFocus an online invoice maker for small businesses?',
+    question: 'Is Invoice Focus an online invoice maker for small businesses?',
     answer:
-      'Yes. InvoiceFocus is browser-based invoice software for freelancers, agencies, startups, and small businesses that need professional invoices without a complicated setup.',
+      'Yes. Invoice Focus is browser-based invoice software for freelancers, agencies, startups, and small businesses that need professional invoices without a complicated setup.',
   },
   {
-    question: 'Does InvoiceFocus support multiple currencies?',
+    question: 'Does Invoice Focus support multiple currencies?',
     answer:
       'Yes. You can choose from a wide range of currencies and formats, making it easy to bill clients anywhere in the world.',
   },
@@ -50,7 +50,7 @@ const FAQS = [
   {
     question: 'Can I send invoices directly to clients?',
     answer:
-      'Yes. You can email invoices directly from InvoiceFocus, copy a secure share link, or download the PDF and send it yourself.',
+      'Yes. You can email invoices directly from Invoice Focus, copy a secure share link, or download the PDF and send it yourself.',
   },
   {
     question: 'What happens if I cancel my account?',
@@ -75,7 +75,7 @@ export function FAQ() {
             Frequently Asked Questions
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-             Common Questions About InvoiceFocus.
+             Common Questions About Invoice Focus.
           </p>
         </motion.div>
 

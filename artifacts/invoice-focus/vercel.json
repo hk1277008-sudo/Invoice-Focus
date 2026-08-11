@@ -4,6 +4,16 @@
   "outputDirectory": "dist/public",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/guides", "destination": "/help", "permanent": true },
+    { "source": "/invoice-generator-for-freelancers", "destination": "/invoice-generator", "permanent": true },
+    { "source": "/invoice-generator-for-agencies", "destination": "/invoice-generator", "permanent": true },
+    { "source": "/invoice-generator-for-consultants", "destination": "/invoice-generator", "permanent": true },
+    { "source": "/invoice-generator-for-designers", "destination": "/invoice-generator", "permanent": true },
+    { "source": "/invoice-generator-for-developers", "destination": "/invoice-generator", "permanent": true },
+    { "source": "/invoice-generator-for-photographers", "destination": "/invoice-generator", "permanent": true },
+    { "source": "/invoice-generator-for-contractors", "destination": "/invoice-generator", "permanent": true }
+  ],
   "routes": [
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }

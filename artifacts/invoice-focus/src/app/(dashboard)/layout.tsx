@@ -243,7 +243,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1 lg:hidden">
-             <Link href="/dashboard" aria-label="InvoiceFocus dashboard"><Logo size="md" /></Link>
+             <Link href="/dashboard" aria-label="Invoice Focus dashboard"><Logo size="md" /></Link>
           </div>
           <div className="flex-1 hidden lg:block" />
           <div className="flex items-center gap-2"><UserMenu /></div>

@@ -10,7 +10,7 @@ import HomePage from '@/app/(marketing)/page'
 import PrivacyPage from '@/app/(marketing)/privacy/page'
 import TermsPage from '@/app/(marketing)/terms/page'
 import HelpPage from '@/app/(marketing)/help/page'
-import { AboutPage, ContactPage, GuidesPage, StatusPage } from '@/app/(marketing)/saas-pages'
+import { AboutPage, ContactPage, StatusPage } from '@/app/(marketing)/saas-pages'
 import {
   BlogArticlePage,
   BlogIndexPage,
@@ -19,7 +19,6 @@ import {
   DocumentTemplatePage,
   FeaturesPage,
   HowItWorksPage,
-  IndustryPage,
   TemplatesHubPage,
 } from '@/app/(marketing)/seo-pages'
 import SignInPage from '@/app/(auth)/sign-in/page'
@@ -61,7 +60,6 @@ function Router() {
       <Route path="/privacy" component={PrivacyPage} />
       <Route path="/terms" component={TermsPage} />
       <Route path="/help" component={HelpPage} />
-      <Route path="/guides" component={GuidesPage} />
       <Route path="/status" component={StatusPage} />
       <Route path="/about" component={AboutPage} />
         <Route path="/contact" component={ContactPage} />
@@ -108,27 +106,6 @@ function Router() {
         </Route>
         <Route path="/purchase-order-template">
           <DocumentTemplatePage documentType="purchase-order" />
-        </Route>
-        <Route path="/invoice-generator-for-freelancers">
-          <IndustryPage industry="freelancers" />
-        </Route>
-        <Route path="/invoice-generator-for-agencies">
-          <IndustryPage industry="agencies" />
-        </Route>
-        <Route path="/invoice-generator-for-consultants">
-          <IndustryPage industry="consultants" />
-        </Route>
-        <Route path="/invoice-generator-for-designers">
-          <IndustryPage industry="designers" />
-        </Route>
-        <Route path="/invoice-generator-for-developers">
-          <IndustryPage industry="developers" />
-        </Route>
-        <Route path="/invoice-generator-for-photographers">
-          <IndustryPage industry="photographers" />
-        </Route>
-        <Route path="/invoice-generator-for-contractors">
-          <IndustryPage industry="contractors" />
         </Route>
       <Route path="/sign-in" component={SignInPage} />
       <Route path="/sign-up" component={SignUpPage} />
