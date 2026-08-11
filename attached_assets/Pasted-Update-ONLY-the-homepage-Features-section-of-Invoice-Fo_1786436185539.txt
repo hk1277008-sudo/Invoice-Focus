@@ -1,0 +1,316 @@
+Update ONLY the homepage "Features" section of Invoice Focus.
+
+The current section is outdated and currently shows these six cards:
+
+- Professional Invoice Builder
+- Quotes
+- Estimates
+- Print-Ready PDF Invoices
+- Custom Branding
+- Multi-Currency
+
+Replace this outdated feature set with a new, premium feature section that accurately represents the CURRENT working Invoice Focus product.
+
+IMPORTANT:
+Do not invent features.
+Do not add marketing claims for functionality that does not actually exist.
+Before editing, inspect the current codebase and verify which features are actually implemented.
+
+==================================================
+CURRENT INVOICE FOCUS DOCUMENT TYPES
+==================================================
+
+Invoice
+Quote
+Estimate
+Receipt
+Credit Note
+Purchase Order
+
+The Features section should reflect the broader document platform rather than making the homepage appear to be only an invoice generator.
+
+==================================================
+FEATURE SECTION GOAL
+==================================================
+
+Make this section feel like a premium SaaS product similar in quality and clarity to modern products such as Stripe, Vercel, Notion, Linear, and Replit.
+
+Do NOT copy their design.
+
+Use their general product-design principles:
+
+- clear hierarchy
+- concise copy
+- strong visual consistency
+- meaningful feature grouping
+- minimal unnecessary text
+- professional terminology
+- no exaggerated marketing claims
+
+The section should communicate that Invoice Focus is a complete business-document platform.
+
+==================================================
+RECOMMENDED FEATURE CARDS
+==================================================
+
+Use approximately 8 feature cards, provided each feature is verified in the codebase.
+
+Suggested structure:
+
+1. INVOICES
+Title:
+Professional Invoices
+
+Description:
+Create polished, itemized invoices with automatic totals, taxes, discounts, and professional document layouts.
+
+2. QUOTES & ESTIMATES
+Title:
+Quotes & Estimates
+
+Description:
+Prepare clear pricing proposals and project estimates before work begins, then turn approved work into invoices.
+
+3. RECEIPTS & CREDIT NOTES
+Title:
+Receipts & Credit Notes
+
+Description:
+Confirm completed payments and issue professional credit notes when invoices need adjustments or corrections.
+
+4. PURCHASE ORDERS
+Title:
+Purchase Orders
+
+Description:
+Create structured purchase orders for suppliers with clear items, quantities, pricing, and business details.
+
+5. PROFESSIONAL TEMPLATES
+Title:
+Professional Document Templates
+
+Description:
+Choose from Minimal, Professional, and Enterprise designs built for different business styles and document needs.
+
+6. CUSTOM BRANDING
+Title:
+Custom Business Branding
+
+Description:
+Add your business identity with your logo, colors, company details, and professional document presentation.
+
+7. MULTI-CURRENCY
+Title:
+Multi-Currency Documents
+
+Description:
+Create documents in the currency used by your business and keep financial information consistent throughout the experience.
+
+8. PDF & DOCUMENT EXPORT
+Title:
+Print-Ready PDF Documents
+
+Description:
+Download polished, print-ready documents that are ready to send to clients, customers, and suppliers.
+
+IMPORTANT:
+Only use these cards if the corresponding functionality is genuinely implemented.
+
+If the codebase confirms additional important working functionality such as:
+
+- recurring invoices
+- payment reminders
+- client management
+- document sharing
+- saved documents
+- invoice numbering
+- tax/discount controls
+- secure document links
+
+then intelligently include the strongest verified features instead of forcing the exact eight-card list above.
+
+Do not exceed approximately 8–10 cards.
+
+==================================================
+COPYWRITING RULES
+==================================================
+
+Keep every feature description:
+
+- one sentence
+- concise
+- natural
+- professional
+- benefit-oriented
+- easy to understand
+
+Avoid:
+
+"Revolutionary"
+"Powerful"
+"Seamless"
+"Next-generation"
+"AI-powered" unless actually applicable
+"Everything you need"
+"Built for everyone"
+"World-class"
+"Enterprise-grade" unless technically justified
+
+Do not keyword stuff.
+
+Use natural terms such as:
+
+invoice
+quote
+estimate
+receipt
+credit note
+purchase order
+PDF
+templates
+branding
+currency
+clients
+business documents
+
+==================================================
+SECTION HEADING
+==================================================
+
+Replace the current heading:
+
+"A Complete Toolkit for Polished Invoices, Quotes, and Estimates"
+
+with a stronger heading that reflects the expanded product.
+
+Recommended:
+
+"Everything You Need to Create Professional Business Documents"
+
+Use this only if it fits the actual product.
+
+Recommended supporting text:
+
+"Create, customize, and download invoices, quotes, estimates, receipts, credit notes, and purchase orders from one simple workspace."
+
+Keep it concise and do not add unnecessary SEO text.
+
+==================================================
+VISUAL DESIGN
+==================================================
+
+Keep the existing Invoice Focus design system.
+
+Do NOT redesign the entire homepage.
+
+Improve the Features section so it feels more premium:
+
+- consistent card heights
+- consistent icon containers
+- strong typography hierarchy
+- balanced spacing
+- subtle borders
+- subtle shadows only where appropriate
+- clean responsive grid
+- excellent mobile layout
+- no excessive decoration
+- no unnecessary animations
+
+Use the existing Invoice Focus primary blue/design tokens.
+
+Do not introduce random new colors.
+
+Icons should accurately represent each feature.
+
+Avoid using the same icon repeatedly.
+
+==================================================
+IMPORTANT PRODUCT PRINCIPLE
+==================================================
+
+Do NOT make the section look like:
+
+"Invoice + five unrelated features."
+
+It should communicate:
+
+"Invoice Focus is a unified business-document platform."
+
+The document types should feel like part of one coherent product:
+
+Invoice
+Quote
+Estimate
+Receipt
+Credit Note
+Purchase Order
+
+The template system, branding, currency handling, and PDF export should support those document types rather than compete with them.
+
+==================================================
+CODE SAFETY
+==================================================
+
+Do NOT modify:
+
+- invoice creation functionality
+- dashboard
+- authentication
+- Supabase
+- API
+- PDF generation
+- document templates
+- document calculations
+- currency logic
+- document type logic
+- SEO routes
+- sitemap
+- robots.txt
+- blog
+- footer
+- navbar
+- analytics
+- Microsoft Clarity
+- Google Analytics
+- IndexNow
+
+Only update the homepage Features section and any directly related presentation data/component necessary for that section.
+
+Reuse existing components and design tokens wherever possible.
+
+Do not create duplicate feature components if an existing reusable component already exists.
+
+==================================================
+VALIDATION
+==================================================
+
+After implementation:
+
+1. Run TypeScript check.
+2. Run production build.
+3. Run git diff --check.
+4. Open the homepage.
+5. Verify the Features section on desktop.
+6. Verify the Features section on mobile.
+7. Confirm all displayed features are actually implemented.
+8. Confirm all document types are represented correctly.
+9. Confirm there are no broken links.
+10. Confirm there are no console errors.
+11. Confirm no unrelated files/functionality were changed.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Report:
+
+- exact file(s) changed
+- old feature cards removed
+- new feature cards added
+- which features were verified in the codebase
+- any suggested feature that was NOT included because it was not verified
+- TypeScript result
+- production build result
+- git diff --check result
+
+Do not make any other changes.

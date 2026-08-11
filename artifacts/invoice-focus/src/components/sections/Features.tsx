@@ -2,48 +2,62 @@ import { motion } from 'framer-motion'
 import {
   FileText,
   Quote,
-  Calculator,
-  Download,
+  ReceiptText,
+  ClipboardList,
+  LayoutTemplate,
   Palette,
-  Globe,
+  Globe2,
+  Download,
 } from 'lucide-react'
 
 const FEATURES = [
   {
     icon: FileText,
-    title: 'Professional Invoice Builder',
+    title: 'Professional Invoices',
     description:
-      'Build polished, itemized invoices with automatic totals, taxes, and discounts in a clean, modern editor.',
+      'Create itemized invoices with automatic totals, tax, discount, and professional document layouts.',
   },
   {
     icon: Quote,
-    title: 'Quotes',
+    title: 'Quotes & Estimates',
     description:
-      'Send branded quotes that clients can approve online, then convert them into invoices with one click.',
+      'Prepare clear pricing proposals and project estimates before work begins with a focused line-item workflow.',
   },
   {
-    icon: Calculator,
-    title: 'Estimates',
+    icon: ReceiptText,
+    title: 'Receipts & Credit Notes',
     description:
-      'Create accurate project estimates, adjust line items, and turn approved estimates into payable invoices.',
+      'Confirm completed payments and document billing adjustments with clear, professional business documents.',
   },
   {
-    icon: Download,
-    title: 'Print-Ready PDF Invoices',
+    icon: ClipboardList,
+    title: 'Purchase Orders',
     description:
-      'Download print-ready PDF invoices instantly or share a secure link so clients can view documents in any browser.',
+      'Create structured supplier orders with clear items, quantities, pricing, and business details.',
+  },
+  {
+    icon: LayoutTemplate,
+    title: 'Professional Document Templates',
+    description:
+      'Choose Minimal, Professional, or Enterprise designs for different business styles and document needs.',
   },
   {
     icon: Palette,
-    title: 'Custom Branding',
+    title: 'Custom Business Branding',
     description:
-      'Add your logo, colors, and business details so every invoice looks like it came from your studio.',
+      'Add your logo, colors, company details, and presentation preferences to each document.',
   },
   {
-    icon: Globe,
-    title: 'Multi-Currency',
+    icon: Globe2,
+    title: 'Multi-Currency Documents',
     description:
-      'Invoice clients around the world with support for major currencies and automatic formatting.',
+      'Create documents in your business currency and keep amounts consistent throughout the invoice workflow.',
+  },
+  {
+    icon: Download,
+    title: 'Print-Ready PDF Documents',
+    description:
+      'Download or print polished business documents ready to share with clients, customers, and suppliers.',
   },
 ]
 
@@ -67,10 +81,10 @@ export function Features() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="label-caps">Features</span>
           <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-            Professional Invoicing Tools Built for Modern Businesses
+            Everything You Need to Create Professional Business Documents
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            Everything you need to create invoices, quotes, estimates, and receipts with smart templates, automatic calculations, and print-ready PDF exports.
+            Create, customize, and download invoices, quotes, estimates, receipts, credit notes, and purchase orders from one simple workspace.
           </p>
         </div>
 
@@ -85,13 +99,13 @@ export function Features() {
             <motion.div
               key={title}
               variants={item}
-              className="group relative flex h-full flex-col rounded-2xl bg-card p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg gradient-border"
+              className="group relative flex h-full min-h-[16rem] flex-col rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
             >
-               <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary shadow-sm transition-all duration-300 group-hover:-translate-y-0.5 group-hover:from-primary/15 group-hover:to-primary/10 group-hover:shadow-md">
-                 <Icon className="h-6 w-6 transition-transform duration-300 group-hover:scale-105" />
+               <div className="mb-5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary/15">
+                 <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
-              <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+              <h3 className="font-display text-lg font-semibold leading-snug tracking-tight text-foreground">{title}</h3>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
             </motion.div>
           ))}
         </motion.div>
