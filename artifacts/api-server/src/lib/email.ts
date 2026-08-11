@@ -8,17 +8,17 @@ const supportEmail = 'hello@invoicefocus.com';
 
 function loadProductionLogo() {
   const candidates = [
-    fileURLToPath(new URL('../../invoice-focus/public/invoicefocus-logo.png', import.meta.url)),
-    resolve(process.cwd(), 'artifacts/invoice-focus/public/invoicefocus-logo.png'),
-    resolve(process.cwd(), '../invoice-focus/public/invoicefocus-logo.png'),
+    fileURLToPath(new URL('../../invoice-focus/public/logo-mark.png', import.meta.url)),
+    resolve(process.cwd(), 'artifacts/invoice-focus/public/logo-mark.png'),
+    resolve(process.cwd(), '../invoice-focus/public/logo-mark.png'),
   ];
   const path = candidates.find((candidate) => existsSync(candidate));
-  if (!path) throw new Error('The canonical InvoiceFocus production logo is unavailable.');
+  if (!path) throw new Error('The canonical Invoice Focus production logo mark is unavailable.');
   return readFileSync(path).toString('base64');
 }
 
 const productionLogoAttachment = {
-  filename: 'invoicefocus-logo.png',
+  filename: 'invoicefocus-logo-mark.png',
   content: loadProductionLogo(),
   contentId: brandLogoCid,
 };
@@ -55,7 +55,8 @@ function emailDocument(preheader: string, content: string) {
     .container { width: 100%; max-width: 600px; margin: 0 auto; }
      .topbar { padding: 36px 24px 26px; text-align: center; }
      .brand-header { width: 100%; }
-    .logo { width: 220px; height: auto; max-width: 100%; margin: 0 auto; }
+     .brand-mark { width: 34px; height: 34px; max-width: 100%; }
+     .wordmark { padding-left: 9px; color: #2563eb; font-size: 25px; font-weight: 700; letter-spacing: -0.8px; line-height: 1; white-space: nowrap; }
     .card { background: #ffffff; border: 1px solid #e3e8f1; border-radius: 16px; box-shadow: 0 8px 28px rgba(23, 32, 51, 0.06); }
     .hero { padding: 36px 40px 12px; }
     .eyebrow { margin: 0 0 12px; color: #315de8; font-size: 11px; font-weight: 750; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; }
@@ -98,8 +99,15 @@ function emailDocument(preheader: string, content: string) {
          <tr><td class="topbar">
            <table role="presentation" class="brand-header" width="100%">
              <tr>
-                <td align="center" valign="middle">
-                  <img class="logo" src="cid:${brandLogoCid}" width="220" alt="Invoice Focus" style="display:block;width:220px;height:auto;max-width:100%;border:0;margin:0 auto">
+                 <td align="center" valign="middle">
+                   <table role="presentation" style="margin:0 auto">
+                     <tr>
+                       <td valign="middle">
+                         <img class="brand-mark" src="cid:${brandLogoCid}" width="34" height="34" alt="" style="display:block;width:34px;height:34px;border:0">
+                       </td>
+                       <td class="wordmark" valign="middle">Invoice Focus</td>
+                     </tr>
+                   </table>
                 </td>
              </tr>
            </table>

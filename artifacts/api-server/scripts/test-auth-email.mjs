@@ -49,8 +49,8 @@ try {
 
   for (const message of builders) {
     assert.equal((message.html.match(/src="cid:invoicefocus-logo"/g) || []).length, 1);
-    assert.match(message.html, /class="logo" src="cid:invoicefocus-logo" width="220"/);
-    assert.doesNotMatch(message.html, /class="wordmark"/);
+    assert.match(message.html, /class="brand-mark" src="cid:invoicefocus-logo" width="34" height="34"/);
+    assert.match(message.html, /class="wordmark"[^>]*>Invoice Focus<\/td>/);
     assert.equal((message.html.match(/© 2026 Invoice Focus — Professional Invoicing Made Effortless/g) || []).length, 1);
     assert.match(message.html, /Support: <a href="mailto:hello@invoicefocus\.com">hello@invoicefocus\.com<\/a>/);
     assert.doesNotMatch(message.html, />https:\/\/invoicefocus\.com</);
@@ -83,7 +83,7 @@ try {
 
   assert.equal(requestBody.attachments.length, 1);
   assert.equal(requestBody.from, 'Invoice Focus <hello@invoicefocus.com>');
-  assert.equal(requestBody.attachments[0].filename, 'invoicefocus-logo.png');
+  assert.equal(requestBody.attachments[0].filename, 'invoicefocus-logo-mark.png');
   assert.equal(requestBody.attachments[0].content_id, 'invoicefocus-logo');
   assert.match(requestBody.attachments[0].content, /^iVBORw0KGgo/);
 
