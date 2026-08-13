@@ -5,6 +5,12 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.invoicefocus.com" }],
+      "destination": "https://invoicefocus.com/$1",
+      "permanent": true
+    },
     { "source": "/guides", "destination": "/help", "permanent": true },
     { "source": "/invoice-generator-for-freelancers", "destination": "/invoice-generator", "permanent": true },
     { "source": "/invoice-generator-for-agencies", "destination": "/invoice-generator", "permanent": true },
@@ -14,8 +20,13 @@
     { "source": "/invoice-generator-for-photographers", "destination": "/invoice-generator", "permanent": true },
     { "source": "/invoice-generator-for-contractors", "destination": "/invoice-generator", "permanent": true }
   ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/invoice", "destination": "/index.html" },
+    { "source": "/invoice/:path*", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/dashboard/:path*", "destination": "/index.html" },
+    { "source": "/onboarding", "destination": "/index.html" },
+    { "source": "/onboarding/:path*", "destination": "/index.html" },
+    { "source": "/share/:path*", "destination": "/index.html" }
   ]
 }

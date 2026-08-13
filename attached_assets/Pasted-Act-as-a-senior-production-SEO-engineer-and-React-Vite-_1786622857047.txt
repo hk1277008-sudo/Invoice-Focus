@@ -1,0 +1,483 @@
+Act as a senior production SEO engineer and React/Vite routing engineer.
+
+We have completed an audit of Invoice Focus at:
+
+https://invoicefocus.com/
+
+Google Search Console currently reports approximately 37 URLs as "Not indexed" across several reasons. The previous audit found a production route/redirect configuration mismatch, but intentionally made NO implementation changes.
+
+I now want you to IMPLEMENT the remediation carefully.
+
+IMPORTANT:
+Do NOT modify, refactor, redesign, or otherwise touch any existing business functionality.
+
+ABSOLUTE PROTECTION — DO NOT CHANGE:
+- Invoice creation/editing
+- Invoice calculations
+- Invoice PDF generation/export
+- Receipt functionality
+- Quote functionality
+- Estimate functionality
+- Purchase order functionality
+- Credit note functionality
+- Templates functionality
+- Dashboard
+- Business profile
+- Client management
+- Authentication
+- Login
+- Signup
+- Password reset
+- Supabase authentication
+- Supabase database schema
+- Existing API behavior
+- Existing protected/private routes
+- Existing working public SEO pages unless required for routing correctness
+- Existing UI/design
+- Existing analytics
+- Existing GA4
+- Microsoft Clarity
+- IndexNow implementation
+- Payment/subscription infrastructure, if present
+
+This task is ONLY about cleaning up incorrect/obsolete public SEO URLs and making production routing consistent with the canonical public URL structure.
+
+==================================================
+PHASE 1 — FULL PRODUCTION + CODE AUDIT
+==================================================
+
+Before changing anything, inspect the repository and live production site.
+
+Inspect at minimum:
+
+1. React/Vite routing configuration
+2. seoroute.tsx / routes.tsx / router configuration
+3. Any SEO route registry
+4. Any Vercel configuration
+5. vercel.json
+6. redirects configuration
+7. rewrites configuration
+8. middleware
+9. sitemap generation
+10. robots.txt generation
+11. canonical URL generation
+12. metadata generation
+13. internal navigation links
+14. any historical SEO route lists
+15. any catch-all routes
+16. any SPA fallback behavior
+17. any static public files related to routing
+18. any existing redirect rules
+19. Git history if necessary to determine whether old URLs were previously valid
+
+Then crawl/check the live production URLs involved in the Google Search Console report.
+
+Do NOT assume a URL is obsolete merely because it is not currently present in the React router.
+
+For every problematic URL classify it as exactly one of:
+
+A. VALID CURRENT PAGE
+B. VALID PAGE THAT SHOULD EXIST BUT IS BROKEN
+C. OLD URL WITH A CLEAR CURRENT REPLACEMENT
+D. OLD/REMOVED URL WITH NO REPLACEMENT
+E. PRIVATE/PROTECTED URL THAT SHOULD NEVER BE INDEXED
+F. DUPLICATE URL
+G. INVALID/GARBAGE URL
+H. UNKNOWN — REQUIRES HUMAN REVIEW
+
+==================================================
+PHASE 2 — ROUTING DECISION RULES
+==================================================
+
+Apply these rules strictly.
+
+CASE A — VALID CURRENT PAGE
+
+Keep it.
+
+Do not redirect it.
+
+Ensure:
+- HTTP 200
+- self-referencing canonical where appropriate
+- unique title
+- unique meta description
+- one primary H1
+- included in sitemap if it is an indexable public page
+
+CASE B — VALID PAGE BUT BROKEN
+
+Fix the route.
+
+Do not create a redirect if the URL itself is intended to remain valid.
+
+Verify:
+- HTTP 200
+- correct content
+- correct canonical
+- correct metadata
+- one H1
+- sitemap inclusion if appropriate
+
+CASE C — OLD URL WITH CLEAR REPLACEMENT
+
+Create a permanent 301 redirect to the closest relevant canonical page.
+
+Do NOT redirect everything to the homepage.
+
+Example:
+
+/old-invoice-generator
+→ /invoice-generator
+
+Only use a redirect when the replacement is genuinely equivalent or clearly serves the same search intent.
+
+CASE D — OLD/REMOVED URL WITH NO REPLACEMENT
+
+Do NOT invent a replacement page.
+
+Prefer a proper 410 Gone response if the route is definitely obsolete and has no useful successor.
+
+If the existing deployment architecture cannot safely produce 410 responses, document the limitation and use the safest available production approach.
+
+Do NOT create fake SEO pages just to eliminate 404s.
+
+CASE E — PRIVATE/PROTECTED ROUTE
+
+Do NOT expose it publicly.
+
+Examples may include:
+- /dashboard
+- /dashboard/*
+- /profile
+- authentication routes
+- internal application routes
+- private workspace routes
+
+Ensure these are not included in the public sitemap.
+
+Do not alter authentication behavior.
+
+CASE F — DUPLICATE URL
+
+Keep one canonical URL.
+
+Redirect duplicate public URLs to the preferred canonical URL when appropriate.
+
+Do not create multiple nearly identical SEO pages.
+
+CASE G — INVALID/GARBAGE URL
+
+Do not create a page for it.
+
+Do not add it to the sitemap.
+
+Return 404 or 410 according to the situation.
+
+CASE H — UNKNOWN
+
+DO NOT make assumptions.
+
+Add it to the final report under:
+
+"Requires Human Review"
+
+and explain why.
+
+==================================================
+PHASE 3 — FIX THE PRODUCTION ROUTING MISMATCH
+==================================================
+
+The previous audit identified:
+
+"production route/redirect configuration mismatch"
+
+Investigate exactly why existing redirect rules are not live.
+
+Check whether the issue is caused by:
+
+- vercel.json
+- Vercel redirects
+- Vercel rewrites
+- SPA fallback
+- React router catch-all behavior
+- middleware
+- static deployment configuration
+- route ordering
+- deployment output structure
+- another production configuration file
+
+Fix the actual root cause.
+
+Do NOT add random redirects inside React components merely to hide the problem.
+
+Prefer proper server/platform-level HTTP redirects when possible.
+
+For Vercel, use the appropriate production-supported redirect mechanism.
+
+==================================================
+PHASE 4 — SEO ROUTE CLEANUP
+==================================================
+
+Audit seoroute.tsx carefully.
+
+Do not automatically remove every SEO route.
+
+Keep only public SEO pages that have a legitimate purpose and search intent.
+
+The goal is:
+
+FEWER, STRONGER, UNIQUE SEO PAGES
+
+NOT:
+
+DOZENS OF THIN PROGRAMMATIC SEO PAGES.
+
+Do not create large numbers of near-duplicate pages.
+
+For every retained SEO page ensure:
+
+- unique title
+- unique meta description
+- unique H1
+- unique primary search intent
+- useful page content
+- canonical URL
+- appropriate internal links
+- sitemap inclusion
+
+Do not create pages solely to increase sitemap URL count.
+
+==================================================
+PHASE 5 — GOOGLE INDEXING HYGIENE
+==================================================
+
+Ensure the final public sitemap contains ONLY:
+
+- valid public pages
+- canonical URLs
+- indexable pages
+- useful SEO pages
+
+Exclude:
+
+- 404 URLs
+- 410 URLs
+- redirect URLs
+- duplicate URLs
+- private routes
+- dashboard routes
+- authentication routes
+- internal application routes
+- obsolete SEO pages
+
+Do not remove legitimate pages merely because Google has not indexed them yet.
+
+Also verify robots.txt does not accidentally block important public SEO pages.
+
+Do not add broad robots.txt restrictions.
+
+==================================================
+PHASE 6 — CANONICALS + METADATA
+==================================================
+
+Only modify canonical URLs where there is an actual duplication/canonicalization problem.
+
+Do not make unnecessary metadata changes.
+
+For every retained indexable page verify:
+
+<title>
+<meta name="description">
+<link rel="canonical">
+<h1>
+
+There must be exactly ONE primary H1 per page.
+
+Do not duplicate H1s through SEO wrappers, layouts, or hidden components.
+
+==================================================
+PHASE 7 — INTERNAL LINKS
+==================================================
+
+Search the entire repository for links pointing to obsolete URLs.
+
+Update only links that point to:
+
+- removed pages
+- obsolete SEO URLs
+- redirect URLs
+- incorrect paths
+
+Do not alter working application navigation.
+
+Do not change dashboard/authentication navigation.
+
+==================================================
+PHASE 8 — BUILD + VALIDATION
+==================================================
+
+After implementation run:
+
+1. Frontend TypeScript check
+2. Production build
+3. git diff --check
+4. Existing API health check if available
+5. Existing application tests if available
+6. Sitemap validation
+7. robots.txt validation
+8. Canonical audit
+9. Metadata audit
+10. H1 audit
+11. Internal-link audit
+12. Route audit
+
+Then test the production-equivalent routes.
+
+For every changed URL verify the actual HTTP response.
+
+Expected outcomes:
+
+- valid page → 200
+- old page with replacement → 301
+- permanently removed page → 410 where supported
+- invalid page → 404
+- private page → remains private and is not in sitemap
+
+IMPORTANT:
+
+Do NOT consider a React-rendered "404 page" sufficient if the server still returns HTTP 200 for an invalid URL.
+
+The HTTP status must be correct.
+
+==================================================
+PHASE 9 — GOOGLE SEARCH CONSOLE SAFETY
+==================================================
+
+Do not attempt to artificially force indexing.
+
+Do not generate additional pages just to make Google Search Console numbers look better.
+
+The objective is to make Google's known URL set accurate.
+
+After deployment, the recommended sequence is:
+
+1. Submit updated sitemap.
+2. Inspect important canonical URLs.
+3. Request indexing for a small number of high-value pages if appropriate.
+4. Allow Google to recrawl redirects and removed URLs naturally.
+5. Monitor Page Indexing reports.
+
+==================================================
+CRITICAL FUNCTIONALITY SAFETY CHECK
+==================================================
+
+Before finishing, verify that the changes did NOT modify:
+
+- authentication
+- login
+- signup
+- password reset
+- dashboard
+- invoice editor
+- invoice calculations
+- PDF generation
+- document templates
+- client management
+- business profile
+- Supabase
+- API endpoints
+- existing application routes
+
+If any implementation requires changing one of these systems, STOP and report the conflict instead of modifying it.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return a concise but complete report with:
+
+### 1. URLs audited
+Total number audited.
+
+### 2. Valid pages retained
+List them.
+
+### 3. 301 redirects created
+For each:
+
+OLD URL → NEW URL
+Reason
+
+### 4. 410 URLs
+List URLs intentionally permanently removed.
+
+### 5. 404 URLs retained
+List invalid URLs that should correctly remain 404.
+
+### 6. Private URLs
+List URLs intentionally excluded from indexing/sitemap.
+
+### 7. SEO pages removed
+Only list pages actually removed from the SEO route system.
+
+### 8. Sitemap changes
+Show:
+- previous count
+- new count
+- added
+- removed
+
+### 9. Canonical changes
+List every changed canonical.
+
+### 10. Metadata changes
+List every page whose title/meta description/H1 changed.
+
+### 11. Internal links fixed
+List obsolete links replaced.
+
+### 12. Production routing fix
+Explain the exact root cause of the previous production mismatch and what was changed.
+
+### 13. Verification
+Report:
+
+TypeScript:
+PASS/FAIL
+
+Production build:
+PASS/FAIL
+
+git diff --check:
+PASS/FAIL
+
+Sitemap:
+PASS/FAIL
+
+robots.txt:
+PASS/FAIL
+
+Canonical audit:
+PASS/FAIL
+
+H1 audit:
+PASS/FAIL
+
+Route/status audit:
+PASS/FAIL
+
+Application functionality:
+PASS/FAIL
+
+### 14. Files modified
+Give the exact file paths.
+
+### 15. Safety confirmation
+Explicitly confirm:
+
+"No invoice, dashboard, authentication, PDF, template, document-generation, database, or API functionality was modified."
+
+Do not claim success unless the checks actually pass.
+
+Do not make additional SEO recommendations after the implementation unless they are directly related to issues discovered during this task.

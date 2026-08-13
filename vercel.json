@@ -2,6 +2,8 @@
   "framework": "vite",
   "buildCommand": "PORT=18994 BASE_PATH=/ pnpm --filter @workspace/invoice-focus run build",
   "outputDirectory": "artifacts/invoice-focus/dist/public",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "redirects": [
     {
       "source": "/(.*)",
@@ -52,7 +54,31 @@
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/invoice",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/invoice/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/onboarding",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/onboarding/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/share/:path*",
       "destination": "/index.html"
     }
   ]
