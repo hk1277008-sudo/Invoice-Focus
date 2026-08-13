@@ -220,19 +220,19 @@
     <script type="module" src="/src/main.tsx"></script>
 
     <script>
-      // Hide the crawlable fallback once the real app has mounted, so
-      // human visitors with JS enabled only ever see the React UI.
+      // Remove the crawlable fallback once the real app has mounted, so
+      // the hydrated DOM contains only the React UI and its semantic headings.
       (function () {
-        var hideFallback = function () {
+        var removeFallback = function () {
           var el = document.getElementById('seo-fallback');
-          if (el) el.style.display = 'none';
+          if (el) el.remove();
         };
         if (document.getElementById('root').childElementCount > 0) {
-          hideFallback();
+          removeFallback();
         } else {
           var observer = new MutationObserver(function () {
             if (document.getElementById('root').childElementCount > 0) {
-              hideFallback();
+              removeFallback();
               observer.disconnect();
             }
           });

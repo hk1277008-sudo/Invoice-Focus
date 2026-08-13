@@ -1,0 +1,106 @@
+Fix the SEO issue found by LIVE Microsoft Bing Webmaster Tools on InvoiceFocus.
+
+LIVE VERIFICATION RESULT:
+Bing URL Inspection currently reports:
+
+"More than one h1 tag"
+"2 instances found"
+
+The page is still indexable, but this SEO issue must be corrected properly.
+
+IMPORTANT:
+Do not make assumptions.
+Do not modify working invoice generation, dashboard, authentication, PDF generation, document templates, document types, currency handling, routing, or any existing functionality.
+
+TASK:
+
+1. Identify the exact public URL that Bing inspected and reproduce the issue locally and on the LIVE production website.
+
+2. Inspect the complete rendered DOM, not just the source JSX.
+
+3. Find BOTH <h1> elements currently being rendered.
+
+4. Determine why both exist.
+
+Check specifically for:
+- Desktop/mobile duplicate headings
+- Responsive components rendering separate headings
+- Hero sections
+- SEO route components
+- SEORoute.tsx
+- reusable page-header components
+- hidden/collapsed elements that still render in the DOM
+- duplicate page-title components
+- nested components that independently render <h1>
+
+5. The final page must contain EXACTLY ONE <h1> element.
+
+6. Keep the most appropriate primary page heading as the single <h1>.
+
+7. Convert secondary headings to semantic <h2> or <h3> where appropriate instead of deleting useful content.
+
+8. Do NOT solve this by hiding an h1 with CSS or display:none. Fix the semantic HTML structure properly.
+
+9. Make sure responsive/mobile and desktop layouts still display correctly.
+
+10. Check the actual rendered DOM after the change and confirm:
+    - exactly 1 h1
+    - appropriate h2/h3 hierarchy
+    - no duplicate title content
+    - no accessibility regression
+
+11. Perform a LIVE production verification against:
+    https://invoicefocus.com
+
+Use the browser/live site, not only local source inspection.
+
+12. Also inspect the important public SEO pages because the same reusable component may be causing the issue elsewhere.
+
+At minimum verify:
+- /
+- /templates
+- /invoice-generator
+- /invoice-template
+- /how-it-works
+- /features
+- /about
+- /contact
+- /help
+- /blog
+- at least one individual blog article
+- document-type/template landing pages that are currently intended to remain indexed
+
+For every checked public page:
+- confirm exactly one h1
+- confirm title is unique and relevant
+- confirm meta description is unique and relevant
+- confirm canonical URL is correct
+- confirm page is indexable
+- confirm there are no accidental duplicate SEO headings
+
+13. Run:
+- frontend TypeScript check
+- production build
+- git diff --check
+
+14. After the fix, perform another LIVE Bing-style HTML/SEO inspection of the affected URL.
+
+15. Do not create new SEO pages.
+Do not expand the number of pages.
+Do not change the existing SEO strategy.
+This task is ONLY to fix duplicate H1 usage and verify that the shared implementation has not created the same problem elsewhere.
+
+FINAL RESPONSE MUST REPORT:
+- affected URL
+- both original h1 sources/components
+- exact cause
+- file(s) changed
+- what was changed
+- final number of h1 elements
+- pages checked
+- TypeScript result
+- production build result
+- git diff --check result
+- live verification result
+
+If the duplicate H1 comes from a shared component, fix the shared component professionally rather than adding page-specific hacks.
