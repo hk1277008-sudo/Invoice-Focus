@@ -1,0 +1,607 @@
+Act as a senior technical SEO engineer and senior React/TypeScript SaaS engineer.
+
+I need you to perform a production-safe SEO/indexing remediation for InvoiceFocus.
+
+IMPORTANT:
+This is an SEO and routing cleanup task ONLY.
+
+DO NOT redesign or rewrite the application.
+DO NOT modify invoice creation logic.
+DO NOT modify dashboard functionality.
+DO NOT modify authentication.
+DO NOT modify Supabase data models.
+DO NOT modify PDF generation.
+DO NOT modify document calculations.
+DO NOT modify invoice/quote/estimate/receipt/credit-note workflows.
+DO NOT modify business-profile functionality.
+DO NOT modify currency logic.
+DO NOT modify existing user data.
+
+The current Google Search Console report shows:
+
+- 37 pages not indexed
+- 2 pages indexed
+- 4 reasons for the non-indexed URLs
+
+One of the important issues reported is a group of URLs returning 404/not found.
+
+The SEO goal is NOT to make every historical/discovered URL indexable.
+
+The goal is to make InvoiceFocus have a clean, intentional, professional SEO architecture where:
+
+1. Important public pages return HTTP 200 and are indexable.
+2. Removed/obsolete pages are handled correctly.
+3. Dynamic application URLs do not create unnecessary SEO pages.
+4. Sitemap contains only intentional canonical public URLs.
+5. No duplicate/near-duplicate SEO pages are created.
+6. Canonical URLs are correct.
+7. Titles and meta descriptions are unique and relevant.
+8. Existing application functionality remains completely untouched.
+
+==================================================
+PHASE 1 — AUDIT BEFORE CHANGING ANYTHING
+==================================================
+
+First inspect the entire existing codebase.
+
+Specifically locate and inspect:
+
+- seoroute.tsx
+- routes
+- router configuration
+- sitemap generation
+- robots.txt
+- SEO/head metadata components
+- canonical URL implementation
+- route metadata
+- public landing pages
+- blog routes
+- template routes
+- invoice-generator routes
+- application/invoice routes
+- authentication routes
+- dashboard routes
+- 404/not-found handling
+- redirects
+- Vercel configuration
+- any IndexNow implementation
+- any server-side route handling relevant to public URLs
+
+Also search the entire repository for:
+
+- "/invoice"
+- "/invoice?"
+- "template="
+- "documentType="
+- "sitemap"
+- "robots"
+- "canonical"
+- "noindex"
+- "SEO"
+- "404"
+- "redirect"
+- "seoroute"
+
+DO NOT modify anything during this initial audit.
+
+Create a concise internal audit first.
+
+==================================================
+PHASE 2 — CLASSIFY EVERY PUBLIC URL
+==================================================
+
+Build a complete URL inventory from:
+
+1. Current sitemap.xml
+2. seoroute.tsx
+3. Router configuration
+4. Internal navigation
+5. Blog routes
+6. Template routes
+7. Any route definitions
+8. Any URLs discovered in the codebase
+
+Classify every URL into exactly one of these categories:
+
+A. INDEXABLE PUBLIC SEO PAGE
+B. INDEXABLE BLOG PAGE
+C. INDEXABLE TEMPLATE/GENERATOR PAGE
+D. APPLICATION/UTILITY ROUTE
+E. AUTHENTICATION/PRIVATE ROUTE
+F. OBSOLETE/REMOVED PAGE
+G. DUPLICATE/PARAMETERIZED SEO URL
+H. UNKNOWN — REQUIRES REVIEW
+
+Do not automatically delete a page simply because it is not currently indexed.
+
+==================================================
+PHASE 3 — HANDLE 404 URLS CORRECTLY
+==================================================
+
+Investigate every public URL currently reported as 404/not found.
+
+For each URL determine:
+
+- Does the page still exist?
+- Was it intentionally removed?
+- Is there a replacement page?
+- Is the URL supposed to be public?
+- Is the URL supposed to be private?
+- Is there an equivalent current URL?
+
+Use this decision logic:
+
+CASE 1:
+If the URL SHOULD exist as a public SEO page:
+→ restore/fix the route
+→ ensure HTTP 200
+→ add proper SEO metadata
+→ add canonical URL
+→ include in sitemap if appropriate
+
+CASE 2:
+If the URL was permanently removed and there is a highly relevant replacement:
+→ implement a permanent 301 redirect to the most relevant replacement
+
+Do NOT redirect unrelated URLs just to avoid 404s.
+
+CASE 3:
+If the URL was permanently removed and has no meaningful replacement:
+→ leave it as a proper 404 or use 410 where technically appropriate
+→ remove it from the sitemap
+→ remove internal links pointing to it
+
+CASE 4:
+If the URL is a private/application route:
+→ it should NOT be in the public SEO sitemap
+→ do not attempt to make it indexable
+
+Do not create fake pages just to eliminate Search Console errors.
+
+==================================================
+PHASE 4 — HANDLE DYNAMIC /invoice URLS
+==================================================
+
+Pay special attention to URLs like:
+
+/invoice?template=minimal&documentType=estimate
+
+/invoice?template=enterprise&documentType=receipt
+
+/invoice?template=minimal&documentType=invoice
+
+/invoice?template=professional&documentType=quote
+
+/invoice?template=enterprise&documentType=invoice
+
+/invoice?template=professional&documentType=invoice
+
+These appear to be application/template parameter URLs.
+
+Determine whether these URLs are:
+
+- actual public SEO pages
+- application routes
+- preview/configuration routes
+- duplicate variations of the same application route
+
+Do NOT create individual SEO pages for every parameter combination.
+
+If they are application/utility URLs:
+
+- keep the functionality working
+- prevent unnecessary indexing
+- use an appropriate canonical URL
+- use noindex where appropriate
+- ensure they are NOT unnecessarily included in sitemap.xml
+- avoid creating thousands of crawlable parameter combinations
+
+IMPORTANT:
+Do not use robots.txt as the only mechanism for preventing indexing of URLs that Google already knows about.
+
+Use proper canonical/noindex strategy where appropriate.
+
+Do NOT break the invoice generator.
+
+==================================================
+PHASE 5 — PRIVATE ROUTES
+==================================================
+
+Audit:
+
+- /dashboard
+- /dashboard/*
+- authentication routes
+- profile/settings routes
+- create/edit document routes
+- client/business private areas
+- other authenticated application pages
+
+These must NOT become public SEO landing pages.
+
+Ensure:
+
+- they are excluded from sitemap
+- appropriate noindex behavior is used where applicable
+- authentication continues working
+- direct navigation still works for authenticated users
+- no application functionality is changed
+
+==================================================
+PHASE 6 — SITEMAP CLEANUP
+==================================================
+
+Inspect the generated sitemap.
+
+The sitemap should contain ONLY intentional canonical public URLs.
+
+Do NOT include:
+
+- dashboard URLs
+- authentication URLs
+- private application URLs
+- query-string variants
+- duplicate template configurations
+- obsolete URLs
+- 404 URLs
+- redirected URLs
+- internal utility routes
+
+Every sitemap URL should ideally satisfy:
+
+HTTP 200
++
+canonical self-reference
++
+indexable
++
+unique useful content
++
+valid public route
+
+Do not inflate the sitemap simply to increase the number of URLs.
+
+After changes, validate the sitemap XML.
+
+==================================================
+PHASE 7 — PUBLIC SEO PAGE AUDIT
+==================================================
+
+For every intentional indexable public page verify:
+
+- HTTP 200
+- exactly one H1
+- unique title
+- unique meta description
+- canonical URL
+- indexable robots directive
+- correct Open Graph metadata where already supported
+- correct page heading
+- meaningful content
+- no accidental duplicate title
+- no accidental duplicate meta description
+- no conflicting canonical
+- no accidental noindex
+
+Important:
+
+Do NOT blindly give every page the same title or description.
+
+Titles must describe the actual page.
+
+Examples:
+
+Homepage:
+Invoice Focus — Free Invoice Generator for Businesses
+
+Templates:
+Invoice Templates — Professional Invoice Templates | Invoice Focus
+
+Invoice Generator:
+Free Invoice Generator — Create Professional Invoices | Invoice Focus
+
+Do not copy these blindly if the existing SEO strategy uses better wording. Generate appropriate unique metadata based on the actual page.
+
+==================================================
+PHASE 8 — DUPLICATE SEO PAGE CONTROL
+==================================================
+
+Audit seoroute.tsx carefully.
+
+There may be too many SEO routes.
+
+Do NOT keep pages merely because they exist.
+
+For every SEO route ask:
+
+1. Does this page target a meaningful search intent?
+2. Does it have unique useful content?
+3. Does it overlap heavily with another InvoiceFocus page?
+4. Does it deserve to exist long-term?
+5. Is it a real product/feature/template page?
+6. Could it create doorway/thin-content behavior?
+
+If a page is genuinely useful:
+→ preserve and improve it.
+
+If it is duplicate/thin/low-value:
+→ determine whether it should be removed, redirected, or excluded from indexing.
+
+Do NOT create replacement SEO pages automatically.
+
+The strategy should be:
+
+FEWER
++
+BETTER
++
+MORE RELEVANT
++
+UNIQUE
+
+rather than hundreds of thin pages.
+
+==================================================
+PHASE 9 — INTERNAL LINKS
+==================================================
+
+Search the entire frontend for links to:
+
+- removed pages
+- obsolete routes
+- old SEO routes
+- incorrect URLs
+- duplicate pages
+- query-string SEO URLs
+
+Fix only broken/obsolete SEO links.
+
+Do NOT alter working application navigation unless it points to an invalid route.
+
+Ensure important public pages are internally connected naturally.
+
+Example structure:
+
+Homepage
+→ Templates
+→ Invoice Generator
+→ Features
+→ How It Works
+→ Blog
+→ Help
+
+Templates
+→ Invoice Templates
+→ Quote Templates
+→ Estimate Templates
+→ Receipt Templates
+→ Purchase Order Templates
+→ Credit Note Templates
+
+Only use routes that actually exist.
+
+==================================================
+PHASE 10 — 404 / REDIRECT SAFETY
+==================================================
+
+Do not introduce a catch-all redirect that sends every unknown URL to the homepage.
+
+Do NOT convert all 404s into 200 pages.
+
+Do NOT use SPA fallback behavior to hide missing public routes from crawlers.
+
+The HTTP response must accurately represent the resource.
+
+Valid page:
+→ 200
+
+Permanent replacement:
+→ 301
+
+Permanently removed with no replacement:
+→ 410 or 404
+
+==================================================
+PHASE 11 — DO NOT BREAK EXISTING FUNCTIONALITY
+==================================================
+
+Before modifying anything, identify the boundaries between:
+
+SEO/public routes
+and
+application routes.
+
+SEO changes must be isolated.
+
+Absolutely preserve:
+
+- Login
+- Signup
+- Logout
+- Password reset
+- Dashboard
+- Business profile
+- Invoice creation
+- Invoice editing
+- Quote creation
+- Estimate creation
+- Receipt creation
+- Credit Note functionality
+- Purchase Order functionality
+- Templates
+- PDF generation
+- Print
+- Sharing
+- Email
+- Currency selection
+- Currency formatting
+- Revenue calculations
+- Client management
+- Existing Supabase behavior
+
+Do not change database schemas.
+
+Do not change API contracts.
+
+Do not refactor unrelated components.
+
+==================================================
+PHASE 12 — IMPLEMENTATION
+==================================================
+
+After the audit, implement only the necessary targeted fixes.
+
+Prefer small changes such as:
+
+- correcting route definitions
+- correcting sitemap inclusion
+- correcting metadata
+- adding/removing canonical tags
+- adding appropriate noindex
+- removing obsolete sitemap entries
+- fixing broken public routes
+- adding legitimate redirects
+- fixing internal links
+
+Do not rewrite seoroute.tsx unnecessarily.
+
+Do not rewrite the router unless absolutely necessary.
+
+Do not rewrite the homepage.
+
+Do not redesign the application.
+
+==================================================
+PHASE 13 — TESTING
+==================================================
+
+After implementation run:
+
+1. Frontend TypeScript check
+2. Production build
+3. git diff --check
+4. Existing test suite if available
+5. Sitemap XML validation
+6. SEO metadata audit
+7. Route status audit
+
+Test representative URLs.
+
+PUBLIC:
+
+/
+ /templates
+ /invoice-generator
+ /invoice-template
+ /features
+ /how-it-works
+ /about
+ /contact
+ /help
+ /blog
+
+Also test several existing blog URLs.
+
+APPLICATION:
+
+/login
+/signup
+/dashboard
+
+Do NOT change application behavior.
+
+==================================================
+PHASE 14 — AUTOMATED SEO AUDIT
+==================================================
+
+Create a temporary/local audit script if useful.
+
+It should report:
+
+URL
+HTTP status
+title
+title length
+meta description
+H1 count
+canonical
+robots
+sitemap inclusion
+
+Flag:
+
+- duplicate titles
+- duplicate descriptions
+- missing titles
+- missing descriptions
+- multiple H1s
+- missing canonical
+- sitemap URLs returning non-200
+- redirected sitemap URLs
+- noindex sitemap URLs
+- private URLs in sitemap
+- query-string URLs in sitemap
+
+Do not necessarily keep the script permanently unless it fits the existing project architecture.
+
+==================================================
+PHASE 15 — FINAL REPORT
+==================================================
+
+When finished, report exactly:
+
+1. TOTAL URLS AUDITED
+2. PUBLIC INDEXABLE URLS
+3. PRIVATE/APPLICATION URLS
+4. OBSOLETE URLS
+5. 404 URLS FIXED
+6. 301 REDIRECTS CREATED
+7. 404/410 URLS INTENTIONALLY RETAINED
+8. DYNAMIC/PARAMETERIZED URLS HANDLED
+9. SITEMAP CHANGES
+10. CANONICAL CHANGES
+11. NOINDEX CHANGES
+12. METADATA CHANGES
+13. INTERNAL LINK CHANGES
+14. FILES MODIFIED
+15. DATABASE CHANGES — MUST SAY "NONE" IF NONE
+16. TESTS RUN
+17. BUILD RESULT
+18. REMAINING SEO ISSUES
+19. ANYTHING REQUIRING MY APPROVAL
+
+For every modified file, explain briefly why it was modified.
+
+==================================================
+FINAL SAFETY RULE
+==================================================
+
+If you discover a change that could affect:
+
+- authentication
+- dashboard
+- invoice generation
+- document generation
+- PDF
+- Supabase
+- user data
+- API behavior
+- business profile
+- currency
+- financial calculations
+
+STOP before making that change and report it to me for approval.
+
+Do not assume permission to modify unrelated functionality.
+
+The objective is NOT:
+
+"Make Google index 100% of discovered URLs."
+
+The objective is:
+
+"Make InvoiceFocus technically clean, intentional, crawlable, indexable, and trustworthy for the public pages that genuinely deserve search visibility."
+
+Start with AUDIT ONLY.
+
+Show me the audit findings and proposed URL classification BEFORE making the implementation changes.
