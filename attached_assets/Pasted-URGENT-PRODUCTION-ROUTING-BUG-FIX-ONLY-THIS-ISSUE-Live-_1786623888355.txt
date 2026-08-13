@@ -1,0 +1,184 @@
+URGENT PRODUCTION ROUTING BUG — FIX ONLY THIS ISSUE
+
+Live production verification after the latest deployment shows:
+
+https://invoicefocus.com/invoice → HTTP 404
+
+https://invoicefocus.com/invoice?template=minimal&documentType=invoice → HTTP 404
+
+This is NOT acceptable because /invoice is an existing InvoiceFocus application route and the previous routing remediation explicitly expected both URLs to return HTTP 200.
+
+IMPORTANT:
+DO NOT modify SEO architecture further.
+DO NOT modify sitemap.xml.
+DO NOT create new SEO pages.
+DO NOT modify metadata.
+DO NOT modify redirects unrelated to this issue.
+
+MOST IMPORTANT:
+Do NOT break or modify:
+- invoice creation
+- invoice editing
+- invoice calculations
+- templates
+- PDF generation
+- quote
+- estimate
+- receipt
+- credit note
+- purchase order
+- dashboard
+- authentication
+- Supabase
+- API
+- currency handling
+- business profile
+
+TASK:
+
+1. Reproduce the problem against the LIVE production deployment.
+
+Check:
+
+https://invoicefocus.com/invoice
+
+https://invoicefocus.com/invoice?template=minimal&documentType=invoice
+
+Confirm the actual HTTP status.
+
+2. Inspect the current production routing implementation.
+
+Check:
+
+- React router
+- route definitions
+- seoroute.tsx
+- router configuration
+- Vercel configuration
+- vercel.json
+- redirects
+- rewrites
+- SPA fallback
+- deployment output
+- middleware
+- static hosting configuration
+
+3. Find the exact reason why /invoice returns 404 in production.
+
+Do NOT guess.
+
+Determine whether the problem is caused by:
+
+- missing React route
+- route ordering
+- catch-all route
+- Vercel rewrite
+- Vercel redirect
+- SPA fallback
+- deployment output
+- server configuration
+- route removed accidentally
+- incorrect production build
+- another routing conflict
+
+4. Compare the current source code with the previous working implementation if necessary using Git history.
+
+Find when /invoice last worked correctly.
+
+5. Restore /invoice as a working application route.
+
+The required production behavior is:
+
+GET /invoice
+→ HTTP 200
+→ InvoiceFocus invoice generator loads normally
+
+GET /invoice?template=minimal&documentType=invoice
+→ HTTP 200
+→ InvoiceFocus invoice generator loads normally
+→ minimal template is selected
+→ invoice document type is selected
+
+Query parameters must continue functioning.
+
+6. Do NOT turn /invoice into an SEO landing page.
+
+It is an application/generator route.
+
+It does NOT need to be added to the public SEO sitemap simply because it returns 200.
+
+7. After fixing it, test other application template URLs to make sure the fix did not break the existing system.
+
+At minimum test:
+
+/invoice?template=professional&documentType=invoice
+
+/invoice?template=minimal&documentType=quote
+
+/invoice?template=enterprise&documentType=receipt
+
+/invoice?template=minimal&documentType=estimate
+
+Also verify the actual generated UI loads correctly.
+
+8. Test existing public SEO pages to make sure routing changes did not break them:
+
+/
+/templates
+/invoice-generator
+/invoice-template
+/help
+/blog
+
+9. Run:
+
+- frontend TypeScript check
+- production build
+- git diff --check
+
+10. Deploy the corrected frontend to production.
+
+11. AFTER deployment, live-test:
+
+https://invoicefocus.com/invoice
+
+Expected:
+HTTP 200
+
+https://invoicefocus.com/invoice?template=minimal&documentType=invoice
+
+Expected:
+HTTP 200
+
+https://invoicefocus.com/does-not-exist
+
+Expected:
+HTTP 404
+
+12. Verify that the application functionality works in the browser, not merely that the HTTP status changed.
+
+The invoice editor must actually render and template/documentType parameters must work.
+
+FINAL REPORT:
+
+- Root cause
+- Exact file(s) changed
+- Exact routing/configuration change
+- Whether any application logic changed
+- /invoice HTTP status before
+- /invoice HTTP status after
+- parameterized /invoice HTTP status before
+- parameterized /invoice HTTP status after
+- template parameter verification
+- documentType parameter verification
+- TypeScript result
+- production build result
+- git diff --check result
+- deployment result
+- live production verification
+
+SAFETY REQUIREMENT:
+
+If fixing /invoice requires changing invoice-generation logic, PDF logic, Supabase, API contracts, authentication, or database code, STOP and report the conflict instead of modifying those systems.
+
+The desired solution is a routing/deployment fix, not an application rewrite.

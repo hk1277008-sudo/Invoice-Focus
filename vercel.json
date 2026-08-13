@@ -55,31 +55,31 @@
   "rewrites": [
     {
       "source": "/invoice",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/invoice/:path*",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/dashboard",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/dashboard/:path*",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/onboarding",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/onboarding/:path*",
-      "destination": "/index.html"
+      "destination": "/index"
     },
     {
       "source": "/share/:path*",
-      "destination": "/index.html"
+      "destination": "/index"
     }
   ]
 }
