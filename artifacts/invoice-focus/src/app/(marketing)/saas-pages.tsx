@@ -62,6 +62,22 @@ export function AboutPage() {
           {['Clear by Default', 'Respectful Design', 'Useful Simplicity'].map((value, index) => <span key={value} className={`rounded-full bg-primary/10 px-3 py-1.5 text-center text-sm font-medium text-primary ${index === 2 ? 'col-span-2 justify-self-center' : ''}`}>{value}</span>)}
         </div>
       </div>
+      <section aria-labelledby="founder-heading" className="mt-6 rounded-2xl border border-border/80 bg-card px-6 py-8 shadow-sm sm:px-8 sm:py-10">
+        <div className="mx-auto flex max-w-sm flex-col items-center text-center">
+          <div className="w-full overflow-hidden rounded-2xl bg-muted/30 ring-1 ring-border/60">
+            <img
+              src={`${import.meta.env.BASE_URL}founder.png`}
+              alt="Founder of InvoiceFocus"
+              width={1312}
+              height={1199}
+              loading="lazy"
+              decoding="async"
+              className="block h-auto w-full object-contain"
+            />
+          </div>
+          <p id="founder-heading" className="mt-4 text-sm font-semibold tracking-tight text-foreground">Founder</p>
+        </div>
+      </section>
     </PageShell>
   )
 }
