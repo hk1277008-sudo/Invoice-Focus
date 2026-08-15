@@ -1,0 +1,1251 @@
+You are working on the production InvoiceFocus SaaS application.
+
+============================================================
+MASTER TASK
+============================================================
+
+Redesign and production-upgrade the existing InvoiceFocus PDF rendering system into a premium, cohesive transactional-document system.
+
+The redesigned system must support ALL SIX existing document categories:
+
+1. Invoice
+2. Receipt
+3. Quote
+4. Estimate
+5. Credit Note
+6. Purchase Order
+
+And THREE premium visual styles:
+
+1. Minimal
+2. Professional
+3. Enterprise
+
+This creates:
+
+6 document types × 3 visual styles = 18 presentation combinations.
+
+The goal is NOT to create 18 unrelated PDF designs.
+
+Instead, create ONE strong underlying InvoiceFocus document design system with:
+
+- shared visual language
+- shared typography
+- shared spacing
+- shared alignment
+- shared table system
+- shared totals system
+- shared header/footer principles
+
+Then adapt that system intelligently to each document type and style.
+
+The final result must look like it belongs to a mature premium SaaS company.
+
+============================================================
+CRITICAL: EXISTING FUNCTIONALITY MUST NOT CHANGE
+============================================================
+
+This is a PDF PRESENTATION / RENDERING redesign.
+
+Do NOT rewrite or replace existing business logic.
+
+The following must remain functionally identical:
+
+- invoice calculations
+- subtotal calculations
+- tax calculations
+- discount calculations
+- grand totals
+- currency calculations
+- currency formatting
+- rounding
+- line-item calculations
+- document numbering
+- invoice numbering
+- issue dates
+- due dates
+- payment terms
+- PO/reference numbers
+- customer data
+- business data
+- logo handling
+- notes
+- terms
+- payment information
+- document status
+- database persistence
+- Supabase integration
+- API contracts
+- authentication
+- signup
+- signin
+- dashboard
+- invoice creation
+- invoice editing
+- receipt creation
+- quote creation
+- estimate creation
+- credit note creation
+- purchase order creation
+- existing template selection
+- existing document-generation functionality
+- PDF download
+- PDF sharing
+- public/shared document functionality
+- existing routes
+- existing SEO
+- sitemap
+- robots.txt
+- canonical URLs
+- IndexNow
+- Vercel configuration
+- deployment configuration
+
+DO NOT change the database schema merely for visual redesign.
+
+DO NOT create unnecessary migrations.
+
+DO NOT modify unrelated application code.
+
+If a change outside the PDF presentation layer appears necessary, STOP and explain why before making it.
+
+============================================================
+PHASE 1 — FULL EXISTING IMPLEMENTATION AUDIT
+============================================================
+
+Before editing anything, inspect the repository thoroughly.
+
+Locate:
+
+- current PDF renderer
+- all PDF templates
+- all document renderers
+- template selection logic
+- document-type selection logic
+- invoice data model
+- receipt data model
+- quote data model
+- estimate data model
+- credit-note data model
+- purchase-order data model
+- shared document data structures
+- PDF generation library
+- HTML/CSS/React rendering used by PDF generation
+- existing PDF styles
+- existing typography
+- existing logo implementation
+- existing currency formatter
+- existing totals formatter
+- existing page-break logic
+- existing tests
+- existing fixtures
+- existing PDF utilities/helpers
+
+Understand the actual architecture before modifying it.
+
+Do not assume filenames.
+
+Search the repository.
+
+Preserve existing architecture wherever it is already sound.
+
+Only introduce a better abstraction where necessary to support the new design system.
+
+============================================================
+PHASE 2 — CORE DESIGN BLUEPRINT
+============================================================
+
+IMPORTANT:
+
+The following ASCII wireframe is the DESIGN BLUEPRINT for the new document composition.
+
+This exact wireframe was intentionally designed as the target information architecture.
+
+Treat it as a real UX/layout specification, NOT as explanatory text.
+
+The final PDF should clearly follow this structural composition.
+
+------------------------------------------------------------
+
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│  [LOGO]                                      INVOICE          │
+│  Malik Traders                              INV-717942       │
+│  Ikram                                      Aug 15, 2026     │
+│  Business address                           Due Aug 15, 2026 │
+│  email · phone                                                 │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  BILL TO                                  PAYMENT             │
+│  Abdullah                                  Due on receipt     │
+│  Focus Traders                              PO —               │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  DESCRIPTION                  QTY       PRICE        AMOUNT   │
+│  ──────────────────────────────────────────────────────────   │
+│  LED Lights                   10       $500.01     $5,000.10 │
+│                                                              │
+│                                      Subtotal     $5,000.10   │
+│                                      Tax                  —   │
+│                                      Discount             —   │
+│                                      ─────────────────────   │
+│                                      TOTAL        $5,000.10  │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  PAYMENT DETAILS                                             │
+│  Bank / payment information                                  │
+│                                                              │
+│  Notes                                                       │
+│  Thank you for your business.                                │
+│                                                              │
+│  Terms & Conditions                         InvoiceFocus     │
+└──────────────────────────────────────────────────────────────┘
+
+------------------------------------------------------------
+
+Do NOT literally render the ASCII characters.
+
+Translate this wireframe into a polished, professional PDF layout.
+
+The wireframe establishes the major composition:
+
+HEADER
+↓
+BILLING / PAYMENT
+↓
+FULL-WIDTH LINE ITEMS
+↓
+TOTALS
+↓
+PAYMENT / NOTES / TERMS
+↓
+FOOTER
+
+============================================================
+PHASE 3 — HEADER DESIGN
+============================================================
+
+The header must use a professional two-column composition.
+
+LEFT:
+
+- business logo
+- business name
+- business owner/contact name if available
+- business address
+- email
+- phone
+- other existing business contact information
+
+RIGHT:
+
+- document type
+- document number
+- issue date
+- due date / validity date / payment date depending on document type
+- relevant reference information
+
+The document identity must be immediately recognizable.
+
+Examples:
+
+INVOICE
+INV-717942
+
+RECEIPT
+REC-10291
+
+QUOTE
+QUO-10291
+
+ESTIMATE
+EST-10291
+
+CREDIT NOTE
+CN-10291
+
+PURCHASE ORDER
+PO-10291
+
+Do not center the document title like the old renderer if the current design does so.
+
+The document title should occupy the upper-right identity area.
+
+============================================================
+PHASE 4 — BILLING / PAYMENT AREA
+============================================================
+
+Follow the wireframe.
+
+LEFT:
+
+BILL TO / CUSTOMER
+
+RIGHT:
+
+PAYMENT / DOCUMENT INFORMATION
+
+Use existing data only.
+
+For an invoice this may include:
+
+- payment terms
+- due date
+- PO number
+- reference
+
+For a receipt:
+
+- payment status
+- payment method
+- transaction/reference number
+- payment date
+
+For a quote:
+
+- validity
+- reference
+- proposal/project information
+
+For a purchase order:
+
+- vendor
+- delivery information
+- PO reference
+- relevant terms
+
+Do NOT display invoice-specific fields on every document type.
+
+Do not create fake fields.
+
+If data is absent:
+
+- hide the field
+- collapse unused space intelligently
+- do not display fake placeholders
+
+============================================================
+PHASE 5 — LINE ITEM TABLE
+============================================================
+
+Create a premium full-width line-item table.
+
+Default structure:
+
+DESCRIPTION | QTY | PRICE | AMOUNT
+
+Use the appropriate columns already supported by the existing document data.
+
+Requirements:
+
+- description gets the largest width
+- quantity aligned consistently
+- price aligned consistently
+- amount aligned consistently
+- monetary values right-aligned
+- clean header
+- subtle separators
+- comfortable row spacing
+- professional typography
+- long descriptions wrap correctly
+- multiple rows remain readable
+
+Do NOT make it look like a spreadsheet.
+
+Do NOT use heavy vertical borders.
+
+Do NOT use excessive rounded cards.
+
+Do NOT introduce unnecessary decorative icons.
+
+============================================================
+PHASE 6 — TOTALS
+============================================================
+
+Totals must visually anchor the lower-right portion of the line-item area.
+
+Typical hierarchy:
+
+Subtotal
+Discount
+Tax
+Other existing adjustments
+-------------------------
+TOTAL / GRAND TOTAL
+
+The final total must have the strongest visual hierarchy.
+
+Use InvoiceFocus blue as a restrained accent.
+
+Do not create an oversized colorful box.
+
+Do not recalculate values inside the PDF renderer.
+
+The renderer must display values produced by the existing business logic.
+
+============================================================
+PHASE 7 — LOWER INFORMATION AREA
+============================================================
+
+Below the items/totals:
+
+Use the available space intelligently for:
+
+- payment details
+- bank/payment information
+- notes
+- terms and conditions
+- relevant document-specific information
+
+Do not force empty sections.
+
+If payment information does not exist, collapse the section.
+
+If notes do not exist, collapse the section.
+
+If terms do not exist, collapse the section.
+
+The document must remain visually balanced.
+
+============================================================
+PHASE 8 — FOOTER
+============================================================
+
+Create a refined professional footer.
+
+Where existing data supports it, include:
+
+- business contact information
+- business/legal information
+- page number
+- document reference
+- other existing footer information
+
+InvoiceFocus branding may appear subtly.
+
+Do NOT turn the customer's invoice into an InvoiceFocus advertisement.
+
+The customer's business should remain the primary brand.
+
+============================================================
+PHASE 9 — SIX DOCUMENT TYPES
+============================================================
+
+The same design system must intelligently adapt to all six document categories.
+
+Do NOT simply change the document title.
+
+Each type needs its own information hierarchy.
+
+------------------------------------------------------------
+1. INVOICE
+------------------------------------------------------------
+
+Prioritize:
+
+- Invoice
+- invoice number
+- issue date
+- due date
+- payment terms
+- PO/reference number
+- seller
+- bill-to/customer
+- line items
+- subtotal
+- discount
+- tax
+- total
+- amount due if already supported
+- payment details
+- notes
+- terms
+
+The primary purpose must be immediately obvious:
+
+AMOUNT OWED / PAYMENT DUE.
+
+------------------------------------------------------------
+2. RECEIPT
+------------------------------------------------------------
+
+Do NOT make this look like an invoice with a different title.
+
+Prioritize:
+
+- Receipt
+- receipt number
+- payment date
+- customer
+- business
+- payment status
+- payment method
+- transaction/reference
+- purchased items
+- quantities
+- amounts
+- amount paid
+- total
+- balance/change if already supported
+- thank-you message
+- existing notes
+
+The visual message should be:
+
+PAYMENT CONFIRMED.
+
+------------------------------------------------------------
+3. QUOTE
+------------------------------------------------------------
+
+Prioritize:
+
+- Quote
+- quote number
+- issue date
+- valid-until date
+- customer
+- business
+- project/reference
+- proposed items/services
+- quantities
+- pricing
+- subtotal
+- discount
+- tax
+- proposed total
+- payment terms
+- notes
+- terms
+- acceptance information if already supported
+
+The document should clearly communicate:
+
+PROPOSAL / OFFER.
+
+------------------------------------------------------------
+4. ESTIMATE
+------------------------------------------------------------
+
+Prioritize:
+
+- Estimate
+- estimate number
+- issue date
+- validity date
+- customer
+- project
+- estimated services/items
+- quantities
+- estimated prices
+- subtotal
+- discount
+- estimated tax
+- estimated total
+- assumptions
+- notes
+- terms
+
+Clearly communicate that values are estimates.
+
+Do not falsely represent the document as a final invoice.
+
+------------------------------------------------------------
+5. CREDIT NOTE
+------------------------------------------------------------
+
+Prioritize:
+
+- Credit Note
+- credit note number
+- issue date
+- original invoice/reference
+- customer
+- business
+- credited items
+- quantities
+- unit prices
+- credit amounts
+- tax adjustment where already supported
+- total credit
+- reason/reference if already supported
+- notes
+- terms
+
+The visual hierarchy should distinguish a credit document from an invoice.
+
+------------------------------------------------------------
+6. PURCHASE ORDER
+------------------------------------------------------------
+
+Prioritize:
+
+- Purchase Order
+- PO number
+- issue date
+- buyer/company
+- supplier/vendor
+- delivery information if already supported
+- requested items
+- quantities
+- prices if already supported
+- amounts
+- subtotal
+- tax
+- total
+- payment terms
+- delivery terms
+- notes
+- authorization/reference information if already supported
+
+The visual message should clearly communicate:
+
+ORDER ISSUED TO SUPPLIER.
+
+============================================================
+PHASE 10 — THREE PREMIUM VISUAL STYLES
+============================================================
+
+Implement three genuinely different visual styles.
+
+They must share the same design system but have distinct personalities.
+
+============================================================
+STYLE 1 — MINIMAL
+============================================================
+
+Design philosophy:
+
+Elegant, restrained, editorial, modern SaaS.
+
+Characteristics:
+
+- white background
+- monochrome foundation
+- very subtle blue accent
+- thin dividers
+- generous but intentional whitespace
+- refined typography
+- minimal borders
+- no unnecessary cards
+- no heavy shadows
+- no gradients except where absolutely appropriate
+
+The document should feel:
+
+quiet
+expensive
+precise
+modern
+
+Think premium SaaS rather than generic invoice software.
+
+============================================================
+STYLE 2 — PROFESSIONAL
+============================================================
+
+This should be the recommended/default style for most users.
+
+Characteristics:
+
+- stronger hierarchy
+- structured information sections
+- subtle shaded areas
+- polished table
+- stronger totals
+- clear metadata
+- tasteful InvoiceFocus accent
+- professional business appearance
+
+Ideal for:
+
+- freelancers
+- agencies
+- consultants
+- startups
+- small businesses
+- professional services
+
+============================================================
+STYLE 3 — ENTERPRISE
+============================================================
+
+Design philosophy:
+
+Corporate, sophisticated, information-rich.
+
+Characteristics:
+
+- sophisticated grid
+- strong company identity
+- refined metadata
+- higher information density
+- stronger document hierarchy
+- polished corporate typography
+- structured payment/reference sections
+- professional footer
+- restrained brand accent
+
+Ideal for:
+
+- established businesses
+- agencies
+- corporate clients
+- procurement teams
+- finance departments
+
+Do NOT make it flashy.
+
+Enterprise should mean:
+
+organized
+credible
+structured
+premium
+
+not:
+
+colorful
+overdecorated
+heavy
+
+============================================================
+PHASE 11 — BRAND SYSTEM
+============================================================
+
+InvoiceFocus primary:
+
+#2563EB
+
+Existing gradient:
+
+#38BDF8 → #4F46E5
+
+Do NOT heavily use the gradient in PDFs.
+
+Recommended PDF palette:
+
+Primary text:
+#0F172A
+
+Secondary text:
+#64748B
+
+Borders:
+#E2E8F0
+
+Accent:
+#2563EB
+
+Light accent:
+#EFF6FF
+
+Use color sparingly.
+
+The PDF must remain professional in grayscale printing.
+
+============================================================
+PHASE 12 — TYPOGRAPHY
+============================================================
+
+Use an existing reliable print-safe font where possible.
+
+Create a consistent hierarchy.
+
+Suggested equivalent sizes:
+
+Document title:
+24–32px
+
+Document number:
+11–14px
+
+Business name:
+18–24px
+
+Section labels:
+9–11px uppercase with restrained letter spacing
+
+Body:
+10–12px
+
+Metadata:
+9–11px
+
+Totals:
+12–16px
+
+Grand total:
+18–24px
+
+Do not use excessive font sizes.
+
+Do not use decorative fonts.
+
+============================================================
+PHASE 13 — LOGO HANDLING
+============================================================
+
+Use the existing customer's business logo.
+
+Requirements:
+
+- preserve aspect ratio
+- never stretch
+- never crop
+- handle transparent PNGs
+- handle different dimensions
+- handle missing logo gracefully
+
+Do not replace customer branding with InvoiceFocus branding.
+
+============================================================
+PHASE 14 — CURRENCY
+============================================================
+
+Use the EXISTING currency logic.
+
+Never hard-code USD.
+
+Never hard-code "$".
+
+The same document must display exactly the same numerical values before and after the redesign.
+
+Use the existing currency formatter.
+
+============================================================
+PHASE 15 — PAGE FORMAT
+============================================================
+
+Default:
+
+- A4
+- portrait
+- professional print margins
+- deterministic layout
+- reliable page breaks
+
+Support Letter if the existing renderer already supports it.
+
+Do not break current PDF export behavior.
+
+============================================================
+PHASE 16 — MULTI-PAGE PDFs
+============================================================
+
+Test:
+
+- 1 item
+- 5 items
+- 10 items
+- 20 items
+- 50+ items
+- long descriptions
+- long customer names
+- long business names
+- long notes
+- long terms
+
+Requirements:
+
+- no overlapping
+- no clipping
+- no content outside page
+- no orphaned headings
+- no broken tables
+- repeat table header when supported
+- totals remain readable
+- footer remains stable
+- page numbering where appropriate
+
+============================================================
+PHASE 17 — PAGE BALANCE
+============================================================
+
+The old PDF has excessive unused whitespace.
+
+Fix this.
+
+Do NOT fill space with meaningless decorative elements.
+
+Use:
+
+- better vertical rhythm
+- stronger section grouping
+- more intelligent spacing
+- balanced content distribution
+
+The page should feel intentionally designed.
+
+============================================================
+PHASE 18 — ARCHITECTURE
+============================================================
+
+Prefer a reusable architecture conceptually similar to:
+
+Shared PDF Design System
+    ↓
+Template Style
+    ├── Minimal
+    ├── Professional
+    └── Enterprise
+    ↓
+Document Layout
+    ├── Invoice
+    ├── Receipt
+    ├── Quote
+    ├── Estimate
+    ├── Credit Note
+    └── Purchase Order
+    ↓
+Shared Components
+    ├── Header
+    ├── Party Information
+    ├── Document Metadata
+    ├── Line Items
+    ├── Totals
+    ├── Payment Details
+    ├── Notes
+    ├── Terms
+    └── Footer
+
+Adapt this to the existing codebase.
+
+Do NOT blindly create these exact files if the current architecture has a better equivalent.
+
+Avoid duplicating business logic.
+
+Keep calculations outside presentation templates.
+
+============================================================
+PHASE 19 — BACKWARD COMPATIBILITY
+============================================================
+
+Existing saved documents must continue rendering.
+
+Existing template IDs must continue working.
+
+Do not force users to recreate documents.
+
+Do not modify stored document records merely because the visual design changed.
+
+Do not create unnecessary database migrations.
+
+============================================================
+PHASE 20 — VISUAL QA
+============================================================
+
+This is mandatory.
+
+Generate REAL PDFs through the existing production PDF pipeline.
+
+Do not judge success only from browser HTML.
+
+Test all:
+
+6 document types × 3 styles = 18 combinations.
+
+At minimum inspect:
+
+- Invoice / Minimal
+- Invoice / Professional
+- Invoice / Enterprise
+- Receipt / Minimal
+- Receipt / Professional
+- Receipt / Enterprise
+- Quote / Minimal
+- Quote / Professional
+- Quote / Enterprise
+- Estimate / Minimal
+- Estimate / Professional
+- Estimate / Enterprise
+- Credit Note / Minimal
+- Credit Note / Professional
+- Credit Note / Enterprise
+- Purchase Order / Minimal
+- Purchase Order / Professional
+- Purchase Order / Enterprise
+
+Verify each PDF visually.
+
+============================================================
+PHASE 21 — OLD VS NEW COMPARISON
+============================================================
+
+Create representative documents and compare:
+
+CURRENT PDF
+vs
+NEW PDF
+
+The redesign must be visibly significant.
+
+It is NOT acceptable to:
+
+- only change colors
+- only change fonts
+- only add borders
+- only move existing elements slightly
+- only change the title
+- add decorative graphics without fixing composition
+
+The new PDF should clearly resemble the provided wireframe structure.
+
+============================================================
+PHASE 22 — EDGE CASE TESTING
+============================================================
+
+Test:
+
+- logo present
+- logo absent
+- long logo
+- long business name
+- long customer name
+- long address
+- long description
+- many line items
+- tax
+- no tax
+- discount
+- no discount
+- payment information
+- no payment information
+- notes
+- no notes
+- terms
+- no terms
+- different currencies already supported
+- multi-page documents
+
+No visual overlap or clipping is acceptable.
+
+============================================================
+PHASE 23 — REGRESSION TESTING
+============================================================
+
+Before/after comparison must confirm that DATA does not change.
+
+Verify:
+
+- invoice number unchanged
+- document number unchanged
+- dates unchanged
+- customer unchanged
+- business unchanged
+- line items unchanged
+- quantities unchanged
+- rates unchanged
+- subtotal unchanged
+- tax unchanged
+- discount unchanged
+- total unchanged
+- currency unchanged
+- notes unchanged
+- terms unchanged
+
+Only PRESENTATION should change.
+
+============================================================
+PHASE 24 — PERFORMANCE
+============================================================
+
+Do not introduce unnecessary dependencies.
+
+Reuse existing PDF technology.
+
+Do not replace the PDF engine unless technically necessary.
+
+Do not make PDF generation significantly slower.
+
+Do not convert the document into a low-resolution image.
+
+PDF text should remain selectable and sharp.
+
+============================================================
+PHASE 25 — ABSOLUTE DO-NOT-TOUCH LIST
+============================================================
+
+Do not modify unrelated:
+
+- authentication
+- signup
+- signin
+- dashboard
+- Supabase
+- database
+- API
+- invoice calculations
+- currency calculations
+- document calculations
+- PDF generation infrastructure unless required for styling
+- SEO
+- sitemap
+- robots
+- IndexNow
+- routes
+- Vercel configuration
+- deployment configuration
+
+This is a PDF presentation redesign.
+
+============================================================
+PHASE 26 — IMPLEMENTATION SEQUENCE
+============================================================
+
+Follow this exact order:
+
+STEP 1
+Audit current PDF renderer.
+
+STEP 2
+Audit all six document types.
+
+STEP 3
+Audit current template selection.
+
+STEP 4
+Audit existing PDF data contract.
+
+STEP 5
+Create shared design-system layer.
+
+STEP 6
+Implement Minimal style.
+
+STEP 7
+Implement Professional style.
+
+STEP 8
+Implement Enterprise style.
+
+STEP 9
+Adapt styles to Invoice.
+
+STEP 10
+Adapt styles to Receipt.
+
+STEP 11
+Adapt styles to Quote.
+
+STEP 12
+Adapt styles to Estimate.
+
+STEP 13
+Adapt styles to Credit Note.
+
+STEP 14
+Adapt styles to Purchase Order.
+
+STEP 15
+Generate real PDFs.
+
+STEP 16
+Inspect all 18 combinations.
+
+STEP 17
+Test edge cases.
+
+STEP 18
+Run regression checks.
+
+STEP 19
+Run typecheck.
+
+STEP 20
+Run production build.
+
+STEP 21
+Run git diff --check.
+
+STEP 22
+Review the final diff.
+
+STEP 23
+Confirm only relevant PDF/template files were changed.
+
+============================================================
+PHASE 27 — STOP CONDITIONS
+============================================================
+
+STOP and ask for approval if:
+
+- database changes appear necessary
+- API changes appear necessary
+- invoice calculations need modification
+- authentication needs modification
+- routing needs modification
+- PDF engine replacement appears necessary
+- existing document data cannot be supported without migration
+
+Do not make risky assumptions.
+
+============================================================
+FINAL QUALITY STANDARD
+============================================================
+
+The finished InvoiceFocus PDF system should feel:
+
+PREMIUM
+CLEAN
+PRECISE
+TRUSTWORTHY
+MODERN
+PROFESSIONAL
+PRINT-READY
+ENTERPRISE-READY
+
+The PDFs should be good enough that a customer can send them directly to:
+
+- clients
+- companies
+- suppliers
+- accounting departments
+- procurement departments
+- finance teams
+
+without the document looking like a basic free invoice generator.
+
+The wireframe provided above must remain clearly recognizable in the final composition.
+
+Do not create an "AI-looking" design.
+
+Do not over-design.
+
+Do not copy Stripe, Adobe, Zoho, Vercel, Notion, or any other company's exact visual design.
+
+Use only general design principles as inspiration.
+
+The final product must feel like an ORIGINAL InvoiceFocus design system.
+
+============================================================
+FINAL REPORT
+============================================================
+
+After implementation provide:
+
+1. PDF renderer architecture discovered
+2. Files inspected
+3. Files modified
+4. Shared design system implemented
+5. Minimal implementation
+6. Professional implementation
+7. Enterprise implementation
+8. Six document layouts implemented
+9. All 18 combinations tested
+10. Edge cases tested
+11. Regression results
+12. TypeScript result
+13. Production build result
+14. git diff --check result
+15. Confirmation that invoice calculations were untouched
+16. Confirmation that dashboard/authentication were untouched
+17. Confirmation that database was untouched
+18. Confirmation that API was untouched
+19. Confirmation that SEO/routing was untouched
+20. Any remaining limitations
+
+Do not claim completion unless actual PDFs were generated and visually inspected.

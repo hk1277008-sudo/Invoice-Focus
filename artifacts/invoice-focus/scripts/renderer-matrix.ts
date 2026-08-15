@@ -43,8 +43,8 @@ for (const documentType of documentTypes) {
     assert.match(result.html, new RegExp(meta.title))
     assert.match(result.html, new RegExp(meta.totalLabel))
     assert.match(result.html, /€/)
-    if (documentType === 'receipt') assert.match(result.html, /PAID|Payment Received/)
-    if (documentType === 'quote') assert.match(result.html, /Client Approval/)
+    if (documentType === 'receipt') assert.match(result.html, /Payment Confirmation|Payment Status/)
+    if (documentType === 'quote') assert.match(result.html, /Quote Approval|Acceptance Contact/)
     if (documentType === 'estimate') assert.match(result.html, /Estimated Timeline/)
     if (documentType === 'credit-note') assert.match(result.html, /Original Invoice/)
     if (documentType === 'purchase-order') {
@@ -61,5 +61,44 @@ assert.equal(normalizeDocumentType('not-a-document'), 'invoice')
 assert.equal(templateFamily(normalizePresentation({ template: 'corporate' }).template), 'enterprise')
 assert.equal(templateFamily(normalizePresentation({ template: 'elegant' }).template), 'minimal')
 assert.equal(templateFamily(normalizePresentation({ template: 'modern' }).template), 'professional')
+
+for (const [currency, expected] of [['JPY', '¥250'], ['CNY', '¥250'], ['AED', '250.00 د.إ'], ['SAR', '250.00 ﷼']] as const) {
+  const result = buildPrintableInvoiceHTML({
+    ...baseInvoice,
+    details: { ...baseInvoice.details, currency },
+  })
+  assert.match(result.html, new RegExp(expected))
+  if (currency === 'JPY' || currency === 'CNY') assert.doesNotMatch(result.html, /¥250\.00/)
+}
+
+for (const footerLayout of ['Simple', 'Detailed', 'Bar'] as const) {
+  const result = buildPrintableInvoiceHTML({
+    ...baseInvoice,
+    presentation: normalizePresentation({ template: 'professional', footerLayout }),
+  })
+  assert.match(result.html, new RegExp(`footer-${footerLayout.toLowerCase()}`))
+}
+
+const receiptWithoutOptionalPaymentData = buildPrintableInvoiceHTML({
+  ...baseInvoice,
+  documentType: 'receipt',
+  details: { ...baseInvoice.details, paymentTerms: '', status: '', poNumber: '' },
+  documentDetails: normalizeDocumentDetails({}),
+})
+assert.doesNotMatch(receiptWithoutOptionalPaymentData.html, /PAID|Payment Method|Transaction ID|Payment \/ Reference/)
+
+const longContentInvoice = buildPrintableInvoiceHTML({
+  ...baseInvoice,
+  additional: { ...baseInvoice.additional, notes: 'Long note '.repeat(400) },
+  items: Array.from({ length: 70 }, (_, index) => ({
+    ...baseInvoice.items[0],
+    id: `long-${index}`,
+    name: `Service ${index}`,
+    description: 'A long description that should wrap safely without clipping across page boundaries. '.repeat(3),
+  })),
+})
+assert.equal((longContentInvoice.html.match(/<tr>/g) || []).length, 71)
+assert.match(longContentInvoice.html, /Service 69/)
+assert.doesNotMatch(longContentInvoice.html, /To be confirmed|Approval requested|—/)
 
 console.log(`Renderer matrix passed: ${documentTypes.length * familyTemplates.length} document/template combinations`)
