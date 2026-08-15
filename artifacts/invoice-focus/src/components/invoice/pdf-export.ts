@@ -69,8 +69,15 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
     ] : []),
     `<td class="numeric strong">${escapeHtml(formatCurrency(values.lineTotal, model.currency))}</td>`,
   ].join('')}</tr>`).join('')
+  const subtotalRow = totals.rows.find((row) => /subtotal/i.test(row.label))
+  const discountRow = totals.rows.find((row) => /discount/i.test(row.label))
+  const taxRow = totals.rows.find((row) => /tax/i.test(row.label))
+  const shippingRow = totals.rows.find((row) => /shipping|handling/i.test(row.label))
   const totalsHtml = [
-    ...totals.rows.map((row) => `<div class="totals-row"><span>${escapeHtml(row.label)}</span><span>${escapeHtml(row.value)}</span></div>`),
+    `<div class="totals-row"><span>${escapeHtml(subtotalRow?.label || 'Subtotal')}</span><span>${escapeHtml(subtotalRow?.value || '—')}</span></div>`,
+    `<div class="totals-row"><span>Discount</span><span>${escapeHtml(discountRow?.value || '—')}</span></div>`,
+    `<div class="totals-row"><span>${escapeHtml(taxRow?.label || documentMeta.taxLabel)}</span><span>${escapeHtml(taxRow?.value || '—')}</span></div>`,
+    ...(shippingRow ? [`<div class="totals-row"><span>${escapeHtml(shippingRow.label)}</span><span>${escapeHtml(shippingRow.value)}</span></div>`] : []),
     `<div class="totals-row total"><span>${escapeHtml(totals.total.label)}</span><span>${escapeHtml(totals.total.value)}</span></div>`,
   ].join('')
   const typeBlockHtml = typeBlock
@@ -95,307 +102,91 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
       :root {
         --primary: ${presentation.primaryColor};
         --accent: ${presentation.accentColor};
-        --ink: #111827;
-        --muted: #6b7280;
-        --soft: #f8fafc;
-        --line: #e5e7eb;
-        --line-strong: #d1d5db;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --surface: #f8fafc;
       }
       html, body { width: 100%; min-height: 100%; }
-      body {
-        margin: 0;
-        background: #fff;
-        color: var(--ink);
-        font-family: ${fontFamily};
-        font-size: 10.5px;
-        line-height: 1.45;
-        -webkit-font-smoothing: antialiased;
-      }
-      .document {
-        position: relative;
-        width: 100%;
-        min-height: 100%;
-        padding: 15mm 16mm 12mm;
-        background: #fff;
-        overflow: visible;
-      }
-      .document--minimal { padding-top: 17mm; }
-      .document--professional { border-left: 3px solid var(--primary); }
-      .document--enterprise { padding-top: 13mm; border-top: 6px solid var(--primary); }
-
-      /* Premium header: business identity on the left, document identity on the right. */
-      .document-header {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(230px, .72fr);
-        align-items: start;
-        gap: 30px;
-        padding-bottom: 18px;
-        border-bottom: 1px solid var(--line);
-      }
-      .document-header-centered {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
-      .document-header-band {
-        margin: -3mm -2mm 0;
-        padding: 18px 20px;
-        border: 0;
-        border-radius: 8px;
-        background: var(--primary);
-        color: #fff;
-      }
+      body { margin: 0; background: #fff; color: var(--ink); font-family: ${fontFamily}; font-size: 11px; line-height: 1.5; }
+      .document { position: relative; width: 100%; min-height: 100%; padding: 13mm 15mm 10mm; overflow: visible; }
+      .document--minimal { padding-top: 14mm; }
+      .document--minimal::after { position: absolute; top: 9mm; right: 14mm; width: 34px; height: 34px; border-radius: 999px; background: var(--accent); opacity: .12; content: ''; }
+      .document--professional::before { position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--primary); content: ''; }
+      .document--enterprise { border-top: 7px solid var(--primary); }
+      .document-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(235px, .72fr); align-items: start; gap: 34px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+      .document-header-centered { grid-template-columns: 1fr; text-align: center; }
+      .document-header-band { padding: 20px; border: 0; border-radius: 8px; background: var(--primary); color: #fff; }
       .header-left, .header-right, .party, .payment { min-width: 0; }
       .header-right { text-align: right; }
       .document-header-centered .header-right { text-align: center; }
-      .logo {
-        display: block;
-        max-width: 155px;
-        max-height: 52px;
-        margin: 0 0 10px;
-        object-fit: contain;
-      }
+      .logo { display: block; max-width: 120px; max-height: 52px; margin: 0 0 8px; object-fit: contain; }
       .document-header-centered .logo { margin-right: auto; margin-left: auto; }
-      .business-name {
-        margin: 0;
-        font-size: 19px;
-        font-weight: 750;
-        letter-spacing: -.02em;
-        line-height: 1.18;
-      }
-      .business-contact {
-        margin: 3px 0 0;
-        color: var(--muted);
-        white-space: pre-line;
-        overflow-wrap: anywhere;
-      }
-      .document-header-band .business-contact,
-      .document-header-band .muted,
-      .document-header-band .detail-label { color: rgba(255,255,255,.72); }
-      .document-header-band .detail-value,
-      .document-header-band .document-title,
-      .document-header-band .document-number { color: #fff; }
-      .eyebrow, .detail-label {
-        margin: 0 0 5px;
-        color: #6b7280;
-        font-size: 8.5px;
-        font-weight: 750;
-        line-height: 1.2;
-        letter-spacing: .14em;
-        text-transform: uppercase;
-      }
-      .document-title {
-        margin: 0;
-        color: var(--ink);
-        font-size: ${presentation.titleStyle === 'compact' ? '23px' : '29px'};
-        font-weight: 800;
-        letter-spacing: -.035em;
-        line-height: 1.05;
-      }
-      .document-number {
-        margin: 5px 0 0;
-        color: var(--muted);
-        font-size: 11px;
-        font-weight: 650;
-      }
-      .header-meta {
-        margin-top: 14px;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 11px 18px;
-      }
+      .business-name { margin: 0; font-size: 22px; font-weight: 750; line-height: 1.15; letter-spacing: -.02em; }
+      .business-contact, .muted { margin: 3px 0 0; color: var(--muted); white-space: pre-line; overflow-wrap: anywhere; }
+      .document-header-band .business-contact, .document-header-band .muted, .document-header-band .detail-label { color: rgba(255,255,255,.68); }
+      .document-header-band .detail-value, .document-header-band .document-title, .document-header-band .document-number { color: #fff; }
+      .eyebrow, .detail-label { margin: 0 0 4px; color: #64748b; font-size: 8.5px; font-weight: 750; line-height: 1.2; letter-spacing: .15em; text-transform: uppercase; }
+      .document-title { margin: 0; color: var(--ink); font-size: 29px; font-weight: 800; letter-spacing: -.035em; line-height: 1.05; }
+      .document-number { margin: 4px 0 0; color: var(--muted); font-size: 11px; font-weight: 650; }
+      .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; }
+      .header-meta { margin-top: 13px; }
       .header-meta .detail { min-width: 0; }
-      .header-meta .detail-value { font-size: 10px; }
-      .detail-value {
-        margin: 0;
-        color: var(--ink);
-        font-size: 10.5px;
-        font-weight: 650;
-        overflow-wrap: anywhere;
-        white-space: pre-line;
-      }
-
-      /* Bill-to/payment strip mirrors the compact SaaS invoice structure. */
-      .party-section {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(230px, .72fr);
-        gap: 30px;
-        margin: 18px 0 20px;
-        padding: 14px 0 15px;
-        border-bottom: 1px solid var(--line);
-      }
-      .party-section.party-only { grid-template-columns: 1fr; }
-      .party-name { margin: 0; font-size: 12.5px; font-weight: 750; line-height: 1.3; }
-      .muted {
-        margin: 3px 0 0;
-        color: var(--muted);
-        white-space: pre-line;
-        overflow-wrap: anywhere;
-      }
+      .detail-value { margin: 0; color: var(--ink); font-size: 10.5px; font-weight: 650; overflow-wrap: anywhere; white-space: pre-line; }
+      .party-section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, .9fr); gap: 38px; margin: 15px 0 17px; padding: 12px 0 13px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+      .party-name { margin: 0; font-size: 13.5px; font-weight: 750; }
       .payment { text-align: right; }
-      .payment .detail-grid { text-align: right; }
+      .payment-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 25px; text-align: right; }
       .payment .detail-value { font-weight: 650; }
-
-      .type-block {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px 20px;
-        margin: 0 0 19px;
-        padding: 12px 14px;
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        background: var(--soft);
-      }
-      .type-block-title {
-        grid-column: 1 / -1;
-        color: var(--muted);
-        font-size: 8.5px;
-        font-weight: 750;
-        letter-spacing: .14em;
-        text-transform: uppercase;
-      }
-      .type-block-minimal { border-right: 0; border-left: 0; border-radius: 0; background: transparent; }
+      .type-block { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 17px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+      .type-block-title { grid-column: 1 / -1; color: var(--muted); font-size: 8.5px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+      .type-block-minimal { border-radius: 0; border-right: 0; border-left: 0; background: transparent; }
       .type-block-enterprise { border-top: 2px solid var(--primary); }
-      .type-block .detail:last-child:nth-child(2) { grid-column: span 2; }
-      .type-block .detail:last-child:nth-child(1) { grid-column: 1 / -1; }
-
-      /* Item table: quiet rules, strong hierarchy, no boxed spreadsheet look. */
-      .items { margin-top: 3px; }
-      table {
-        width: 100%;
-        table-layout: fixed;
-        border-collapse: separate;
-        border-spacing: 0;
-        page-break-inside: auto;
-      }
+      .items { margin-top: 2px; }
+      table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; page-break-inside: auto; }
       thead { display: table-header-group; }
       tr { page-break-inside: avoid; page-break-after: auto; }
-      col.description { width: 43%; }
-      col.sku { width: 14%; }
+      col.description { width: 47%; }
+      col.sku { width: 12%; }
       col.qty { width: 9%; }
       col.price { width: 15%; }
-      col.adjustment { width: 9%; }
-      col.amount { width: 14%; }
-      th {
-        padding: 8px 7px;
-        border-top: 1px solid var(--line-strong);
-        border-bottom: 1.5px solid var(--ink);
-        color: #4b5563;
-        font-size: 8.5px;
-        font-weight: 750;
-        letter-spacing: .09em;
-        text-align: left;
-        text-transform: uppercase;
-        overflow-wrap: anywhere;
-      }
-      td {
-        padding: 9px 7px;
-        border-bottom: 1px solid var(--line);
-        vertical-align: top;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-      }
+      col.adjustment { width: 8%; }
+      col.amount { width: 17%; }
+      th { padding: 7px 8px; border-bottom: 2px solid var(--primary); color: var(--muted); font-size: 8.5px; font-weight: 750; letter-spacing: .08em; text-align: left; text-transform: uppercase; overflow-wrap: anywhere; }
+      td { padding: 9px 8px; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; word-break: break-word; }
       th:first-child, td:first-child { padding-left: 0; }
       th:last-child, td:last-child { padding-right: 0; }
       .numeric { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-      .item-name { margin: 0; font-weight: 700; line-height: 1.3; }
+      .item-name { margin: 0; font-weight: 750; line-height: 1.3; }
       .item-description { margin: 3px 0 0; color: var(--muted); font-size: 9.5px; line-height: 1.35; white-space: pre-line; }
       .strong { font-weight: 750; }
-
-      /* One, and only one, final totals block. */
-      .totals {
-        width: 100%;
-        max-width: 300px;
-        margin: 17px 0 0 auto;
-        padding-top: 4px;
-        page-break-inside: avoid;
-      }
-      .totals-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 22px;
-        align-items: baseline;
-        padding: 4px 0;
-        color: var(--muted);
-      }
-      .totals-row span:last-child {
-        text-align: right;
-        white-space: nowrap;
-        font-variant-numeric: tabular-nums;
-      }
-      .totals-row.total {
-        margin-top: 7px;
-        padding: 10px 0 0;
-        border-top: 1.5px solid var(--ink);
-        color: var(--ink);
-        font-size: 14px;
-        font-weight: 800;
-      }
+      .totals { width: 100%; max-width: 310px; margin: 14px 0 0 auto; border-top: 1px solid var(--border); padding-top: 5px; page-break-inside: avoid; }
+      .totals-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: baseline; padding: 4px 0; color: var(--muted); }
+      .totals-row span:last-child { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+      .totals-row.total { margin-top: 5px; padding: 9px 0 0; border-top: 1px solid var(--ink); color: var(--ink); font-size: 15px; font-weight: 800; }
       .document--professional .totals-row.total span:last-child { color: var(--primary); }
-      .document--enterprise .totals-row.total {
-        margin-top: 8px;
-        padding: 11px 12px;
-        border: 0;
-        border-radius: 5px;
-        background: var(--primary);
-        color: #fff;
-      }
+      .document--enterprise .totals-row.total { margin-top: 7px; padding: 10px 12px; border: 0; border-radius: 5px; background: var(--primary); color: #fff; }
       .document--enterprise .totals-row.total span:last-child { color: #fff; }
-
-      /* Notes / terms / payment information: compact lower information area. */
-      .additional {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 22px;
-        margin-top: 23px;
-        padding-top: 14px;
-        border-top: 1px solid var(--line);
-      }
+      .additional { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 17px; border-top: 1px solid var(--border); padding-top: 11px; }
       .additional-block { min-width: 0; }
-      .additional-text {
-        margin: 0;
-        color: var(--ink);
-        white-space: pre-line;
-        overflow-wrap: anywhere;
-      }
-
-      .footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 20px;
-        margin-top: 22px;
-        border-top: 1px solid var(--line);
-        padding-top: 9px;
-        color: var(--muted);
-        font-size: 8.5px;
-        page-break-inside: avoid;
-      }
-      .footer span:last-child { max-width: 62%; text-align: right; overflow-wrap: anywhere; }
-      .footer-bar {
-        margin-right: -1mm;
-        margin-left: -1mm;
-        padding: 9px 11px;
-        border: 0;
-        border-radius: 4px;
-        background: var(--accent);
-        color: #fff;
-      }
-      .footer-bar span:last-child { color: #fff; }
-
+      .additional-text { margin: 0; color: var(--ink); white-space: pre-line; overflow-wrap: anywhere; font-size: 9.5px; }
+      .footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 8px; color: var(--muted); font-size: 8.5px; page-break-inside: avoid; }
+      .footer-detailed { align-items: flex-start; }
+      .footer-bar { border: 0; border-radius: 4px; background: var(--accent); padding: 8px 10px; color: #fff; }
+      .footer span:last-child { text-align: right; overflow-wrap: anywhere; }
       @media screen and (max-width: 680px) {
         .document { padding: 7mm; }
-        .document-header, .party-section { grid-template-columns: 1fr; gap: 18px; }
+        .document-header, .party-section { grid-template-columns: 1fr; }
         .header-right, .payment, .payment .detail-grid { text-align: left; }
-        .header-meta { grid-template-columns: 1fr 1fr; }
         .type-block, .additional { grid-template-columns: 1fr; }
         .type-block .detail:last-child:nth-child(2), .type-block .detail:last-child:nth-child(1) { grid-column: auto; }
-        .footer { flex-direction: column; }
-        .footer span:last-child { max-width: none; text-align: left; }
+        .footer { align-items: flex-start; flex-direction: column; }
+        .footer span:last-child { text-align: left; }
       }
       @media print {
         body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .document { width: 100%; max-width: none; }
-        img, .totals, .footer, .type-block { break-inside: avoid; }
+        img, .totals, .footer { break-inside: avoid; }
       }
     </style>
   </head>
@@ -418,7 +209,7 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
         </div>
       </header>
 
-      <section class="party-section ${paymentMeta.length ? '' : 'party-only'}">
+      <section class="party-section">
         <div class="party">
           <p class="eyebrow">${escapeHtml(documentMeta.billToLabel)}</p>
           ${(source.client.name || source.client.companyName) ? `<p class="party-name">${escapeHtml(source.client.name || source.client.companyName)}</p>` : ''}
@@ -426,7 +217,13 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
           ${source.client.billingAddress ? `<p class="muted">${textHtml(source.client.billingAddress)}</p>` : ''}
           ${source.client.email || source.client.phone ? `<p class="muted">${[source.client.email, source.client.phone].filter(Boolean).map((value) => textHtml(value)).join('<br>')}</p>` : ''}
         </div>
-        ${paymentMeta.length ? `<div class="payment"><p class="eyebrow">Payment / Reference</p>${paymentDetails}</div>` : ''}
+        <div class="payment">
+          <p class="eyebrow">Payment</p>
+          <div class="payment-grid">
+            <div class="detail"><p class="detail-label">${escapeHtml(documentMeta.termsLabel)}</p><p class="detail-value">${textHtml(paymentMeta[0]?.value || '—')}</p></div>
+            <div class="detail"><p class="detail-label">${escapeHtml(documentMeta.referenceLabel)}</p><p class="detail-value">${textHtml(paymentMeta[1]?.value || '—')}</p></div>
+          </div>
+        </div>
       </section>
 
       ${typeBlockHtml}
