@@ -1,0 +1,169 @@
+STOP ALL IMPLEMENTATION WORK.
+
+Do NOT modify, create, delete, rename, refactor, or format any files.
+Do NOT change the PDF renderer.
+Do NOT change CSS.
+Do NOT change templates.
+Do NOT change calculations.
+Do NOT run a fix.
+Do NOT commit or deploy anything.
+
+I want an investigation only.
+
+You previously reported that the document rendering redesign was implemented and verified across all 18 combinations:
+
+- 6 document types:
+  Invoice
+  Receipt
+  Estimate
+  Quote
+  Credit Note
+  Purchase Order
+
+- 3 visual families:
+  Minimal
+  Professional
+  Enterprise
+
+You also reported:
+- TypeScript check passed
+- Renderer matrix passed all 18 combinations
+- Production build passed
+- git diff --check passed
+- Real Chromium PDFs were generated and inspected
+- Representative PDFs were visually checked
+- Print and Download PDF behavior were preserved
+
+However, the actual production/browser print output is clearly not matching the intended design.
+
+The latest screenshot shows these concrete problems:
+
+1. The PDF still looks like the old/basic renderer rather than the intended premium SaaS-quality document.
+2. The layout has excessive empty whitespace.
+3. The visual hierarchy is weak.
+4. The header feels unbalanced.
+5. The Bill To section is overly separated from the rest of the document.
+6. The totals area is visually disconnected.
+7. The overall document does NOT look like a polished professional SaaS invoice from a company such as Stripe, Notion, Adobe, Zoho, etc.
+8. Most importantly, "Grand Total" was previously rendered twice in the print output. One instance appeared inside the totals section and another appeared outside/under the document content.
+9. This indicates that the print renderer may not be rendering exactly the same DOM/model that was supposedly validated, or that an existing print/footer/preview element is still being included.
+10. The screenshot also suggests there may be duplicate or competing rendering paths.
+
+IMPORTANT:
+I am NOT asking you to redesign anything yet.
+
+First determine WHY your previous implementation/verification did not catch these problems.
+
+Perform a READ-ONLY forensic audit.
+
+Investigate the complete rendering pipeline:
+
+A. Find every PDF/document rendering path.
+- Live invoice/document preview renderer
+- Browser print renderer
+- Download PDF renderer
+- Printable HTML
+- Any hidden print-only DOM
+- Any legacy renderer
+- Any old template renderer
+- Any iframe/window.print rendering
+- Any cloned DOM used for printing
+- Any server-side document renderer if present
+
+B. Determine exactly which renderer is producing the screenshot I provided.
+
+C. Determine why the visual result differs from the renderer that you claim was validated.
+
+D. Specifically investigate the duplicated "Grand Total".
+Find every place where:
+- Grand Total
+- Total
+- subtotal
+- totals footer
+- document footer
+- print footer
+
+can be rendered.
+
+Determine whether the duplicate is caused by:
+- duplicate DOM
+- preview + print DOM both being printed
+- old renderer + new renderer
+- footer duplication
+- CSS visibility/print rules
+- cloned print document
+- browser print behavior
+- shared rendering component being mounted twice
+- conditional rendering bug
+- pagination/overflow behavior
+- another cause
+
+E. Compare the intended rendering architecture with the actual architecture.
+
+F. Verify whether the 18-combination matrix test actually exercises the SAME production browser-print path that the user uses when clicking Print / Download PDF.
+
+G. Identify exactly what was tested versus what was not tested.
+
+H. Identify why the previous verification could report success even though the screenshot contains obvious visual and duplication defects.
+
+I. Check whether there are multiple active template systems or duplicated template implementations in the repository.
+
+J. Check whether the latest deployment is actually running the same commit/code that was audited.
+
+K. Check the Git/Vercel/Replit deployment state ONLY in read-only mode.
+
+L. Check whether stale frontend assets, cached bundles, or an old deployment could explain the discrepancy.
+
+M. Do not assume the problem is caching. Prove or disprove each plausible cause from the repository/deployment configuration.
+
+VERY IMPORTANT DESIGN CONSTRAINT:
+
+Do NOT compare the output against the sketch layout I previously showed you.
+
+That sketch was only an architectural explanation of information placement.
+
+The final document should remain a genuinely premium, production-quality InvoiceFocus document, not a literal implementation of that ASCII sketch.
+
+The goal is a visual quality level comparable to modern SaaS products such as Stripe, Adobe, Notion, Zoho, Vercel, and similar professional business software.
+
+But again: DO NOT IMPLEMENT THIS NOW.
+
+I only want the forensic explanation first.
+
+SAFETY CONSTRAINTS:
+
+Do not touch:
+- invoice calculations
+- tax calculations
+- discounts
+- currency formatting logic
+- invoice data model
+- database
+- API
+- authentication
+- dashboard functionality
+- invoice creation
+- document generation logic
+- persistence
+- templates' business logic
+- PDF generation functionality
+- deployment configuration
+
+No files may be modified during this investigation.
+
+At the end, provide ONLY an investigation report with:
+
+1. ROOT CAUSE
+2. WHY IT HAPPENED
+3. WHY PREVIOUS VERIFICATION MISSED IT
+4. WHICH RENDERER ACTUALLY PRODUCED THE SCREENSHOT
+5. EXACT SOURCE OF THE DUPLICATE "GRAND TOTAL"
+6. WHETHER THERE ARE MULTIPLE/LEGACY RENDERING PATHS
+7. WHETHER DEPLOYMENT/CACHE/STALENESS IS INVOLVED
+8. FILES/COMPONENTS THAT WOULD NEED TO BE CHANGED
+9. EXACTLY WHAT SHOULD BE FIXED
+10. CONFIRMATION THAT NO FILES WERE MODIFIED
+
+Do not provide a proposed code patch yet.
+
+Do not implement anything until I explicitly approve the investigation findings.
