@@ -21,7 +21,7 @@ type PageMetadata = {
 
 const pageMetadata: Record<string, PageMetadata> = {
   '/': {
-    title: 'Free Invoice Generator - Invoice Focus',
+    title: 'Free Invoice Generator',
     description: 'Create professional invoices, quotes, estimates, receipts, and purchase orders with Invoice Focus, a free online document generator.',
     indexable: true,
     faq: [
@@ -137,11 +137,6 @@ const pageMetadata: Record<string, PageMetadata> = {
   '/cookies': {
     title: 'Cookie Notice - Invoice Focus',
     description: 'Read the Invoice Focus cookie notice and learn how browser technologies may support account access and security.',
-    indexable: true,
-  },
-  '/status': {
-    title: 'Invoice Focus Status - Service Availability',
-    description: 'Check the current operational status of the Invoice Focus application and services supporting your document workflow.',
     indexable: true,
   },
 }
