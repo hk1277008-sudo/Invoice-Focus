@@ -70,6 +70,7 @@ export const InvoicePreview = memo(function InvoicePreview({
     visibleItems,
     showAdjustments,
     showSku,
+    totals,
   } = model
   const style = {
     '--invoice-primary': presentation.primaryColor,
@@ -98,8 +99,8 @@ export const InvoicePreview = memo(function InvoicePreview({
       {family === 'professional' && <div className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: presentation.primaryColor }} aria-hidden="true" />}
       {family === 'minimal' && <div className="absolute right-8 top-8 h-16 w-16 rounded-full opacity-10" style={{ backgroundColor: presentation.accentColor }} aria-hidden="true" />}
 
-      <div className={`relative min-w-0 ${family === 'minimal' ? 'p-5 sm:p-14' : family === 'enterprise' ? 'p-4 sm:p-8' : 'p-4 sm:p-10'}`}>
-        <header className={`grid gap-7 border-b border-border pb-7 sm:grid-cols-[minmax(0,1fr)_minmax(210px,.72fr)] ${centered ? 'sm:grid-cols-1 text-center' : ''} ${band ? 'rounded-lg border-0 p-5 text-white' : ''}`} style={band ? { backgroundColor: presentation.primaryColor } : undefined}>
+      <div className={`relative min-w-0 ${family === 'minimal' ? 'p-5 sm:p-10' : family === 'enterprise' ? 'p-4 sm:p-7' : 'p-4 sm:p-8'}`}>
+        <header className={`grid gap-6 border-b border-border pb-6 sm:grid-cols-[minmax(0,1fr)_minmax(210px,.72fr)] ${centered ? 'sm:grid-cols-1 text-center' : ''} ${band ? 'rounded-lg border-0 p-5 text-white' : ''}`} style={band ? { backgroundColor: presentation.primaryColor } : undefined}>
           <div className={`min-w-0 ${centered ? 'mx-auto' : ''}`}>
             {source.business.logo && (
               <img
@@ -129,7 +130,7 @@ export const InvoicePreview = memo(function InvoicePreview({
           </div>
         </header>
 
-        <section className={`mt-7 grid gap-7 border-y border-border py-5 ${model.paymentMeta.length ? 'sm:grid-cols-[minmax(0,1fr)_minmax(250px,.9fr)]' : ''}`}>
+        <section className={`mt-6 grid gap-6 border-y border-border py-4 ${model.paymentMeta.length ? 'sm:grid-cols-[minmax(0,1fr)_minmax(250px,.9fr)]' : ''}`}>
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{documentMeta.billToLabel}</p>
             <div className="mt-2">
@@ -149,7 +150,7 @@ export const InvoicePreview = memo(function InvoicePreview({
 
         {model.typeBlock && <TypeBlock title={model.typeBlock.title} details={model.typeBlock.items} family={family} />}
 
-        <section className={`mt-8 max-w-full overflow-hidden ${family === 'enterprise' ? 'border-t-2' : 'border-t'}`} style={{ borderColor: presentation.primaryColor }}>
+        <section className={`mt-6 max-w-full overflow-hidden ${family === 'enterprise' ? 'border-t-2' : 'border-t'}`} style={{ borderColor: presentation.primaryColor }}>
           <table className="hidden w-full min-w-0 table-fixed border-separate border-spacing-0 text-left text-xs sm:table sm:text-sm print:table" aria-label={documentMeta.itemsLabel}>
             <colgroup>
               <col className={showAdjustments ? (showSku ? 'w-[31%]' : 'w-[39%]') : (showSku ? 'w-[39%]' : 'w-[48%]')} />
@@ -203,21 +204,18 @@ export const InvoicePreview = memo(function InvoicePreview({
           </div>
         </section>
 
-        <section className="mt-7 flex justify-end">
+        <section className="mt-5 flex justify-end">
           <div className={`w-full max-w-xs border-t border-border pt-2 ${family === 'enterprise' ? 'rounded-lg border-0 bg-muted/40 px-3 py-2' : ''}`}>
-            <PreviewTotal label={documentMeta.subtotalLabel} value={formatCurrency(calculations.subtotal, currency)} />
-            {calculations.discount > 0 && <PreviewTotal label="Discount" value={`-${formatCurrency(calculations.discount, currency)}`} />}
-            {calculations.tax > 0 && <PreviewTotal label={documentMeta.taxLabel} value={formatCurrency(calculations.tax, currency)} />}
-            {calculations.shipping > 0 && <PreviewTotal label="Shipping / Handling" value={formatCurrency(calculations.shipping, currency)} />}
+            {totals.rows.map((row) => <PreviewTotal key={`${row.label}-${row.value}`} label={row.label} value={row.value} />)}
             <div className="mt-2 flex justify-between gap-4 border-t border-border pt-3 text-base font-bold text-foreground">
-              <span>{documentMeta.totalLabel}</span>
-              <span className="break-all text-right tabular-nums" style={{ color: presentation.primaryColor }}>{formatCurrency(calculations.grandTotal, currency)}</span>
+              <span>{totals.total.label}</span>
+              <span className="break-all text-right tabular-nums" style={{ color: presentation.primaryColor }}>{totals.total.value}</span>
             </div>
           </div>
         </section>
 
         {model.additional.length > 0 && (
-          <section className="mt-8 grid gap-5 border-t border-border pt-5 sm:grid-cols-3">
+          <section className="mt-6 grid gap-5 border-t border-border pt-4 sm:grid-cols-3">
             {model.additional.map((item) => (
               <div key={`${item.label}-${item.value}`}>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{item.label}</p>
@@ -228,7 +226,7 @@ export const InvoicePreview = memo(function InvoicePreview({
         )}
 
         <footer
-          className={`mt-8 flex flex-col gap-2 border-t pt-3 text-xs sm:flex-row sm:items-center sm:justify-between ${footerIsBar ? 'rounded-md border-0 px-3 py-2 text-white' : 'border-border text-muted-foreground'}`}
+          className={`mt-6 flex flex-col gap-2 border-t pt-3 text-xs sm:flex-row sm:items-center sm:justify-between ${footerIsBar ? 'rounded-md border-0 px-3 py-2 text-white' : 'border-border text-muted-foreground'}`}
           style={footerIsBar ? { backgroundColor: presentation.accentColor } : undefined}
         >
           <span>Thank you for your business.</span>

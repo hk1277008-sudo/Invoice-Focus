@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { buildPrintableInvoiceHTML } from '../src/components/invoice/pdf-export'
 import { normalizeDocumentDetails, normalizeDocumentType, documentTypeMeta, type InvoiceDocumentType } from '../src/components/invoice/document-types'
+import { buildDocumentRenderModel } from '../src/components/invoice/document-rendering'
 import { normalizePresentation, templateFamily, type InvoiceTemplate } from '../src/components/invoice/presentation'
 import type { InvoiceData } from '../src/components/invoice/types'
 
@@ -27,6 +28,10 @@ const baseInvoice: InvoiceData = {
   }),
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 const documentTypes: InvoiceDocumentType[] = ['invoice', 'receipt', 'estimate', 'quote', 'credit-note', 'purchase-order']
 const familyTemplates: Array<[InvoiceTemplate, 'minimal' | 'professional' | 'enterprise']> = [
   ['minimal', 'minimal'],
@@ -39,9 +44,13 @@ for (const documentType of documentTypes) {
     const invoice = { ...baseInvoice, documentType, presentation: normalizePresentation({ template }) }
     const result = buildPrintableInvoiceHTML(invoice)
     const meta = documentTypeMeta(documentType)
+    const model = buildDocumentRenderModel(invoice)
     assert.equal(templateFamily(invoice.presentation!.template), family)
     assert.match(result.html, new RegExp(meta.title))
     assert.match(result.html, new RegExp(meta.totalLabel))
+    assert.equal(model.totals.total.label, meta.totalLabel)
+    assert.equal((result.html.match(/<section class="totals">/g) || []).length, 1)
+    assert.equal((result.html.match(new RegExp(escapeRegExp(meta.totalLabel), 'g')) || []).length, 1)
     assert.match(result.html, /€/)
     if (documentType === 'receipt') assert.match(result.html, /Payment Confirmation|Payment Status/)
     if (documentType === 'quote') assert.match(result.html, /Quote Approval|Acceptance Contact/)

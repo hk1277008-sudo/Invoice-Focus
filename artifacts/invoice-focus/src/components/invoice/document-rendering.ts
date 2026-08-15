@@ -1,5 +1,5 @@
 import type { InvoiceCalculations, InvoiceData, InvoiceDocumentDetails, InvoiceItem, Currency } from './types'
-import { getCurrencyByCode } from './currencies'
+import { formatCurrency, getCurrencyByCode } from './currencies'
 import { calculateInvoiceTotals, calculateItemValues } from './utils'
 import {
   documentTypeMeta,
@@ -31,6 +31,11 @@ export interface DocumentRenderTypeBlock {
   items: DocumentRenderDetail[]
 }
 
+export interface DocumentRenderTotals {
+  rows: DocumentRenderDetail[]
+  total: DocumentRenderDetail
+}
+
 export interface DocumentRenderModel {
   invoice: InvoiceData
   currency: Currency
@@ -50,6 +55,7 @@ export interface DocumentRenderModel {
   paymentMeta: DocumentRenderDetail[]
   typeBlock: DocumentRenderTypeBlock | null
   additional: DocumentRenderDetail[]
+  totals: DocumentRenderTotals
 }
 
 function nonEmpty(value: string | undefined | null): string | null {
@@ -153,6 +159,15 @@ export function buildDocumentRenderModel(
     detail('Payment Instructions', invoice.additional.paymentInstructions),
     detail('Terms & Conditions', invoice.additional.terms),
   ].filter((item): item is DocumentRenderDetail => item !== null)
+  const totals: DocumentRenderTotals = {
+    rows: [
+      { label: documentMeta.subtotalLabel, value: formatCurrency(calculations.subtotal, currency) },
+      ...(calculations.discount > 0 ? [{ label: 'Discount', value: `-${formatCurrency(calculations.discount, currency)}` }] : []),
+      ...(calculations.tax > 0 ? [{ label: documentMeta.taxLabel, value: formatCurrency(calculations.tax, currency) }] : []),
+      ...(calculations.shipping > 0 ? [{ label: 'Shipping / Handling', value: formatCurrency(calculations.shipping, currency) }] : []),
+    ],
+    total: { label: documentMeta.totalLabel, value: formatCurrency(calculations.grandTotal, currency) },
+  }
 
   return {
     invoice,
@@ -173,5 +188,6 @@ export function buildDocumentRenderModel(
     paymentMeta,
     typeBlock: typeBlockFor(documentType, documentDetails, invoice),
     additional,
+    totals,
   }
 }
