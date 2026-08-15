@@ -1,0 +1,14 @@
+# Invoice Focus
+
+> Free online document generator for creating invoices, quotes, estimates, receipts, credit notes, and purchase orders. Built for freelancers, agencies, consultants, and small businesses.
+
+## Product
+- [Home](https://invoicefocus.com/): Create invoices, quotes, estimates, receipts, credit notes, and purchase orders as print-ready PDFs.
+- [How It Works](https://invoicefocus.com/how-it-works): Step-by-step process from document type to exported PDF.
+- [About](https://invoicefocus.com/about): What Invoice Focus is and who it's built for.
+
+## Templates
+- [Quote Templates](https://invoicefocus.com/quote-template): Minimal, professional, and enterprise quote template families.
+
+## Resources
+- [Blog](https://invoicefocus.com/blog): Practical guides on invoicing, quotes, and billing documents.
