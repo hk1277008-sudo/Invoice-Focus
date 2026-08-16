@@ -1,5 +1,5 @@
 import type { InvoiceData } from './types'
-import { buildDocumentRenderModel, type DocumentRenderDetail } from './document-rendering'
+import { buildDocumentRenderModel } from './document-rendering'
 import { formatCurrency } from './currencies'
 
 export function generateInvoiceFileName(invoice: InvoiceData): string {
@@ -32,6 +32,9 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   } = model
 
   const fileName = generateInvoiceFileName(invoice)
+
+  const businessAddress = source.business.address ? textHtml(source.business.address) : ''
+  const clientAddress = source.client.billingAddress ? textHtml(source.client.billingAddress) : ''
 
   // Items Table Rows
   const itemsHtml = visibleItems.map(({ item, values }) => `
@@ -378,12 +381,36 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
 }
 
 export function printInvoice(invoice: InvoiceData): boolean {
-  const printWindow = window.open('', '_blank')
-  if (!printWindow) return false
-  printWindow.document.write(buildPrintableInvoiceHTML(invoice).html)
-  printWindow.document.close()
-  printWindow.focus()
-  setTimeout(() => printWindow.print(), 250)
+  const { html, fileName } = buildPrintableInvoiceHTML(invoice)
+
+  // Create an invisible iframe to bypass browser popup blockers
+  const iframe = document.createElement('iframe')
+  iframe.style.position = 'fixed'
+  iframe.style.right = '0'
+  iframe.style.bottom = '0'
+  iframe.style.width = '0'
+  iframe.style.height = '0'
+  iframe.style.border = '0'
+  
+  document.body.appendChild(iframe)
+
+  const doc = iframe.contentWindow?.document || iframe.contentDocument
+  if (!doc) return false
+
+  doc.open()
+  doc.write(html)
+  doc.title = fileName
+  doc.close()
+
+  // Trigger print once iframe content has loaded
+  setTimeout(() => {
+    iframe.contentWindow?.focus()
+    iframe.contentWindow?.print()
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+    }, 1000)
+  }, 250)
+
   return true
 }
 
