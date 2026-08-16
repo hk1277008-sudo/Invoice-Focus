@@ -20,21 +20,11 @@ function textHtml(text: string): string {
   return escapeHtml(text).replace(/\n/g, '<br>')
 }
 
-function detailsHtml(details: DocumentRenderDetail[], className = ''): string {
-  if (!details.length) return ''
-  return `<div class="detail-grid ${className}">${details.map((item) => `<div class="detail"><p class="detail-label">${escapeHtml(item.label)}</p><p class="detail-value">${textHtml(item.value)}</p></div>`).join('')}</div>`
-}
-
 export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string; fileName: string } {
   const model = buildDocumentRenderModel(invoice)
   const {
     documentMeta,
-    family,
-    fontFamily,
     invoice: source,
-    paymentMeta,
-    presentation,
-    typeBlock,
     totals,
     visibleItems,
     showAdjustments,
@@ -42,356 +32,345 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   } = model
 
   const fileName = generateInvoiceFileName(invoice)
-  const headerMeta = detailsHtml(model.headerMeta, 'header-meta')
-  const paymentDetails = detailsHtml(paymentMeta)
-  const paymentSection = paymentMeta.length
-    ? paymentDetails
-    : `<div class="empty-detail"><span>Payment Terms</span><strong>—</strong></div><div class="empty-detail"><span>Reference</span><strong>—</strong></div>`
 
-  const itemColumns = [
-    '<col class="description">',
-    ...(showSku ? ['<col class="sku">'] : []),
-    '<col class="qty"><col class="price">',
-    ...(showAdjustments ? ['<col class="adjustment"><col class="adjustment">'] : []),
-    '<col class="amount">',
-  ].join('')
+  // Items Table Rows
+  const itemsHtml = visibleItems.map(({ item, values }) => `
+    <tr>
+      <td class="col-desc">
+        <div class="item-name">${escapeHtml(item.name || item.description)}</div>
+        ${item.name && item.description ? `<div class="item-desc">${textHtml(item.description)}</div>` : ''}
+      </td>
+      ${showSku ? `<td class="col-sku">${textHtml(item.sku || '—')}</td>` : ''}
+      <td class="col-qty text-right">${values.quantity}</td>
+      <td class="col-price text-right">${escapeHtml(formatCurrency(values.unitPrice, model.currency))}</td>
+      ${showAdjustments ? `
+        <td class="col-tax text-right">${values.taxPercent > 0 ? `${values.taxPercent}%` : '—'}</td>
+        <td class="col-disc text-right">${values.discountPercent > 0 ? `${values.discountPercent}%` : '—'}</td>
+      ` : ''}
+      <td class="col-amount text-right">${escapeHtml(formatCurrency(values.lineTotal, model.currency))}</td>
+    </tr>
+  `).join('')
 
-  const itemHeaders = [
-    `<th>${escapeHtml(documentMeta.itemsLabel)}</th>`,
-    ...(showSku ? ['<th>SKU</th>'] : []),
-    ['<th class="numeric">Qty</th>', '<th class="numeric">Price</th>'],
-    ...(showAdjustments ? ['<th class="numeric">Tax</th>', '<th class="numeric">Discount</th>'] : []),
-    ['<th class="numeric">Amount</th>'],
-  ].flat().join('')
+  // Subtotal & Grand Total Rows
+  const totalsHtml = totals.rows.map(row => `
+    <div class="summary-line">
+      <span class="summary-label">${escapeHtml(row.label)}</span>
+      <span class="summary-value">${escapeHtml(row.value)}</span>
+    </div>
+  `).join('')
 
-  const itemsHtml = visibleItems.map(({ item, values }) => `<tr>${[
-    `<td><p class="item-name">${escapeHtml(item.name || item.description)}</p>${item.name && item.description ? `<p class="item-description">${textHtml(item.description)}</p>` : ''}</td>`,
-    ...(showSku ? [`<td class="muted-cell">${textHtml(item.sku || '—')}</td>`] : []),
-    `<td class="numeric">${values.quantity}</td>`,
-    `<td class="numeric">${escapeHtml(formatCurrency(values.unitPrice, model.currency))}</td>`,
-    ...(showAdjustments ? [
-      `<td class="numeric muted-cell">${values.taxPercent > 0 ? `${values.taxPercent}%` : '—'}</td>`,
-      `<td class="numeric muted-cell">${values.discountPercent > 0 ? `${values.discountPercent}%` : '—'}</td>`,
-    ] : []),
-    `<td class="numeric strong">${escapeHtml(formatCurrency(values.lineTotal, model.currency))}</td>`,
-  ].join('')}</tr>`).join('')
-
-  const totalsHtml = [
-    ...totals.rows.map((row) => `<div class="totals-row"><span>${escapeHtml(row.label)}</span><span>${escapeHtml(row.value)}</span></div>`),
-    `<div class="totals-row total"><span>${escapeHtml(totals.total.label)}</span><span>${escapeHtml(totals.total.value)}</span></div>`,
-  ].join('')
-
-  const typeBlockHtml = typeBlock
-    ? `<section class="type-block type-block-${family}"><div class="type-block-title">${escapeHtml(typeBlock.title)}</div>${typeBlock.items.map((item) => `<div class="detail"><p class="detail-label">${escapeHtml(item.label)}</p><p class="detail-value">${textHtml(item.value)}</p></div>`).join('')}</section>`
-    : ''
-
-  const additionalHtml = model.additional.length
-    ? `<section class="additional"><div class="additional-heading">Additional Information</div>${model.additional.map((item) => `<div class="additional-block"><p class="detail-label">${escapeHtml(item.label)}</p><p class="additional-text">${textHtml(item.value)}</p></div>`).join('')}</section>`
-    : `<section class="additional additional-empty"><div class="additional-block"><p class="detail-label">Notes</p><p class="additional-text">Thank you for your business.</p></div></section>`
-
-  const detailedFooter = [source.business.email, source.business.phone, source.business.website].filter(Boolean).join(' · ')
-  const footerClass = `footer footer-${presentation.footerLayout.toLowerCase()}`
-  const headerClass = `document-header ${model.centered ? 'document-header-centered' : ''} ${model.band ? 'document-header-band' : ''}`
-  const businessAddress = source.business.address ? textHtml(source.business.address) : ''
-  const clientAddress = source.client.billingAddress ? textHtml(source.client.billingAddress) : ''
-  const clientContact = [source.client.email, source.client.phone].filter(Boolean).map((value) => textHtml(value)).join('<br>')
-
-  const statusBadge = source.details.status 
-    ? `<span class="status-badge status-${source.details.status.toLowerCase()}">${escapeHtml(source.details.status.toUpperCase())}</span>`
-    : ''
+  const statusClass = (source.details.status || 'unpaid').toLowerCase()
 
   const html = `<!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>${escapeHtml(source.details.number || documentMeta.title)}</title>
+    <title>${escapeHtml(source.details.number || 'Invoice')}</title>
     <style>
-      @page { size: ${presentation.paperSize} portrait; margin: 0; }
+      @page { size: A4 portrait; margin: 0; }
       * { box-sizing: border-box; }
-      :root {
-        --primary: ${presentation.primaryColor || '#2563eb'};
-        --accent: ${presentation.accentColor || '#3b82f6'};
-        --ink: #0f172a;
-        --muted: #64748b;
-        --soft: #94a3b8;
-        --border: #e2e8f0;
-        --surface: #f8fafc;
-        --surface-strong: #f1f5f9;
-      }
-      html, body { width: 100%; min-height: 100%; }
       body {
         margin: 0;
+        padding: 0;
         background: #ffffff;
-        color: var(--ink);
-        font-family: ${fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-size: 10px;
+        color: #1e293b;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 13px;
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
       }
-      .document {
-        position: relative;
+      .page-container {
         width: 100%;
-        min-height: 100%;
-        padding: 16mm 18mm 14mm;
-        overflow: visible;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px;
       }
-
-      /* PREMIUM HEADER */
-      .document-header {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 260px;
-        align-items: start;
-        gap: 32px;
-        padding-bottom: 20px;
-        border-bottom: 1.5px solid var(--border);
+      
+      /* TOP BAR */
+      .header-grid {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #e2e8f0;
       }
-      .document-header-centered {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
-      .document-header-band {
-        padding: 24px;
-        border: 0;
-        border-radius: 8px;
-        background: var(--primary);
-        color: #ffffff;
-      }
-      .header-left, .header-right, .party, .payment { min-width: 0; }
-      .header-right { text-align: right; }
-      .document-header-centered .header-right { text-align: center; }
-      .logo {
-        display: block;
-        max-width: 170px;
-        max-height: 56px;
-        margin: 0 0 10px;
-        object-fit: contain;
-        object-position: left center;
-      }
-      .document-header-centered .logo { margin-right: auto; margin-left: auto; object-position: center; }
-      .business-name {
-        margin: 0;
+      .brand-title {
         font-size: 20px;
         font-weight: 800;
-        line-height: 1.2;
-        letter-spacing: -0.02em;
-        color: var(--ink);
-      }
-      .business-contact {
-        margin: 4px 0 0;
-        color: var(--muted);
-        font-size: 9.5px;
-        white-space: pre-line;
-      }
-      .document-header-band .business-contact,
-      .document-header-band .detail-label { color: rgba(255,255,255,0.75); }
-      .document-header-band .business-name,
-      .document-header-band .detail-value,
-      .document-header-band .document-title,
-      .document-header-band .document-number { color: #ffffff; }
-      
-      .eyebrow, .detail-label {
-        margin: 0 0 3px;
-        color: var(--muted);
-        font-size: 8px;
-        font-weight: 700;
-        line-height: 1.2;
-        letter-spacing: 0.1em;
+        color: #0f172a;
+        margin: 0 0 4px 0;
         text-transform: uppercase;
+        letter-spacing: -0.02em;
       }
-      .document-title {
+      .brand-sub {
+        color: #64748b;
+        font-size: 12px;
+      }
+      .doc-title {
+        font-size: 28px;
+        font-weight: 900;
+        color: #0f172a;
         margin: 0;
-        color: var(--ink);
-        font-size: ${presentation.titleStyle === 'compact' ? '24px' : '30px'};
-        font-weight: 800;
+        text-align: right;
         letter-spacing: -0.03em;
-        line-height: 1;
       }
-      .document-number {
-        margin: 4px 0 0;
-        color: var(--muted);
+      .doc-meta {
+        text-align: right;
+        margin-top: 6px;
+        font-size: 12px;
+        color: #475569;
+      }
+      .doc-meta strong { color: #0f172a; }
+
+      /* ADDRESS SECTION */
+      .address-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        padding: 24px 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .section-label {
         font-size: 11px;
-        font-weight: 600;
-      }
-      .header-meta {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px 16px;
-        margin-top: 16px;
-      }
-      .header-meta .detail-value {
-        margin: 0;
-        color: var(--ink);
-        font-size: 10px;
         font-weight: 700;
-      }
-
-      /* STATUS BADGE */
-      .status-badge {
-        display: inline-block;
-        padding: 3px 8px;
-        margin-top: 8px;
-        border-radius: 4px;
-        font-size: 8px;
-        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
         letter-spacing: 0.05em;
-        background: var(--surface-strong);
-        color: var(--ink);
-      }
-      .status-paid { background: #dcfce7; color: #15803d; }
-      .status-pending { background: #fef3c7; color: #b45309; }
-      .status-overdue { background: #fee2e2; color: #b91c1c; }
-
-      /* BILLING & PAYMENT SECTION */
-      .party-section {
-        display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-        gap: 28px;
-        margin: 20px 0;
-        padding: 16px;
-        border-radius: 8px;
-        background: var(--surface);
-        border: 1px solid var(--border);
+        margin-bottom: 8px;
       }
       .party-name {
-        margin: 0 0 3px;
-        font-size: 12.5px;
+        font-size: 14px;
         font-weight: 700;
-        color: var(--ink);
+        color: #0f172a;
+        margin-bottom: 4px;
       }
-      .muted {
-        margin: 2px 0 0;
-        color: var(--muted);
-        font-size: 9.5px;
+      .party-details {
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.6;
       }
-      .payment {
-        padding-left: 20px;
-        border-left: 1px solid var(--border);
-      }
-      .payment .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
 
-      /* TABLE STYLING */
-      .items { margin-top: 24px; }
-      table { width: 100%; border-collapse: collapse; }
-      th {
-        padding: 10px 12px;
-        background: var(--surface-strong);
-        color: var(--muted);
-        font-size: 8px;
+      /* META BAR */
+      .meta-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .meta-item-label {
+        font-size: 10px;
         font-weight: 700;
-        letter-spacing: 0.08em;
-        text-align: left;
+        color: #94a3b8;
         text-transform: uppercase;
-        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.05em;
+      }
+      .meta-item-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f172a;
+        margin-top: 2px;
+      }
+      .status-pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .status-paid { background: #dcfce7; color: #166534; }
+      .status-unpaid { background: #fee2e2; color: #991b1b; }
+      .status-pending { background: #fef3c7; color: #92400e; }
+
+      /* ITEMS TABLE */
+      .table-container { margin-top: 24px; }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+      }
+      th {
+        padding: 10px 0;
+        font-size: 11px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #e2e8f0;
       }
       td {
-        padding: 12px;
-        border-bottom: 1px solid var(--border);
+        padding: 14px 0;
+        border-bottom: 1px solid #f1f5f9;
         vertical-align: top;
       }
-      .numeric { text-align: right; font-variant-numeric: tabular-nums; }
-      .item-name { margin: 0; font-weight: 700; font-size: 10.5px; color: var(--ink); }
-      .item-description { margin: 3px 0 0; color: var(--muted); font-size: 9px; }
+      .text-right { text-align: right; }
+      .item-name { font-weight: 600; color: #0f172a; }
+      .item-desc { font-size: 12px; color: #64748b; margin-top: 2px; }
 
-      /* TOTALS */
-      .summary-row {
+      /* BOTTOM SECTION */
+      .footer-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 280px;
-        gap: 32px;
-        align-items: start;
-        margin-top: 20px;
+        grid-template-columns: 1fr 280px;
+        gap: 40px;
+        margin-top: 28px;
+        padding-top: 12px;
       }
-      .totals { width: 100%; }
-      .totals-row {
+      .note-block { margin-bottom: 20px; }
+      .note-block p { margin: 4px 0 0 0; color: #475569; font-size: 12px; }
+      
+      .summary-box {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .summary-line {
         display: flex;
         justify-content: space-between;
-        padding: 6px 0;
-        color: var(--muted);
-        font-size: 10px;
+        font-size: 13px;
+        color: #475569;
       }
-      .totals-row.total {
-        margin-top: 8px;
-        padding: 12px 14px;
-        border-radius: 6px;
-        background: var(--primary);
-        color: #ffffff;
-        font-size: 14px;
+      .summary-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
         font-weight: 800;
+        color: #0f172a;
+        padding-top: 12px;
+        border-top: 2px solid #0f172a;
+        margin-top: 4px;
       }
 
-      /* FOOTER */
-      .footer {
+      /* SYSTEM FOOTER */
+      .system-footer {
+        margin-top: 60px;
+        padding-top: 16px;
+        border-top: 1px solid #e2e8f0;
         display: flex;
         justify-content: space-between;
-        margin-top: 32px;
-        padding-top: 12px;
-        border-top: 1px solid var(--border);
-        color: var(--soft);
-        font-size: 8.5px;
+        color: #94a3b8;
+        font-size: 11px;
       }
 
       @media print {
+        .page-container { width: 100%; max-width: none; padding: 0; }
         body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       }
     </style>
   </head>
   <body>
-    <main class="document document--${family}">
-      <header class="${headerClass}">
-        <div class="header-left">
-          ${source.business.logo ? `<img class="logo" src="${escapeHtml(source.business.logo)}" alt="Logo">` : ''}
-          ${source.business.name ? `<p class="business-name">${escapeHtml(source.business.name)}</p>` : ''}
-          ${source.business.contactPerson ? `<p class="business-contact">${textHtml(source.business.contactPerson)}</p>` : ''}
-          ${businessAddress ? `<p class="business-contact">${businessAddress}</p>` : ''}
-          ${source.business.email || source.business.phone || source.business.website ? `<p class="business-contact">${[source.business.email, source.business.phone, source.business.website].filter(Boolean).map((v) => textHtml(v)).join('<br>')}</p>` : ''}
+    <div class="page-container">
+      
+      <!-- TOP HEADER -->
+      <div class="header-grid">
+        <div>
+          ${source.business.logo ? `<img src="${escapeHtml(source.business.logo)}" style="max-height: 48px; margin-bottom: 8px;" alt="Logo"><br>` : ''}
+          <div class="brand-title">${escapeHtml(source.business.name || 'Business Name')}</div>
+          <div class="brand-sub">${escapeHtml(source.business.website || source.business.email || '')}</div>
         </div>
-        <div class="header-right">
-          <p class="eyebrow">${escapeHtml(documentMeta.numberLabel)}</p>
-          <h1 class="document-title">${escapeHtml(documentMeta.title)}</h1>
-          ${source.details.number ? `<p class="document-number">#${escapeHtml(source.details.number)}</p>` : ''}
-          ${statusBadge}
-          ${headerMeta}
+        <div>
+          <h1 class="doc-title">${escapeHtml(documentMeta.title)}</h1>
+          <div class="doc-meta">#<strong>${escapeHtml(source.details.number || '000001')}</strong></div>
+          <div class="doc-meta">Date: <strong>${escapeHtml(source.details.issueDate || '')}</strong></div>
+          <div class="doc-meta">Due: <strong>${escapeHtml(source.details.dueDate || '')}</strong></div>
         </div>
-      </header>
+      </div>
 
-      <section class="party-section">
-        <div class="party">
-          <p class="eyebrow">${escapeHtml(documentMeta.billToLabel)}</p>
-          <p class="party-name">${escapeHtml(source.client.name || source.client.companyName || '—')}</p>
-          ${source.client.companyName && source.client.name ? `<p class="muted">${escapeHtml(source.client.companyName)}</p>` : ''}
-          ${clientAddress ? `<p class="muted">${clientAddress}</p>` : ''}
-          ${clientContact ? `<p class="muted">${clientContact}</p>` : ''}
+      <!-- ADDRESSES -->
+      <div class="address-grid">
+        <div>
+          <div class="section-label">From</div>
+          <div class="party-name">${escapeHtml(source.business.name || 'Business Name')}</div>
+          <div class="party-details">
+            ${businessAddress ? `${businessAddress}<br>` : ''}
+            ${source.business.email ? `${escapeHtml(source.business.email)}<br>` : ''}
+            ${source.business.phone ? `${escapeHtml(source.business.phone)}` : ''}
+          </div>
         </div>
-        <div class="payment">
-          <p class="eyebrow">Payment / Reference</p>
-          ${paymentSection}
+        <div>
+          <div class="section-label">Bill To</div>
+          <div class="party-name">${escapeHtml(source.client.name || source.client.companyName || 'Client Name')}</div>
+          <div class="party-details">
+            ${clientAddress ? `${clientAddress}<br>` : ''}
+            ${source.client.email ? `${escapeHtml(source.client.email)}<br>` : ''}
+            ${source.client.phone ? `${escapeHtml(source.client.phone)}` : ''}
+          </div>
         </div>
-      </section>
+      </div>
 
-      ${typeBlockHtml}
+      <!-- PAYMENT & REFERENCE -->
+      <div class="meta-bar">
+        <div>
+          <div class="meta-item-label">Payment Terms</div>
+          <div class="meta-item-value">${escapeHtml(source.details.paymentTerms || 'Due on receipt')}</div>
+        </div>
+        <div>
+          <div class="meta-item-label">PO / Reference</div>
+          <div class="meta-item-value">${escapeHtml(source.details.reference || '—')}</div>
+        </div>
+        <div>
+          <div class="meta-item-label">Currency</div>
+          <div class="meta-item-value">${escapeHtml(model.currency.toUpperCase())}</div>
+        </div>
+        <div>
+          <div class="meta-item-label">Status</div>
+          <div class="meta-item-value">
+            <span class="status-pill status-${statusClass}">${escapeHtml(source.details.status || 'Unpaid')}</span>
+          </div>
+        </div>
+      </div>
 
-      <section class="items">
+      <!-- TABLE -->
+      <div class="table-container">
         <table>
-          <colgroup>${itemColumns}</colgroup>
-          <thead><tr>${itemHeaders}</tr></thead>
-          <tbody>${itemsHtml}</tbody>
+          <thead>
+            <tr>
+              <th>Description</th>
+              ${showSku ? '<th>SKU</th>' : ''}
+              <th class="text-right">Qty</th>
+              <th class="text-right">Unit Price</th>
+              ${showAdjustments ? '<th class="text-right">Tax</th><th class="text-right">Disc</th>' : ''}
+              <th class="text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
         </table>
-      </section>
+      </div>
 
-      <section class="summary-row">
-        <div class="summary-note">
-          <p class="eyebrow">Note</p>
-          <p class="muted">${escapeHtml(documentMeta.description)}</p>
+      <!-- FOOTER / SUMMARY -->
+      <div class="footer-grid">
+        <div>
+          <div class="note-block">
+            <div class="section-label">Notes</div>
+            <p>${textHtml(source.details.notes || 'Thank you for your business.')}</p>
+          </div>
+          ${source.details.terms ? `
+            <div class="note-block">
+              <div class="section-label">Terms & Payment Information</div>
+              <p>${textHtml(source.details.terms)}</p>
+            </div>
+          ` : ''}
         </div>
-        <section class="totals">${totalsHtml}</section>
-      </section>
+        <div>
+          <div class="summary-box">
+            ${totalsHtml}
+            <div class="summary-total">
+              <span>${escapeHtml(totals.total.label)}</span>
+              <span>${escapeHtml(totals.total.value)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      ${additionalHtml}
-
-      <footer class="${footerClass}">
+      <!-- BOTTOM BRANDING -->
+      <div class="system-footer">
         <span>Thank you for your business.</span>
-        <span>${escapeHtml(presentation.footerLayout === 'Detailed' ? detailedFooter : source.business.name || '')}</span>
-      </footer>
-    </main>
+        <span>${escapeHtml(source.business.name || 'InvoiceFocus')}</span>
+      </div>
+
+    </div>
   </body>
 </html>`
 
