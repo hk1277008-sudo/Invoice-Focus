@@ -381,35 +381,30 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
 }
 
 export function printInvoice(invoice: InvoiceData): boolean {
-  const { html, fileName } = buildPrintableInvoiceHTML(invoice)
-
-  // Create an invisible iframe to bypass browser popup blockers
-  const iframe = document.createElement('iframe')
-  iframe.style.position = 'fixed'
-  iframe.style.right = '0'
-  iframe.style.bottom = '0'
-  iframe.style.width = '0'
-  iframe.style.height = '0'
-  iframe.style.border = '0'
+  const { html } = buildPrintableInvoiceHTML(invoice)
   
-  document.body.appendChild(iframe)
+  // Create HTML Blob to bypass popup and cross-origin security blocks
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+  const blobUrl = URL.createObjectURL(blob)
 
-  const doc = iframe.contentWindow?.document || iframe.contentDocument
-  if (!doc) return false
+  const printWindow = window.open(blobUrl, '_blank')
+  if (!printWindow) {
+    // Fallback if popup blocker completely blocks new tab
+    const iframe = document.createElement('iframe')
+    iframe.style.display = 'none'
+    iframe.src = blobUrl
+    document.body.appendChild(iframe)
+    iframe.onload = () => {
+      iframe.contentWindow?.focus()
+      iframe.contentWindow?.print()
+    }
+    return true
+  }
 
-  doc.open()
-  doc.write(html)
-  doc.title = fileName
-  doc.close()
-
-  // Trigger print once iframe content has loaded
-  setTimeout(() => {
-    iframe.contentWindow?.focus()
-    iframe.contentWindow?.print()
-    setTimeout(() => {
-      document.body.removeChild(iframe)
-    }, 1000)
-  }, 250)
+  printWindow.onload = () => {
+    printWindow.focus()
+    printWindow.print()
+  }
 
   return true
 }
