@@ -96,6 +96,10 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
   const clientAddress = source.client.billingAddress ? textHtml(source.client.billingAddress) : ''
   const clientContact = [source.client.email, source.client.phone].filter(Boolean).map((value) => textHtml(value)).join('<br>')
 
+  const statusBadge = source.details.status 
+    ? `<span class="status-badge status-${source.details.status.toLowerCase()}">${escapeHtml(source.details.status.toUpperCase())}</span>`
+    : ''
+
   const html = `<!DOCTYPE html>
 <html>
   <head>
@@ -105,360 +109,228 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
       @page { size: ${presentation.paperSize} portrait; margin: 0; }
       * { box-sizing: border-box; }
       :root {
-        --primary: ${presentation.primaryColor};
-        --accent: ${presentation.accentColor};
-        --ink: #111827;
-        --muted: #667085;
-        --soft: #98a2b3;
-        --border: #e4e7ec;
+        --primary: ${presentation.primaryColor || '#2563eb'};
+        --accent: ${presentation.accentColor || '#3b82f6'};
+        --ink: #0f172a;
+        --muted: #64748b;
+        --soft: #94a3b8;
+        --border: #e2e8f0;
         --surface: #f8fafc;
-        --surface-strong: #f2f4f7;
+        --surface-strong: #f1f5f9;
       }
       html, body { width: 100%; min-height: 100%; }
       body {
         margin: 0;
-        background: #fff;
+        background: #ffffff;
         color: var(--ink);
-        font-family: ${fontFamily};
-        font-size: 10.5px;
-        line-height: 1.45;
+        font-family: ${fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 10px;
+        line-height: 1.5;
         -webkit-font-smoothing: antialiased;
       }
       .document {
         position: relative;
         width: 100%;
         min-height: 100%;
-        padding: 14mm 15mm 11mm;
+        padding: 16mm 18mm 14mm;
         overflow: visible;
       }
-      .document--minimal { padding-top: 16mm; }
-      .document--minimal::after {
-        position: absolute;
-        top: 10mm;
-        right: 14mm;
-        width: 34px;
-        height: 34px;
-        border: 1px solid var(--accent);
-        border-radius: 50%;
-        opacity: .16;
-        content: '';
-      }
-      .document--professional::before {
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 4px;
-        background: var(--primary);
-        content: '';
-      }
-      .document--enterprise {
-        border-top: 7px solid var(--primary);
-        padding-top: 12mm;
-      }
 
-      /* HEADER */
+      /* PREMIUM HEADER */
       .document-header {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 245px;
+        grid-template-columns: minmax(0, 1fr) 260px;
         align-items: start;
-        gap: 28px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid var(--border);
+        gap: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1.5px solid var(--border);
       }
       .document-header-centered {
         grid-template-columns: 1fr;
         text-align: center;
       }
       .document-header-band {
-        padding: 20px;
+        padding: 24px;
         border: 0;
-        border-radius: 9px;
+        border-radius: 8px;
         background: var(--primary);
-        color: #fff;
+        color: #ffffff;
       }
       .header-left, .header-right, .party, .payment { min-width: 0; }
       .header-right { text-align: right; }
       .document-header-centered .header-right { text-align: center; }
       .logo {
         display: block;
-        max-width: 165px;
-        max-height: 54px;
-        margin: 0 0 9px;
+        max-width: 170px;
+        max-height: 56px;
+        margin: 0 0 10px;
         object-fit: contain;
         object-position: left center;
       }
       .document-header-centered .logo { margin-right: auto; margin-left: auto; object-position: center; }
       .business-name {
         margin: 0;
-        font-size: 19px;
-        font-weight: 750;
-        line-height: 1.15;
-        letter-spacing: -.025em;
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        color: var(--ink);
       }
       .business-contact {
-        margin: 3px 0 0;
+        margin: 4px 0 0;
         color: var(--muted);
+        font-size: 9.5px;
         white-space: pre-line;
-        overflow-wrap: anywhere;
       }
       .document-header-band .business-contact,
-      .document-header-band .muted,
-      .document-header-band .detail-label { color: rgba(255,255,255,.7); }
+      .document-header-band .detail-label { color: rgba(255,255,255,0.75); }
+      .document-header-band .business-name,
       .document-header-band .detail-value,
       .document-header-band .document-title,
-      .document-header-band .document-number { color: #fff; }
+      .document-header-band .document-number { color: #ffffff; }
+      
       .eyebrow, .detail-label {
-        margin: 0 0 4px;
+        margin: 0 0 3px;
         color: var(--muted);
         font-size: 8px;
-        font-weight: 750;
+        font-weight: 700;
         line-height: 1.2;
-        letter-spacing: .13em;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
       }
       .document-title {
         margin: 0;
         color: var(--ink);
-        font-size: ${presentation.titleStyle === 'compact' ? '23px' : '28px'};
-        font-weight: 750;
-        letter-spacing: -.035em;
-        line-height: 1.05;
+        font-size: ${presentation.titleStyle === 'compact' ? '24px' : '30px'};
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
       }
       .document-number {
-        margin: 5px 0 0;
+        margin: 4px 0 0;
         color: var(--muted);
         font-size: 11px;
-        font-weight: 650;
+        font-weight: 600;
       }
       .header-meta {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px 18px;
-        margin-top: 14px;
+        gap: 10px 16px;
+        margin-top: 16px;
       }
-      .header-meta .detail { min-width: 0; }
-      .header-meta .detail-label { margin-bottom: 3px; }
-      .detail-value {
+      .header-meta .detail-value {
         margin: 0;
         color: var(--ink);
         font-size: 10px;
-        font-weight: 650;
-        overflow-wrap: anywhere;
-        white-space: pre-line;
+        font-weight: 700;
       }
 
-      /* BILLING / PAYMENT */
+      /* STATUS BADGE */
+      .status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        margin-top: 8px;
+        border-radius: 4px;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        background: var(--surface-strong);
+        color: var(--ink);
+      }
+      .status-paid { background: #dcfce7; color: #15803d; }
+      .status-pending { background: #fef3c7; color: #b45309; }
+      .status-overdue { background: #fee2e2; color: #b91c1c; }
+
+      /* BILLING & PAYMENT SECTION */
       .party-section {
         display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
-        gap: 30px;
-        margin: 18px 0 22px;
-        padding: 15px 0;
-        border-bottom: 1px solid var(--border);
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        gap: 28px;
+        margin: 20px 0;
+        padding: 16px;
+        border-radius: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
       }
-      .party-section.party-only { grid-template-columns: 1fr 1fr; }
       .party-name {
-        margin: 0 0 2px;
-        font-size: 13px;
-        font-weight: 750;
-        line-height: 1.25;
+        margin: 0 0 3px;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--ink);
       }
       .muted {
-        margin: 3px 0 0;
+        margin: 2px 0 0;
         color: var(--muted);
-        white-space: pre-line;
-        overflow-wrap: anywhere;
+        font-size: 9.5px;
       }
       .payment {
-        padding-left: 24px;
+        padding-left: 20px;
         border-left: 1px solid var(--border);
       }
-      .payment .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
-      .payment .detail-value { font-weight: 650; }
-      .empty-detail {
-        display: flex;
-        justify-content: space-between;
-        gap: 15px;
-        padding: 5px 0;
-        border-bottom: 1px solid #f0f2f5;
-        color: var(--muted);
-      }
-      .empty-detail strong { color: var(--ink); font-weight: 650; }
+      .payment .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
 
-      /* DOCUMENT-SPECIFIC BLOCK */
-      .type-block {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px 20px;
-        margin: 0 0 21px;
-        padding: 13px 14px;
-        border: 1px solid var(--border);
-        border-radius: 7px;
-        background: var(--surface);
-      }
-      .type-block-title {
-        grid-column: 1 / -1;
-        color: var(--muted);
-        font-size: 8px;
-        font-weight: 750;
-        letter-spacing: .13em;
-        text-transform: uppercase;
-      }
-      .type-block-minimal { border-radius: 0; border-right: 0; border-left: 0; background: transparent; }
-      .type-block-enterprise { border-top: 2px solid var(--primary); }
-
-      /* ITEMS */
-      .items { margin-top: 3px; }
-      table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; page-break-inside: auto; }
-      thead { display: table-header-group; }
-      tr { page-break-inside: avoid; page-break-after: auto; }
-      col.description { width: 45%; }
-      col.sku { width: 12%; }
-      col.qty { width: 8%; }
-      col.price { width: 15%; }
-      col.adjustment { width: 9%; }
-      col.amount { width: 14%; }
+      /* TABLE STYLING */
+      .items { margin-top: 24px; }
+      table { width: 100%; border-collapse: collapse; }
       th {
-        padding: 8px 8px 7px;
-        border-top: 1px solid var(--border);
-        border-bottom: 2px solid var(--primary);
+        padding: 10px 12px;
+        background: var(--surface-strong);
         color: var(--muted);
         font-size: 8px;
-        font-weight: 750;
-        letter-spacing: .09em;
+        font-weight: 700;
+        letter-spacing: 0.08em;
         text-align: left;
         text-transform: uppercase;
-        overflow-wrap: anywhere;
+        border-bottom: 1px solid var(--border);
       }
       td {
-        padding: 10px 8px;
+        padding: 12px;
         border-bottom: 1px solid var(--border);
         vertical-align: top;
-        overflow-wrap: anywhere;
-        word-break: break-word;
       }
-      th:first-child, td:first-child { padding-left: 0; }
-      th:last-child, td:last-child { padding-right: 0; }
-      .numeric { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-      .item-name { margin: 0; font-weight: 700; line-height: 1.3; }
-      .item-description { margin: 3px 0 0; color: var(--muted); font-size: 9px; line-height: 1.35; white-space: pre-line; }
-      .muted-cell { color: var(--muted); }
-      .strong { font-weight: 750; }
+      .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+      .item-name { margin: 0; font-weight: 700; font-size: 10.5px; color: var(--ink); }
+      .item-description { margin: 3px 0 0; color: var(--muted); font-size: 9px; }
 
       /* TOTALS */
       .summary-row {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 315px;
+        grid-template-columns: minmax(0, 1fr) 280px;
         gap: 32px;
         align-items: start;
-        margin-top: 17px;
+        margin-top: 20px;
       }
-      .summary-note {
-        color: var(--muted);
-        font-size: 9px;
-        line-height: 1.5;
-      }
-      .summary-note strong { color: var(--ink); }
-      .totals {
-        width: 100%;
-        margin: 0;
-        padding-top: 2px;
-        page-break-inside: avoid;
-      }
+      .totals { width: 100%; }
       .totals-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 20px;
-        align-items: baseline;
-        padding: 5px 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
         color: var(--muted);
+        font-size: 10px;
       }
-      .totals-row span:last-child { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
       .totals-row.total {
-        margin-top: 7px;
-        padding: 12px 0 0;
-        border-top: 1.5px solid var(--ink);
-        color: var(--ink);
-        font-size: 16px;
-        font-weight: 750;
-      }
-      .document--professional .totals-row.total {
+        margin-top: 8px;
         padding: 12px 14px;
-        border: 0;
         border-radius: 6px;
         background: var(--primary);
-        color: #fff;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 800;
       }
-      .document--enterprise .totals-row.total {
-        padding: 13px 14px;
-        border: 0;
-        border-radius: 6px;
-        background: var(--ink);
-        color: #fff;
-      }
-
-      /* ADDITIONAL INFORMATION */
-      .additional {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 18px 24px;
-        margin-top: 24px;
-        border-top: 1px solid var(--border);
-        padding-top: 14px;
-      }
-      .additional-heading {
-        grid-column: 1 / -1;
-        color: var(--muted);
-        font-size: 8px;
-        font-weight: 750;
-        letter-spacing: .13em;
-        text-transform: uppercase;
-      }
-      .additional-text {
-        margin: 0;
-        color: var(--ink);
-        font-size: 9px;
-        white-space: pre-line;
-        overflow-wrap: anywhere;
-      }
-      .additional-empty { grid-template-columns: 1fr; }
-      .additional-empty .additional-block { grid-column: 1; }
 
       /* FOOTER */
       .footer {
         display: flex;
         justify-content: space-between;
-        gap: 24px;
-        margin-top: 20px;
+        margin-top: 32px;
+        padding-top: 12px;
         border-top: 1px solid var(--border);
-        padding-top: 9px;
-        color: var(--muted);
+        color: var(--soft);
         font-size: 8.5px;
-        page-break-inside: avoid;
       }
-      .footer-detailed { align-items: flex-start; }
-      .footer-bar {
-        border: 0;
-        border-radius: 5px;
-        background: var(--accent);
-        padding: 9px 12px;
-        color: #fff;
-      }
-      .footer span:last-child { text-align: right; overflow-wrap: anywhere; }
 
-      @media screen and (max-width: 680px) {
-        .document { padding: 7mm; }
-        .document-header, .party-section, .summary-row { grid-template-columns: 1fr; }
-        .header-right, .payment, .payment .detail-grid { text-align: left; }
-        .payment { padding-left: 0; border-left: 0; border-top: 1px solid var(--border); padding-top: 14px; }
-        .type-block, .additional { grid-template-columns: 1fr; }
-        .type-block-title, .additional-heading { grid-column: auto; }
-        .footer { align-items: flex-start; flex-direction: column; }
-        .footer span:last-child { text-align: left; }
-      }
       @media print {
         body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .document { width: 100%; max-width: none; }
-        img, .totals, .footer, .summary-row { break-inside: avoid; }
       }
     </style>
   </head>
@@ -466,17 +338,17 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
     <main class="document document--${family}">
       <header class="${headerClass}">
         <div class="header-left">
-          ${source.business.logo ? `<img class="logo" src="${escapeHtml(source.business.logo)}" alt="${escapeHtml(source.business.name || 'Business')} logo">` : ''}
+          ${source.business.logo ? `<img class="logo" src="${escapeHtml(source.business.logo)}" alt="Logo">` : ''}
           ${source.business.name ? `<p class="business-name">${escapeHtml(source.business.name)}</p>` : ''}
           ${source.business.contactPerson ? `<p class="business-contact">${textHtml(source.business.contactPerson)}</p>` : ''}
           ${businessAddress ? `<p class="business-contact">${businessAddress}</p>` : ''}
-          ${source.business.email || source.business.phone || source.business.website ? `<p class="business-contact">${[source.business.email, source.business.phone, source.business.website].filter(Boolean).map((value) => textHtml(value)).join('<br>')}</p>` : ''}
-          ${source.business.taxId ? `<p class="business-contact">Tax ID: ${escapeHtml(source.business.taxId)}</p>` : ''}
+          ${source.business.email || source.business.phone || source.business.website ? `<p class="business-contact">${[source.business.email, source.business.phone, source.business.website].filter(Boolean).map((v) => textHtml(v)).join('<br>')}</p>` : ''}
         </div>
         <div class="header-right">
           <p class="eyebrow">${escapeHtml(documentMeta.numberLabel)}</p>
           <h1 class="document-title">${escapeHtml(documentMeta.title)}</h1>
-          ${source.details.number ? `<p class="document-number">${escapeHtml(source.details.number)}</p>` : ''}
+          ${source.details.number ? `<p class="document-number">#${escapeHtml(source.details.number)}</p>` : ''}
+          ${statusBadge}
           ${headerMeta}
         </div>
       </header>
@@ -484,7 +356,7 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
       <section class="party-section">
         <div class="party">
           <p class="eyebrow">${escapeHtml(documentMeta.billToLabel)}</p>
-          ${(source.client.name || source.client.companyName) ? `<p class="party-name">${escapeHtml(source.client.name || source.client.companyName)}</p>` : '<p class="party-name">—</p>'}
+          <p class="party-name">${escapeHtml(source.client.name || source.client.companyName || '—')}</p>
           ${source.client.companyName && source.client.name ? `<p class="muted">${escapeHtml(source.client.companyName)}</p>` : ''}
           ${clientAddress ? `<p class="muted">${clientAddress}</p>` : ''}
           ${clientContact ? `<p class="muted">${clientContact}</p>` : ''}
@@ -498,7 +370,7 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
       ${typeBlockHtml}
 
       <section class="items">
-        <table aria-label="${escapeHtml(documentMeta.itemsLabel)}">
+        <table>
           <colgroup>${itemColumns}</colgroup>
           <thead><tr>${itemHeaders}</tr></thead>
           <tbody>${itemsHtml}</tbody>
@@ -507,8 +379,8 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
 
       <section class="summary-row">
         <div class="summary-note">
-          <strong>${escapeHtml(documentMeta.description)}</strong>
-          ${source.details.status ? `<br>Status: ${escapeHtml(source.details.status)}` : ''}
+          <p class="eyebrow">Note</p>
+          <p class="muted">${escapeHtml(documentMeta.description)}</p>
         </div>
         <section class="totals">${totalsHtml}</section>
       </section>
@@ -517,7 +389,7 @@ export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string;
 
       <footer class="${footerClass}">
         <span>Thank you for your business.</span>
-        <span>${escapeHtml(presentation.footerLayout === 'Detailed' ? detailedFooter : source.business.name || source.details.number || '')}</span>
+        <span>${escapeHtml(presentation.footerLayout === 'Detailed' ? detailedFooter : source.business.name || '')}</span>
       </footer>
     </main>
   </body>
