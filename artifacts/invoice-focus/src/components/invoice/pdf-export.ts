@@ -1,268 +1,73 @@
-export interface InvoiceItem {
-  description: string
-  quantity?: number
-  rate?: number
-  amount?: number
-}
-
-export interface InvoiceData {
-  id?: string
-  invoiceNumber?: string
-  clientName?: string
-  clientEmail?: string
-  date?: string
-  dueDate?: string
-  items?: InvoiceItem[]
-  subtotal?: number
-  tax?: number
-  total?: number
-  notes?: string
-  [key: string]: any
-}
-
-export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string; fileName: string } {
-  const invoiceNum = invoice.invoiceNumber || invoice.id || 'INV-001'
-  const fileName = `Invoice_${invoiceNum}.pdf`
-
-  const itemsList = Array.isArray(invoice.items) && invoice.items.length > 0
-    ? invoice.items.map((item) => `
-        <tr>
-          <td>${item.description || 'Item'}</td>
-          <td style="text-align: center;">${item.quantity ?? 1}</td>
-          <td style="text-align: right;">$${Number(item.rate ?? item.amount ?? 0).toFixed(2)}</td>
-          <td style="text-align: right;">$${Number(item.amount ?? 0).toFixed(2)}</td>
-        </tr>
-      `).join('')
-    : `
-        <tr>
-          <td colspan="4" style="text-align: center; color: #666; padding: 16px;">No line items available</td>
-        </tr>
-      `
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="utf-8" />
-        <title>${fileName}</title>
-        <style>
-          @page {
-            size: A4;
-            margin: 15mm;
-          }
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #1e293b;
-            margin: 0;
-            padding: 24px;
-            background-color: #ffffff;
-            font-size: 14px;
-            line-height: 1.5;
-          }
-          .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 20px;
-            margin-bottom: 24px;
-          }
-          .brand {
-            font-size: 24px;
-            font-weight: 700;
-            color: #0f172a;
-          }
-          .title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #475569;
-            text-align: right;
-          }
-          .details {
-            margin-bottom: 24px;
-          }
-          .details table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-          .details td {
-            vertical-align: top;
-            padding: 4px 0;
-          }
-          .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-          }
-          .table th {
-            background-color: #f8fafc;
-            color: #475569;
-            font-weight: 600;
-            text-align: left;
-            padding: 10px 12px;
-            border-bottom: 1px solid #cbd5e1;
-          }
-          .table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e2e8f0;
-          }
-          .totals {
-            width: 280px;
-            margin-left: auto;
-            margin-bottom: 24px;
-          }
-          .totals table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-          .totals td {
-            padding: 6px 0;
-          }
-          .totals .grand-total {
-            font-weight: 700;
-            font-size: 16px;
-            border-top: 2px solid #0f172a;
-            color: #0f172a;
-          }
-          .footer {
-            margin-top: 40px;
-            padding-top: 16px;
-            border-top: 1px solid #e2e8f0;
-            font-size: 12px;
-            color: #64748b;
-            text-align: center;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div>
-            <div class="brand">InvoiceFocus</div>
-          </div>
-          <div class="title">
-            INVOICE<br />
-            <span style="font-size: 14px; font-weight: normal; color: #64748b;">#${invoiceNum}</span>
-          </div>
-        </div>
-
-        <div class="details">
-          <table>
-            <tr>
-              <td style="width: 50%;">
-                <strong>Billed To:</strong><br />
-                ${invoice.clientName ? invoice.clientName : 'Client Name'}<br />
-                ${invoice.clientEmail ? invoice.clientEmail : ''}
-              </td>
-              <td style="width: 50%; text-align: right;">
-                <strong>Invoice Date:</strong> ${invoice.date || new Date().toLocaleDateString()}<br />
-                ${invoice.dueDate ? `<strong>Due Date:</strong> ${invoice.dueDate}` : ''}
-              </td>
-            </tr>
-          </table>
-        </div>
-
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th style="text-align: center;">Qty</th>
-              <th style="text-align: right;">Rate</th>
-              <th style="text-align: right;">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsList}
-          </tbody>
-        </table>
-
-        <div class="totals">
-          <table>
-            ${invoice.subtotal !== undefined ? `
-              <tr>
-                <td>Subtotal:</td>
-                <td style="text-align: right;">$${Number(invoice.subtotal).toFixed(2)}</td>
-              </tr>
-            ` : ''}
-            ${invoice.tax !== undefined ? `
-              <tr>
-                <td>Tax:</td>
-                <td style="text-align: right;">$${Number(invoice.tax).toFixed(2)}</td>
-              </tr>
-            ` : ''}
-            <tr class="grand-total">
-              <td>Total:</td>
-              <td style="text-align: right;">$${Number(invoice.total ?? 0).toFixed(2)}</td>
-            </tr>
-          </table>
-        </div>
-
-        ${invoice.notes ? `
-          <div style="margin-top: 20px; font-size: 13px; color: #475569;">
-            <strong>Notes:</strong><br />
-            ${invoice.notes}
-          </div>
-        ` : ''}
-
-        <div class="footer">
-          Thank you for your business! — Generated via InvoiceFocus
-        </div>
-      </body>
-    </html>
-  `
-  return { html, fileName }
-}
-
-export function printInvoice(invoice: InvoiceData): boolean {
-  try {
-    const { html } = buildPrintableInvoiceHTML(invoice)
-
-    const iframe = document.createElement('iframe')
-    iframe.style.position = 'fixed'
-    iframe.style.right = '0'
-    iframe.style.bottom = '0'
-    iframe.style.width = '0'
-    iframe.style.height = '0'
-    iframe.style.border = '0'
-
-    document.body.appendChild(iframe)
-
-    const iframeDoc = iframe.contentWindow?.document
-    if (!iframeDoc) return false
-
-    iframeDoc.open()
-    iframeDoc.write(html)
-    iframeDoc.close()
-
-    const triggerPrint = () => {
-      try {
-        iframe.contentWindow?.focus()
-        iframe.contentWindow?.print()
-      } catch (e) {
-        console.error('Print execution failed:', e)
-      } finally {
-        setTimeout(() => {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe)
-          }
-        }, 1000)
-      }
-    }
-
-    if (iframeDoc.readyState === 'complete') {
-      setTimeout(triggerPrint, 300)
-    } else {
-      iframe.onload = () => setTimeout(triggerPrint, 300)
-    }
-
-    return true
-  } catch (error) {
-    console.error('Error printing invoice:', error)
-    return false
+declare global {
+  interface Window {
+    html2pdf: any
   }
 }
 
-export function downloadPDF(invoice: InvoiceData): void {
-  const { html, fileName } = buildPrintableInvoiceHTML(invoice)
+/**
+ * Dynamically loads html2pdf.js from CDN if not already loaded
+ */
+function loadHtml2PdfScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (window.html2pdf) {
+      resolve()
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+    script.async = true
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Failed to load html2pdf script'))
+    document.head.appendChild(script)
+  })
+}
+
+/**
+ * Downloads the invoice element directly as a PDF file
+ */
+export async function downloadPDFFromElement(
+  elementId: string = 'invoice-preview',
+  fileName: string = 'Invoice.pdf'
+): Promise<void> {
+  const element = document.getElementById(elementId)
+
+  if (!element) {
+    console.error(`Target element #${elementId} not found.`)
+    return
+  }
+
+  try {
+    // Load CDN script dynamically on demand
+    await loadHtml2PdfScript()
+
+    const cleanFileName = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`
+
+    const options = {
+      margin: [10, 10, 10, 10],
+      filename: cleanFileName,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    }
+
+    window.html2pdf().set(options).from(element).save()
+  } catch (error) {
+    console.error('PDF generation error:', error)
+  }
+}
+
+/**
+ * Triggers clean iframe printing for physical printers
+ */
+export function printInvoiceElement(elementId: string = 'invoice-preview'): void {
+  const element = document.getElementById(elementId)
+  if (!element) return
 
   const iframe = document.createElement('iframe')
   iframe.style.position = 'fixed'
@@ -271,40 +76,36 @@ export function downloadPDF(invoice: InvoiceData): void {
   iframe.style.width = '0'
   iframe.style.height = '0'
   iframe.style.border = '0'
-
   document.body.appendChild(iframe)
 
   const iframeDoc = iframe.contentWindow?.document
-  if (!iframeDoc) {
-    throw new Error('Unable to open print preview.')
-  }
+  if (!iframeDoc) return
+
+  const styleTags = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+    .map((node) => node.outerHTML)
+    .join('\n')
 
   iframeDoc.open()
-  iframeDoc.write(html)
+  iframeDoc.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        ${styleTags}
+      </head>
+      <body style="background: #ffffff; padding: 20px;">
+        ${element.outerHTML}
+      </body>
+    </html>
+  `)
   iframeDoc.close()
 
-  const cleanFileName = fileName.replace(/\.pdf$/i, '')
-  iframeDoc.title = cleanFileName
-
-  const triggerPrint = () => {
-    try {
-      iframeDoc.title = cleanFileName
-      iframe.contentWindow?.focus()
-      iframe.contentWindow?.print()
-    } catch (e) {
-      console.error('PDF preview execution failed:', e)
-    } finally {
-      setTimeout(() => {
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe)
-        }
-      }, 1000)
-    }
-  }
-
-  if (iframeDoc.readyState === 'complete') {
-    setTimeout(triggerPrint, 300)
-  } else {
-    iframe.onload = () => setTimeout(triggerPrint, 300)
-  }
+  setTimeout(() => {
+    iframe.contentWindow?.focus()
+    iframe.contentWindow?.print()
+    setTimeout(() => {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe)
+      }
+    }, 1000)
+  }, 400)
 }
