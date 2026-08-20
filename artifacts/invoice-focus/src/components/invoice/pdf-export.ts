@@ -1,56 +1,10 @@
-// Replace this interface with your actual InvoiceData type if imported elsewhere
-export interface InvoiceData {
-  id?: string
-  invoiceNumber?: string
-  clientName?: string
-  date?: string
-  items?: Array<{ description: string; amount: number }>
-  total?: number
-  [key: string]: any
-}
+import { buildPrintableInvoiceHTML, InvoiceData } from './invoice-template'
 
-// 1. Helper function that was causing the ReferenceError
-export function buildPrintableInvoiceHTML(invoice: InvoiceData): { html: string; fileName: string } {
-  const fileName = `Invoice_${invoice.invoiceNumber || invoice.id || 'document'}.pdf`
-  
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <title>${fileName}</title>
-        <style>
-          body {
-            font-family: system-ui, -apple-system, sans-serif;
-            padding: 20px;
-            color: #333;
-          }
-          h1 { color: #111; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f4f4f4; }
-        </style>
-      </head>
-      <body>
-        <h1>Invoice ${invoice.invoiceNumber || invoice.id || ''}</h1>
-        <p><strong>Client:</strong> ${invoice.clientName || 'N/A'}</p>
-        <p><strong>Date:</strong> ${invoice.date || new Date().toLocaleDateString()}</p>
-        <hr />
-        <div>
-          <!-- Add your styled invoice HTML structure here if you have custom templates -->
-          <p><strong>Total Amount:</strong> $${invoice.total ?? '0.00'}</p>
-        </div>
-      </body>
-    </html>
-  `
-  return { html, fileName }
-}
-
-// 2. Safe Print Function
 export function printInvoice(invoice: InvoiceData): boolean {
   try {
     const { html } = buildPrintableInvoiceHTML(invoice)
 
+    // 1. Create hidden iframe to bypass popup blockers
     const iframe = document.createElement('iframe')
     iframe.style.position = 'fixed'
     iframe.style.right = '0'
@@ -64,10 +18,12 @@ export function printInvoice(invoice: InvoiceData): boolean {
     const iframeDoc = iframe.contentWindow?.document
     if (!iframeDoc) return false
 
+    // 2. Write invoice template into frame
     iframeDoc.open()
     iframeDoc.write(html)
     iframeDoc.close()
 
+    // 3. Trigger print once ready and cleanup
     const triggerPrint = () => {
       try {
         iframe.contentWindow?.focus()
@@ -96,7 +52,6 @@ export function printInvoice(invoice: InvoiceData): boolean {
   }
 }
 
-// 3. Safe PDF Download / Print Preview Function
 export function downloadPDF(invoice: InvoiceData): void {
   const { html, fileName } = buildPrintableInvoiceHTML(invoice)
 
