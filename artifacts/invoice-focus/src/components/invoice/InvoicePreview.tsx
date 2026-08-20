@@ -90,6 +90,7 @@ export const InvoicePreview = memo(function InvoicePreview({
 
   return (
     <div
+      id="invoice-preview"
       className={`invoice-preview-container relative overflow-hidden ${frameClass} ${surfaceClass} text-foreground print:rounded-none print:border-0 print:shadow-none`}
       data-invoice-template={presentation.template}
       data-document-type={model.documentType}
