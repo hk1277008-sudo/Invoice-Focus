@@ -1,69 +1,97 @@
 export function printInvoice(invoice: InvoiceData): boolean {
-  const { html } = buildPrintableInvoiceHTML(invoice)
+  try {
+    const { html } = buildPrintableInvoiceHTML(invoice)
 
-  const printWindow = window.open('', '_blank')
+    // 1. Create a hidden iframe
+    const iframe = document.createElement('iframe')
+    iframe.style.position = 'fixed'
+    iframe.style.right = '0'
+    iframe.style.bottom = '0'
+    iframe.style.width = '0'
+    iframe.style.height = '0'
+    iframe.style.border = '0'
 
-  if (!printWindow) {
+    document.body.appendChild(iframe)
+
+    const iframeDoc = iframe.contentWindow?.document
+    if (!iframeDoc) return false
+
+    // 2. Write HTML into the iframe
+    iframeDoc.open()
+    iframeDoc.write(html)
+    iframeDoc.close()
+
+    // 3. Trigger print once assets load, then cleanup
+    const triggerPrint = () => {
+      try {
+        iframe.contentWindow?.focus()
+        iframe.contentWindow?.print()
+      } catch (e) {
+        console.error('Print failed:', e)
+      } finally {
+        // Remove iframe after print dialog finishes
+        setTimeout(() => {
+          document.body.removeChild(iframe)
+        }, 1000)
+      }
+    }
+
+    if (iframeDoc.readyState === 'complete') {
+      setTimeout(triggerPrint, 300)
+    } else {
+      iframe.onload = () => setTimeout(triggerPrint, 300)
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error printing invoice:', error)
     return false
   }
-
-  printWindow.document.open()
-  printWindow.document.write(html)
-  printWindow.document.close()
-
-  const triggerPrint = () => {
-    try {
-      printWindow.focus()
-      printWindow.print()
-    } catch (e) {
-      console.error('Printing failed:', e)
-    }
-  }
-
-  if (printWindow.document.readyState === 'complete') {
-    window.setTimeout(triggerPrint, 250)
-  } else {
-    printWindow.onload = () => {
-      window.setTimeout(triggerPrint, 250)
-    }
-  }
-
-  return true
 }
 
 export function downloadPDF(invoice: InvoiceData): void {
+  // Uses the same hidden iframe flow, setting document title for default save name
   const { html, fileName } = buildPrintableInvoiceHTML(invoice)
 
-  const printWindow = window.open('', '_blank')
+  const iframe = document.createElement('iframe')
+  iframe.style.position = 'fixed'
+  iframe.style.right = '0'
+  iframe.style.bottom = '0'
+  iframe.style.width = '0'
+  iframe.style.height = '0'
+  iframe.style.border = '0'
 
-  if (!printWindow) {
-    throw new Error(
-      'Unable to open the PDF preview. Please allow pop-ups for InvoiceFocus and try again.',
-    )
+  document.body.appendChild(iframe)
+
+  const iframeDoc = iframe.contentWindow?.document
+  if (!iframeDoc) {
+    throw new Error('Could not access print frame.')
   }
 
-  printWindow.document.open()
-  printWindow.document.write(html)
-  printWindow.document.close()
+  iframeDoc.open()
+  iframeDoc.write(html)
+  iframeDoc.close()
 
   const cleanFileName = fileName.replace(/\.pdf$/i, '')
-  printWindow.document.title = cleanFileName
+  iframeDoc.title = cleanFileName
 
   const triggerPrint = () => {
-    printWindow.document.title = cleanFileName
     try {
-      printWindow.focus()
-      printWindow.print()
+      iframeDoc.title = cleanFileName
+      iframe.contentWindow?.focus()
+      iframe.contentWindow?.print()
     } catch (e) {
       console.error('PDF preview failed:', e)
+    } finally {
+      setTimeout(() => {
+        document.body.removeChild(iframe)
+      }, 1000)
     }
   }
 
-  if (printWindow.document.readyState === 'complete') {
-    window.setTimeout(triggerPrint, 250)
+  if (iframeDoc.readyState === 'complete') {
+    setTimeout(triggerPrint, 300)
   } else {
-    printWindow.onload = () => {
-      window.setTimeout(triggerPrint, 250)
-    }
+    iframe.onload = () => setTimeout(triggerPrint, 300)
   }
 }
