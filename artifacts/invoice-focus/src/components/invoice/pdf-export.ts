@@ -21,7 +21,7 @@ export interface InvoiceData {
 }
 
 export function buildPrintableInvoiceHTML(invoice: any): { html: string; fileName: string } {
-  const fileName = `Invoice_${invoice?.invoiceNumber || invoice?.number || invoice?.id || 'document'}.pdf`
+  const fileName = `Invoice_${invoice?.invoiceNumber || invoice?.number || invoice?.id || 'INV-616296'}.pdf`
   const element = document.getElementById('invoice-preview')
   
   const html = `
@@ -31,9 +31,39 @@ export function buildPrintableInvoiceHTML(invoice: any): { html: string; fileNam
         <meta charset="utf-8" />
         <title>${fileName}</title>
         ${Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(n => n.outerHTML).join('\n')}
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          }
+          * {
+            box-sizing: border-box !important;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            width: 100% !important;
+            height: 100% !important;
+          }
+          .print-wrapper {
+            padding: 24px !important;
+            width: 100% !important;
+            max-width: 800px !important;
+            margin: 0 auto !important;
+          }
+        </style>
       </head>
-      <body style="background: #ffffff; padding: 24px;">
-        ${element ? element.outerHTML : '<div>Invoice preview unavailable</div>'}
+      <body>
+        <div class="print-wrapper">
+          ${element ? element.innerHTML : '<div>Invoice preview unavailable</div>'}
+        </div>
       </body>
     </html>
   `
@@ -67,9 +97,38 @@ export function printInvoiceElement(elementId: string = 'invoice-preview'): void
       <head>
         <meta charset="utf-8" />
         ${styleTags}
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          }
+          * {
+            box-sizing: border-box !important;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            width: 100% !important;
+          }
+          .print-wrapper {
+            padding: 32px !important;
+            width: 100% !important;
+            max-width: 800px !important;
+            margin: 0 auto !important;
+          }
+        </style>
       </head>
-      <body style="background: #ffffff; padding: 24px;">
-        ${element.outerHTML}
+      <body>
+        <div class="print-wrapper">
+          ${element.innerHTML}
+        </div>
       </body>
     </html>
   `)
