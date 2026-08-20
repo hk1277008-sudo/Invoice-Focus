@@ -2,7 +2,6 @@ export function printInvoice(invoice: InvoiceData): boolean {
   try {
     const { html } = buildPrintableInvoiceHTML(invoice)
 
-    // 1. Create a hidden iframe
     const iframe = document.createElement('iframe')
     iframe.style.position = 'fixed'
     iframe.style.right = '0'
@@ -16,12 +15,10 @@ export function printInvoice(invoice: InvoiceData): boolean {
     const iframeDoc = iframe.contentWindow?.document
     if (!iframeDoc) return false
 
-    // 2. Write HTML into the iframe
     iframeDoc.open()
     iframeDoc.write(html)
     iframeDoc.close()
 
-    // 3. Trigger print once assets load, then cleanup
     const triggerPrint = () => {
       try {
         iframe.contentWindow?.focus()
@@ -29,9 +26,10 @@ export function printInvoice(invoice: InvoiceData): boolean {
       } catch (e) {
         console.error('Print failed:', e)
       } finally {
-        // Remove iframe after print dialog finishes
         setTimeout(() => {
-          document.body.removeChild(iframe)
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe)
+          }
         }, 1000)
       }
     }
@@ -50,7 +48,6 @@ export function printInvoice(invoice: InvoiceData): boolean {
 }
 
 export function downloadPDF(invoice: InvoiceData): void {
-  // Uses the same hidden iframe flow, setting document title for default save name
   const { html, fileName } = buildPrintableInvoiceHTML(invoice)
 
   const iframe = document.createElement('iframe')
@@ -65,7 +62,7 @@ export function downloadPDF(invoice: InvoiceData): void {
 
   const iframeDoc = iframe.contentWindow?.document
   if (!iframeDoc) {
-    throw new Error('Could not access print frame.')
+    throw new Error('Unable to open print preview. Please try again.')
   }
 
   iframeDoc.open()
@@ -84,7 +81,9 @@ export function downloadPDF(invoice: InvoiceData): void {
       console.error('PDF preview failed:', e)
     } finally {
       setTimeout(() => {
-        document.body.removeChild(iframe)
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe)
+        }
       }, 1000)
     }
   }
