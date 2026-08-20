@@ -1,7 +1,6 @@
 export function printInvoice(invoice: InvoiceData): boolean {
   const { html } = buildPrintableInvoiceHTML(invoice)
 
-  // Open window synchronously to bypass pop-up blockers
   const printWindow = window.open('', '_blank')
 
   if (!printWindow) {
@@ -12,7 +11,6 @@ export function printInvoice(invoice: InvoiceData): boolean {
   printWindow.document.write(html)
   printWindow.document.close()
 
-  // Fallback handler for readyState checking (bypasses broken onload events)
   const triggerPrint = () => {
     try {
       printWindow.focus()
