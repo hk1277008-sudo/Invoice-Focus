@@ -1,6 +1,7 @@
 export function printInvoice(invoice: InvoiceData): boolean {
   const { html } = buildPrintableInvoiceHTML(invoice)
 
+  // Open window synchronously to bypass pop-up blockers
   const printWindow = window.open('', '_blank')
 
   if (!printWindow) {
@@ -11,11 +12,22 @@ export function printInvoice(invoice: InvoiceData): boolean {
   printWindow.document.write(html)
   printWindow.document.close()
 
-  printWindow.onload = () => {
-    window.setTimeout(() => {
+  // Fallback handler for readyState checking (bypasses broken onload events)
+  const triggerPrint = () => {
+    try {
       printWindow.focus()
       printWindow.print()
-    }, 150)
+    } catch (e) {
+      console.error('Printing failed:', e)
+    }
+  }
+
+  if (printWindow.document.readyState === 'complete') {
+    window.setTimeout(triggerPrint, 250)
+  } else {
+    printWindow.onload = () => {
+      window.setTimeout(triggerPrint, 250)
+    }
   }
 
   return true
@@ -36,12 +48,24 @@ export function downloadPDF(invoice: InvoiceData): void {
   printWindow.document.write(html)
   printWindow.document.close()
 
-  printWindow.onload = () => {
-    printWindow.document.title = fileName.replace(/\.pdf$/i, '')
+  const cleanFileName = fileName.replace(/\.pdf$/i, '')
+  printWindow.document.title = cleanFileName
 
-    window.setTimeout(() => {
+  const triggerPrint = () => {
+    printWindow.document.title = cleanFileName
+    try {
       printWindow.focus()
       printWindow.print()
-    }, 150)
+    } catch (e) {
+      console.error('PDF preview failed:', e)
+    }
+  }
+
+  if (printWindow.document.readyState === 'complete') {
+    window.setTimeout(triggerPrint, 250)
+  } else {
+    printWindow.onload = () => {
+      window.setTimeout(triggerPrint, 250)
+    }
   }
 }
