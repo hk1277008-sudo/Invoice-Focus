@@ -1,13 +1,48 @@
-/**
- * Triggers physical printing or native 'Save as PDF' via an isolated iframe.
- * Uses current DOM element styling to preserve exact visual layouts.
- */
+export interface InvoiceItem {
+  description: string
+  quantity?: number
+  rate?: number
+  amount?: number
+}
+
+export interface InvoiceData {
+  id?: string
+  invoiceNumber?: string
+  clientName?: string
+  clientEmail?: string
+  date?: string
+  dueDate?: string
+  items?: InvoiceItem[]
+  subtotal?: number
+  tax?: number
+  total?: number
+  notes?: string
+  [key: string]: any
+}
+
+export function buildPrintableInvoiceHTML(invoice: any): { html: string; fileName: string } {
+  const fileName = `Invoice_${invoice?.invoiceNumber || invoice?.number || invoice?.id || 'document'}.pdf`
+  const element = document.getElementById('invoice-preview')
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>${fileName}</title>
+        ${Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(n => n.outerHTML).join('\n')}
+      </head>
+      <body style="background: #ffffff; padding: 24px;">
+        ${element ? element.outerHTML : '<div>Invoice preview unavailable</div>'}
+      </body>
+    </html>
+  `
+  return { html, fileName }
+}
+
 export function printInvoiceElement(elementId: string = 'invoice-preview'): void {
   const element = document.getElementById(elementId)
-  if (!element) {
-    console.error(`Target element #${elementId} not found.`)
-    return
-  }
+  if (!element) return
 
   const iframe = document.createElement('iframe')
   iframe.style.position = 'fixed'
@@ -21,7 +56,6 @@ export function printInvoiceElement(elementId: string = 'invoice-preview'): void
   const iframeDoc = iframe.contentWindow?.document
   if (!iframeDoc) return
 
-  // Collect active Tailwind / CSS styles from document head
   const styleTags = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
     .map((node) => node.outerHTML)
     .join('\n')
@@ -29,10 +63,9 @@ export function printInvoiceElement(elementId: string = 'invoice-preview'): void
   iframeDoc.open()
   iframeDoc.write(`
     <!DOCTYPE html>
-    <html lang="en">
+    <html>
       <head>
         <meta charset="utf-8" />
-        <title>Invoice</title>
         ${styleTags}
       </head>
       <body style="background: #ffffff; padding: 24px;">
@@ -47,7 +80,7 @@ export function printInvoiceElement(elementId: string = 'invoice-preview'): void
       iframe.contentWindow?.focus()
       iframe.contentWindow?.print()
     } catch (e) {
-      console.error('Printing failed:', e)
+      console.error('Print failed:', e)
     } finally {
       setTimeout(() => {
         if (document.body.contains(iframe)) {
@@ -58,12 +91,15 @@ export function printInvoiceElement(elementId: string = 'invoice-preview'): void
   }, 400)
 }
 
-/**
- * Fallback alias for download button compatibility
- */
-export function downloadPDFFromElement(
-  elementId: string = 'invoice-preview',
-  _fileName: string = 'Invoice.pdf'
-): void {
+export function printInvoice(invoice?: any): boolean {
+  printInvoiceElement('invoice-preview')
+  return true
+}
+
+export function downloadPDF(invoice?: any): void {
+  printInvoiceElement('invoice-preview')
+}
+
+export function downloadPDFFromElement(elementId: string = 'invoice-preview', fileName: string = 'Invoice.pdf'): void {
   printInvoiceElement(elementId)
 }
