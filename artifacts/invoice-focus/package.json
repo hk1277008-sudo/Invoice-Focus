@@ -77,7 +77,6 @@
     "zod": "catalog:"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.110.8",
-    "html2pdf.js": "^0.10.1"
+    "@supabase/supabase-js": "^2.110.8"
   }
 }
